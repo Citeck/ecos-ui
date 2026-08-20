@@ -1,6 +1,6 @@
 import Records from '@citeck/records-core';
 
-import { KanbanApi } from './kanban';
+import { KanbanApi, MAX_SWIMLANE_GROUPS } from './kanban';
 
 const { SourcesId } = jest.requireActual('@citeck/constants');
 
@@ -124,5 +124,63 @@ describe('KanbanApi board-cards integration', () => {
       workspace: ''
     });
     expect(save).toHaveBeenCalled();
+  });
+
+  it('getDistinctValues requests a bounded page of groups and drops empty predicates', async () => {
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
+    const predicate = { t: 'eq', att: '_status', val: 'open' };
+    query.mockResolvedValueOnce({ records: [{ id: 'high', label: 'High' }], totalCount: 1 });
+
+    const records = await api.getDistinctValues({ sourceId: 'src', attribute: 'priority', predicates: [predicate, null], workspaces: ['w'] });
+
+    expect(Records.query).toHaveBeenCalledWith(
+      {
+        sourceId: 'src',
+        query: { t: 'and', v: [predicate] },
+        language: 'predicate',
+        workspaces: ['w'],
+        groupBy: ['priority'],
+        // an explicit page, not a silent post-hoc cut — the cut made column badges under-count
+        page: { skipCount: 0, maxItems: MAX_SWIMLANE_GROUPS }
+      },
+      { id: 'priority?str', label: 'priority?disp' }
+    );
+    expect(records).toEqual([{ id: 'high', label: 'High' }]);
+  });
+
+  it('getDistinctValues warns when the server has more groups than the page', async () => {
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    query.mockResolvedValueOnce({ records: [{ id: 'a' }, { id: 'b' }], totalCount: 5 });
+
+    const records = await api.getDistinctValues({ sourceId: 'src', attribute: 'assignee', predicates: [], workspaces: ['w'] });
+
+    expect(records).toHaveLength(2);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('assignee');
+    warn.mockRestore();
+  });
+
+  it('getDistinctValues trusts the hasMore flag even when totalCount is not ahead', async () => {
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    // groupBy queries disable total counting on the backend — hasMore is the authoritative flag
+    query.mockResolvedValueOnce({ records: [{ id: 'a' }], totalCount: 1, hasMore: true });
+
+    await api.getDistinctValues({ sourceId: 'src', attribute: 'priority', predicates: [], workspaces: ['w'] });
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
+  it('getDistinctValues stays quiet when every group fits the page', async () => {
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    query.mockResolvedValueOnce({ records: [{ id: 'a' }], totalCount: 1 });
+
+    await api.getDistinctValues({ sourceId: 'src', attribute: 'priority', predicates: [], workspaces: ['w'] });
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });

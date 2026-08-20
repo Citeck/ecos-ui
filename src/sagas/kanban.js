@@ -70,6 +70,23 @@ import { getGridParams, getJournalConfig, getJournalSettingFully } from './journ
 import AuthorityService from '@/services/authrority/AuthorityService';
 import { NotificationManager } from '@/services/notifications';
 
+// How many swimlane rows load concurrently (one board-cards request per row).
+export const SWIMLANE_ROWS_CHUNK = 20;
+
+// The window a cell (re)load must request: everything the user has already expanded with
+// "show more". records.length covers cards inserted without a pagination update (DnD);
+// pagination.maxItems covers a stored window wider than what is currently loaded.
+function swimlaneCellWindow(cell) {
+  return Math.max(get(cell, 'records.length', 0), get(cell, 'pagination.maxItems') || 0, DEFAULT_PAGINATION.maxItems);
+}
+
+// The badge must never show fewer cards than the cell visibly holds: board-cards may omit
+// totalCount for a column or report it lower than the returned page (same guard as the flat path).
+function cellTotalCount(entry, records) {
+  const serverTotalCount = typeof get(entry, 'totalCount') === 'number' ? entry.totalCount : 0;
+  return Math.max(serverTotalCount, records.length);
+}
+
 function buildCardAttrMap(formProps, boardConfig) {
   const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(get(formProps, 'formFields', []));
   const attrMap = { ...attributes, ...KanbanConverter.getCardAttributes() };
@@ -301,10 +318,22 @@ export function* sagaGetBoardData({ api }, { payload }) {
     const pagination = DEFAULT_PAGINATION;
 
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData(
-      { api },
-      { payload: { stateId, boardConfig, attrsToLoad, onlyLinked, journalSetting, journalConfig, formProps, pagination, recordRefs } }
-    );
+
+    // Grouping survives a board/preset switch, so the board data must be (re)loaded through the
+    // swimlane path here too — same branch as sagaApplyFilter/sagaApplyPreset/sagaReloadBoardData.
+    // Otherwise only the flat dataCards were refreshed while the rendered swimlanes kept the numbers
+    // of the PREVIOUS board (the reducer clears them, so without this branch the rows stay empty).
+    const swimlaneGrouping = yield select(selectSwimlaneGrouping, stateId);
+
+    if (swimlaneGrouping && swimlaneGrouping.attribute) {
+      yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
+    } else {
+      yield sagaGetData(
+        { api },
+        { payload: { stateId, boardConfig, attrsToLoad, onlyLinked, journalSetting, journalConfig, formProps, pagination, recordRefs } }
+      );
+    }
+
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
 
     if (isDefaultBoardAndTemplate && (!isNil(boardId) || !isNil(templateId))) {
@@ -694,8 +723,8 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
   yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
 }
 
-function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cells }) {
-  const { formProps } = yield select(selectKanban, stateId);
+export function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cells }) {
+  const { formProps, swimlanes = [] } = yield select(selectKanban, stateId);
   const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
 
@@ -724,20 +753,23 @@ function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cel
       // per-column below.
       const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
 
-      const pagination = get(queryParams, 'params.pagination', DEFAULT_PAGINATION);
-      const maxItems = get(pagination, 'maxItems', DEFAULT_PAGINATION.maxItems);
+      // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
+      // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
+      const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
       const columnsArg = statusIds.map(statusId => ({
         id: statusId,
         skipCount: 0,
-        maxItems,
+        maxItems: swimlaneCellWindow(get(swimlane, ['cells', statusId])),
         additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
       }));
+      const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
+      const windowByStatus = new Map(columnsArg.map(col => [col.id, col.maxItems]));
 
       const boardCards = yield call(api.kanban.getBoardCards, {
         boardRef: boardConfig.id,
         columns: columnsArg,
         filter,
-        maxItemsPerColumn: maxItems,
+        maxItemsPerColumn,
         grouping: swimlaneGrouping.attribute,
         attributes: queryParams.attrMap
       });
@@ -748,7 +780,16 @@ function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cel
         statusIds.map(function* (statusId) {
           const entry = byColumn.get(statusId);
           const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
-          yield put(setSwimlaneCellData({ stateId, swimlaneId, statusId, records, totalCount: get(entry, 'totalCount', 0) || 0 }));
+          yield put(
+            setSwimlaneCellData({
+              stateId,
+              swimlaneId,
+              statusId,
+              records,
+              totalCount: cellTotalCount(entry, records),
+              pagination: { skipCount: 0, maxItems: windowByStatus.get(statusId) }
+            })
+          );
         })
       );
     })
@@ -1046,7 +1087,16 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
 
     yield put(setSwimlaneValues({ stateId, swimlanes }));
 
-    yield all(swimlanes.map(sl => call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId: sl.id } })));
+    // Each row costs one board-cards request. With the group list bounded by MAX_SWIMLANE_GROUPS
+    // (up to 500), an unchunked all() would fire that many concurrent requests on a
+    // high-cardinality grouping — load the rows in bounded batches instead.
+    for (let i = 0; i < swimlanes.length; i += SWIMLANE_ROWS_CHUNK) {
+      yield all(
+        swimlanes
+          .slice(i, i + SWIMLANE_ROWS_CHUNK)
+          .map(sl => call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId: sl.id } }))
+      );
+    }
 
     // Load actions for all swimlane records
     const updatedState = yield select(selectKanban, stateId);
@@ -1088,23 +1138,25 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
     // per-column below — only AND the row + search filter here.
     const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
 
-    // ONE call for the whole row: all columns, each with its cell's skipCount.
-    const columnsArg = columns.map(column => {
-      const cellPagination = get(swimlane, ['cells', column.id, 'pagination'], DEFAULT_PAGINATION);
-      return {
-        id: column.id,
-        skipCount: get(cellPagination, 'skipCount', 0),
-        maxItems: get(cellPagination, 'maxItems', DEFAULT_PAGINATION.maxItems),
-        additionalFilter: KanbanConverter.getAdditionalFilter(column)
-      };
-    });
+    // ONE call for the whole row: all columns, each reloading the WHOLE window it currently shows.
+    // Always from skipCount 0 — setSwimlaneCellData replaces the cell's records, so requesting the
+    // "next" page here would throw away everything the user had already expanded with "show more"
+    // (same rule as the flat reloadColumns).
+    const columnsArg = columns.map(column => ({
+      id: column.id,
+      skipCount: 0,
+      maxItems: swimlaneCellWindow(get(swimlane, ['cells', column.id])),
+      additionalFilter: KanbanConverter.getAdditionalFilter(column)
+    }));
+
+    const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
 
     try {
       const boardCards = yield call(api.kanban.getBoardCards, {
         boardRef: boardConfig.id,
         columns: columnsArg,
         filter,
-        maxItemsPerColumn: DEFAULT_PAGINATION.maxItems,
+        maxItemsPerColumn,
         grouping: swimlaneGrouping.attribute,
         attributes: queryParams.attrMap
       });
@@ -1112,34 +1164,41 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
       const byColumn = new Map((boardCards || []).map(entry => [entry.columnId, entry]));
 
       yield all(
-        columns.map(function* (column) {
+        columns.map(function* (column, i) {
           const entry = byColumn.get(column.id);
           const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
+          const windowSize = get(columnsArg, [i, 'maxItems'], DEFAULT_PAGINATION.maxItems);
           yield put(
             setSwimlaneCellData({
               stateId,
               swimlaneId,
               statusId: column.id,
               records,
-              totalCount: get(entry, 'totalCount', 0) || 0
+              totalCount: cellTotalCount(entry, records),
+              pagination: { skipCount: 0, maxItems: windowSize }
             })
           );
         })
       );
     } catch (e) {
+      // Keep whatever the row already showed: zeroing every cell of the row turned a single failed
+      // request into "the whole row is empty" and silently shrank the column badges.
       yield all(
-        columns.map(column =>
-          put(
+        columns.map(column => {
+          const prevCell = get(swimlane, ['cells', column.id]) || {};
+
+          return put(
             setSwimlaneCellData({
               stateId,
               swimlaneId,
               statusId: column.id,
-              records: [],
-              totalCount: 0,
+              records: prevCell.records || [],
+              totalCount: typeof prevCell.totalCount === 'number' ? prevCell.totalCount : 0,
+              pagination: prevCell.pagination,
               error: e.message
             })
-          )
-        )
+          );
+        })
       );
       console.error('[kanban/sagaLoadSwimlaneCells saga] row error', e);
     }
@@ -1193,10 +1252,10 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       journalSetting
     });
 
+    const prevPagination = cell.pagination || DEFAULT_PAGINATION;
     const newPagination = {
       skipCount: cell.records.length,
-      maxItems: DEFAULT_PAGINATION.maxItems,
-      page: cell.pagination.page + 1
+      maxItems: DEFAULT_PAGINATION.maxItems
     };
 
     // board-cards applies per-column `_status` itself; the column's own `additionalFilter` is sent below.
@@ -1232,11 +1291,13 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     newRecords.forEach(r => r && mergedMap.set(r.id, r));
     const allRecords = [...mergedMap.values()];
 
-    // End-of-data detection: if the server returned fewer records than asked for,
-    // or nothing new after dedup, cap totalCount to what we actually loaded — otherwise
-    // a stale/growing server totalCount keeps "Show more" visible and inflates counters.
+    // End-of-data detection: cap totalCount ONLY when the fetch made literally no progress — the
+    // server returned nothing, or only records the cell already holds (skipCount = records.length
+    // would never advance, leaving "show more" clickable forever). A short page is not the end — it
+    // may just be the last partial page, and capping on it shrank the column badge right after
+    // "show more" (the very bug COREDEV-82 fixed for the flat path in sagaGetData).
     const returnedCount = (res.records || []).length;
-    const reachedEnd = returnedCount < newPagination.maxItems || allRecords.length === loadedCount;
+    const reachedEnd = returnedCount === 0 || allRecords.length === loadedCount;
     const serverTotalCount = typeof res.totalCount === 'number' ? res.totalCount : cell.totalCount;
     const nextTotalCount = reachedEnd ? allRecords.length : Math.max(serverTotalCount || 0, allRecords.length);
 
@@ -1246,7 +1307,9 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
         swimlaneId,
         statusId,
         records: allRecords,
-        totalCount: nextTotalCount
+        totalCount: nextTotalCount,
+        // Remember the expanded window so a row reload restores all of it instead of the first page.
+        pagination: { skipCount: 0, maxItems: Math.max(allRecords.length, prevPagination.maxItems || DEFAULT_PAGINATION.maxItems) }
       })
     );
   } catch (e) {
@@ -1300,24 +1363,27 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
       insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newFromRecords.length));
       newFromRecords.splice(insertAt, 0, card);
       toRecords = newFromRecords;
-      yield put(
-        setSwimlaneCellData({ stateId, swimlaneId, statusId: fromStatusId, records: newFromRecords, totalCount: fromCell.totalCount })
-      );
     } else {
-      yield put(
-        setSwimlaneCellData({ stateId, swimlaneId, statusId: fromStatusId, records: newFromRecords, totalCount: fromCell.totalCount - 1 })
-      );
       const newToRecords = [...(toCell ? toCell.records : [])];
       insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newToRecords.length));
       newToRecords.splice(insertAt, 0, card);
       toRecords = newToRecords;
+    }
+
+    // Records move optimistically, counters do NOT: sagaLoadSwimlaneCells below settles both cells
+    // from the server a moment later, and an optimistic ±1 made every badge (and the board total)
+    // flicker "43 → 44 → 43". Same eventual-consistency rule as the flat sagaMoveCard.
+    yield put(
+      setSwimlaneCellData({ stateId, swimlaneId, statusId: fromStatusId, records: newFromRecords, totalCount: fromCell.totalCount })
+    );
+    if (!sameCell) {
       yield put(
         setSwimlaneCellData({
           stateId,
           swimlaneId,
           statusId: toStatusId,
-          records: newToRecords,
-          totalCount: (toCell ? toCell.totalCount : 0) + 1
+          records: toRecords,
+          totalCount: toCell ? toCell.totalCount : 0
         })
       );
     }

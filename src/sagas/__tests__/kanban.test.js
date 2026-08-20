@@ -23,9 +23,12 @@ import {
   refreshCardData,
   reloadBoardData,
   setSwimlaneGrouping,
+  setSwimlaneValues,
   setSwimlaneCellData,
   setSwimlaneCellLoading
 } from '../../actions/kanban';
+import reducer from '../../reducers/kanban';
+import { computeSwimlanesTotalCount } from '../../selectors/kanban';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
@@ -1239,6 +1242,381 @@ describe('kanban sagas tests', () => {
 
       const loadingActions = dispatched.filter(d => d.type === setLoading().type);
       expect(loadingActions.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('sagaLoadSwimlaneValues', () => {
+    const journalsState = {
+      journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } }
+    };
+
+    const makeState = (kanbanOverrides = {}) => ({
+      ...journalsState,
+      kanban: {
+        [stateId]: {
+          boardConfig: data.boardConfig,
+          formProps: data.formProps,
+          swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+          swimlanes: [],
+          ...kanbanOverrides
+        }
+      }
+    });
+
+    // per-column server counts used by the aggregate assertions below
+    const countByColumn = { 'some-id-1': 3, 'some-id-2': 2 };
+
+    beforeEach(() => {
+      spyGetBoardCards.mockImplementation(({ columns }) =>
+        Promise.resolve(
+          boardCardsFor(columns, col => ({
+            records: Array.from({ length: countByColumn[col.id] }, (_, i) => ({ id: `${col.id}-rec-${i}`, attributes: {} })),
+            totalCount: countByColumn[col.id]
+          }))
+        )
+      );
+    });
+
+    afterEach(() => {
+      spyGetBoardCards.mockReset();
+      spyGetBoardCards.mockResolvedValue([]);
+    });
+
+    it('builds a row per distinct value and fills every cell with the server totalCount', async () => {
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      const valuesAction = dispatched.find(d => d.type === setSwimlaneValues().type);
+      expect(valuesAction).toBeDefined();
+      expect(valuesAction.payload.swimlanes.map(sl => sl.id)).toEqual(['priority-high', 'priority-low']);
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      // 2 rows x 2 columns
+      expect(cellActions).toHaveLength(4);
+      cellActions.forEach(action => {
+        expect(action.payload.totalCount).toBe(countByColumn[action.payload.statusId]);
+      });
+
+      // every row is queried with the grouping attribute, i.e. the counts are per (row, column)
+      spyGetBoardCards.mock.calls.forEach(([arg]) => expect(arg.grouping).toBe('priority'));
+    });
+
+    it('loads rows in bounded concurrent batches and still loads every row', async () => {
+      const rows = 2 * kanban.SWIMLANE_ROWS_CHUNK + 5;
+      const spyDistinct = jest
+        .spyOn(api.kanban, 'getDistinctValues')
+        .mockReturnValueOnce(Array.from({ length: rows }, (_, i) => ({ id: `group-${i}`, label: `Group ${i}` })));
+
+      // Track how many row requests are in flight at once: resolution is deferred to a macrotask,
+      // so every request of a batch starts before any of them settles.
+      let inFlight = 0;
+      let maxInFlight = 0;
+      spyGetBoardCards.mockImplementation(
+        ({ columns }) =>
+          new Promise(resolve => {
+            inFlight += 1;
+            maxInFlight = Math.max(maxInFlight, inFlight);
+            setTimeout(() => {
+              inFlight -= 1;
+              resolve(boardCardsFor(columns, () => ({ records: [], totalCount: 0 })));
+            }, 0);
+          })
+      );
+
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      // completeness: a broken chunk loop would skip or duplicate rows
+      expect(spyGetBoardCards).toHaveBeenCalledTimes(rows);
+      const valuesAction = dispatched.find(d => d.type === setSwimlaneValues().type);
+      expect(valuesAction.payload.swimlanes).toHaveLength(rows);
+      // boundedness: an unchunked all() would put all rows in flight at once
+      expect(maxInFlight).toBeLessThanOrEqual(kanban.SWIMLANE_ROWS_CHUNK);
+
+      spyDistinct.mockRestore();
+    });
+
+    it('column badges and the board total are the sum of the loaded cells', async () => {
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      // replay what the store would do, then read the numbers the UI shows
+      const storeState = dispatched.reduce((acc, action) => reducer(acc, action), {});
+      const swimlanes = storeState[stateId].swimlanes;
+
+      const badge = columnId => swimlanes.reduce((sum, sl) => sum + get(sl, ['cells', columnId, 'totalCount'], 0), 0);
+
+      expect(badge('some-id-1')).toBe(6);
+      expect(badge('some-id-2')).toBe(4);
+      // "Total: N" must equal the sum of the badges — no stale state.totalCount from the flat path
+      expect(computeSwimlanesTotalCount(swimlanes, data.boardConfig)).toBe(10);
+    });
+  });
+
+  describe('sagaLoadSwimlaneCells', () => {
+    const makeState = swimlanes => ({
+      journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+      kanban: {
+        [stateId]: {
+          boardConfig: data.boardConfig,
+          formProps: data.formProps,
+          swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+          swimlanes
+        }
+      }
+    });
+
+    it('reloads the whole loaded window of every cell from the start', async () => {
+      // Both terms of the window formula must decide somewhere:
+      // - cell 1: 25 records loaded but pagination is stale at 10 (a DnD insert via
+      //   setSwimlaneCellData never updates pagination) — loadedCount must win, ask for 25;
+      // - cell 2: 1 record on a window expanded to 30 — the stored window must win, ask for 30.
+      // Always from skipCount 0 — requesting the "next" page would collapse the cell.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10 },
+              isLoading: false
+            },
+            'some-id-2': {
+              records: [{ id: 'rec-x', cardId: 'rec-x' }],
+              totalCount: 1,
+              pagination: { skipCount: 0, maxItems: 30 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      await wrapRunSaga(kanban.sagaLoadSwimlaneCells, { swimlaneId: 'priority-high' }, makeState(swimlanes));
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([
+        expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 }),
+        expect.objectContaining({ id: 'some-id-2', skipCount: 0, maxItems: 30 })
+      ]);
+      expect(callArgs.maxItemsPerColumn).toBe(30);
+    });
+
+    it('a cell badge never shows fewer than the cards it holds (missing/low server totalCount)', async () => {
+      spyGetBoardCards.mockResolvedValueOnce([
+        { columnId: 'some-id-1', records: Array.from({ length: 3 }, (_, i) => ({ id: `rec-${i}`, attributes: {} })) },
+        { columnId: 'some-id-2', records: Array.from({ length: 2 }, (_, i) => ({ id: `rec-b-${i}`, attributes: {} })), totalCount: 1 }
+      ]);
+
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneCells, { swimlaneId: 'priority-high' }, makeState([{ id: 'priority-high', label: 'High', cells: {} }]));
+
+      const byStatus = new Map(dispatched.filter(d => d.type === setSwimlaneCellData().type).map(a => [a.payload.statusId, a.payload]));
+      expect(byStatus.get('some-id-1').totalCount).toBe(3);
+      expect(byStatus.get('some-id-2').totalCount).toBe(2);
+    });
+
+    it('reloadSwimlaneCells (silent reload after a card edit) keeps the expanded window too', async () => {
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 25 },
+              isLoading: false
+            },
+            'some-id-2': { records: [], totalCount: 0, pagination: DEFAULT_PAGINATION, isLoading: false }
+          }
+        }
+      ];
+
+      const dispatched = [];
+      await runSaga(
+        { dispatch: action => dispatched.push(action), getState: () => makeState(swimlanes) },
+        kanban.reloadSwimlaneCells,
+        {
+          api,
+          stateId,
+          boardConfig: data.boardConfig,
+          swimlaneGrouping: { attribute: 'priority' },
+          cells: [{ swimlaneId: 'priority-high', statusId: 'some-id-1' }]
+        }
+      ).done;
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 })]);
+      expect(callArgs.maxItemsPerColumn).toBe(25);
+
+      const cellAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellAction.payload.pagination).toEqual({ skipCount: 0, maxItems: 25 });
+    });
+
+    it('a failed row request keeps the previous counters instead of zeroing the whole row', async () => {
+      spyGetBoardCards.mockRejectedValueOnce(new Error('row request failed'));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadSwimlaneCells,
+        { swimlaneId: 'priority-high' },
+        makeState(swimlaneData.swimlanes)
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(2);
+
+      const byStatus = new Map(cellActions.map(a => [a.payload.statusId, a.payload]));
+      // fixture counts for row priority-high: 2 and 1 — they must survive the error
+      expect(byStatus.get('some-id-1').totalCount).toBe(2);
+      expect(byStatus.get('some-id-1').records).toHaveLength(2);
+      expect(byStatus.get('some-id-2').totalCount).toBe(1);
+      cellActions.forEach(action => expect(action.payload.error).toBe('row request failed'));
+    });
+  });
+
+  describe('sagaGetBoardData with swimlane grouping', () => {
+    it('reloads the swimlanes instead of the flat columns when grouping is on', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { stateId },
+        {
+          journals: {
+            [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting }
+          },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes: []
+            }
+          }
+        }
+      );
+
+      expect(dispatched.some(d => d.type === setSwimlaneValues().type)).toBeTruthy();
+      expect(dispatched.some(d => d.type === setSwimlaneCellData().type)).toBeTruthy();
+      // the flat path must not run in parallel — it would publish a second, inconsistent total
+      expect(dispatched.some(d => d.type === setDataCards().type)).toBeFalsy();
+      expect(dispatched.some(d => d.type === setTotalCount().type)).toBeFalsy();
+      spyGetBoardCards.mock.calls.forEach(([arg]) => expect(arg.grouping).toBe('priority'));
+    });
+  });
+
+  describe('swimlane counters stability', () => {
+    it('"show more" with a short page does not shrink the cell counter', async () => {
+      // 10 of 41 loaded, the server answers with a short page (4 records) — the badge must stay 41.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 10 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10, page: 1 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: Array.from({ length: 4 }, (_, i) => ({ id: `rec-new-${i}`, attributes: {} })),
+          totalCount: 41
+        }
+      ]);
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes
+            }
+          }
+        }
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction.payload.records).toHaveLength(14);
+      expect(cellDataAction.payload.totalCount).toBe(41);
+      // the expanded window is remembered, so a later row reload restores all 14 cards
+      expect(cellDataAction.payload.pagination).toEqual(expect.objectContaining({ skipCount: 0, maxItems: 14 }));
+    });
+
+    it('"show more" that returns only already-loaded records caps the counter (no infinite show-more)', async () => {
+      // A concurrent reorder shifted the pages: the next page holds only known records, so
+      // skipCount (= records.length) would never advance — the counter must cap at what is loaded.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 10 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: Array.from({ length: 4 }, (_, i) => ({ id: `rec-${i}`, attributes: {} })),
+          totalCount: 41
+        }
+      ]);
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes
+            }
+          }
+        }
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction.payload.records).toHaveLength(10);
+      expect(cellDataAction.payload.totalCount).toBe(10);
+    });
+
+    it('DnD across cells moves the card without touching the counters', async () => {
+      const state = {
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+        kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData } }
+      };
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        state
+      );
+
+      const [fromOptimistic, toOptimistic] = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+
+      // records move at once...
+      expect(fromOptimistic.payload.records).toHaveLength(1);
+      expect(toOptimistic.payload.records).toHaveLength(2);
+      // ...but the counters wait for the server reload — no "3 → 2 → 3" jump in the badge/total
+      expect(fromOptimistic.payload.totalCount).toBe(2);
+      expect(toOptimistic.payload.totalCount).toBe(1);
     });
   });
 

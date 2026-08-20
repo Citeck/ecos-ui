@@ -56,7 +56,10 @@ export default handleActions(
       return updateState(state, payload.stateId, { boardConfig: undefined }, initialState);
     },
     [getBoardData]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
+      // swimlanes belong to the board being replaced: keeping them here painted the previous board's
+      // rows (and its numbers) until the new cells arrived — or forever, when the new board has no
+      // matching groups.
+      return updateState(state, payload.stateId, { dataCards: [], swimlanes: [], isFirstLoading: true, isLoading: true }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
       const { stateId = '', settings = {} } = payload;
@@ -145,21 +148,25 @@ export default handleActions(
       return updateState(state, stateId, { swimlanes, isFirstLoading: false }, initialState);
     },
     [setSwimlaneCellData]: (state, { payload }) => {
-      const { stateId, swimlaneId, statusId, records, totalCount, error } = payload;
+      const { stateId, swimlaneId, statusId, records, totalCount, error, pagination } = payload;
       const prevSwimlanes = (state[stateId] || {}).swimlanes || [];
       const swimlanes = prevSwimlanes.map(sl => {
         if (sl.id !== swimlaneId) {
           return sl;
         }
+        const prevCell = sl.cells[statusId] || {};
         return {
           ...sl,
           cells: {
             ...sl.cells,
             [statusId]: {
-              ...sl.cells[statusId],
+              ...prevCell,
               records: records,
               totalCount: totalCount,
               error: error,
+              // The loaded window of the cell. Without persisting it, a row reload always requested a
+              // single default page and collapsed a cell the user had expanded with "show more".
+              pagination: pagination || prevCell.pagination,
               isLoading: false
             }
           }

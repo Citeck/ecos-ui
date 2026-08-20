@@ -3,6 +3,14 @@ import Records from '@citeck/records-core';
 
 import { getWorkspaceId } from '@/helpers/urls.js';
 
+// Upper bound for swimlane groups. Each group costs one board-cards request per row, so the list has
+// to stay bounded — but the bound is an explicit page (and a warning when the server has more),
+// not a silent post-hoc cut of an unbounded answer, which used to make column badges under-count.
+// Accepted trade-off: a high-cardinality grouping loads up to this many row requests (in bounded
+// concurrent batches, see SWIMLANE_ROWS_CHUNK in sagas/kanban.js); loading rows lazily by viewport
+// would remove the total-work cost but is out of scope for this fix.
+export const MAX_SWIMLANE_GROUPS = 500;
+
 export class KanbanApi {
   getBoardList({ journalId }) {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('boardRefs[]{id:?id,name}![]', true);
@@ -55,13 +63,29 @@ export class KanbanApi {
         },
         language: 'predicate',
         workspaces,
-        groupBy: [attribute]
+        groupBy: [attribute],
+        page: { skipCount: 0, maxItems: MAX_SWIMLANE_GROUPS }
       },
       {
         id: attribute + '?str',
         label: attribute + '?disp'
       }
-    ).then(result => (result.records || []).slice(0, 100));
+    ).then(result => {
+      const records = result.records || [];
+      const totalCount = result.totalCount;
+      const hasMore = result.hasMore || (typeof totalCount === 'number' && totalCount > records.length);
+
+      if (hasMore) {
+        // No group count in the message: with groupBy the backend disables total counting and
+        // reports a synthetic totalCount, so only the fact of truncation is reliable.
+        console.warn(
+          `[kanban/getDistinctValues] grouping by "${attribute}": showing ${records.length} groups ` +
+            `(limit ${MAX_SWIMLANE_GROUPS}), the server has more; records of the omitted groups are not counted in the column badges`
+        );
+      }
+
+      return records;
+    });
   }
 
   async getBoardCards({ boardRef, columns = null, filter = null, maxItemsPerColumn, grouping = '', attributes }) {

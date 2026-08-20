@@ -2,6 +2,7 @@ import reducer, { initialState } from '../kanban';
 import {
   applyFilter,
   getBoardConfig,
+  getBoardData,
   resetFilter,
   setBoardConfig,
   setBoardList,
@@ -31,6 +32,20 @@ describe('kanban reducer tests', () => {
 
     expect(ownState.boardConfig).toBeUndefined();
     expect(ownState.isFirstLoading).toBeTruthy();
+    expect(ownState.isLoading).toBeTruthy();
+  });
+
+  it('getBoardData drops the swimlanes of the previous board', () => {
+    const swimlanes = [{ id: 'sl-1', cells: { 'col-1': { records: [{ id: 'r1' }], totalCount: 7 } } }];
+    const prevState = { [stateId]: { ...initialState, swimlanes, swimlaneGrouping: { attribute: 'priority' } } };
+
+    const newState = reducer(prevState, getBoardData({ stateId, boardId: 'other-board' }));
+    const ownState = newState[stateId];
+
+    expect(ownState.swimlanes).toEqual([]);
+    expect(ownState.dataCards).toEqual([]);
+    // grouping itself must survive the board switch — only its data is stale
+    expect(ownState.swimlaneGrouping).toEqual({ attribute: 'priority' });
     expect(ownState.isLoading).toBeTruthy();
   });
 
@@ -112,6 +127,22 @@ describe('kanban reducer tests', () => {
     expect(ownState.swimlanes[0].cells['col-1'].isLoading).toBe(false);
     expect(ownState.swimlanes[0].cells['col-2'].records).toEqual([{ id: 'x' }]);
     expect(ownState.swimlanes[1].cells['col-1'].records).toEqual([]);
+  });
+
+  it('setSwimlaneCellData keeps the cell pagination unless a new one is given', () => {
+    const pagination = { skipCount: 0, maxItems: 30, page: 3 };
+    const swimlanes = [{ id: 'sl-1', cells: { 'col-1': { records: [], totalCount: 0, pagination, isLoading: true } } }];
+    const prevState = { [stateId]: { ...initialState, swimlanes } };
+
+    const kept = reducer(prevState, setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1 }));
+    expect(kept[stateId].swimlanes[0].cells['col-1'].pagination).toEqual(pagination);
+
+    const next = { skipCount: 0, maxItems: 40, page: 4 };
+    const updated = reducer(
+      prevState,
+      setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1, pagination: next })
+    );
+    expect(updated[stateId].swimlanes[0].cells['col-1'].pagination).toEqual(next);
   });
 
   it('toggleSwimlaneCollapse', () => {
