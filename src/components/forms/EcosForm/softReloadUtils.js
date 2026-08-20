@@ -95,8 +95,15 @@ export function redrawComponents(form, keys) {
  *   live form's value, excluded from the patchable set, and kept at its previous snapshot value
  *   in `nextLoadedData` — so the skipped delta is re-detected by the next diff once the editor
  *   closes.
+ *
+ * `redrawKeys` is the narrower set that has to be repainted: a key can differ from the previous
+ * SNAPSHOT and still be exactly what the form already shows — that is every inline save, whose
+ * follow-up re-read confirms the value the user has just typed. Repainting it tears the freshly
+ * rendered field (a rich-text editor's whole React root, for one) down and builds it again for
+ * an identical result — the flicker of the edited field.
+ * Cause: https://citeck.atlassian.net/browse/COREDEV-427
  */
-export function buildSoftPatch({ data, previousData, formData, inlineEditedKeys = new Set() }) {
+export function buildSoftPatch({ data, previousData, formData = {}, inlineEditedKeys = new Set() }) {
   const changedKeys = [...new Set([...Object.keys(data), ...Object.keys(previousData)])].filter(
     key => !isEqual(data[key], previousData[key])
   );
@@ -129,5 +136,7 @@ export function buildSoftPatch({ data, previousData, formData, inlineEditedKeys 
     }
   });
 
-  return { changedKeys, patchableKeys, patchData, nextLoadedData };
+  const redrawKeys = patchableKeys.filter(key => !isEqual(patchData[key], formData[key]));
+
+  return { changedKeys, patchableKeys, redrawKeys, patchData, nextLoadedData };
 }

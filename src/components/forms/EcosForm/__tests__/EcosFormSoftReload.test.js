@@ -222,6 +222,40 @@ describe('EcosForm.softReload', () => {
     expect(form.setValue).toHaveBeenCalledWith({ data: { title: 'typing…', assignee: 'user@2', buttonOnlyInForm: true } });
   });
 
+  // The re-read that follows an inline save answers with the value the user has just saved, so
+  // the field on screen is already right. Repainting it anyway tears the freshly built component
+  // down and builds an identical one — for a rich-text field that is a whole React root going
+  // away and coming back, i.e. the flicker of the edited field. COREDEV-427.
+  it('should not repaint a key the form already shows, however far behind the snapshot is', async () => {
+    const { instance, form } = createInstance();
+    // the inline save has already put the new value on the form and redrawn the field once
+    form.data.title = 'new';
+    EcosFormUtils.getData.mockResolvedValue({ inputs: [], submission: { title: 'new' } });
+
+    const result = await instance.softReload();
+
+    // the record HAS changed relative to the snapshot — that part of the contract is unchanged
+    expect(result).toEqual({ changed: true, rebuilt: false, changedKeys: ['title'] });
+    expect(form.setValue).toHaveBeenCalledWith({ data: { title: 'new', buttonOnlyInForm: true } });
+    expect(instance._lastLoadedData).toEqual({ title: 'new' });
+    // ...but nothing on screen has to move
+    expect(form.components[0].redraw).not.toHaveBeenCalled();
+  });
+
+  it('should still repaint the keys the form does not show yet when another one is already current', async () => {
+    const { instance, form } = createInstance();
+    form.components[1].component.key = 'assignee';
+    form.data.title = 'new'; // just saved inline
+    form.data.assignee = 'user@1'; // changed by somebody else in the background
+    EcosFormUtils.getData.mockResolvedValue({ inputs: [], submission: { title: 'new', assignee: 'user@2' } });
+
+    const result = await instance.softReload();
+
+    expect(result.changedKeys).toEqual(['title', 'assignee']);
+    expect(form.components[0].redraw).not.toHaveBeenCalled();
+    expect(form.components[1].redraw).toHaveBeenCalledTimes(1);
+  });
+
   // A FAILED read of the form description is not a CHANGED description — a transient error must
   // not tear a perfectly good form down.
   it('should leave the form alone when the description read fails', async () => {
