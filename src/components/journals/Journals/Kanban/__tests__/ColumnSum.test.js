@@ -78,6 +78,16 @@ describe('<ColumnSum />', () => {
     expect(query.query.v).toEqual([{ t: 'eq', a: '_status', v: 'to-do' }, groupPredicate]);
   });
 
+  it('applies the board "only linked records" filter to the sum query', async () => {
+    const relatedFilter = { t: 'or', val: [{ t: 'contains', att: 'request', val: 'emodel/request@req-1' }] };
+    render(<ColumnSum {...baseProps} relatedFilter={relatedFilter} />);
+
+    await waitFor(() => expect(Records.queryOne).toHaveBeenCalled());
+    const [query] = Records.queryOne.mock.calls[0];
+
+    expect(query.query.v).toContainEqual(relatedFilter);
+  });
+
   it('renders the fetched sum and does not query when hasSum is off', async () => {
     const { container } = render(<ColumnSum {...baseProps} />);
 

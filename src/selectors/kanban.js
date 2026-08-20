@@ -19,6 +19,8 @@ export const selectIsKanbanEnabled = createSelector(selectKanban, state => get(s
 
 export const selectPagination = createSelector(selectKanban, state => cloneDeep(get(state, 'pagination', DEFAULT_PAGINATION)));
 
+export const selectRelatedFilter = createSelector(selectKanban, state => get(state, 'relatedFilter') || null);
+
 export const selectSwimlaneGrouping = createSelector(selectKanban, s => s.swimlaneGrouping);
 export const selectSwimlanes = createSelector(selectKanban, s => s.swimlanes || []);
 

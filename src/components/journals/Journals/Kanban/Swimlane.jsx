@@ -15,6 +15,7 @@ const Swimlane = ({
   swimlaneGrouping,
   predicate,
   searchPredicate,
+  relatedFilter,
   isDragging,
   draggingSwimlaneId,
   onToggleCollapse,
@@ -59,6 +60,7 @@ const Swimlane = ({
                 predicate={predicate}
                 searchPredicate={searchPredicate}
                 groupPredicate={groupPredicate}
+                relatedFilter={relatedFilter}
                 actions={colActions}
                 isDragging={isDragging}
                 draggingSwimlaneId={draggingSwimlaneId}
@@ -84,6 +86,7 @@ Swimlane.propTypes = {
   swimlaneGrouping: PropTypes.object,
   predicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  relatedFilter: PropTypes.object,
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   onToggleCollapse: PropTypes.func.isRequired,

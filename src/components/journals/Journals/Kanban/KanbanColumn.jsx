@@ -35,6 +35,7 @@ const KanbanColumn = ({
   predicate,
   searchPredicate,
   groupPredicate,
+  relatedFilter,
   isDragging,
   draggingSwimlaneId,
   isCollapsed,
@@ -156,6 +157,7 @@ const KanbanColumn = ({
                 predicate={predicate}
                 searchPredicate={searchPredicate}
                 groupPredicate={groupPredicate}
+                relatedFilter={relatedFilter}
                 totalCount={totalCount}
               />
             )}
@@ -202,6 +204,7 @@ KanbanColumn.propTypes = {
   predicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   groupPredicate: PropTypes.object,
+  relatedFilter: PropTypes.object,
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   isCollapsed: PropTypes.bool,
