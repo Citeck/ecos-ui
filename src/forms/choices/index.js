@@ -138,6 +138,36 @@ Choices.prototype._searchChoices = function (value) {
   return results.length;
 };
 
+const originSetChoices = Choices.prototype.setChoices;
+
+// Replacing the option list of an open select drops the filter the user is looking at: `setChoices`
+// with `replaceChoices` goes through `clearChoices()`, which wipes the store together with the
+// `active` flags `FILTER_CHOICES` had set, and every option is then re-added as active. The widget
+// paints the full list while `_isSearching` is still on and the typed text is still in the input,
+// and nothing puts the search back — the library re-filters on an input event only. Anything that
+// refreshes the list under an open search hits this: EcosSelect's infinite scroll fires at the
+// bottom of a filtered list and its "load more" replaces it with everything (COREDEV-359), and so
+// does any `setItems` triggered by a refresh. The list the widget was just given is filtered by the
+// search that is still running.
+// Cause: https://citeck.atlassian.net/browse/COREDEV-359
+Choices.prototype.setChoices = function (choicesArrayOrFetcher, value, label, replaceChoices) {
+  // `searchChoices: false` means the filtering is the server's job (a component with a `searchField`
+  // queries it and hands back an already filtered list) — there is nothing to re-apply here.
+  // The needle is what the user typed; `_currentValue` is what the last search actually ran with and
+  // is the only one set when the search was started programmatically rather than by a keystroke.
+  const needle = this._isSearching && this.config.searchChoices ? this.input.value || this._currentValue : '';
+  const result = originSetChoices.call(this, choicesArrayOrFetcher, value, label, replaceChoices);
+
+  // Only the array form is re-filtered. Both fetcher forms end in a recursive `setChoices` with the
+  // array they resolved to, so the call that actually has a list to filter comes back through this
+  // wrapper anyway; filtering here as well would run against a store that is still empty.
+  if (needle && Array.isArray(choicesArrayOrFetcher)) {
+    this._searchChoices(needle);
+  }
+
+  return result;
+};
+
 const originRenderChoices = Choices.prototype._renderChoices;
 
 Choices.prototype._renderChoices = function () {

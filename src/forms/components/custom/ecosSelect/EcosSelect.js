@@ -963,6 +963,16 @@ export default class SelectComponent extends BaseComponent {
 
     this.scrollList = this.choices.choiceList.element;
     this.onScroll = () => {
+      // While a client-side search is running the filter owns the list, and there is nothing more to
+      // load: the matches are all already in the store. Loading anyway replaces the filtered list with
+      // the whole option set plus a "Loading..." row (see the `scrollLoading` setter), so scrolling to
+      // the bottom of a short list of matches would show every option there is with the typed text
+      // still in the input.
+      // Cause: https://citeck.atlassian.net/browse/COREDEV-359
+      if (this.choices && this.choices._isSearching && this.choices.config.searchChoices) {
+        return;
+      }
+
       if (!this.scrollLoading && this.scrollList.scrollTop + this.scrollList.clientHeight >= this.scrollList.scrollHeight) {
         this.scrollTop = this.scrollList.scrollTop;
         this.scrollLoading = true;

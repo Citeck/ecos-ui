@@ -56,6 +56,26 @@ describe('Choices search', () => {
     it('«2026.2.1» matches nothing, not the whole list', () => {
       expect(searchResults('2026.2.1')).toEqual([]);
     });
+
+    /**
+     * COREDEV-359 (follow-up): re-setting the option list must not undo the filter. `setChoices` with
+     * `replaceChoices` clears the store, and the `active` flags the search had set go with it, so the
+     * user saw the full list come back under the text they had typed.
+     */
+    it('survives a replace-setChoices that re-sets the same list', () => {
+      const all = [
+        { value: '2026.1.1', label: '2026.1.1' },
+        { value: '2026.4.1', label: '2026.4.1' },
+        { value: '2026.5.1', label: '2026.5.1' }
+      ];
+
+      expect(searchResults('2026.4')).toEqual(['2026.4.1']);
+
+      instance.setChoices(all, 'value', 'label', true);
+
+      expect(instance._isSearching).toBe(true);
+      expect(instance._store.activeChoices.map(choice => choice.value)).toEqual(['2026.4.1']);
+    });
   });
 
   describe('a mixed list', () => {
