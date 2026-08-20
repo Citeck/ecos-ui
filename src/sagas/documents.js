@@ -125,7 +125,7 @@ function* sagaInitWidget({ api }, { payload }) {
   }
 }
 
-function* sagaGetDynamicTypes({ api }, { payload }) {
+export function* sagaGetDynamicTypes({ api }, { payload }) {
   try {
     const isLoadChecklist = yield select(state => selectIsLoadChecklist(state, payload.key));
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
@@ -191,6 +191,17 @@ function* sagaGetDynamicTypes({ api }, { payload }) {
     );
 
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
+
+    // The documents themselves are already fetched above (they are the source of `countByTypes`),
+    // so publish them right away. Without this the store keeps an empty `documentsByTypes` until
+    // the user switches the type back and forth, and "Download all documents" stays disabled.
+    const documentsByTypes = {};
+
+    filledTypes.forEach((item, index) => {
+      documentsByTypes[item.type] = get(countByTypes, [index], []);
+    });
+
+    yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
 
     if (filledTypes.length === 1) {
       yield put(getDocumentsByType({ ...payload, type: filledTypes[0].type, delay: 0 }));
