@@ -347,18 +347,20 @@ button {
       color: $color-gray-6;
     }
 
-    // dropdown controls stay white in every state (the base .ecos-btn :hover/:focus
-    // would otherwise leak a blue fill / grey fill with white text through them)
+    // dropdown controls have no fill in ANY state: the base .ecos-btn would otherwise
+    // leak a blue fill with white text on :hover and a grey one on :focus/:active.
+    // The whole affordance is the border colour. Every state shares one declaration
+    // block on purpose — split blocks of equal specificity let the later one win a
+    // background back on combinations such as :focus:active.
     &.ecos-btn_drop-down {
       &:hover,
-      &:focus {
+      &:focus,
+      &:focus-visible,
+      &:focus-within,
+      &:active,
+      &:active:hover,
+      &:active:focus {
         background: $color-white;
-        border-color: var(--primary-color);
-        color: $text-color-dark;
-      }
-
-      &:active {
-        background: $color-gray-4;
         border-color: var(--primary-color);
         color: $text-color-dark;
       }
