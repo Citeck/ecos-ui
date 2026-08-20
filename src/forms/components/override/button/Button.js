@@ -27,6 +27,13 @@ export default class ButtonComponent extends FormIOButtonComponent {
     return super.shouldDisable || (this.component.disableOnFormInvalid && !this.root.isValid(this.data, true));
   }
 
+  // Declaring only `set disabled` would define an accessor with NO getter on this prototype, and property lookup
+  // stops there — the base class's `get disabled` (which returns `_disabled`) would never be reached, so
+  // `this.disabled` read `undefined` for every button regardless of what had been set. Re-expose the base getter.
+  get disabled() {
+    return super.disabled;
+  }
+
   set disabled(disabled) {
     if (disabled && this.component.disableOnInvalid && !this.shouldDisable) {
       disabled = false;
@@ -36,7 +43,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
   }
 
   set loading(loading) {
-    if ((loading && !this.disabled) || (!loading && !this.disabled)) {
+    // Do not touch the element's disabled state while the component itself is disabled: a loading cycle that ends
+    // must not ENABLE a button something disabled on purpose. (The guard used to read
+    // `(loading && !this.disabled) || (!loading && !this.disabled)`, which is the same test written twice — and,
+    // with the getter missing, was unconditionally true.)
+    if (!this.disabled) {
       this.setDisabled(this.buttonElement, loading);
     }
 
