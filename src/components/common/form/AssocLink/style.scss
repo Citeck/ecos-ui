@@ -20,6 +20,19 @@
   }
 }
 
+// COREDEV-435: the click target of a record link is its name, not the control it sits in.
+// `width: auto` collapses the box onto the text; the 4ch floor keeps very short names
+// ("A", "UI") from becoming a target too small to hit; the trailing gap moves from padding to
+// margin so it keeps spacing the value from its neighbours without being clickable itself.
+// Declared after `.assoc-value` so it wins the equal-specificity `width` duel.
+.assoc-value_link {
+  width: auto;
+  max-width: calc(100% - 5px);
+  min-width: 4ch;
+  padding-right: 0;
+  margin-right: 5px;
+}
+
 .assoc-extra-data {
   color: $color-gray-7;
 }
