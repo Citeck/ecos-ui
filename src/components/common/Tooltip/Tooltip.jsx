@@ -30,7 +30,9 @@ class Tooltip extends Component {
   static propTypes = {
     target: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node, PropTypes.string]),
+    // `func` is a render prop, called with `{ scheduleUpdate }` — see `children` of TooltipWrapper,
+    // which is what this ends up as. The BPMN editor passes its linter panel that way.
+    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node, PropTypes.string, PropTypes.func]),
     autohide: PropTypes.bool,
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
