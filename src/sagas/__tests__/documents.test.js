@@ -111,7 +111,10 @@ describe('documents sagas tests', () => {
     it('should publish documentsByTypes on the initial load, so "download all" has refs without switching types', async () => {
       const { dispatched, api, widgetState } = await runInitialLoad([
         [{ recordRef: 'doc@1', __id: 'doc@1' }],
-        [{ recordRef: 'doc@2', __id: 'doc@2' }, { recordRef: 'doc@3', __id: 'doc@3' }]
+        [
+          { recordRef: 'doc@2', __id: 'doc@2' },
+          { recordRef: 'doc@3', __id: 'doc@3' }
+        ]
       ]);
 
       const setDocuments = dispatched.filter(action => action.type === setDocumentsByTypes().type);
