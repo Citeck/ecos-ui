@@ -33,7 +33,19 @@
     transform: rotate(135deg);
     top: 24px;
     left: 25px;
-    transition: transform 0.1s, right 0.1s;
+    transition:
+      transform 0.1s,
+      right 0.1s;
+  }
+}
+
+// The root section forces viewType to NONE and never renders a Collapse, so it must not offer the
+// chevron every other category has. Keyed off the component's own isRootSection, not off
+// .categoryLevelRoot — that class is also set for every level 0 category, which does expand.
+// The 46px indent stays: it keeps the title lined up with the sibling categories' titles.
+.labelRoot {
+  &:before {
+    display: none;
   }
 }
 
