@@ -904,7 +904,7 @@ class EcosForm extends React.Component {
         .map(component => get(component, 'component.key'))
     );
 
-    const { patchableKeys, patchData, nextLoadedData } = buildSoftPatch({
+    const { patchableKeys, redrawKeys, patchData, nextLoadedData } = buildSoftPatch({
       data,
       previousData,
       formData: this._form.data,
@@ -917,7 +917,11 @@ class EcosForm extends React.Component {
 
     this._lastLoadedData = nextLoadedData;
     this._form.setValue({ data: patchData });
-    redrawComponents(this._form, patchableKeys);
+    // Only what the form does not already show: the re-read that follows an inline save brings
+    // back the very value the user has just saved, and repainting the field over an identical
+    // value is a visible teardown of the fresh render for nothing.
+    // Cause: https://citeck.atlassian.net/browse/COREDEV-427
+    redrawComponents(this._form, redrawKeys);
 
     return { changed: true, rebuilt: false, changedKeys: patchableKeys };
   }

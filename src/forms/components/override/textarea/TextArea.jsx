@@ -1,5 +1,6 @@
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { fi } from 'date-fns/locale';
+import DOMPurify from 'dompurify';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 import cloneDeep from 'lodash/cloneDeep';
@@ -86,6 +87,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   get isMonacoEditor() {
     return this.component.editor === 'monaco';
+  }
+
+  /**
+   * Editors whose value IS markup. The code editors (`ace`, `monaco`) are deliberately out: their
+   * value is source — JSON, a predicate, a JavaScript function — and an `i<n` in it is a comparison,
+   * not the start of a tag. An editor added later stays out until it is put in here on purpose.
+   */
+  get isRichTextEditor() {
+    return this.isLexicalEditor || this.isCkeEditor || this.isQuillEditor;
   }
 
   setValue(value, flags) {
@@ -246,6 +256,19 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.component.wysiwyg) {
       value = this.interpolate(value);
       element.innerHTML = value;
+    } else if (this.isRichTextEditor) {
+      // A rich-text field (lexical is the current one) holds markup, not text — `textContent`
+      // paints its source with every tag visible. This node is not a leftover: the read-only
+      // editor that replaces it is mounted a macrotask later (`createViewOnlyValue`), so this IS
+      // what the user sees in between, and after an inline save — when the whole dashboard
+      // refreshes on the same tick and the field is rebuilt — that window is long enough to read.
+      // Sanitized, unlike the legacy `wysiwyg` branch above: the read-only Lexical renderer that
+      // takes this node over parses the markup into editor nodes and drops anything executable,
+      // so this stand-in must not be the one place where stored markup reaches the DOM raw.
+      // Rich text only, NOT every `editor`: an `ace`/`monaco` value is source, and parsing it as
+      // HTML eats it — `if (a<b) { return "<c>"; }` renders as `if (a"; }`.
+      // Cause: https://citeck.atlassian.net/browse/COREDEV-427
+      element.innerHTML = DOMPurify.sanitize(value);
     } else {
       element.textContent = value;
     }
