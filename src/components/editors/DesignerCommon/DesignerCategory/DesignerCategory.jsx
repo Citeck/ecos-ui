@@ -179,7 +179,8 @@ class DesignerCategory extends PureComponent {
     });
 
     const labelClasses = cn(styles.label, {
-      [styles.labelForCollapsed]: isOpen
+      [styles.labelForCollapsed]: isOpen,
+      [styles.labelRoot]: isRootSection
     });
 
     // action buttons
