@@ -275,10 +275,15 @@ class DesignerCategory extends PureComponent {
 
     const { nameMl, code } = this.state;
 
+    // The root section never expands — viewType is forced to NONE above, so neither Collapse is
+    // mounted — and toggleCollapse only writes a flag nothing reads back. Drop the handler instead
+    // of letting the header swallow clicks; the actions dropdown inside keeps its own.
+    const onHeaderClick = isRootSection ? undefined : () => !isEditable && toggleCollapse();
+
     return (
       <div className={mainContainerClasses}>
         <div className={whiteContainerClasses}>
-          <div className={styles.categoryHeader} onClick={() => !isEditable && toggleCollapse()}>
+          <div className={styles.categoryHeader} onClick={onHeaderClick}>
             <h3 className={labelClasses}>
               {isEditable ? (
                 <div className={styles.labelEditable}>
