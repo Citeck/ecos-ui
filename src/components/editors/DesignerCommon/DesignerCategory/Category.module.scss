@@ -42,10 +42,24 @@
 // The root section forces viewType to NONE and never renders a Collapse, so it must not offer the
 // chevron every other category has. Keyed off the component's own isRootSection, not off
 // .categoryLevelRoot — that class is also set for every level 0 category, which does expand.
-// The 46px indent stays: it keeps the title lined up with the sibling categories' titles.
+// The 46px indent stays: it keeps the title lined up with the sibling categories' titles, and the
+// slot carries a bullet so the space does not read as a gap where a control failed to render.
 .labelRoot {
+  // Nothing to click: the header drops its handler for the root section as well.
+  cursor: default;
+
   &:before {
-    display: none;
+    border: none;
+    border-radius: 50%;
+    // Quieter than the chevron's $color-gray-dark on purpose: this is a marker, not an affordance.
+    background: $color-gray-11;
+    width: 6px;
+    height: 6px;
+    // Centred on the chevron it replaces (5x5 box + 2px borders at 24/25, rotated about its centre).
+    top: 25px;
+    left: 26px;
+    transform: none;
+    transition: none;
   }
 }
 
