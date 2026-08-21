@@ -41,16 +41,21 @@
   &__formio {
     width: 100%;
     height: 100%;
-    padding: 5px 10px 5px;
+    // 16px on the sides is what the other widgets of a record card inset their content by
+    // (`.ecos-comments__list`, for one). It used to be 10px, which was not noticeable while the
+    // fields of a form carried an inset of their own on top of it; once tab rows and fields were
+    // brought onto one left edge, the whole form started at the widget's border.
+    // Cause: https://citeck.atlassian.net/browse/COREDEV-431
+    padding: 5px 16px;
     overflow-x: hidden;
 
-    &_small {
-      padding-top: 0;
-
-      .formio-component-tabs .formio-component-tabs-wrapper {
-        margin-top: 20px;
-      }
-    }
+    // A narrow widget used to trade its own top padding for a 20px margin above the tabs
+    // (COREDEV-95). Two things were wrong with that by now: 20px against the 5px of a wide widget
+    // is four times the air for no reason the layout gives, and the selector was a descendant one,
+    // so a row of tabs nested in a tab's pane collected the same 20px — the gap between two rows
+    // grew from 11px to 31px as soon as the window got narrow. Small mode is simply spaced like
+    // any other now.
+    // Cause: https://citeck.atlassian.net/browse/COREDEV-431
 
     &_mobile {
       dl {
@@ -71,7 +76,6 @@
     // Edit mode: compact the gap between fields to match the reduced view-mode rows
     .formio-component.form-group {
       margin-bottom: 8px;
-      
     }
 
     .formio-component-columns {

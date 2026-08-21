@@ -6,10 +6,13 @@ import merge from 'lodash/merge';
 
 import { getCurrentLocale } from '../helpers/export/util';
 
+import { buildErrorsMessage, getTabsComponents, TAB_ERRORS_CLASS } from './components/override/tabs/tabErrors';
 import Formio from './Formio';
 import { findUploadDocsService } from './utils';
 
 const originalSetElement = Webform.prototype.setElement;
+const originalShowErrors = Webform.prototype.showErrors;
+const originalOnSubmissionError = Webform.prototype.onSubmissionError;
 const originalSubmit = Webform.prototype.submit;
 const originalSubmitForm = Webform.prototype.submitForm;
 const originalBuild = Webform.prototype.build;
@@ -108,7 +111,10 @@ Webform.prototype.setAlert = function (type, message) {
     return;
   }
 
-  const alertElements = this.element.querySelectorAll('div.alert.alert-danger');
+  // Excluding the per-tab error lists (COREDEV-431): they are `div.alert.alert-danger` too and are
+  // built by the same `buildErrorsMessage`, so without this a top-level message that happens to
+  // equal a tab's list would be taken for an already-rendered alert and silently dropped.
+  const alertElements = this.element.querySelectorAll(`div.alert.alert-danger:not(.${TAB_ERRORS_CLASS})`);
   const foundAlertElement = Array.from(alertElements).find(el => el.innerHTML === message);
 
   if (message && foundAlertElement) {
@@ -135,6 +141,59 @@ Webform.prototype.setAlert = function (type, message) {
     return;
   }
   this.prepend(this.alert);
+};
+
+/**
+ * COREDEV-431: on a form with tabs the single alert at the very top hid which tab the invalid
+ * fields actually live on. Errors that can be attributed to a tab are moved into that tab (list
+ * inside the pane + marker on the tab label); only the ones that belong to no tab keep the top
+ * alert. A form without tabs is left completely untouched.
+ */
+Webform.prototype.showErrors = function (error, triggerEvent) {
+  const errors = originalShowErrors.call(this, error, triggerEvent) || [];
+  const tabsComponents = getTabsComponents(this);
+
+  if (!tabsComponents.length) {
+    return errors;
+  }
+
+  // Only a submit the user is waiting for may move them to another tab, and `_switchToInvalidTab`
+  // — set for the duration of `onSubmissionError` below — is what marks one. `triggerEvent` is not
+  // that flag: formio passes it from `onSubmissionError`, but inline editing also calls
+  // `showErrors('', true)` on a SUCCESSFUL per-field save (Base.js), and since the markers are
+  // taken from the components themselves, one stale error on another tab was then enough to throw
+  // the user there right after a save that went through.
+  let remaining = errors;
+  tabsComponents.forEach(tabs => {
+    remaining = tabs.showTabErrors(remaining, { switchToInvalidTab: !!this._switchToInvalidTab });
+  });
+
+  if (remaining.length) {
+    this.setAlert('danger', buildErrorsMessage(this.t('error'), remaining));
+  } else {
+    this.setAlert(false);
+  }
+
+  return errors;
+};
+
+/**
+ * COREDEV-431: the one call path that means "the user submitted the form and it came back with
+ * errors" — formio routes every failure of `executeSubmit` here — and the only one from which the
+ * form may take the user to the first tab that holds an error.
+ *
+ * A per-field inline save and a silent save submit the whole form too, and both pass
+ * `withoutLoader` for exactly the reason that applies here as well: they happen next to the user
+ * rather than in front of them, so they must not take over the screen.
+ */
+Webform.prototype.onSubmissionError = function (error) {
+  this._switchToInvalidTab = !this.withoutLoader;
+
+  try {
+    return originalOnSubmissionError.call(this, error);
+  } finally {
+    this._switchToInvalidTab = false;
+  }
 };
 
 Webform.prototype.onSubmit = function (submission, saved) {

@@ -248,7 +248,6 @@ class Properties extends React.Component {
           onReady={this.onReady}
           onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {
-            'ecos-properties__formio_small': isSmallMode,
             'ecos-properties__formio_mobile': isMobile,
             'd-none': !isShow || (isFirstLoading && !isReloading)
           })}
