@@ -49,7 +49,7 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '', trigger, boundariesElement, modifiers, placement, disabled } = this.props;
+    const { className, outClassName = '', toggleClassName, trigger, boundariesElement, modifiers, placement, disabled } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     // The portaled menu lands at z-index 1040, EcosModal sits at 1050 — inside a modal it would be
@@ -66,7 +66,11 @@ export default class DropdownOuter extends Dropdown {
         })}
         ref={this.dropdownOuterRef}
       >
-        <div onClick={this.toggle}>{this.renderToggle()}</div>
+        {/* the toggle wrapper carries toggleClassName, the way the in-flow Dropdown puts it on its
+            DropdownToggle — only the caller's class, without the base `ecos-dropdown__toggle` */}
+        <div className={toggleClassName || undefined} onClick={this.toggle}>
+          {this.renderToggle()}
+        </div>
         <Tooltip
           isOpen={dropdownOpen}
           toggle={this.toggle}
