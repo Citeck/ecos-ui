@@ -47,6 +47,10 @@ const Labels = {
   CLOSE_ALL_TABS: 'page-tabs.close-all-tabs',
   CONFIRM_REMOVE_ALL_TABS_TITLE: 'page-tabs.close-all-tabs-title',
   CONFIRM_REMOVE_ALL_TABS_TEXT: 'page-tabs.close-all-tabs-text',
+  CONFIRM_CLOSE_TAB_UNSAVED_TITLE: 'page-tabs.close-tab-unsaved-title',
+  CONFIRM_CLOSE_TAB_UNSAVED_TEXT: 'page-tabs.close-tab-unsaved-text',
+  CONFIRM_CLOSE_TABS_UNSAVED_TITLE: 'page-tabs.close-tabs-unsaved-title',
+  CONFIRM_CLOSE_TABS_UNSAVED_TEXT: 'page-tabs.close-tabs-unsaved-text',
   CONTEXT_COPY_LINK: 'page-tabs.context-menu.copy-link',
   CONTEXT_CLOSE_SELF: 'page-tabs.context-menu.close-self',
   CONTEXT_CLOSE_OTHER: 'page-tabs.context-menu.close-other',
@@ -276,7 +280,21 @@ class PageTabs extends React.Component {
     }
   };
 
+  /**
+   * Closing a tab (cross, middle click, context menu) deletes it directly — it never goes through the
+   * url-change guards — so a page holding unsaved changes (model editors) is asked here first.
+   */
   handleCloseTab = tab => {
+    if (PageService.hasUnsavedChangesInTab(get(tab, 'id'))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TAB_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TAB_UNSAVED_TEXT),
+        onYes: () => this.closeTab(tab)
+      });
+
+      return;
+    }
+
     this.closeTab(tab);
   };
 
@@ -356,14 +374,44 @@ class PageTabs extends React.Component {
   };
 
   handleCloseAllTabs = () => {
+    // One question, the sharper one: when unsaved changes are among the tabs, the data-loss confirm
+    // replaces the generic "close all?" instead of stacking after it
+    if (this.props.tabs.some(item => PageService.hasUnsavedChangesInTab(get(item, 'id')))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TEXT),
+        onYes: () => this.closeTabs(this.props.tabs)
+      });
+
+      return;
+    }
+
     DialogManager.confirmDialog({
       title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
       text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
-      onYes: this.handleCloseTabs
+      onYes: () => this.closeTabs(this.props.tabs)
     });
   };
 
+  /**
+   * The bulk closings ("Close all", "Close other", "Close tabs to the left/right") delete tabs just as
+   * directly as the cross does — any unsaved changes among them are asked about first, once.
+   */
   handleCloseTabs = (tabs = this.props.tabs, tab) => {
+    if (tabs.some(item => PageService.hasUnsavedChangesInTab(get(item, 'id')))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TEXT),
+        onYes: () => this.closeTabs(tabs, tab)
+      });
+
+      return;
+    }
+
+    this.closeTabs(tabs, tab);
+  };
+
+  closeTabs = (tabs, tab) => {
     const { closeTabs, homepageLink, homePageLink } = this.props;
 
     if (getEnabledWorkspaces()) {
@@ -755,4 +803,5 @@ const mapDispatchToProps = dispatch => ({
   updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
+export { PageTabs };
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PageTabs));

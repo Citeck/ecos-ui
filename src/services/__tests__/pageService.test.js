@@ -156,6 +156,95 @@ describe('Page Service', () => {
     });
   });
 
+  describe('tab close guards — a page tells the tabs component it holds unsaved changes', () => {
+    afterEach(() => {
+      PageService.clearTabCloseGuards();
+      jest.restoreAllMocks();
+    });
+
+    it('reports no unsaved changes when nothing is registered', () => {
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(false);
+    });
+
+    it('asks only the guard of the tab being closed', () => {
+      const dirty = jest.fn().mockReturnValue(true);
+      const clean = jest.fn().mockReturnValue(false);
+
+      PageService.registerTabCloseGuard(dirty, 'tab-dirty');
+      PageService.registerTabCloseGuard(clean, 'tab-clean');
+
+      expect(PageService.hasUnsavedChangesInTab('tab-dirty')).toBe(true);
+      expect(PageService.hasUnsavedChangesInTab('tab-clean')).toBe(false);
+      // A dirty editor in another tab must not block closing this one
+      expect(dirty).toHaveBeenCalledTimes(1);
+      expect(clean).toHaveBeenCalledTimes(1);
+    });
+
+    it('re-reads the live state on every close attempt (dirty → saved → close)', () => {
+      let isDirty = true;
+      PageService.registerTabCloseGuard(() => isDirty, 'tab-1');
+
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(true);
+
+      isDirty = false;
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(false);
+    });
+
+    it('does not register the same fn twice, but a tab may hold several guarded pages (cached routes)', () => {
+      const guard = jest.fn().mockReturnValue(false);
+      const coTenant = jest.fn().mockReturnValue(true);
+
+      PageService.registerTabCloseGuard(guard, 'tab-1');
+      PageService.registerTabCloseGuard(guard, 'tab-1');
+      // A cached route keeps the previous page mounted: the second page of the same tab registers too
+      PageService.registerTabCloseGuard(coTenant, 'tab-1');
+
+      expect(PageService.beforeTabCloseGuards).toHaveLength(2);
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(true);
+      expect(guard).toHaveBeenCalledTimes(1);
+    });
+
+    it('forgets the guard of an unmounted page and keeps the others', () => {
+      PageService.registerTabCloseGuard(() => true, 'tab-1');
+      PageService.registerTabCloseGuard(() => true, 'tab-2');
+
+      PageService.clearTabCloseGuard('tab-1');
+
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(false);
+      expect(PageService.hasUnsavedChangesInTab('tab-2')).toBe(true);
+    });
+
+    it('removing by fn takes down only that page, not the co-tenant of the same tab', () => {
+      const leaving = () => true;
+      const staying = () => true;
+
+      PageService.registerTabCloseGuard(leaving, 'tab-1');
+      PageService.registerTabCloseGuard(staying, 'tab-1');
+
+      PageService.removeTabCloseGuard(leaving);
+
+      expect(PageService.beforeTabCloseGuards).toHaveLength(1);
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(true);
+    });
+
+    it('ignores a nil tabId and a non-boolean answer', () => {
+      PageService.registerTabCloseGuard(() => 'yes', 'tab-1');
+
+      expect(PageService.hasUnsavedChangesInTab(undefined)).toBe(false);
+      expect(PageService.hasUnsavedChangesInTab(null)).toBe(false);
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(false);
+    });
+
+    it('a throwing guard does not make the tab unclosable', () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      PageService.registerTabCloseGuard(() => {
+        throw new Error('boom');
+      }, 'tab-1');
+
+      expect(PageService.hasUnsavedChangesInTab('tab-1')).toBe(false);
+    });
+  });
+
   describe('rekeyWhereLinkOpen — keeps the opener resolvable after a tab rewrites its own key', () => {
     const PARENT = '/v2/journals?journalId=integrations';
     const NEW = '/v2/camel-dsl-editor?new=true';
