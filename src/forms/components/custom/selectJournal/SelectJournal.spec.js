@@ -122,23 +122,87 @@ describe('SelectJournal Component', () => {
       });
     });
 
-    it('Should not report a broken customJournalId to the console and should fall back to static journalId', done => {
-      Harness.testCreate(SelectJournalComponent, {
-        ...comp1,
-        journalId: 'static-journal',
-        // What a half-typed expression looks like in the component editor
-        customJournalId: 'var typeMap = { "marketing": "country-iso3166"'
-      }).then(component => {
-        // formio's `evaluate` is what logs the failed compile, so the guard has to keep the broken
-        // source away from it entirely
+    // Typing an expression in the component editor reads `journalId` several times per keystroke,
+    // through the field being configured and the "Default value" preview both. Everything the
+    // half-written source does on the way — failing to compile, or compiling and then throwing —
+    // has to stay out of the console: formio's `evaluate` reports both itself, from the inside,
+    // which is why checking the source before handing it over was not enough.
+    const expectSilentFallback = (customJournalId, done) => {
+      Harness.testCreate(SelectJournalComponent, { ...comp1, journalId: 'static-journal', customJournalId }).then(component => {
+        const consoleSpies = ['warn', 'error', 'log', 'info'].map(level => jest.spyOn(console, level).mockImplementation(() => {}));
+        // The verbose level is the one place a persistently broken expression may leave a trace —
+        // but once per distinct error, not once per read
+        const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
         const evaluateSpy = jest.spyOn(component, 'evaluate');
 
         expect(component.journalId).toBe('static-journal');
-        // Read again: the parse verdict is cached per source, so neither read reaches formio
+
+        const tracesAfterFirstRead = debugSpy.mock.calls.length;
+
+        // Read again: what is remembered per source must not turn into a second report either
         expect(component.journalId).toBe('static-journal');
 
         expect(evaluateSpy).not.toHaveBeenCalled();
+        consoleSpies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+        expect(debugSpy.mock.calls.length).toBe(tracesAfterFirstRead);
+
+        consoleSpies.forEach(spy => spy.mockRestore());
+        debugSpy.mockRestore();
         evaluateSpy.mockRestore();
+        done();
+      });
+    };
+
+    it('Should not report a customJournalId that does not compile and should fall back to static journalId', done => {
+      // Half-typed: the braces never close
+      expectSilentFallback('var typeMap = { "marketing": "country-iso3166"', done);
+    });
+
+    it('Should not report a customJournalId that compiles and throws, and should fall back to static journalId', done => {
+      // Half-typed the other way: `value = va` is valid JavaScript, and throws a ReferenceError
+      // every time it runs — the case a syntax pre-check cannot catch
+      expectSilentFallback('value = va', done);
+    });
+
+    it('Should not report a customJournalId that throws on data it reads', done => {
+      // The everyday version of the same thing: the expression reaches into data the form has not
+      // loaded yet
+      expectSilentFallback('value = data.parent.kind;', done);
+    });
+
+    it('Should keep trying an expression that threw once the data it reads arrives', done => {
+      // A run that throws says nothing about the source — remembering it as broken would leave the
+      // field on the static journal for the rest of the form's life
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = data.kind.trim();'
+      }).then(component => {
+        expect(component.journalId).toBe('static-journal');
+
+        component.root.data = { ...component.root.data, kind: ' dyn-journal ' };
+        expect(component.journalId).toBe('dyn-journal');
+        done();
+      });
+    });
+
+    it('Should compile the expression once per source, not once per read', done => {
+      // The editor reads `journalId` several times per keystroke; a compile on each read is what
+      // made typing expensive in the first place
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        customJournalId: 'value = "dyn-journal";'
+      }).then(component => {
+        expect(component.journalId).toBe('dyn-journal');
+        const compiled = component.customJournalIdFn;
+
+        expect(component.journalId).toBe('dyn-journal');
+        expect(component.customJournalIdFn).toBe(compiled);
+
+        // ... and an edit does produce a new one
+        component.component.customJournalId = 'value = "other-journal";';
+        expect(component.journalId).toBe('other-journal');
+        expect(component.customJournalIdFn).not.toBe(compiled);
         done();
       });
     });

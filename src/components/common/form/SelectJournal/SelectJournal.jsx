@@ -183,11 +183,14 @@ export default class SelectJournal extends Component {
    * Every query of this control goes through here, so the list the user sees and the list
    * shouldResetValue probes the value against are built the same way.
    *
+   * @param {Object} [journalConfig] config to read the `system` flag from, for a caller holding a
+   *   config the state does not (see `probeRowsInJournal`, which runs right after the state's was
+   *   dropped) — defaults to the state's
    * @returns {Promise<Array<string>>}
    */
-  getSearchWorkspaces = async () => {
+  getSearchWorkspaces = async (journalConfig = this.state.journalConfig) => {
     const { searchInWorkspacePolicy, searchInAdditionalWorkspaces } = this.props;
-    const { isLocaleData, journalConfig } = this.state;
+    const { isLocaleData } = this.state;
     const currentWorkspaceId = await this.resolveWorkspaceId();
     const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces, currentWorkspaceId);
 
@@ -371,7 +374,9 @@ export default class SelectJournal extends Component {
    * `isJournalConfigFetched` is false, so keeping them would leave the field serving the previous
    * journal's columns and rows. The selected record goes with them, unless `keepValue` says the
    * journal id merely resolved for the first time and the value is the one the record was opened
-   * with (see `keepValueOnJournalIdChange` in `componentDidUpdate`).
+   * with (see `keepValueOnJournalIdChange` in `componentDidUpdate`). That keep is provisional —
+   * `verifyRetainedValue` checks the retained rows against the journal that is now in play and
+   * clears them if they do not belong to it.
    */
   resetJournalConfig = ({ keepValue = false } = {}) => {
     const { onChange, multiple } = this.props;
@@ -403,8 +408,169 @@ export default class SelectJournal extends Component {
         // not hear about. Outside table mode the field renders the rows' display names, which are
         // already in hand — nothing to reload.
         this.props.viewMode === DisplayModes.TABLE && this.state.selectedRows.length && this.setValue(this.state.selectedRows, false);
+
+        this.verifyRetainedValue(this.state.selectedRows);
       }
     );
+  };
+
+  /**
+   * Second half of the provisional keep above. Keeping the value across the first resolution of a
+   * dynamic journalId assumes the value is the one the record was opened with — which only holds
+   * when it belongs to the journal the expression resolved to. The very same "first resolution"
+   * also happens when the user fills in the field the expression reads, and then the retained value
+   * was picked from the journal being left and has to go, exactly as on any other switch.
+   *
+   * `checkConditions` has no signal that tells a form load from user input apart (see the formio
+   * SelectJournal), so the value itself is asked instead: a row the journal now in play does not
+   * contain is dropped. Run in every display mode — table mode looked correct only because it
+   * re-renders the retained row through the new journal's columns and comes out blank, while formio
+   * kept holding the stale value just as it did outside table mode.
+   *
+   * Anything that keeps the probe from answering — no config, a failed request — keeps the value:
+   * a stale value the user can overwrite is recoverable, silently dropping the record's own value
+   * on the next save is not.
+   *
+   * @param {Array<Object>} rows the retained rows, as of the reset
+   */
+  verifyRetainedValue = async rows => {
+    // A query value is not a set of rows the journal can be asked about
+    if (this.isQuery || !Array.isArray(rows) || !rows.length) {
+      return;
+    }
+
+    const { multiple, onChange, journalId } = this.props;
+    const seqAtStart = this.valueResetSeq;
+    const rowsKey = rows.map(row => row.id).join(',');
+    let matchedRows;
+
+    try {
+      matchedRows = await this.probeRowsInJournal(rows, journalId);
+    } catch (e) {
+      console.warn('[SelectJournal] Failed to check the retained value against the new journal', e);
+      return;
+    }
+
+    if (!this.liveComponent || matchedRows === null || matchedRows.length === rows.length) {
+      return;
+    }
+
+    // The value's fate has been decided by someone else while the probe was running: another
+    // journal switch, or the user picking a value from the new journal. Either way the answer in
+    // hand is about a value the field no longer holds.
+    if (
+      this.valueResetSeq !== seqAtStart ||
+      this.props.journalId !== journalId ||
+      this.state.selectedRows.map(row => row.id).join(',') !== rowsKey
+    ) {
+      return;
+    }
+
+    // Invalidates the `setValue` the table-mode branch may still have in flight — see the counter
+    this.valueResetSeq += 1;
+
+    if (!matchedRows.length) {
+      // What the non-keeping branch of `resetJournalConfig` does: `value`, `selectedRows` and
+      // `gridData.selected` go together — a partial reset leaves the next save writing the wrong
+      // thing — and `onChange` is what carries the clearing over to formio's own dataValue.
+      this.setState(
+        prevState => ({
+          selectedRows: [],
+          value: multiple ? [] : '',
+          gridData: { ...prevState.gridData, selected: [] }
+        }),
+        () => isFunction(onChange) && onChange(multiple ? [] : '')
+      );
+
+      return;
+    }
+
+    // Only reachable for a multi-value field: the rows the new journal does contain stay, and
+    // `setValue` reports the narrowed value to formio.
+    this.setValue(matchedRows);
+  };
+
+  /**
+   * The ids the journal storage knows `rows` by: a nodeRef resolves to its dbID, anything else to
+   * its localId.
+   *
+   * @param {Array<Object>} rows
+   * @returns {Promise<Array<{id: string, dbID: *}>>}
+   */
+  resolveRowsDbIds = rows => {
+    return Promise.all(
+      rows.map(({ id }) =>
+        Records.get(id)
+          .load(isNodeRef(id) ? Attributes.DBID : '?localId')
+          .then(dbID => ({ id, dbID }))
+      )
+    );
+  };
+
+  /**
+   * The `or`-predicate matching exactly the rows behind the resolved ids.
+   *
+   * @param {Array<{id: string, dbID: *}>} rowIds as returned by `resolveRowsDbIds`
+   * @returns {Object}
+   */
+  buildRowsPredicate = rowIds => {
+    return {
+      t: 'or',
+      val: rowIds.map(({ id, dbID }) => ({ t: 'eq', att: isNodeRef(id) ? Attributes.DBID : 'id', val: dbID }))
+    };
+  };
+
+  /**
+   * Which of `rows` the given journal contains.
+   *
+   * The journal is asked about those rows and nothing else — the filters the user is looking
+   * through take no part, since the question is whether the record belongs to the journal, not
+   * whether the current view happens to show it. The journal's own default filters do count: they
+   * are part of what the journal is.
+   *
+   * @param {Array<Object>} rows
+   * @param {string} journalId
+   * @returns {Promise<Array<Object>|null>} the contained subset, or `null` when the journal cannot
+   *   answer and the value must be left alone
+   */
+  probeRowsInJournal = async (rows, journalId) => {
+    const { sortBy, customSourceId } = this.props;
+
+    if (!journalId) {
+      return null;
+    }
+
+    const journalConfig = await JournalsService.getJournalConfig(journalId);
+
+    if (this.isEmptyJournalConfig(journalConfig)) {
+      return null;
+    }
+
+    const rowIds = await this.resolveRowsDbIds(rows);
+
+    // An id that did not resolve would produce an empty `eq`, which the predicate clean-up drops —
+    // and an `or` that loses its terms stops narrowing the query at all, turning the probe into
+    // "the journal's first rows", whatever they are
+    if (rowIds.some(({ dbID }) => !dbID)) {
+      return null;
+    }
+
+    const rowsPredicate = this.buildRowsPredicate(rowIds);
+
+    const settings = JournalsConverter.getSettingsForDataLoaderServer({
+      sourceId: customSourceId,
+      sortBy,
+      pagination: { skipCount: 0, maxItems: rows.length, page: 1 },
+      predicates: JournalsConverter.cleanUpPredicate([rowsPredicate, ...(mergeFilters(journalConfig.defaultFilters) || [])])
+    });
+
+    const result = await JournalsService.getJournalData(journalConfig, {
+      ...settings,
+      workspaces: await this.getSearchWorkspaces(journalConfig)
+    });
+    const foundRows = get(JournalsConverter.getJournalDataWeb(result), 'data') || [];
+
+    return rows.filter(row => foundRows.some(found => found.id === row.id));
   };
 
   checkJournalId = () => {
@@ -437,27 +603,8 @@ export default class SelectJournal extends Component {
         return resolve({ shouldReset: false });
       }
 
-      const dbIDsArray = await Promise.all(
-        selectedRows.map(({ id }) =>
-          Records.get(id)
-            .load(isNodeRef(id) ? Attributes.DBID : '?localId')
-            .then(dbID => ({ id, dbID }))
-        )
-      );
-
-      const dbIDsObj = {};
-      dbIDsArray.forEach(({ id, dbID }) => (dbIDsObj[id] = dbID));
-
-      const selectedRowsPredicate = customPredicate
-        ? {
-            t: 'or',
-            val: selectedRows.map(item => ({
-              t: 'eq',
-              att: isNodeRef(item.id) ? Attributes.DBID : 'id',
-              val: dbIDsObj[item.id]
-            }))
-          }
-        : null;
+      const dbIDsArray = await this.resolveRowsDbIds(selectedRows);
+      const selectedRowsPredicate = customPredicate ? this.buildRowsPredicate(dbIDsArray) : null;
 
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sortBy,
