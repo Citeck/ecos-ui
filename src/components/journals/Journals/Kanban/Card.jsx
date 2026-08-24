@@ -34,6 +34,10 @@ class Card extends React.PureComponent {
     return { stableFormData: nextProps.data };
   }
 
+  componentWillUnmount() {
+    this.handleDetectHeight.cancel();
+  }
+
   get target() {
     const { data } = this.props;
     return `card-title_${data.id}`.replace(/[:@/]/gim, '');
@@ -66,9 +70,13 @@ class Card extends React.PureComponent {
     this.handleAction({ type: ViewAction.ACTION_ID });
   };
 
-  handleDetectHeight = (w, h) => {
+  // Debounced once per instance. An inline `debounce(...)` in render gives every render its own
+  // timer (react-resize-detector reads `onResize` off props at fire time, so pending calls still
+  // fire — they just stop coalescing into one), and the timer armed by the last render outlives the
+  // card. One instance field keeps a single shared timer, and componentWillUnmount cancels it.
+  handleDetectHeight = debounce((w, h) => {
     this.setState({ noForm: !h });
-  };
+  }, 400);
 
   renderHeader = provided => {
     const { data, boardConfig = {} } = this.props;
@@ -172,7 +180,7 @@ class Card extends React.PureComponent {
             }
           }}
         />
-        <ReactResizeDetector handleHeight onResize={debounce(this.handleDetectHeight, 400)} targetRef={this._cardBodyRef} />
+        <ReactResizeDetector handleHeight onResize={this.handleDetectHeight} targetRef={this._cardBodyRef} />
       </div>
     );
   };

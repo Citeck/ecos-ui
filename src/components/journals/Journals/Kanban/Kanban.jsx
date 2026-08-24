@@ -96,7 +96,7 @@ class Kanban extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping } = this.props;
+    const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping, isLoadingColumns } = this.props;
     const headerElement = get(this.refHeader, 'current');
     const bodyElement = get(this.refBody, 'current');
 
@@ -108,7 +108,10 @@ class Kanban extends React.Component {
       return;
     }
 
-    if (!swimlaneGrouping && !this.state.isDragging && this.state.isInView && !this.isNoMore()) {
+    // `isLoadingColumns` stays filled for the whole card move (set before the optimistic update,
+    // cleared when the affected columns have been reloaded). Without this check every one of those
+    // intermediate commits re-dispatches getNextPage, which flips the board loader on and off again.
+    if (!swimlaneGrouping && isEmpty(isLoadingColumns) && !this.state.isDragging && this.state.isInView && !this.isNoMore()) {
       const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
       const colsFromSettings = get(kanbanSettings, 'columns');
       const cols = colsFromSettings ? [] : defaultColumns;
@@ -159,9 +162,12 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
+    // Same guard as componentDidUpdate: while a card move keeps isLoadingColumns filled, a scroll
+    // to the bottom must not race reloadColumns with a page request either
     if (
       !this.state.isDragging &&
       !this.props.isLoading &&
+      isEmpty(this.props.isLoadingColumns) &&
       !this.isNoMore() &&
       scroll.scrollTop &&
       scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight
@@ -488,5 +494,8 @@ class Kanban extends React.Component {
     });
   }
 }
+
+// The bare class is exported for the tests, the application uses the connected default export.
+export { Kanban };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Kanban);
