@@ -97,8 +97,21 @@ class ModelEditorPage extends React.Component {
     this.handleInit();
   }
 
+  /**
+   * Url-change guard (registered per tab): the user is leaving for another workspace while the editor
+   * page stays behind, so what is on the canvas would be lost. Ask only when there is something to
+   * lose — the same flag `beforeunload` and the page-tab close guard read. An unconditional confirm
+   * here made a clean diagram close silently but still stop a workspace switch.
+   */
   handleCloseEditor = (params, tabId) => {
-    const initialWsIdParam = this.urlQuery.ws;
+    if (!this.hasUnsavedChanges()) {
+      return Promise.resolve();
+    }
+
+    // The editor may have been opened by a link without `ws`. Bring both sides of the comparison to
+    // the same base (the workspace we are in now), otherwise every navigation would read as a
+    // workspace switch and the warning would name a switch that is not happening.
+    const initialWsIdParam = this.urlQuery.ws || getWorkspaceId();
     let nameEditor = '';
 
     switch (this.props.location.pathname) {
@@ -147,14 +160,19 @@ class ModelEditorPage extends React.Component {
   };
 
   /**
-   * Unsaved changes are guarded for the same editors as the workspace-change confirm:
-   * the CMMN editor is deliberately left out (see handleCloseEditor registration).
+   * Whether this editor tracks unsaved changes at all. The CMMN editor is deliberately left out:
+   * it gets neither the workspace-change confirm nor the close warnings (see handleInit).
    */
   get isCloseGuarded() {
     return get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR;
   }
 
-  /** Guard for the app page tab: the tabs component asks it before deleting the tab */
+  /**
+   * The single answer to "is there anything to lose", read by all three warnings: `beforeunload`
+   * (browser tab close/reload), the page-tab close guard (the tabs component asks before deleting the
+   * tab) and the workspace-change confirm in handleCloseEditor. Keep them on this one flag — a
+   * warning that fires on a clean diagram is exactly what the users complained about.
+   */
   hasUnsavedChanges = () => this._isDirty === true;
 
   /**
