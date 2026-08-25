@@ -2,50 +2,65 @@ import { URL as Urls } from '@citeck/constants/index';
 
 import ModelEditorPage from '../ModelEditor';
 
-// The dirty-state machine drives the unsaved-changes warnings (browser beforeunload and the page-tab
-// close guard). It is exercised here directly on an instance, without rendering: every entry point is
-// an arrow method, and the "designer" only needs to answer saveXML with the current model text.
+// The workspace-change guard asks the tab registry for the tab it was registered for
+jest.mock('@/services/pageTabs/PageTabList', () => ({
+  __esModule: true,
+  default: { activeTabId: 'tab-1', tabs: [{ id: 'tab-1', link: '/v2/bpmn-editor?ws=ws-a' }] }
+}));
+
+// The current workspace is what a link without an explicit `ws` resolves to — pin it, the real helper
+// answers from window.location and the workspaces feature flag
+jest.mock('@/helpers/urls', () => ({
+  ...jest.requireActual('@/helpers/urls'),
+  __esModule: true,
+  getWorkspaceId: () => 'ws-a'
+}));
+
+// The dirty-state machine drives the unsaved-changes warnings (browser beforeunload, the page-tab
+// close guard and the workspace-change confirm). It is exercised here directly on an instance, without
+// rendering: every entry point is an arrow method, and the "designer" only needs to answer saveXML with
+// the current model text.
+const makeEditor = ({ pathname = Urls.BPMN_EDITOR, xml = '<model version="loaded"/>' } = {}) => {
+  const instance = new ModelEditorPage({ location: { pathname } });
+
+  instance.designer = {
+    xml,
+    saveXML: ({ callback }) => callback({ xml: instance.designer.xml }),
+    destroy: jest.fn()
+  };
+
+  return instance;
+};
+
+// The baseline capture and the edits below go through the same debounced serializer the component
+// uses; flushing it stands for "the burst of events is over".
+const settle = instance => instance.syncDirtyState.flush();
+
+const loadDiagram = instance => {
+  instance.resetDirtyBaseline();
+  settle(instance);
+};
+
+const edit = (instance, xml) => {
+  instance.designer.xml = xml;
+  instance.handleModelChanged({ trigger: 'execute' });
+};
+
+// What the saga does after `saveModel`: remembers what was sent, then confirms it with a new
+// `savedModel` prop once the server answers.
+const sendSave = instance => {
+  instance._savedChangeCount = instance._changeCount;
+  instance._pendingSavedXml = instance.designer.xml;
+};
+
+const confirmSave = instance => {
+  const prevProps = instance.props;
+
+  instance.props = { ...instance.props, savedModel: { rev: {} } };
+  instance.componentDidUpdate(prevProps, instance.state);
+};
+
 describe('ModelEditorPage dirty state — what "unsaved changes" means to the close guards', () => {
-  const makeEditor = ({ pathname = Urls.BPMN_EDITOR, xml = '<model version="loaded"/>' } = {}) => {
-    const instance = new ModelEditorPage({ location: { pathname } });
-
-    instance.designer = {
-      xml,
-      saveXML: ({ callback }) => callback({ xml: instance.designer.xml }),
-      destroy: jest.fn()
-    };
-
-    return instance;
-  };
-
-  // The baseline capture and the edits below go through the same debounced serializer the component
-  // uses; flushing it stands for "the burst of events is over".
-  const settle = instance => instance.syncDirtyState.flush();
-
-  const loadDiagram = instance => {
-    instance.resetDirtyBaseline();
-    settle(instance);
-  };
-
-  const edit = (instance, xml) => {
-    instance.designer.xml = xml;
-    instance.handleModelChanged({ trigger: 'execute' });
-  };
-
-  // What the saga does after `saveModel`: remembers what was sent, then confirms it with a new
-  // `savedModel` prop once the server answers.
-  const sendSave = instance => {
-    instance._savedChangeCount = instance._changeCount;
-    instance._pendingSavedXml = instance.designer.xml;
-  };
-
-  const confirmSave = instance => {
-    const prevProps = instance.props;
-
-    instance.props = { ...instance.props, savedModel: { rev: {} } };
-    instance.componentDidUpdate(prevProps, instance.state);
-  };
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -158,5 +173,107 @@ describe('ModelEditorPage dirty state — what "unsaved changes" means to the cl
     settle(instance);
 
     expect(instance.hasUnsavedChanges()).toBe(false);
+  });
+});
+
+// The url-change guard (`PageService.registerUrlChangeGuard`) — a workspace switch used to ask for
+// confirmation unconditionally, which contradicted the silent close of a clean diagram.
+describe('ModelEditorPage workspace-change confirm — asks only about changes worth losing', () => {
+  let originalConfirm;
+
+  const makeWsEditor = ({ ws = 'ws-a', ...rest } = {}) => {
+    const instance = makeEditor(rest);
+
+    // The editor was opened at this url; `ws: null` stands for a link without the parameter
+    instance.urlQuery = ws === null ? {} : { ws };
+    // The guard reactivates its own tab before asking, and answers through the callback
+    instance.props = { ...instance.props, changeTab: jest.fn(({ callback }) => callback()) };
+
+    return instance;
+  };
+
+  beforeEach(() => {
+    originalConfirm = window.confirm;
+    window.confirm = jest.fn(() => true);
+  });
+
+  afterEach(() => {
+    window.confirm = originalConfirm;
+    jest.restoreAllMocks();
+  });
+
+  it('lets a clean diagram move to another workspace without a word', async () => {
+    const instance = makeWsEditor();
+
+    loadDiagram(instance);
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-b' }, 'tab-1')).resolves.toBeUndefined();
+
+    expect(window.confirm).not.toHaveBeenCalled();
+    // Nothing to ask about — the guard must not even reactivate the tab
+    expect(instance.props.changeTab).not.toHaveBeenCalled();
+  });
+
+  it('asks once when unsaved changes leave for another workspace, and lets the navigation through on confirm', async () => {
+    const instance = makeWsEditor();
+
+    loadDiagram(instance);
+    edit(instance, '<model version="edited"/>');
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-b' }, 'tab-1')).resolves.toBeUndefined();
+
+    expect(window.confirm).toHaveBeenCalledTimes(1);
+    expect(instance.props.changeTab).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels the navigation when the confirm is dismissed', async () => {
+    const instance = makeWsEditor();
+
+    window.confirm = jest.fn(() => false);
+
+    loadDiagram(instance);
+    edit(instance, '<model version="edited"/>');
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-b' }, 'tab-1')).rejects.toBeTruthy();
+    expect(window.confirm).toHaveBeenCalledTimes(1);
+  });
+
+  it('stays silent inside the current workspace even with unsaved changes — nothing is being left behind', async () => {
+    const instance = makeWsEditor();
+
+    loadDiagram(instance);
+    edit(instance, '<model version="edited"/>');
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-a' }, 'tab-1')).resolves.toBeUndefined();
+
+    expect(window.confirm).not.toHaveBeenCalled();
+  });
+
+  it('stays silent inside the current workspace when the editor was opened by a link without `ws`', async () => {
+    // Both sides of the comparison fall back to the current workspace, otherwise every navigation
+    // would look like a workspace switch to an editor opened without the parameter
+    const instance = makeWsEditor({ ws: null });
+
+    loadDiagram(instance);
+    edit(instance, '<model version="edited"/>');
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-a' }, 'tab-1')).resolves.toBeUndefined();
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard' }, 'tab-1')).resolves.toBeUndefined();
+
+    expect(window.confirm).not.toHaveBeenCalled();
+  });
+
+  it('goes quiet again once the changes are saved', async () => {
+    const instance = makeWsEditor();
+
+    loadDiagram(instance);
+    edit(instance, '<model version="edited"/>');
+    sendSave(instance);
+    confirmSave(instance);
+    settle(instance);
+
+    await expect(instance.handleCloseEditor({ link: '/v2/dashboard?ws=ws-b' }, 'tab-1')).resolves.toBeUndefined();
+
+    expect(window.confirm).not.toHaveBeenCalled();
   });
 });
