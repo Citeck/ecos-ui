@@ -1,20 +1,14 @@
 import Records from '@citeck/records-core';
-import { PREDICATE_AND, PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 import classNames from 'classnames';
-import isArray from 'lodash/isArray';
-import isEmpty from 'lodash/isEmpty';
-import isObject from 'lodash/isObject';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { Tooltip } from '@/components/common';
 import { Labels } from '@/components/journals/Journals/constants';
 
 import NumberFormatter from '@/components/common/grid/formatters/gql/NumberFormatter';
-import JournalsConverter from '@/dto/journals';
-import KanbanConverter from '@/dto/kanban';
+import { buildColumnSumQuery } from '@/dto/kanban';
 import { getWorkspaceId } from '@/helpers/urls';
 import { extractLabel, t } from '@/helpers/util';
-import AttributesService from '@/services/AttributesService';
 import { KanbanRelatedFilter } from '@/types/store/kanban';
 
 export interface ColumnSumData {
@@ -27,9 +21,21 @@ export interface ColumnSumData {
 interface ColumnSumProps {
   data: ColumnSumData;
   targetId: string;
-  typeRef: string;
   predicate: any;
   searchPredicate: any;
+  /** `journalConfig.sourceId` — the source the SERVER loads the cards from; also the "config has arrived" flag. */
+  sourceId?: string;
+  /** Local id of the card type — the source resolves type-specific attributes (the sum itself) through it. */
+  ecosType?: string;
+  /**
+   * Full ref of that same CARD type (`Kanban.mapStateToProps`), which for a journal-backed board is
+   * the JOURNAL's type — not necessarily `boardConfig.typeRef`. The tooltip label of the summed
+   * attribute is resolved on it, so taking the board's own type here would look the attribute up on a
+   * type that need not have it and leave the tooltip reading `Sum by ""`.
+   */
+  sumTypeRef?: string;
+  /** `journalConfig.predicate` — the journal's own scope, added by the server to every card request. */
+  journalPredicate?: any;
   /** Scopes the sum to one swimlane cell (grouped mode); the whole column is summed without it. */
   groupPredicate?: any;
   /** The board's "only linked records" predicate — the sum must honour it like the cards do. */
@@ -38,66 +44,113 @@ interface ColumnSumProps {
   className?: string;
 }
 
-const ColumnSum = ({ data, targetId, typeRef, predicate, searchPredicate, groupPredicate, relatedFilter, totalCount, className }: ColumnSumProps) => {
+const ColumnSum = ({
+  data,
+  targetId,
+  sourceId,
+  ecosType,
+  sumTypeRef,
+  journalPredicate,
+  predicate,
+  searchPredicate,
+  groupPredicate,
+  relatedFilter,
+  totalCount,
+  className
+}: ColumnSumProps) => {
   const [columnSum, setColumnSum] = useState<number | undefined>();
   const [columnSumLabel, setColumnSumLabel] = useState<{ en: string; ru: string } | undefined>();
 
+  // No `sourceId` means the board is journal-backed and its config has not arrived yet: querying now
+  // would sum the whole type, and that wrong value would be on screen until the config lands. A board
+  // WITHOUT a journal never gets here — `mapStateToProps` resolves its source from the board type, so
+  // this gate cannot leave such a board with a permanently blank banner.
+  //
+  // Memoized because building the query clones every predicate and serializing it walks the whole
+  // tree (`relatedFilter` can carry a long list of refs) — and a board re-renders every cell on every
+  // frame of a drag. The parents are expected to keep these props reference-stable for it to pay off:
+  // `Swimlane` memoizes `groupPredicate` and `Kanban` caches `searchPredicate`, both pinned by tests.
+  const queryParams = useMemo(
+    () =>
+      data.hasSum && !!sourceId
+        ? buildColumnSumQuery({
+            column: data,
+            sourceId,
+            ecosType,
+            journalPredicate,
+            predicate,
+            searchPredicate,
+            groupPredicate,
+            relatedFilter,
+            workspaceId: getWorkspaceId()
+          })
+        : null,
+    [data, sourceId, ecosType, journalPredicate, predicate, searchPredicate, groupPredicate, relatedFilter]
+  );
+  const sumAttribute = `sum(${data.sumAtt})?num`;
+  // The effect keys off this STRING, never off `queryParams` itself: the parents rebuild the
+  // predicates on every render, so a reference dep would re-fire the request forever. A rebuilt but
+  // value-equal query therefore serializes to the same key and changes nothing.
+  const queryKey = useMemo(() => (queryParams ? JSON.stringify([queryParams, sumAttribute]) : ''), [queryParams, sumAttribute]);
+
   useEffect(() => {
-    // Copy: the array comes from the store and is shared by every ColumnSum instance.
-    const toConvertPredicates = isArray(predicate) ? [...predicate] : [predicate];
-    const additionalFilter = KanbanConverter.getAdditionalFilter(data);
-
-    if (!isEmpty(searchPredicate) && isObject(searchPredicate)) {
-      toConvertPredicates.push(searchPredicate);
+    if (!queryParams) {
+      return;
     }
 
-    if (!isEmpty(additionalFilter) && isObject(additionalFilter)) {
-      toConvertPredicates.push(additionalFilter);
-    }
+    // A newer request may resolve first — a late answer must never overwrite the current one.
+    let cancelled = false;
 
-    if (data.hasSum) {
-      const journalId = AttributesService.parseId(typeRef);
-      Records.queryOne(
-        {
-          sourceId: `emodel/${journalId}`,
-          query: {
-            t: PREDICATE_AND,
-            v: [
-              {
-                t: PREDICATE_EQ,
-                a: '_status',
-                v: data.id
-              },
-              groupPredicate,
-              relatedFilter,
-              ...JournalsConverter.cleanUpPredicate(toConvertPredicates)
-            ].filter(Boolean)
-          },
-          language: 'predicate',
-          workspaces: [`${getWorkspaceId()}`],
-          groupBy: ['*']
-        },
-        { value: `sum(${data.sumAtt})?num` }
-      ).then(({ value }: { value: number }) => {
-        setColumnSum(value || 0);
-        updateColumnSumLabel();
+    Records.queryOne(queryParams, { value: sumAttribute })
+      .then(({ value }: { value: number }) => {
+        if (!cancelled) {
+          setColumnSum(value || 0);
+        }
+      })
+      .catch((e: Error) => {
+        if (!cancelled) {
+          // Keeping the previous number would show a sum belonging to another selection.
+          console.warn('[Kanban/ColumnSum] failed to load the column sum', e);
+          setColumnSum(undefined);
+        }
       });
-    }
-  }, [totalCount]);
 
+    return () => {
+      cancelled = true;
+    };
+    // `queryKey` is the serialized `queryParams`; `totalCount` is a cheap "the cell changed" trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryKey, totalCount]);
+
+  // Same "not ready" gate as the sum: the card type of a journal-backed board arrives with the
+  // journal config, and `Records.get(undefined)` is not a record. The effect re-runs once it lands.
   useEffect(() => {
-    updateColumnSumLabel();
-  }, []);
-
-  const updateColumnSumLabel = () => {
-    if (data.hasSum) {
-      Records.get(typeRef)
-        .load(`attributeById.${data.sumAtt}.name{ru,en}`)
-        .then((label: { en: string; ru: string }) => {
-          setColumnSumLabel(label || { en: '', ru: '' });
-        });
+    if (!data.hasSum || !sumTypeRef) {
+      return;
     }
-  };
+
+    let cancelled = false;
+
+    Records.get(sumTypeRef)
+      .load(`attributeById.${data.sumAtt}.name{ru,en}`)
+      .then((label: { en: string; ru: string }) => {
+        if (!cancelled) {
+          setColumnSumLabel(label || { en: '', ru: '' });
+        }
+      })
+      .catch((e: Error) => {
+        if (!cancelled) {
+          // The number itself is still valid — only the tooltip stays without an attribute name.
+          console.warn('[Kanban/ColumnSum] failed to load the label of the summed attribute', e);
+          setColumnSumLabel(undefined);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sumTypeRef, data.sumAtt, data.hasSum]);
 
   if (!data.hasSum) {
     return null;

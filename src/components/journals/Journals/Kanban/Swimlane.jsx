@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import SwimlaneHeader from './SwimlaneHeader';
@@ -16,18 +16,35 @@ const Swimlane = ({
   predicate,
   searchPredicate,
   relatedFilter,
+  sourceId,
+  ecosType,
+  sumTypeRef,
+  journalPredicate,
   isDragging,
   draggingSwimlaneId,
   onToggleCollapse,
   onLoadMore,
   onClickAction
 }) => {
+  const swimlaneId = swimlane.id;
+  const groupingAttribute = swimlaneGrouping ? swimlaneGrouping.attribute : null;
+
   // Same cell scope the sagas query cards with (buildSwimlaneCellQueryParams).
-  const groupPredicate = swimlaneGrouping
-    ? swimlane.id === '__unassigned__'
-      ? { t: 'empty', att: swimlaneGrouping.attribute }
-      : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlane.id }
-    : null;
+  //
+  // Memoized on the two values it is derived from, and NOT on the lane object: the store replaces
+  // that object on every board commit, while the identity of this predicate has to survive it. Each
+  // cell hands it to its `ColumnSum`, which memoizes the whole query build (cloning every predicate
+  // and serializing the result) on the props it reads — a fresh object per render would miss that
+  // memo in every cell of every lane, on every frame of a drag.
+  const groupPredicate = useMemo(
+    () =>
+      groupingAttribute
+        ? swimlaneId === '__unassigned__'
+          ? { t: 'empty', att: groupingAttribute }
+          : { t: 'eq', att: groupingAttribute, val: swimlaneId }
+        : null,
+    [groupingAttribute, swimlaneId]
+  );
 
   return (
     <div className="ecos-kanban__swimlane">
@@ -37,9 +54,11 @@ const Swimlane = ({
         isCollapsed={swimlane.isCollapsed}
         onToggleCollapse={() => onToggleCollapse(swimlane.id)}
       />
-      <div className={classNames('ecos-kanban__swimlane-body', {
-        'ecos-kanban__swimlane-body_collapsed': swimlane.isCollapsed
-      })}>
+      <div
+        className={classNames('ecos-kanban__swimlane-body', {
+          'ecos-kanban__swimlane-body_collapsed': swimlane.isCollapsed
+        })}
+      >
         <div className="ecos-kanban__swimlane-body-inner">
           {columns.map(col => {
             const cell = swimlane.cells[col.id] || {};
@@ -61,6 +80,10 @@ const Swimlane = ({
                 searchPredicate={searchPredicate}
                 groupPredicate={groupPredicate}
                 relatedFilter={relatedFilter}
+                sourceId={sourceId}
+                ecosType={ecosType}
+                sumTypeRef={sumTypeRef}
+                journalPredicate={journalPredicate}
                 actions={colActions}
                 isDragging={isDragging}
                 draggingSwimlaneId={draggingSwimlaneId}
@@ -87,6 +110,10 @@ Swimlane.propTypes = {
   predicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   relatedFilter: PropTypes.object,
+  sourceId: PropTypes.string,
+  ecosType: PropTypes.string,
+  sumTypeRef: PropTypes.string,
+  journalPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   onToggleCollapse: PropTypes.func.isRequired,
