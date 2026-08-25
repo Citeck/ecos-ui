@@ -35,8 +35,7 @@ export interface IJournalsApi {
   checkRowEditRules: (recordRef: string) => Promise<boolean>;
   checkCellProtectedFromEditing: (recordRef: string, cell: string) => Promise<boolean>;
   getJournalsByIds: (ids: string[], attributes: NonNullable<unknown>) => PureQueryResponse<Array<NonNullable<unknown>>>;
-  getTotalSum: (journalType: string, countFields: string[], query: NonNullable<unknown>) => Promise<Record<string, number> | null>;
-  getJournalTypeRef: (journalId: string) => Promise<string>;
+  getTotalSum: (recordsQuery: NonNullable<unknown> | null, countFields: string[]) => Promise<Record<string, number> | null>;
   deleteDownloadsProgress: (nodeRef: string) => Promise<void>;
   fetchBreadcrumbs: () => Promise<string[]>;
   getConfigWidgets: (journalId: string) => Promise<WidgetsConfigType>;
@@ -181,28 +180,21 @@ export class JournalsApi extends RecordService implements IJournalsApi {
     });
   };
 
-  getTotalSum: IJournalsApi['getTotalSum'] = (journalType, countFields, query = {}) => {
-    if (!journalType || !countFields) {
+  /**
+   * Executes the footer sum query — it does NOT compose it. The scope of the sum has to be the scope
+   * of the table, and only the journal layer knows that scope; see `buildTotalSumQuery` in
+   * `src/dto/journals.js`. Everything this used to derive on its own (the source guessed from a type
+   * ref, the language, the grouping, the workspace) is part of the query it is handed now.
+   */
+  getTotalSum: IJournalsApi['getTotalSum'] = (recordsQuery, countFields) => {
+    if (!recordsQuery || !countFields || !countFields.length) {
       return new Promise(resolve => resolve(null));
     }
 
-    const attributes = countFields.map(field => `sum(${field})`);
-    const sourceId = journalType.replace('type@', '');
-
     return Records.queryOne(
-      {
-        sourceId,
-        query,
-        language: 'predicate',
-        groupBy: ['*'],
-        workspaces: [`${getWorkspaceId()}`]
-      },
-      attributes
+      recordsQuery,
+      countFields.map(field => `sum(${field})`)
     );
-  };
-
-  getJournalTypeRef: IJournalsApi['getJournalTypeRef'] = journalId => {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
   };
 
   static saveConfigWidgets = ({ config, journalId = '' }: { journalId: string; config?: NonNullable<unknown> }): Promise<void> => {
