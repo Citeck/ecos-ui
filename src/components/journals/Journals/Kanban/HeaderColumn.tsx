@@ -17,15 +17,33 @@ interface HeaderColumnProps {
   data: ColumnSumData & { name: string };
   totalCount: number;
   isReady: boolean;
-  predicate: any;
-  searchPredicate: any;
-  typeRef: string;
+  /** Everything below is read by the sum only — a header with `showSum={false}` needs none of it. */
+  predicate?: any;
+  searchPredicate?: any;
   relatedFilter?: KanbanRelatedFilter;
+  /** The card scope the server resolves server-side: record source, card type and journal predicate. */
+  sourceId?: string;
+  ecosType?: string;
+  /** Full ref of that same card type — the tooltip label of the summed attribute is resolved on it. */
+  sumTypeRef?: string;
+  journalPredicate?: any;
   /** Grouped mode hides the header sum — each swimlane cell renders its own. */
   showSum?: boolean;
 }
 
-const HeaderColumn = ({ data, totalCount, isReady, typeRef, predicate, searchPredicate, relatedFilter, showSum = true }: HeaderColumnProps) => {
+const HeaderColumn = ({
+  data,
+  totalCount,
+  isReady,
+  predicate,
+  searchPredicate,
+  relatedFilter,
+  sourceId,
+  ecosType,
+  sumTypeRef,
+  journalPredicate,
+  showSum = true
+}: HeaderColumnProps) => {
   if (isEmpty(data)) {
     return null;
   }
@@ -48,10 +66,13 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, predicate, searchPre
         <ColumnSum
           data={data}
           targetId={`head-caption_${data.id}_${data.sumAtt}`}
-          typeRef={typeRef}
+          sumTypeRef={sumTypeRef}
           predicate={predicate}
           searchPredicate={searchPredicate}
           relatedFilter={relatedFilter}
+          sourceId={sourceId}
+          ecosType={ecosType}
+          journalPredicate={journalPredicate}
           totalCount={totalCount}
         />
       )}

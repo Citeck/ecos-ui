@@ -36,6 +36,10 @@ const KanbanColumn = ({
   searchPredicate,
   groupPredicate,
   relatedFilter,
+  sourceId,
+  ecosType,
+  sumTypeRef,
+  journalPredicate,
   isDragging,
   draggingSwimlaneId,
   isCollapsed,
@@ -153,11 +157,14 @@ const KanbanColumn = ({
                 className="ecos-kanban__column-sum_inline"
                 data={columnInfo}
                 targetId={`cell-sum_${swimlaneId}_${statusId}_${columnInfo.sumAtt}`.replace(/[^\w-]/g, '_')}
-                typeRef={get(boardConfig, 'typeRef')}
+                sumTypeRef={sumTypeRef}
                 predicate={predicate}
                 searchPredicate={searchPredicate}
                 groupPredicate={groupPredicate}
                 relatedFilter={relatedFilter}
+                sourceId={sourceId}
+                ecosType={ecosType}
+                journalPredicate={journalPredicate}
                 totalCount={totalCount}
               />
             )}
@@ -205,6 +212,10 @@ KanbanColumn.propTypes = {
   searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   groupPredicate: PropTypes.object,
   relatedFilter: PropTypes.object,
+  sourceId: PropTypes.string,
+  ecosType: PropTypes.string,
+  sumTypeRef: PropTypes.string,
+  journalPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   isCollapsed: PropTypes.bool,
