@@ -1,5 +1,6 @@
 import { GROUPING_COUNT_ALL } from '@citeck/constants/journal';
 import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '@citeck/records-core/predicates/predicates';
+import { convertAttributeValues } from '@citeck/records-core/predicates/util';
 import { ParserPredicate, Predicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
@@ -16,6 +17,71 @@ import AttributesService from '../services/AttributesService';
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
 };
+
+/**
+ * Query behind the total sum in the journal table footer.
+ *
+ * The sum must count exactly the rows the table counts, and the only object that is guaranteed to
+ * describe that set is the query the table has ALREADY run: `journalsDataLoader.getRecordsQuery`
+ * builds it, the loader returns it and `setGrid` keeps it in `grid.query`. Re-deriving it from parts
+ * is what the footer used to do, and it was wrong in every part the footer did not know about — the
+ * record source was GUESSED from the journal type ref (`type@x` -> `emodel/x`, which misses for a
+ * third of the journals on a stand: those answered `{"records":[]}` and the footer went silently
+ * empty), while the header search predicate, the "only linked" filter, the category, the inner-query
+ * sub-selects and the whole `predicate-with-data` payload were simply absent.
+ *
+ * So the main path builds nothing. It takes the executed query and changes only what turns a page
+ * request into an aggregate: `page` and `sortBy` are dropped, `groupBy` becomes `['*']`. `sourceId`,
+ * `language` (`predicate-with-data` included, together with its `data` payload), `consistency`,
+ * `workspaces` and the predicate travel AS IS. The predicate especially is NOT re-normalized: it has
+ * already been through the table pipeline, and running a foreign predicate through the
+ * empty-predicate cleanup can invert its OR branches — emptiness is `true` under AND and `false`
+ * under OR (`packages/records-predicates/src/utils.ts`, and the same reasoning in the docblock of
+ * `buildColumnSumQuery`).
+ *
+ * `ecosType` is deliberately NOT added: uiserv always bakes `eq(_type, <typeRef>)` into the
+ * predicate of a resolved journal, and `ecosType` on top of that would need the BARE local id of the
+ * type — a full ref there silently matches nothing.
+ *
+ * The fallback path serves the single caller that has no query it can trust (`sagaOpenSelectedPreset`
+ * reads the grid BEFORE the preset is applied, so `grid.query` still belongs to the previous preset).
+ * It reproduces today's shape — plain `predicate` language, `groupBy: ['*']`, the predicates cleaned
+ * and type-normalized the way the saga has always cleaned them — with the source HANDED IN by the
+ * caller instead of guessed. `workspaces` is an argument for the same reason: no store, no url, no
+ * globals here, so the builder stays pure and testable.
+ *
+ * Without a source there is nothing honest to ask for: return null and leave the footer empty. An
+ * empty footer is more truthful than a sum over someone else's source.
+ *
+ * @param {Object} params
+ * @param {?Object} [params.gridQuery] records query the table has actually run (`grid.query`)
+ * @param {?string} [params.sourceId] record source for the fallback path
+ * @param {Array<*>} [params.predicates] predicates for the fallback path
+ * @param {Array<*>} [params.columns] columns the fallback predicates are converted against
+ * @param {Array<string>} [params.workspaces] workspaces for the fallback path
+ * @returns {?Object} records query, or null when there is no source to ask
+ */
+export function buildTotalSumQuery({ gridQuery, sourceId, predicates, columns, workspaces } = {}) {
+  if (gridQuery && gridQuery.sourceId) {
+    const { page, sortBy, ...rest } = gridQuery;
+
+    return { ...rest, groupBy: ['*'] };
+  }
+
+  if (!sourceId) {
+    return null;
+  }
+
+  const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates || []));
+
+  return {
+    sourceId,
+    query: JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: convertAttributeValues(cleanPredicates, columns) }),
+    language: 'predicate',
+    groupBy: ['*'],
+    workspaces
+  };
+}
 
 export default class JournalsConverter {
   static cleanUpPredicate(predicate) {
