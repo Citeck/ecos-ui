@@ -264,11 +264,20 @@ class PageTabs extends React.Component {
 
         const url = new URL(link);
         const searchParams = new URLSearchParams(url.search);
-        if (searchParams.get('ws') !== getWorkspaceId()) {
+        const linkWorkspace = searchParams.get('ws');
+
+        if (linkWorkspace !== getWorkspaceId()) {
           data.needUpdateTabs = true;
         }
 
-        if (url.host === window.location.host) {
+        // A link that leaves the current host — or, with workspaces on, names another workspace —
+        // opens a browser tab. Pushing a foreign workspace client-side switches the workspace under
+        // the tab list and left the dashboard blank (COREDEV-433); a separate browser tab boots the
+        // application in that workspace from scratch. A link that names no workspace stays in the
+        // app: the tab saga resolves it to the current one.
+        const leavesWorkspace = !!linkWorkspace && getEnabledWorkspaces() && linkWorkspace !== getWorkspaceId();
+
+        if (url.host === window.location.host && !leavesWorkspace) {
           setTab({ data, params: { reopen, closeActiveTab } });
         } else {
           window.open(data.link, '_blank');

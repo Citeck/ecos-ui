@@ -1,46 +1,39 @@
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
+import isString from 'lodash/isString';
 import React from 'react';
 
 /**
- * A "link to selection" the assistant answers with: a journal address carrying the id of a saved
- * user config. Recognised by both parts — a bare `/v2/journals?...` link is an ordinary journal
- * link and must behave like every other link of the answer.
- * @param {*} href - The `href` of the rendered anchor, or anything else
- * @returns {boolean}
+ * Anchor attributes for a link the assistant rendered: a link to another host opens a new browser
+ * tab, a link of this host stays a plain anchor. Where a link of this host then goes — a page tab
+ * of the app, or a browser tab when it names another workspace — is decided by the tabs router
+ * (`PageTabs.handleClickLink`), which claims every `/v2` link of this host from the capture phase
+ * of the document. Without `target="_blank"` an external address that the router does not claim
+ * (no `/v2` in it) would navigate the whole application away.
+ * @param {*} href - The `href` of the anchor, or anything else
+ * @returns {{target?: string, rel?: string}}
  */
-export const isJournalSelectionLink = href => typeof href === 'string' && /\/v2\/journals\?/.test(href) && href.includes('userConfigId');
+export const externalLinkProps = href => {
+  if (!isString(href) || !href) {
+    return {};
+  }
+
+  let url;
+
+  try {
+    url = new URL(href, window.location.origin);
+  } catch (e) {
+    return {};
+  }
+
+  return url.origin === window.location.origin ? {} : { target: '_blank', rel: 'noopener noreferrer' };
+};
 
 /**
- * The anchor every markdown answer of the assistant is rendered with.
- *
- * The chat panel is portalled straight into `document.body` (`AIAssistantContainer`), so it sits
- * neither inside `.ecos-modal` nor inside `PageTabs` — the two places `PageService.parseEvent`
- * treats as "not mine". The capture-phase listener `PageTabs` puts on the document
- * (`ClickOutside type="click"`) therefore claims every `/v2` link of an answer and calls
- * `preventDefault()` on it; `target="_blank"` never fires and the address is pushed client-side
- * instead. When the link names a workspace other than the current one, that push changes the
- * address before the tab is registered and `Dashboard` — which renders nothing until its `tabId`
- * is the active tab — mounts with an empty config: the blank page of COREDEV-433. Opening the same
- * address in a new browser window boots the whole application and has no such race, which is why
- * only the in-app transition was broken.
- *
- * `data-external` (`IGNORE_TABS_HANDLER_ATTR_NAME`) is the documented way to tell that listener to
- * keep its hands off a link, and it is what makes the `target="_blank"` the assistant already asked
- * for actually happen.
- *
- * The journal "link to selection" is the one link that *wants* to be intercepted: rendered as a
- * plain in-app anchor it lets `PageTabs` reuse the journal tab already open and push the new
- * address into it, and the journal view then re-applies the user config on the `userConfigId`
- * change. Sent to a new browser tab it would open a second journal instead.
+ * The anchor every markdown answer of the assistant is rendered with (COREDEV-433). Links of this
+ * host are left to the tabs router — the chat panel is portalled into `document.body`, outside
+ * `.ecos-modal` and `PageTabs`, so the router sees them like any other link of the page.
  * @param {Object} props - Anchor props as produced by the markdown renderer
  * @param {*} [props.node] - The markdown AST node; consumed here so it never reaches the DOM
  */
-const ChatMarkdownLink = ({ node, ...props }) => {
-  if (isJournalSelectionLink(props.href || '')) {
-    return <a {...props} />;
-  }
-
-  return <a {...props} target="_blank" rel="noopener noreferrer" {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }} />;
-};
+const ChatMarkdownLink = ({ node, ...props }) => <a {...props} {...externalLinkProps(props.href)} />;
 
 export default ChatMarkdownLink;

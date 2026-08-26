@@ -8,9 +8,9 @@ import { getScriptContextLabel } from './constants';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util.ts';
 
-// Same anchor as the chat answers use: `data-external` keeps PageTabs' capture-phase handler off
-// the link so its `target="_blank"` survives (COREDEV-433). Module constant so the prop identity
-// does not change on every render.
+// Same anchor as the chat answers use: links of this host go to the tabs router, links to other
+// hosts open a browser tab (COREDEV-433). Module constant so the prop identity does not change on
+// every render.
 const SCRIPT_EXPLANATION_MARKDOWN_COMPONENTS = { a: ChatMarkdownLink };
 
 // Light theme styles - more readable and professional

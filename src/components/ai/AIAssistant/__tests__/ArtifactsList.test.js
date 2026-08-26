@@ -24,33 +24,27 @@ describe('ArtifactsList', () => {
   });
 
   it('renders header with check-circle icon', () => {
-    const artifacts = [
-      { name: 'Test', url: '/test', type: { displayName: 'Form', icon: 'fa-wpforms' } }
-    ];
+    const artifacts = [{ name: 'Test', url: '/test', type: { displayName: 'Form', icon: 'fa-wpforms' } }];
 
     render(<ArtifactsList artifacts={artifacts} />);
 
     expect(screen.getByText('ai-assistant.artifacts.title')).toBeTruthy();
   });
 
-  it('renders artifact name as link with correct href and target', () => {
-    const artifacts = [
-      { name: 'MyForm', url: '/v2/form/123', type: { displayName: 'Form', icon: 'fa-wpforms' } }
-    ];
+  it('renders artifact name as a plain in-app link with correct href', () => {
+    const artifacts = [{ name: 'MyForm', url: '/v2/form/123', type: { displayName: 'Form', icon: 'fa-wpforms' } }];
 
     render(<ArtifactsList artifacts={artifacts} />);
 
     const link = screen.getByText('MyForm');
     expect(link.tagName).toBe('A');
     expect(link.getAttribute('href')).toBe('/v2/form/123');
-    expect(link.getAttribute('target')).toBe('_blank');
-    expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(link.getAttribute('target')).toBeNull();
+    expect(link.getAttribute('rel')).toBeNull();
   });
 
   it('renders artifact type display name', () => {
-    const artifacts = [
-      { name: 'MyType', url: '/type/1', type: { displayName: 'Data Type', icon: 'fa-database' } }
-    ];
+    const artifacts = [{ name: 'MyType', url: '/type/1', type: { displayName: 'Data Type', icon: 'fa-database' } }];
 
     render(<ArtifactsList artifacts={artifacts} />);
 
@@ -75,9 +69,7 @@ describe('ArtifactsList', () => {
   });
 
   it('handles artifacts with missing type gracefully', () => {
-    const artifacts = [
-      { name: 'NoType', url: '/x' }
-    ];
+    const artifacts = [{ name: 'NoType', url: '/x' }];
 
     const { container } = render(<ArtifactsList artifacts={artifacts} />);
 
@@ -86,9 +78,7 @@ describe('ArtifactsList', () => {
   });
 
   it('handles artifacts with missing type icon gracefully', () => {
-    const artifacts = [
-      { name: 'NoIcon', url: '/y', type: { displayName: 'Custom' } }
-    ];
+    const artifacts = [{ name: 'NoIcon', url: '/y', type: { displayName: 'Custom' } }];
 
     render(<ArtifactsList artifacts={artifacts} />);
 
@@ -96,14 +86,24 @@ describe('ArtifactsList', () => {
     expect(screen.getByText('Custom')).toBeTruthy();
   });
 
-  it('marks the artifact link as external so the tabs handler leaves target="_blank" alone', () => {
+  it('an artifact of this host is a plain in-app anchor the tabs router decides about', () => {
     const artifacts = [{ name: 'Report', url: '/v2/dashboard?recordRef=emodel/report@1&ws=other', type: { displayName: 'Doc' } }];
 
     render(<ArtifactsList artifacts={artifacts} />);
 
     const link = screen.getByText('Report');
     expect(link.tagName).toBe('A');
-    expect(link.getAttribute('target')).toBe('_blank');
-    expect(link.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
+    expect(link.getAttribute('target')).toBeNull();
+    expect(link.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBeNull();
+  });
+
+  it('an artifact on another host opens a new browser tab', () => {
+    const artifacts = [
+      { name: 'Report', url: 'https://other.example.com/v2/dashboard?recordRef=emodel/report@1', type: { displayName: 'Doc' } }
+    ];
+
+    render(<ArtifactsList artifacts={artifacts} />);
+
+    expect(screen.getByText('Report').getAttribute('target')).toBe('_blank');
   });
 });

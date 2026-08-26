@@ -1,14 +1,16 @@
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import ChatMarkdownLink, { isJournalSelectionLink } from '../components/ChatMarkdownLink';
+import ChatMarkdownLink, { externalLinkProps } from '../components/ChatMarkdownLink';
 
 import PageService from '@/services/PageService';
 
+const HOST = window.location.origin; // http://localhost in jsdom
 const RECORD_LINK = '/v2/dashboard?recordRef=emodel/assignment-type@fb05d827-e586-47eb-a6f2-ff6a510245c1&ws=default';
 const OTHER_WORKSPACE_RECORD_LINK = '/v2/dashboard?recordRef=emodel/assignment-type@fb05d827&ws=other-workspace';
 const JOURNAL_SELECTION_LINK = '/v2/journals?journalId=emodel/journal@tasks&userConfigId=journal-settings@abc&ws=default';
+const OTHER_HOST_LINK = 'https://other.example.com/v2/dashboard?recordRef=emodel/type@a&ws=default';
+const PLAIN_EXTERNAL_LINK = 'https://example.com/docs/page';
 
 const renderLink = href => {
   const { container } = render(<ChatMarkdownLink href={href}>link text</ChatMarkdownLink>);
@@ -18,8 +20,9 @@ const renderLink = href => {
 /**
  * Clicks the rendered anchor with the very handler PageTabs installs on the document:
  * `ClickOutside type="click"` listens in the capture phase and hands the event to
- * `PageService.parseEvent`. The chat panel is portalled into `document.body`, so — exactly as in
- * the browser — the anchor is neither inside `.ecos-modal` nor inside the PageTabs wrapper.
+ * `PageService.parseEvent`. Where the click then goes (page tab vs browser tab) is decided by
+ * `PageTabs.handleClickLink` — see PageTabs.linkPolicy.test.js. Here the anchor only has to reach
+ * that router for links of this host and stay out of its way for the others.
  */
 const clickWithPageTabsHandler = href => {
   const anchor = renderLink(href);
@@ -37,56 +40,43 @@ const clickWithPageTabsHandler = href => {
 };
 
 describe('ChatMarkdownLink', () => {
-  describe('isJournalSelectionLink', () => {
-    it('recognises a journal address carrying a user config id', () => {
-      expect(isJournalSelectionLink(JOURNAL_SELECTION_LINK)).toBe(true);
+  describe('externalLinkProps', () => {
+    it('is empty for links of this host, relative or absolute', () => {
+      expect(externalLinkProps(RECORD_LINK)).toEqual({});
+      expect(externalLinkProps(`${HOST}${RECORD_LINK}`)).toEqual({});
+      expect(externalLinkProps(OTHER_WORKSPACE_RECORD_LINK)).toEqual({});
     });
 
-    it('does not treat a plain journal address as a link to selection', () => {
-      expect(isJournalSelectionLink('/v2/journals?journalId=emodel/journal@tasks')).toBe(false);
+    it('sends a link to another host to a new browser tab', () => {
+      expect(externalLinkProps(OTHER_HOST_LINK)).toEqual({ target: '_blank', rel: 'noopener noreferrer' });
+      expect(externalLinkProps(PLAIN_EXTERNAL_LINK)).toEqual({ target: '_blank', rel: 'noopener noreferrer' });
     });
 
-    it('does not treat a record card as a link to selection', () => {
-      expect(isJournalSelectionLink(RECORD_LINK)).toBe(false);
-    });
-
-    it('reports anything that is not a string as not a link to selection', () => {
-      expect(isJournalSelectionLink(undefined)).toBe(false);
-      expect(isJournalSelectionLink(null)).toBe(false);
-      expect(isJournalSelectionLink(42)).toBe(false);
+    it('treats anything that is not a usable address as a link of this host', () => {
+      expect(externalLinkProps(undefined)).toEqual({});
+      expect(externalLinkProps('')).toEqual({});
+      expect(externalLinkProps(42)).toEqual({});
     });
   });
 
   describe('rendered anchor', () => {
-    it('marks a record link as external so the tabs handler ignores it', () => {
-      const anchor = renderLink(RECORD_LINK);
+    it.each([
+      ['a record of the current workspace', RECORD_LINK],
+      ['a record of another workspace', OTHER_WORKSPACE_RECORD_LINK],
+      ['a journal link to selection', JOURNAL_SELECTION_LINK]
+    ])('%s is a plain in-app anchor the tabs router decides about', (_, href) => {
+      const anchor = renderLink(href);
 
-      expect(anchor.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
+      expect(anchor.getAttribute('href')).toBe(href);
+      expect(anchor.getAttribute('target')).toBeNull();
+      expect(anchor.getAttribute('data-external')).toBeNull();
+    });
+
+    it('a link to another host opens a new browser tab', () => {
+      const anchor = renderLink(OTHER_HOST_LINK);
+
       expect(anchor.getAttribute('target')).toBe('_blank');
       expect(anchor.getAttribute('rel')).toBe('noopener noreferrer');
-      expect(anchor.getAttribute('href')).toBe(RECORD_LINK);
-    });
-
-    it('marks a record link of another workspace as external too', () => {
-      const anchor = renderLink(OTHER_WORKSPACE_RECORD_LINK);
-
-      expect(anchor.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
-      expect(anchor.getAttribute('target')).toBe('_blank');
-    });
-
-    it('marks a plain journal link (no user config) as external', () => {
-      const anchor = renderLink('/v2/journals?journalId=emodel/journal@tasks');
-
-      expect(anchor.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
-      expect(anchor.getAttribute('target')).toBe('_blank');
-    });
-
-    it('leaves the journal link to selection an in-app anchor', () => {
-      const anchor = renderLink(JOURNAL_SELECTION_LINK);
-
-      expect(anchor.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBeNull();
-      expect(anchor.getAttribute('target')).toBeNull();
-      expect(anchor.getAttribute('href')).toBe(JOURNAL_SELECTION_LINK);
     });
 
     it('never leaks the markdown AST node onto the DOM', () => {
@@ -97,25 +87,25 @@ describe('ChatMarkdownLink', () => {
   });
 
   describe('click under the PageTabs capture-phase handler', () => {
-    it('lets a record link reach the browser, so target="_blank" opens a real tab', () => {
+    it('hands a record link of this host to the tabs router', () => {
       const { parsed, prevented } = clickWithPageTabsHandler(RECORD_LINK);
 
-      expect(prevented).toBe(false);
-      expect(parsed).toBeUndefined();
+      expect(prevented).toBe(true);
+      expect(parsed).toEqual(expect.objectContaining({ link: RECORD_LINK }));
     });
 
-    it('lets a record link of another workspace reach the browser', () => {
+    it('hands a record link of another workspace to the tabs router (which opens a browser tab)', () => {
       const { parsed, prevented } = clickWithPageTabsHandler(OTHER_WORKSPACE_RECORD_LINK);
 
-      expect(prevented).toBe(false);
-      expect(parsed).toBeUndefined();
+      expect(prevented).toBe(true);
+      expect(parsed).toEqual(expect.objectContaining({ link: OTHER_WORKSPACE_RECORD_LINK }));
     });
 
-    it('still hands the journal link to selection to the tabs handler', () => {
-      const { parsed, prevented } = clickWithPageTabsHandler(JOURNAL_SELECTION_LINK);
+    it('lets a plain external link reach the browser', () => {
+      const { parsed, prevented } = clickWithPageTabsHandler(PLAIN_EXTERNAL_LINK);
 
-      expect(prevented).toBe(true);
-      expect(parsed).toEqual(expect.objectContaining({ link: JOURNAL_SELECTION_LINK }));
+      expect(prevented).toBe(false);
+      expect(parsed).toBeUndefined();
     });
   });
 });
