@@ -53,6 +53,15 @@ describe('PageTabs.handleClickLink — where a link opens', () => {
     expect(openSpy).not.toHaveBeenCalled();
   });
 
+  it('a link without a host counts as a link of this host', () => {
+    const instance = makeTabs();
+
+    click(instance, '/v2/journals?journalId=tasks&ws=TEST2');
+
+    expect(instance.props.setTab).toHaveBeenCalledTimes(1);
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
   it('a link that names no workspace opens a page tab of the app, as before', () => {
     const instance = makeTabs();
 
@@ -65,11 +74,44 @@ describe('PageTabs.handleClickLink — where a link opens', () => {
   it('a link into another workspace opens a browser tab', () => {
     const instance = makeTabs();
 
+    const event = click(instance, '/v2/journals?journalId=tasks&ws=OTHER');
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(openSpy).toHaveBeenCalledWith('/v2/journals?journalId=tasks&ws=OTHER', '_blank');
+    expect(instance.props.setTab).not.toHaveBeenCalled();
+  });
+
+  it('the dashboard of another workspace itself opens a browser tab', () => {
+    const instance = makeTabs();
+
+    click(instance, '/v2/dashboard?ws=OTHER');
+
+    expect(openSpy).toHaveBeenCalledWith('/v2/dashboard?ws=OTHER', '_blank');
+    expect(instance.props.setTab).not.toHaveBeenCalled();
+  });
+
+  // A record card is the same record wherever the link came from; the user stays in the workspace
+  // they are in and gets the card as a page tab of it — the `ws` the link names is ignored.
+  it('a record card of another workspace opens a page tab in the current workspace', () => {
+    const instance = makeTabs();
+
     const event = click(instance, '/v2/dashboard?recordRef=emodel/type@a&ws=OTHER');
 
     expect(event.defaultPrevented).toBe(true);
-    expect(openSpy).toHaveBeenCalledWith('/v2/dashboard?recordRef=emodel/type@a&ws=OTHER', '_blank');
-    expect(instance.props.setTab).not.toHaveBeenCalled();
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(instance.props.setTab).toHaveBeenCalledTimes(1);
+    const { data } = instance.props.setTab.mock.calls[0][0];
+    expect(data.link).toBe('/v2/dashboard?ws=TEST2&recordRef=emodel/type@a');
+    expect(data.needUpdateTabs).toBeFalsy();
+  });
+
+  it('an absolute link of this host to a record card of another workspace opens it in the current workspace too', () => {
+    const instance = makeTabs();
+
+    click(instance, `${HOST}/v2/dashboard?recordRef=emodel/type@a&ws=OTHER`);
+
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(instance.props.setTab.mock.calls[0][0].data.link).toBe('/v2/dashboard?ws=TEST2&recordRef=emodel/type@a');
   });
 
   it('an absolute link of this host into another workspace opens a browser tab too', () => {
