@@ -3,7 +3,9 @@ import {
   applyFilter,
   getBoardConfig,
   getBoardData,
+  reloadBoardData,
   resetFilter,
+  setRefreshing,
   setBoardConfig,
   setBoardList,
   setDataCards,
@@ -89,6 +91,39 @@ describe('kanban reducer tests', () => {
     expect(ownState.isFirstLoading).toBeTruthy();
   });
 
+  it('reloadBoardData > drops the loaded cards and clears isRefreshing', () => {
+    const loaded = [{ status: 'backlog', records: [{ id: 'r1' }], totalCount: 1 }];
+    const prevState = { [stateId]: { ...initialState, dataCards: loaded, isFirstLoading: false, isRefreshing: true } };
+    const ownState = reducer(prevState, reloadBoardData({ stateId }))[stateId];
+
+    expect(ownState.dataCards).toEqual([]);
+    expect(ownState.isFirstLoading).toBeTruthy();
+    expect(ownState.isRefreshing).toBeFalsy();
+  });
+
+  it('reloadBoardData silent > keeps the loaded cards and pagination; the saga owns isRefreshing', () => {
+    const loaded = [{ status: 'backlog', records: [{ id: 'r1' }], totalCount: 1 }];
+    const prevState = {
+      [stateId]: { ...initialState, dataCards: loaded, isFirstLoading: false, pagination: { skipCount: 20, maxItems: 10, page: 3 } }
+    };
+    const ownState = reducer(prevState, reloadBoardData({ stateId, silent: true }))[stateId];
+
+    expect(ownState.dataCards).toEqual(loaded);
+    expect(ownState.isFirstLoading).toBeFalsy();
+    expect(ownState.isLoading).toEqual(prevState[stateId].isLoading);
+    expect(ownState.pagination).toEqual({ skipCount: 20, maxItems: 10, page: 3 });
+    // sagaRefreshBoardData raises isRefreshing itself (and only when it actually refreshes in place),
+    // so the reducer must NOT pre-set it — otherwise the button spins during the full-reload fallback.
+    expect(ownState.isRefreshing).toBeFalsy();
+  });
+
+  it('setRefreshing', () => {
+    const prevState = { [stateId]: { ...initialState, isRefreshing: true } };
+    const ownState = reducer(prevState, setRefreshing({ stateId, isRefreshing: false }))[stateId];
+
+    expect(ownState.isRefreshing).toBeFalsy();
+  });
+
   it('setSwimlaneGrouping', () => {
     const grouping = { attribute: 'priority', label: 'Priority' };
     const newState = reducer(undefined, setSwimlaneGrouping({ stateId, swimlaneGrouping: grouping }));
@@ -115,11 +150,20 @@ describe('kanban reducer tests', () => {
 
   it('setSwimlaneCellData', () => {
     const swimlanes = [
-      { id: 'sl-1', cells: { 'col-1': { records: [], totalCount: 0, isLoading: true }, 'col-2': { records: [{ id: 'x' }], totalCount: 1, isLoading: false } } },
+      {
+        id: 'sl-1',
+        cells: {
+          'col-1': { records: [], totalCount: 0, isLoading: true },
+          'col-2': { records: [{ id: 'x' }], totalCount: 1, isLoading: false }
+        }
+      },
       { id: 'sl-2', cells: { 'col-1': { records: [], totalCount: 0, isLoading: true } } }
     ];
     const prevState = { [stateId]: { ...initialState, swimlanes } };
-    const newState = reducer(prevState, setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1 }));
+    const newState = reducer(
+      prevState,
+      setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1 })
+    );
     const ownState = newState[stateId];
 
     expect(ownState.swimlanes[0].cells['col-1'].records).toEqual([{ id: 'r1' }]);
@@ -134,7 +178,10 @@ describe('kanban reducer tests', () => {
     const swimlanes = [{ id: 'sl-1', cells: { 'col-1': { records: [], totalCount: 0, pagination, isLoading: true } } }];
     const prevState = { [stateId]: { ...initialState, swimlanes } };
 
-    const kept = reducer(prevState, setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1 }));
+    const kept = reducer(
+      prevState,
+      setSwimlaneCellData({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', records: [{ id: 'r1' }], totalCount: 1 })
+    );
     expect(kept[stateId].swimlanes[0].cells['col-1'].pagination).toEqual(pagination);
 
     const next = { skipCount: 0, maxItems: 40, page: 4 };
@@ -159,9 +206,7 @@ describe('kanban reducer tests', () => {
   });
 
   it('setSwimlaneCellLoading', () => {
-    const swimlanes = [
-      { id: 'sl-1', cells: { 'col-1': { records: [{ id: 'r1' }], totalCount: 1, isLoading: false } } }
-    ];
+    const swimlanes = [{ id: 'sl-1', cells: { 'col-1': { records: [{ id: 'r1' }], totalCount: 1, isLoading: false } } }];
     const prevState = { [stateId]: { ...initialState, swimlanes } };
     const newState = reducer(prevState, setSwimlaneCellLoading({ stateId, swimlaneId: 'sl-1', statusId: 'col-1', isLoading: true }));
     const ownState = newState[stateId];

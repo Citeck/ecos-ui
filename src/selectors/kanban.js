@@ -78,6 +78,7 @@ export const selectKanbanProps = createSelector(selectKanban, data => ({
   resolvedActions: data.resolvedActions,
   totalCount: data.totalCount,
   isLoading: data.isLoading,
+  isRefreshing: data.isRefreshing,
   isFirstLoading: data.isFirstLoading,
   isFiltered: data.isFiltered,
   isLoadingColumns: data.isLoadingColumns || [],

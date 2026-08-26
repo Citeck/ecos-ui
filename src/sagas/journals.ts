@@ -1876,7 +1876,11 @@ export function* sagaToggleViewMode({ w }: IJournalsExtraArgumentsStore, { paylo
     const journalData: IJournalState = yield select(selectJournalData, stateId);
 
     if (isKanban(journalData.viewMode)) {
-      yield put(reloadBoardData({ stateId }));
+      // Fires both on a real table→kanban switch and on every return to the journal's page tab
+      // (Journals re-runs componentDidMount when the restored URL brings the view mode back).
+      // Refresh silently: a board that already has cards keeps them and its scroll position, while an
+      // empty one falls back to the full load inside the saga. See COREDEV-426.
+      yield put(reloadBoardData({ stateId, silent: true }));
       yield put(setForceUpdate(w(false)));
     }
   } catch (e) {
