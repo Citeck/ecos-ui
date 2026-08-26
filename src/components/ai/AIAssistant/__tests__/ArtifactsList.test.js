@@ -1,3 +1,4 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ArtifactsList from '../components/messages/ArtifactsList';
@@ -93,5 +94,16 @@ describe('ArtifactsList', () => {
 
     expect(screen.getByText('NoIcon')).toBeTruthy();
     expect(screen.getByText('Custom')).toBeTruthy();
+  });
+
+  it('marks the artifact link as external so the tabs handler leaves target="_blank" alone', () => {
+    const artifacts = [{ name: 'Report', url: '/v2/dashboard?recordRef=emodel/report@1&ws=other', type: { displayName: 'Doc' } }];
+
+    render(<ArtifactsList artifacts={artifacts} />);
+
+    const link = screen.getByText('Report');
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
   });
 });

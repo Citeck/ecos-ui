@@ -20,9 +20,14 @@ import remarkGfm from 'remark-gfm';
 
 import { ContentType } from '../config/fieldActionConfigs';
 
+import ChatMarkdownLink from '@/components/ai/AIAssistant/components/ChatMarkdownLink';
 import { CONTENT_TYPES, getScriptContextLabel } from '@/components/ai/AIAssistant/constants';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
+
+// Same anchor as the chat answers use: `data-external` keeps PageTabs' capture-phase handler off
+// the link so its `target="_blank"` survives (COREDEV-433).
+const EXPLANATION_MARKDOWN_COMPONENTS = { a: ChatMarkdownLink };
 
 // Icon components for action buttons
 const CloseIcon: React.FC = () => (
@@ -263,12 +268,7 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
             {/* Explanation (if provided) - shown above diff */}
             {explanation && (
               <div className="ai-inline-result__explanation">
-                <Markdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
-                  }}
-                >
+                <Markdown remarkPlugins={[remarkGfm]} components={EXPLANATION_MARKDOWN_COMPONENTS}>
                   {explanation}
                 </Markdown>
               </div>

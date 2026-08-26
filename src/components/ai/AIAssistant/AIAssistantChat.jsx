@@ -6,7 +6,7 @@ import { ResizableBox } from 'react-resizable';
 import aiAssistantService from './AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import MermaidDiagram from './MermaidDiagram';
-import { ChatHeader, ChatTabs, ChatInput, ChatContextTags, EmailModal, MessageList } from './components';
+import { ChatHeader, ChatMarkdownLink, ChatTabs, ChatInput, ChatContextTags, EmailModal, MessageList } from './components';
 import { AI_INTENTS, EDITOR_CONTEXT_HANDLERS, TAB_TYPES, getScriptContextLabel } from './constants';
 import { exportChat } from './exportChatHistory';
 import {
@@ -173,17 +173,10 @@ const AIAssistantChat = () => {
   // Markdown components - memoized
   const markdownComponents = useMemo(
     () => ({
-      a: ({ node, ...props }) => {
-        const href = props.href || '';
-        // Journal "link to selection": render a plain in-app SPA anchor (no target=_blank / no ignore
-        // attr) so PageTabs' click handler intercepts it, reuses the existing journal tab and pushes the
-        // new URL. The journal View then re-applies the userConfig on the userConfigId change. Other chat
-        // links keep opening in a new browser tab.
-        if (/\/v2\/journals\?/.test(href) && href.includes('userConfigId')) {
-          return <a {...props} />;
-        }
-        return <a {...props} target="_blank" rel="noopener noreferrer" />;
-      },
+      // Anchors of an answer carry `data-external` so that the capture-phase link handler of
+      // PageTabs leaves them alone and `target="_blank"` works — see ChatMarkdownLink for why the
+      // journal "link to selection" is the one exception. COREDEV-433.
+      a: ChatMarkdownLink,
       // Safety net for dead previews: a temp-file image URL 500s once its backing file is gone
       // (saved, cancelled, or expired by the 30-min sweep). The chat hook proactively strips the
       // preview it knows about, but this hides any broken image regardless of cause so the user

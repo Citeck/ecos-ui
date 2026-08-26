@@ -2,10 +2,16 @@ import React from 'react';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import Markdown from 'react-markdown';
 
+import ChatMarkdownLink from './components/ChatMarkdownLink';
 import { getScriptContextLabel } from './constants';
 
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util.ts';
+
+// Same anchor as the chat answers use: `data-external` keeps PageTabs' capture-phase handler off
+// the link so its `target="_blank"` survives (COREDEV-433). Module constant so the prop identity
+// does not change on every render.
+const SCRIPT_EXPLANATION_MARKDOWN_COMPONENTS = { a: ChatMarkdownLink };
 
 // Light theme styles - more readable and professional
 const DIFF_STYLES = {
@@ -103,13 +109,7 @@ const ScriptDiffViewer = ({ original, modified, contextType, explanation, onAppl
 
       {explanation && (
         <div className="ai-assistant-chat-script-diff-viewer__explanation">
-          <Markdown
-            components={{
-              a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
-            }}
-          >
-            {explanation}
-          </Markdown>
+          <Markdown components={SCRIPT_EXPLANATION_MARKDOWN_COMPONENTS}>{explanation}</Markdown>
         </div>
       )}
 

@@ -1,3 +1,4 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import React from 'react';
 
 import { Icon } from '@/components/common';
@@ -23,7 +24,13 @@ const ArtifactsList = ({ artifacts }) => {
         {artifacts.map((artifact, index) => (
           <div key={index} className="ai-assistant-chat__artifact-item">
             <Icon className={`fa ${artifact.type?.icon || ''}`} />
-            <a href={artifact.url} target="_blank" rel="noopener noreferrer" className="ai-assistant-chat__artifact-link">
+            <a
+              href={artifact.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ai-assistant-chat__artifact-link"
+              {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+            >
               {artifact.name}
             </a>
             <span className="ai-assistant-chat__artifact-type">{artifact.type?.displayName || ''}</span>
