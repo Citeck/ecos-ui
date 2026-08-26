@@ -457,21 +457,53 @@ export default class ParserPredicate {
     return predicates;
   }
 
+  /**
+   * Adds a condition on an attribute the filter does not mention yet so that it is AND-ed with
+   * everything the filter already requires — a column header filter narrows the current result set,
+   * never widens it. The filter is an OR of settings groups, each an OR of AND-ed criteria (the shape
+   * `reverse` and `buildGroupedRowPredicate` produce), so the condition is distributed into every
+   * disjunctive branch and appended to a conjunctive one. A branch that is a bare criterion — a
+   * settings group with a single criterion, or a drill-down that left nothing but the pinned group
+   * value — has no `and` to append to and gets one; pushed into the `or` it sits in, the condition
+   * used to become an alternative instead of a restriction (COREDEV-371). Inside an `and` holding
+   * nested groups the condition goes to the first group only: `(A and B) and X` ≡ `(A and X) and B`,
+   * while a copy in every group would show up twice in the settings panel.
+   */
   static addNewPredicate(_predicates: any, predicate: any): any {
     const predicates = cloneDeep(_predicates);
-    const val = new Predicate(predicate);
+    const condition = new Predicate(predicate);
+    const isContainer = (item: any): boolean => !!item && !item.att && isArray(item.val);
 
-    (function forEach(arr: any) {
-      arr.forEach((item: any) => {
-        if (isArray(item.val)) {
-          if (!item.val.length || item.val.every((v: any) => Predicate.isEndVal(v.val))) {
-            item.val.push(val);
-          } else {
-            forEach(item.val);
+    const add = (container: any): void => {
+      if (!container.val.length) {
+        container.val.push(condition);
+        return;
+      }
+
+      if (container.t === PREDICATE_OR) {
+        container.val = container.val.map((item: any) => {
+          if (isContainer(item)) {
+            add(item);
+            return item;
           }
-        }
-      });
-    })(predicates.val || []);
+
+          return new Predicate({ t: PREDICATE_AND, val: [item, condition] });
+        });
+        return;
+      }
+
+      const nested = container.val.find(isContainer);
+
+      if (nested) {
+        add(nested);
+      } else {
+        container.val.push(condition);
+      }
+    };
+
+    if (isContainer(predicates)) {
+      add(predicates);
+    }
 
     return predicates;
   }
