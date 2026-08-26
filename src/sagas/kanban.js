@@ -36,6 +36,7 @@ import {
   setLoadingColumns,
   setPagination,
   setRelatedFilter,
+  setRefreshing,
   setResolvedActions,
   setDefaultBoardAndTemplate,
   setTotalCount,
@@ -55,7 +56,11 @@ import {
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '@/components/journals/Journals/constants';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
-import { buildOnlyLinkedPredicate, getOnlyLinkedConfig, resolveOnlyLinkedJournalId } from '@/components/journals/Journals/service/onlyLinked';
+import {
+  buildOnlyLinkedPredicate,
+  getOnlyLinkedConfig,
+  resolveOnlyLinkedJournalId
+} from '@/components/journals/Journals/service/onlyLinked';
 import RecordActions from '@/components/core/Records/actions/recordActions';
 import JournalsConverter from '../dto/journals';
 import KanbanConverter, { buildBoardCardsFilter, getAfterCardRef } from '../dto/kanban';
@@ -410,7 +415,10 @@ export function* sagaGetBoardData({ api }, { payload }) {
     if (swimlaneGrouping && swimlaneGrouping.attribute) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
     } else {
-      yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, relatedFilter } });
+      yield sagaGetData(
+        { api },
+        { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, relatedFilter } }
+      );
     }
 
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
@@ -491,13 +499,23 @@ export function* sagaGetData({ api }, { payload }) {
 
     // Request only columns that aren't already fully loaded. Fully-loaded columns are omitted
     // and keep their previous dataCards entry. Per-column skip = that column's loaded record count.
+    // A column whose previous entry carries an error marker is always requested again — a failed
+    // load leaves records.length === totalCount (0 === 0) and would otherwise be skipped forever.
     const requestedColumns = [];
+    const requestedIndexes = new Set();
     boardColumns.forEach((column, i) => {
-      if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
+      const isFullyLoaded = get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount']);
+      if (isFullyLoaded && !get(prevDataCards, [i, 'error'])) {
         return;
       }
       const colLoadedCount = get(prevDataCards, [i, 'records', 'length'], 0);
-      requestedColumns.push({ id: column.id, skipCount: colLoadedCount, maxItems, additionalFilter: KanbanConverter.getAdditionalFilter(column) });
+      requestedIndexes.add(i);
+      requestedColumns.push({
+        id: column.id,
+        skipCount: colLoadedCount,
+        maxItems,
+        additionalFilter: KanbanConverter.getAdditionalFilter(column)
+      });
     });
 
     const boardCards =
@@ -524,7 +542,7 @@ export function* sagaGetData({ api }, { payload }) {
       if (!entry) {
         return {};
       }
-      return { records: entry.records, totalCount: entry.totalCount, status };
+      return { records: entry.records, totalCount: entry.totalCount, status, error: entry.error };
     });
 
     if (result && isHandlePagination) {
@@ -541,11 +559,16 @@ export function* sagaGetData({ api }, { payload }) {
 
       if (!data.records || data.error) {
         data.error && console.error('[kanban/sagaGetData saga] error column', data.error);
+        // Only a column that was actually requested this round and came back errored/missing gets
+        // a truthy error marker (so later fetches retry it); a column that lands here because it
+        // was omitted as fully loaded must stay clean, or it would be re-requested forever.
+        const requestedButFailed = requestedIndexes.has(i);
         dataCards.push({
           totalCount: prevTotalCount,
           records: prevRecords,
-          error: get(data, 'error.message'),
-          status: prevStatus
+          error: requestedButFailed ? get(data, 'error.message') || 'not loaded' : undefined,
+          // A first-load failure has no previous entry — keep the real column id, not ''.
+          status: prevStatus || get(boardColumns, [i, 'id'], '')
         });
       } else {
         const preparedRecords = data.records.map(recordData => {
@@ -652,9 +675,11 @@ export function* sagaGetNextPage({ api }, { payload }) {
 
     const { canceled } = yield race({
       task: call(function* () {
-        const { formProps, boardConfig, isLoading, totalCount } = yield select(selectKanban, stateId);
+        const { formProps, boardConfig, isLoading, isRefreshing, totalCount } = yield select(selectKanban, stateId);
 
-        if (!isLoading) {
+        // Also gated on isRefreshing: a silent refresh re-fetches every loaded record from the top,
+        // so a concurrent next-page fetch would race it over the same window.
+        if (!isLoading && !isRefreshing) {
           yield put(setLoading({ stateId, isLoading: true }));
 
           const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -763,7 +788,12 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
     const reloadMaxItems = Math.max(loadedCount, DEFAULT_PAGINATION.maxItems);
     maxItemsPerColumn = Math.max(maxItemsPerColumn, reloadMaxItems);
     const column = columns.find(c => c.id === columnId);
-    reloadColumnsArg.push({ id: columnId, skipCount: 0, maxItems: reloadMaxItems, additionalFilter: KanbanConverter.getAdditionalFilter(column) });
+    reloadColumnsArg.push({
+      id: columnId,
+      skipCount: 0,
+      maxItems: reloadMaxItems,
+      additionalFilter: KanbanConverter.getAdditionalFilter(column)
+    });
   });
 
   if (reloadColumnsArg.length > 0) {
@@ -816,69 +846,75 @@ export function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGroupi
     cellsBySwimlane.get(swimlaneId).push(statusId);
   });
 
-  yield all(
-    [...cellsBySwimlane.entries()].map(function* ([swimlaneId, statusIds]) {
-      const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
-        api,
-        stateId,
-        boardConfig,
-        formProps,
-        swimlaneGrouping,
-        swimlaneId,
-        journalConfig,
-        journalSetting
-      });
+  const rowEntries = [...cellsBySwimlane.entries()];
 
-      // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
-      // per-column below.
-      const filter = buildBoardCardsFilter([
-        queryParams.predicates,
-        queryParams.swimlaneAttrPredicate,
-        queryParams.searchPredicate,
-        queryParams.relatedFilter
-      ]);
+  // Same bound as the initial row load: the silent refresh passes every row of the board here,
+  // and an unchunked all() would fire one request per row all at once on a high-cardinality grouping.
+  for (let chunkStart = 0; chunkStart < rowEntries.length; chunkStart += SWIMLANE_ROWS_CHUNK) {
+    yield all(
+      rowEntries.slice(chunkStart, chunkStart + SWIMLANE_ROWS_CHUNK).map(function* ([swimlaneId, statusIds]) {
+        const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
+          api,
+          stateId,
+          boardConfig,
+          formProps,
+          swimlaneGrouping,
+          swimlaneId,
+          journalConfig,
+          journalSetting
+        });
 
-      // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
-      // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
-      const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
-      const columnsArg = statusIds.map(statusId => ({
-        id: statusId,
-        skipCount: 0,
-        maxItems: swimlaneCellWindow(get(swimlane, ['cells', statusId])),
-        additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
-      }));
-      const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
-      const windowByStatus = new Map(columnsArg.map(col => [col.id, col.maxItems]));
+        // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
+        // per-column below.
+        const filter = buildBoardCardsFilter([
+          queryParams.predicates,
+          queryParams.swimlaneAttrPredicate,
+          queryParams.searchPredicate,
+          queryParams.relatedFilter
+        ]);
 
-      const boardCards = yield call(api.kanban.getBoardCards, {
-        boardRef: boardConfig.id,
-        columns: columnsArg,
-        filter,
-        maxItemsPerColumn,
-        grouping: swimlaneGrouping.attribute,
-        attributes: queryParams.attrMap
-      });
+        // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
+        // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
+        const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
+        const columnsArg = statusIds.map(statusId => ({
+          id: statusId,
+          skipCount: 0,
+          maxItems: swimlaneCellWindow(get(swimlane, ['cells', statusId])),
+          additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
+        }));
+        const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
+        const windowByStatus = new Map(columnsArg.map(col => [col.id, col.maxItems]));
 
-      const byColumn = new Map((boardCards || []).map(entry => [entry.columnId, entry]));
+        const boardCards = yield call(api.kanban.getBoardCards, {
+          boardRef: boardConfig.id,
+          columns: columnsArg,
+          filter,
+          maxItemsPerColumn,
+          grouping: swimlaneGrouping.attribute,
+          attributes: queryParams.attrMap
+        });
 
-      yield all(
-        statusIds.map(function* (statusId) {
-          const entry = byColumn.get(statusId);
-          const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
-          yield put(
-            setSwimlaneCellData({
-              stateId,
-              swimlaneId,
-              statusId,
-              records,
-              totalCount: cellTotalCount(entry, records),
-              pagination: { skipCount: 0, maxItems: windowByStatus.get(statusId) }
-            })
-          );
-        })
-      );
-    })
-  );
+        const byColumn = new Map((boardCards || []).map(entry => [entry.columnId, entry]));
+
+        yield all(
+          statusIds.map(function* (statusId) {
+            const entry = byColumn.get(statusId);
+            const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
+            yield put(
+              setSwimlaneCellData({
+                stateId,
+                swimlaneId,
+                statusId,
+                records,
+                totalCount: cellTotalCount(entry, records),
+                pagination: { skipCount: 0, maxItems: windowByStatus.get(statusId) }
+              })
+            );
+          })
+        );
+      })
+    );
+  }
 }
 
 export function* sagaMoveCard({ api }, { payload }) {
@@ -1106,74 +1142,92 @@ export function* sagaSetSwimlaneGrouping({ api }, { payload }) {
   }
 }
 
+/**
+ * The shared "what rows does this board have" query: current predicates + search text →
+ * `getDistinctValues` → sorted swimlane values, the color map from the journal column's colored
+ * formatter and the effective kanban columns. Used by the first swimlane load and by the in-place
+ * refresh (which merges the result with the rows already on screen).
+ */
+function* querySwimlaneValues({ api, stateId }) {
+  const { boardConfig, swimlaneGrouping, relatedFilter } = yield select(selectKanban, stateId);
+  const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+  const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
+  const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+  const sourceId = journalConfig.sourceId;
+
+  const urlProps = getSearchParams();
+  const searchText = urlProps[JournalUrlParams.SEARCH];
+  const searchPredicate = isExistValue(searchText)
+    ? ParserPredicate.getSearchPredicates({
+        text: searchText,
+        columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
+      })
+    : [];
+
+  const allPredicates = [...predicates];
+  if (journalConfig.predicate) {
+    allPredicates.push(journalConfig.predicate);
+  }
+  if (searchPredicate && searchPredicate.length) {
+    allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
+  }
+  // The swimlane list must be built from the same record set as the cards — otherwise a board
+  // filtered by a linked record still shows rows for values that only exist outside the filter.
+  if (relatedFilter) {
+    allPredicates.push(relatedFilter);
+  }
+
+  const distinctValues = yield call(api.kanban.getDistinctValues, {
+    sourceId,
+    attribute: swimlaneGrouping.attribute,
+    predicates: allPredicates,
+    workspaces: [getWorkspaceId()]
+  });
+
+  const sortedValues = KanbanConverter.prepareSwimlaneValues(distinctValues);
+
+  // Extract color map from journal column formatter if available
+  const swimlaneColumn = (journalConfig.columns || []).find(
+    col => col.attribute === swimlaneGrouping.attribute || col.dataField === swimlaneGrouping.attribute
+  );
+  const formatterConfig = get(swimlaneColumn, 'newFormatter', {});
+  const colorMap = formatterConfig.type === 'colored' ? get(formatterConfig, 'config.color', {}) : {};
+
+  const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
+
+  return { sortedValues, colorMap, columns };
+}
+
+function buildSwimlaneRow(val, colorMap, columns) {
+  return {
+    id: val.id,
+    label: val.label,
+    color: colorMap[val.id] || colorMap[val.label] || null,
+    isCollapsed: false,
+    cells: columns.reduce((acc, col) => {
+      acc[col.id] = {
+        records: [],
+        totalCount: 0,
+        pagination: { ...DEFAULT_PAGINATION },
+        isLoading: true
+      };
+      return acc;
+    }, {})
+  };
+}
+
 export function* sagaLoadSwimlaneValues({ api }, { payload }) {
   try {
     const { stateId } = payload;
-    const { boardConfig, formProps, swimlaneGrouping, relatedFilter } = yield select(selectKanban, stateId);
+    const { boardConfig, swimlaneGrouping } = yield select(selectKanban, stateId);
 
     if (!swimlaneGrouping || !swimlaneGrouping.attribute) {
       return;
     }
 
-    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
-    const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
-    const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
-    const sourceId = journalConfig.sourceId;
-
-    const urlProps = getSearchParams();
-    const searchText = urlProps[JournalUrlParams.SEARCH];
-    const searchPredicate = isExistValue(searchText)
-      ? ParserPredicate.getSearchPredicates({
-          text: searchText,
-          columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
-        })
-      : [];
-
-    const allPredicates = [...predicates];
-    if (journalConfig.predicate) {
-      allPredicates.push(journalConfig.predicate);
-    }
-    if (searchPredicate && searchPredicate.length) {
-      allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
-    }
-    // The swimlane list must be built from the same record set as the cards — otherwise a board
-    // filtered by a linked record still shows rows for values that only exist outside the filter.
-    if (relatedFilter) {
-      allPredicates.push(relatedFilter);
-    }
-
-    const distinctValues = yield call(api.kanban.getDistinctValues, {
-      sourceId,
-      attribute: swimlaneGrouping.attribute,
-      predicates: allPredicates,
-      workspaces: [getWorkspaceId()]
-    });
-
-    const sortedValues = KanbanConverter.prepareSwimlaneValues(distinctValues);
-
-    // Extract color map from journal column formatter if available
-    const swimlaneColumn = (journalConfig.columns || []).find(
-      col => col.attribute === swimlaneGrouping.attribute || col.dataField === swimlaneGrouping.attribute
-    );
-    const formatterConfig = get(swimlaneColumn, 'newFormatter', {});
-    const colorMap = formatterConfig.type === 'colored' ? get(formatterConfig, 'config.color', {}) : {};
-
-    const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
-    const swimlanes = sortedValues.map(val => ({
-      id: val.id,
-      label: val.label,
-      color: colorMap[val.id] || colorMap[val.label] || null,
-      isCollapsed: false,
-      cells: columns.reduce((acc, col) => {
-        acc[col.id] = {
-          records: [],
-          totalCount: 0,
-          pagination: { ...DEFAULT_PAGINATION },
-          isLoading: true
-        };
-        return acc;
-      }, {})
-    }));
+    const { sortedValues, colorMap, columns } = yield call(querySwimlaneValues, { api, stateId });
+    const swimlanes = sortedValues.map(val => buildSwimlaneRow(val, colorMap, columns));
 
     yield put(setSwimlaneValues({ stateId, swimlanes }));
 
@@ -1497,10 +1551,13 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
       // Same trimming as sagaMoveCard: the prefix down to the drop slot +1, but at least the first page
       // (the board's actual page size) so the whole "new" (unranked) block gets materialized — off-list
       // unranked cards sink below the ranked block on the server.
-      cards: toRecords.slice(0, Math.max(insertAt + 2, get(pagination, 'maxItems') || DEFAULT_PAGINATION.maxItems)).map(r => r.id || r.cardId)
+      cards: toRecords
+        .slice(0, Math.max(insertAt + 2, get(pagination, 'maxItems') || DEFAULT_PAGINATION.maxItems))
+        .map(r => r.id || r.cardId)
     });
 
-    // Reload swimlane cells from server to settle ordering.
+    // Reload swimlane cells from server to settle ordering. The row load re-fetches each cell's
+    // whole expanded window (swimlaneCellWindow), so a "load more"-grown cell keeps its size.
     yield call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId } });
   } catch (e) {
     const { stateId, fromSwimlaneId, fromStatusId, toStatusId } = payload;
@@ -1770,7 +1827,100 @@ export function* sagaRefreshCard({ api }, { payload }) {
   }
 }
 
+/**
+ * Refresh the board in place, without throwing the loaded pages away.
+ *
+ * The full reload below drops `dataCards` (reducer) and resets the pagination to page 1 / 10 items
+ * (saga), so a board scrolled a few lazy-loaded pages down collapses back to the first page: the
+ * scroll container shrinks, the browser clamps scrollTop, and every column flashes skeletons.
+ * A silent refresh re-fetches exactly the volume that is already loaded per column/cell (the same
+ * trick `reloadColumns` uses after a card move) and leaves the pagination alone, so `getNextPage`
+ * keeps counting from the right place. Under swimlane grouping the row set is re-derived from the
+ * server first (a record edit can add or empty a swimlane value) and merged with the rows on
+ * screen: surviving rows keep their collapsed state and loaded cells, new rows get skeleton cells,
+ * vanished rows are dropped. Only the «Обновить» button spins, via `isRefreshing`, which this saga
+ * owns entirely — and which doubles as a mutual-exclusion flag: while a refresh or a load is in
+ * flight, another refresh request is a no-op.
+ */
+export function* sagaRefreshBoardData({ api }, { payload }) {
+  const { stateId } = payload;
+
+  const { boardConfig, dataCards = [], swimlaneGrouping, swimlanes = [], isLoading, isRefreshing } = yield select(selectKanban, stateId);
+  const columns = get(boardConfig, 'columns', []);
+
+  // A refresh or a load is already in flight — it will deliver fresh data; a second concurrent
+  // fetch over the same window would only race it.
+  if (isRefreshing || isLoading) {
+    return;
+  }
+
+  // Nothing on screen to refresh in place (first render, board switch, board without columns) —
+  // there is no scroll position or card set worth preserving, so do the normal full reload.
+  const hasLoadedData = swimlaneGrouping ? !isEmpty(swimlanes) : dataCards.some(col => !isEmpty(get(col, 'records')));
+
+  if (isEmpty(columns) || !hasLoadedData) {
+    yield call(sagaFullReloadBoardData, { api }, { payload });
+    return;
+  }
+
+  yield put(setRefreshing({ stateId, isRefreshing: true }));
+
+  try {
+    if (swimlaneGrouping) {
+      // Re-derive the row set from the server and merge it with what is on screen.
+      const { sortedValues, colorMap, columns: swimlaneColumns } = yield call(querySwimlaneValues, { api, stateId });
+
+      const prevById = new Map(swimlanes.map(sl => [sl.id, sl]));
+      const merged = sortedValues.map(val => {
+        const prev = prevById.get(val.id);
+
+        if (prev) {
+          // The surviving row keeps its collapsed state and loaded cells; only the display bits
+          // are re-derived.
+          return { ...prev, label: val.label, color: colorMap[val.id] || colorMap[val.label] || null };
+        }
+
+        return buildSwimlaneRow(val, colorMap, swimlaneColumns);
+      });
+
+      yield put(setSwimlaneValues({ stateId, swimlanes: merged }));
+
+      const cells = [];
+      merged.forEach(swimlane => {
+        Object.keys(get(swimlane, 'cells') || {}).forEach(statusId => cells.push({ swimlaneId: swimlane.id, statusId }));
+      });
+
+      if (!isEmpty(cells)) {
+        yield call(reloadSwimlaneCells, { api, stateId, boardConfig, swimlaneGrouping, cells });
+      }
+
+      const updatedState = yield select(selectKanban, stateId);
+      const newRecordRefs = collectRecordRefsFromSwimlanes(updatedState.swimlanes, swimlaneColumns);
+      yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
+    } else {
+      const columnIds = dataCards.map(col => get(col, 'status')).filter(Boolean);
+
+      if (!isEmpty(columnIds)) {
+        yield call(reloadColumns, { api, stateId, boardConfig, columnIds });
+      }
+    }
+  } catch (e) {
+    console.error('[kanban/sagaRefreshBoardData saga] error', e);
+  } finally {
+    yield put(setRefreshing({ stateId, isRefreshing: false }));
+  }
+}
+
 export function* sagaReloadBoardData({ api }, { payload }) {
+  if (get(payload, 'silent')) {
+    yield call(sagaRefreshBoardData, { api }, { payload });
+    return;
+  }
+
+  yield call(sagaFullReloadBoardData, { api }, { payload });
+}
+
+export function* sagaFullReloadBoardData({ api }, { payload }) {
   try {
     const { stateId } = payload;
     yield put(setLoading({ stateId, isLoading: true }));
@@ -1790,7 +1940,7 @@ export function* sagaReloadBoardData({ api }, { payload }) {
       yield put(setLoading({ stateId, isLoading: false }));
     }
   } catch (e) {
-    console.error('[kanban/sagaReloadBoardData saga error', e);
+    console.error('[kanban/sagaFullReloadBoardData saga error', e);
   }
 }
 

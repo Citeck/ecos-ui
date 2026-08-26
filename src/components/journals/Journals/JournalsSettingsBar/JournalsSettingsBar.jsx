@@ -63,6 +63,7 @@ const JournalsSettingsBar = ({
   viewMode,
 
   isLoading,
+  isRefreshing,
   isMobile,
   isCreateLoading,
   isShowResetFilter,
@@ -155,22 +156,19 @@ const JournalsSettingsBar = ({
         })}
         ref={journalSettingsBarRef}
       >
-        {!noCreateMenu && (
-          <CreateMenu
-            createIsLoading={isCreateLoading}
-            createVariants={createVariants}
-            onAddRecord={onAddRecord}
-          />
-        )}
+        {!noCreateMenu && <CreateMenu createIsLoading={isCreateLoading} createVariants={createVariants} onAddRecord={onAddRecord} />}
 
         {!isMobile && (
           <Tooltip target={`${targetId}-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-table-settings`}
               icon={null}
-              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content ecos-journal__btn_new filter', {
-                'ecos-btn-settings-filter-on': !isDefaultSettings
-              })}
+              className={classNames(
+                'ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content ecos-journal__btn_new filter',
+                {
+                  'ecos-btn-settings-filter-on': !isDefaultSettings
+                }
+              )}
               onClick={onToggleSettings}
               // loading={isLoading}
             >
@@ -305,6 +303,8 @@ const JournalsSettingsBar = ({
               [grey]: !isMobile,
               'ecos-btn_i ecos-btn_white': isMobile
             })}
+            loading={isRefreshing}
+            disabled={isRefreshing}
             onClick={onRefresh}
           >
             <Repeat />

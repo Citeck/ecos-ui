@@ -15,6 +15,7 @@ import {
   setKanbanSettings,
   setLoading,
   setLoadingColumns,
+  setRefreshing,
   setPagination,
   setRelatedFilter,
   setResolvedActions,
@@ -34,6 +35,7 @@ import { updateState } from '../helpers/redux';
 
 export const initialState = {
   isLoading: true,
+  isRefreshing: false,
   isLoadingColumns: [],
   kanbanSettings: {},
   originKanbanSettings: {},
@@ -88,7 +90,16 @@ export default handleActions(
       return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
     },
     [reloadBoardData]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true }, initialState);
+      // A silent reload refreshes the board in place: the already loaded cards stay on screen (so the
+      // scroll container keeps its height and the browser does not clamp scrollTop) and no column
+      // falls back to skeletons. `isRefreshing` is owned by sagaRefreshBoardData — it raises the flag
+      // only when it actually refreshes in place, so the button does not spin during the full-reload
+      // fallback and the flag is not double-set.
+      if (payload.silent) {
+        return updateState(state, payload.stateId, {}, initialState);
+      }
+
+      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isRefreshing: false }, initialState);
     },
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;
@@ -105,6 +116,10 @@ export default handleActions(
     [setLoading]: (state, { payload }) => {
       const { stateId, isLoading } = payload;
       return updateState(state, stateId, { isLoading }, initialState);
+    },
+    [setRefreshing]: (state, { payload }) => {
+      const { stateId, isRefreshing } = payload;
+      return updateState(state, stateId, { isRefreshing }, initialState);
     },
     [setIsFiltered]: (state, { payload }) => {
       const { stateId, isFiltered } = payload;
@@ -156,7 +171,12 @@ export default handleActions(
     },
     [setSwimlaneGrouping]: (state, { payload }) => {
       const { stateId, swimlaneGrouping } = payload;
-      return updateState(state, stateId, { swimlaneGrouping, swimlanes: [], dataCards: [], isLoading: true, isFirstLoading: true }, initialState);
+      return updateState(
+        state,
+        stateId,
+        { swimlaneGrouping, swimlanes: [], dataCards: [], isLoading: true, isFirstLoading: true },
+        initialState
+      );
     },
     [setSwimlaneValues]: (state, { payload }) => {
       const { stateId, swimlanes } = payload;

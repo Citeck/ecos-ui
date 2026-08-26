@@ -159,12 +159,64 @@ class Kanban extends React.Component {
     });
 
     this.observer.observe(this.refBottom.current);
+
+    // Leaving the page tab hides the whole journal (App renders the tab panel with `display: none`)
+    // and the browser drops the scroll container's scrollTop the moment the element stops being laid
+    // out. That happens in a commit of its own, well before anything down here re-renders, so the
+    // position cannot be caught on the way out — it is sampled from the scroll frames instead
+    // (handleScrollFrame) and put back on the way in. This observer is the "way in": it sees the
+    // viewport collapse to 0×0 and come back, after layout, which is the first moment the board can
+    // be scrolled again. See COREDEV-426.
+    const scrollView = get(this.refScroll, 'current.view');
+
+    if (scrollView && typeof ResizeObserver !== 'undefined') {
+      this.viewObserver = new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
+
+        if (!width && !height) {
+          this._wasHidden = true;
+          return;
+        }
+
+        if (this._wasHidden) {
+          this._wasHidden = false;
+          this.restoreScrollPosition();
+        }
+      });
+      this.viewObserver.observe(scrollView);
+    }
+  }
+
+  /**
+   * A silent refresh swaps every column's records in one commit. The replacement set is the same size,
+   * so the board keeps its height — but between the two paints the browser is free to clamp scrollTop
+   * if any column is momentarily shorter. Remember where the user was, and only while refreshing.
+   */
+  getSnapshotBeforeUpdate(prevProps) {
+    if (!prevProps.isRefreshing && !this.props.isRefreshing) {
+      return null;
+    }
+
+    const scrollElement = get(this.refScroll, 'current');
+
+    return scrollElement ? { scrollTop: scrollElement.getScrollTop() } : null;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping, isLoadingColumns } = this.props;
     const headerElement = get(this.refHeader, 'current');
     const bodyElement = get(this.refBody, 'current');
+    const scrollElement = get(this.refScroll, 'current');
+
+    // A full reload deliberately starts the board over — forget where the user was, or the restore
+    // would drag them back down into the freshly loaded first page.
+    if (isFirstLoading && !prevProps.isFirstLoading) {
+      this._lastScrollTop = 0;
+    }
+
+    if (scrollElement && get(snapshot, 'scrollTop') && scrollElement.getScrollTop() !== snapshot.scrollTop) {
+      scrollElement.scrollTop(snapshot.scrollTop);
+    }
 
     if (isLoading || isFirstLoading) {
       if (headerElement) {
@@ -177,7 +229,16 @@ class Kanban extends React.Component {
     // `isLoadingColumns` stays filled for the whole card move (set before the optimistic update,
     // cleared when the affected columns have been reloaded). Without this check every one of those
     // intermediate commits re-dispatches getNextPage, which flips the board loader on and off again.
-    if (!swimlaneGrouping && isEmpty(isLoadingColumns) && !this.state.isDragging && this.state.isInView && !this.isNoMore()) {
+    // Likewise no lazy page while a silent refresh is in flight — the two sagas would race over the
+    // same columns.
+    if (
+      !swimlaneGrouping &&
+      isEmpty(isLoadingColumns) &&
+      !this.props.isRefreshing &&
+      !this.state.isDragging &&
+      this.state.isInView &&
+      !this.isNoMore()
+    ) {
       const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
       const colsFromSettings = get(kanbanSettings, 'columns');
       const cols = colsFromSettings ? [] : defaultColumns;
@@ -207,6 +268,7 @@ class Kanban extends React.Component {
 
   componentWillUnmount() {
     this.observer.disconnect();
+    this.viewObserver && this.viewObserver.disconnect();
   }
 
   getHeight(changes = 0) {
@@ -216,6 +278,21 @@ class Kanban extends React.Component {
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
     return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
+  };
+
+  /** Put back the position the browser dropped while the board was hidden. */
+  restoreScrollPosition = () => {
+    const scrollElement = get(this.refScroll, 'current');
+
+    if (!scrollElement || !this._lastScrollTop) {
+      return;
+    }
+
+    if (scrollElement.getScrollTop() !== 0 || scrollElement.getScrollHeight() <= scrollElement.getClientHeight()) {
+      return;
+    }
+
+    scrollElement.scrollTop(this._lastScrollTop);
   };
 
   handleResize = () => {
@@ -228,12 +305,27 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
-    // Same guard as componentDidUpdate: while a card move keeps isLoadingColumns filled, a scroll
-    // to the bottom must not race reloadColumns with a page request either
+    // Sample the position for restoreScrollPosition. Hiding the board makes the browser drop
+    // scrollTop, and that arrives here as an ordinary frame — but it is emitted while the container
+    // is display:none, and react-custom-scrollbars reads live DOM metrics, so the frame carries a
+    // zero clientHeight (a visible board always has a real one). Ignore that frame and keep the
+    // last real position; any frame with real metrics is a genuine position, including a deliberate
+    // jump to the top (scrollbar-track click, programmatic scrollTop(0)).
+    const isScrollReset = !scroll.scrollTop && !scroll.clientHeight;
+
+    if (!isScrollReset) {
+      this._lastScrollTop = scroll.scrollTop;
+    }
+
+    // Flat-board pagination only: swimlane cells page via their own "load more". Same guards as
+    // componentDidUpdate: while a card move keeps isLoadingColumns filled, or a silent refresh is
+    // replacing the board, a bottom-of-scroll page request would race the reload over the same columns.
     if (
+      !this.props.swimlaneGrouping &&
       !this.state.isDragging &&
       !this.props.isLoading &&
       isEmpty(this.props.isLoadingColumns) &&
+      !this.props.isRefreshing &&
       !this.isNoMore() &&
       scroll.scrollTop &&
       scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight
@@ -578,6 +670,9 @@ class Kanban extends React.Component {
     if (swimlaneGrouping) {
       return this.renderLayout({
         extraClassName: 'ecos-kanban_swimlane',
+        // Sampling only: the flat-board lazy paging inside is gated off by swimlaneGrouping,
+        // but restoreScrollPosition still needs the frames to bring the position back on tab return.
+        onScrollFrame: this.handleScrollFrame,
         renderHeader: this.renderSwimlaneHeader,
         renderBody: this.renderSwimlaneBody
       });
