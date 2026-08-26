@@ -34,6 +34,23 @@
   }
 }
 
+// The same arrow when Popper flips the tooltip below its target (the designers' view switcher sits
+// right under the page header, so it always lands here): Bootstrap's `.arrow` box fills the root's
+// top padding, so a square centred on its bottom edge pokes its upper half out as the tip while the
+// lower half hides under `.tooltip-inner`. The shadow rotates with the square and ends up pointing
+// straight up, away from the body — the mirror image of the top variant.
+.bs-tooltip-bottom .arrow-custom::before,
+.bs-tooltip-auto[x-placement^='bottom'] .arrow-custom::before {
+  bottom: -0.25rem;
+  left: 0.25rem;
+  border-width: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: $color-white;
+  transform: rotate(45deg);
+  box-shadow: $box-shadow-tooltip-arrow-bottom;
+}
+
 .ecos-modal-tooltip {
   .tooltip {
     z-index: 11000;
@@ -52,7 +69,21 @@
   }
 }
 
+// Bootstrap paints only `.tooltip-inner`; the `.tooltip` root is a see-through box whose padding
+// makes room for the arrow. `@svar-ui/react-gantt/all.css` — pulled into every page by the gantt
+// widget plugin — claims the same `.tooltip` class for its own hint and paints it #1a1e21, so that
+// padding showed as a dark frame around every reactstrap tooltip not wrapped in `.ecos-base-tooltip`
+// (COREDEV-449). Bootstrap roots always carry a placement class, which lets the reset outrank the
+// leak by specificity (no dependence on stylesheet order) and leave the gantt's own hint alone.
 .tooltip.bs-tooltip {
+  &-auto,
+  &-top,
+  &-right,
+  &-bottom,
+  &-left {
+    background-color: transparent;
+  }
+
   &-auto[x-placement^='top'] {
     padding: 0;
 
