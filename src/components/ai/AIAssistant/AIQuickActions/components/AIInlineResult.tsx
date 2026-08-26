@@ -25,8 +25,8 @@ import { CONTENT_TYPES, getScriptContextLabel } from '@/components/ai/AIAssistan
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
 
-// Same anchor as the chat answers use: `data-external` keeps PageTabs' capture-phase handler off
-// the link so its `target="_blank"` survives (COREDEV-433).
+// Same anchor as the chat answers use: links of this host go to the tabs router, links to other
+// hosts open a browser tab (COREDEV-433).
 const EXPLANATION_MARKDOWN_COMPONENTS = { a: ChatMarkdownLink };
 
 // Icon components for action buttons

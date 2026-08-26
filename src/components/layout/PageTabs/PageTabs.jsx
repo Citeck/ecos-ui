@@ -33,7 +33,7 @@ import {
   updateTabsFromStorage
 } from '@/actions/pageTabs';
 import CopyToClipboard from '@/helpers/copyToClipboard';
-import { getLinkWithWs, getWorkspaceId, replaceHistoryLink } from '@/helpers/urls';
+import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink, replaceHistoryLink } from '@/helpers/urls';
 import { animateScrollTo, getEnabledWorkspaces, getScrollbarWidth, IS_DEV_ENV, t } from '@/helpers/util';
 import { selectWorkspaceHomeLinkById } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -256,19 +256,31 @@ class PageTabs extends React.Component {
 
     try {
       if (data.link) {
-        let link = data.link;
+        // A link without a host (`/v2/…`) is a link of this host.
+        const url = new URL(data.link, window.location.origin);
+        const linkWorkspace = url.searchParams.get('ws');
 
-        if (!link.includes('http') && link[0] === '/') {
-          link = `${window.location.origin}${link}`;
+        // A link that leaves the current host — or, with workspaces on, names another workspace —
+        // opens a browser tab. Pushing a foreign workspace client-side switches the workspace under
+        // the tab list and left the dashboard blank (COREDEV-433); a separate browser tab boots the
+        // application in that workspace from scratch. A link that names no workspace stays in the
+        // app: the tab saga resolves it to the current one.
+        const leavesWorkspace = !!linkWorkspace && getEnabledWorkspaces() && linkWorkspace !== getWorkspaceId();
+        // The one exception: a record card. The record is the same wherever the link came from, so
+        // the user stays where they are and gets the card as a page tab of the current workspace —
+        // the workspace the link names is dropped. A workspace's own dashboard (no record) is not a
+        // card and still goes to a browser tab.
+        const isRecordCard = url.pathname === Urls.DASHBOARD && url.searchParams.has('recordRef');
+
+        if (leavesWorkspace && isRecordCard) {
+          data.link = getLinkWithWs(data.link, getWorkspaceId());
         }
 
-        const url = new URL(link);
-        const searchParams = new URLSearchParams(url.search);
-        if (searchParams.get('ws') !== getWorkspaceId()) {
+        if (getWsIdOfTabLink(data.link) !== getWorkspaceId()) {
           data.needUpdateTabs = true;
         }
 
-        if (url.host === window.location.host) {
+        if (url.host === window.location.host && !(leavesWorkspace && !isRecordCard)) {
           setTab({ data, params: { reopen, closeActiveTab } });
         } else {
           window.open(data.link, '_blank');

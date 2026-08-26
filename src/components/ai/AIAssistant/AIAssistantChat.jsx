@@ -173,9 +173,8 @@ const AIAssistantChat = () => {
   // Markdown components - memoized
   const markdownComponents = useMemo(
     () => ({
-      // Anchors of an answer carry `data-external` so that the capture-phase link handler of
-      // PageTabs leaves them alone and `target="_blank"` works — see ChatMarkdownLink for why the
-      // journal "link to selection" is the one exception. COREDEV-433.
+      // Links of this host are plain anchors for the tabs router (page tab, or a browser tab when the
+      // link leaves the workspace); links to other hosts get `target="_blank"`. COREDEV-433.
       a: ChatMarkdownLink,
       // Safety net for dead previews: a temp-file image URL 500s once its backing file is gone
       // (saved, cancelled, or expired by the 30-min sweep). The chat hook proactively strips the
