@@ -75,7 +75,10 @@ class InlineFilter extends Filter {
       metaRecord: recordRef,
       onKeyDown: this.onKeyDown,
       predicate,
-      value: this.state.value
+      value: this.state.value,
+      // The popup is opened by a click on the column's filter icon in order to type a value:
+      // the keyboard has to land in the value control without a second click (COREDEV-452).
+      autoFocus: true
     };
   }
 

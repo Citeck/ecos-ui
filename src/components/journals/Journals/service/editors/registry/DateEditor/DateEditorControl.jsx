@@ -126,7 +126,9 @@ export default class DateEditorControl extends React.Component {
         })}
         onSave={this.onChange}
         onKeyDown={this.onKeyDown}
-        autoFocus={this.isCell}
+        // DatePicker owns `open`, so focusing the input does not pop the calendar: a filter that
+        // asked for the focus (the column header popup) can type a date or click for the calendar.
+        autoFocus={this.isCell || !!this.props.autoFocus}
         showIcon={!this.isCell}
         hasSaveButton={this.isCell}
         selected={this.selected}
