@@ -163,6 +163,46 @@ describe('Kanban.componentDidUpdate — lazy paging gate', () => {
   });
 });
 
+describe('Kanban.componentDidUpdate — full reload starts the board over', () => {
+  const makeReloadingInstance = ({ scrollTop = 0, ...props } = {}) => {
+    const instance = makeInstance({ columns: [], kanbanSettings: {}, ...props });
+    const scrollTopSetter = jest.fn();
+
+    instance.refHeader = { current: null };
+    instance.refBody = { current: null };
+    instance.refScroll = { current: { getScrollTop: () => scrollTop, scrollTop: scrollTopSetter } };
+    instance._lastScrollTop = scrollTop;
+
+    return { instance, scrollTopSetter };
+  };
+
+  it('scrolls the board back to the top when isFirstLoading is raised (grouping off, filter apply/reset)', () => {
+    const { instance, scrollTopSetter } = makeReloadingInstance({ scrollTop: 1600, isFirstLoading: true, isLoading: true });
+
+    instance.componentDidUpdate({ isFirstLoading: false, isRefreshing: false }, instance.state, null);
+
+    expect(scrollTopSetter).toHaveBeenCalledWith(0);
+    expect(instance._lastScrollTop).toBe(0);
+  });
+
+  it('leaves the scroll alone on a lazy page load (isLoading flips, isFirstLoading does not)', () => {
+    const { instance, scrollTopSetter } = makeReloadingInstance({ scrollTop: 1600, isFirstLoading: false, isLoading: true });
+
+    instance.componentDidUpdate({ isFirstLoading: false, isRefreshing: false, isLoading: false }, instance.state, null);
+
+    expect(scrollTopSetter).not.toHaveBeenCalled();
+    expect(instance._lastScrollTop).toBe(1600);
+  });
+
+  it('leaves the scroll alone while the first load stays in flight', () => {
+    const { instance, scrollTopSetter } = makeReloadingInstance({ scrollTop: 300, isFirstLoading: true, isLoading: true });
+
+    instance.componentDidUpdate({ isFirstLoading: true, isRefreshing: false }, instance.state, null);
+
+    expect(scrollTopSetter).not.toHaveBeenCalled();
+  });
+});
+
 describe('Kanban.restoreScrollPosition', () => {
   it('puts a sampled position back on a scrollable board that sits at the top', () => {
     const instance = makeInstance();

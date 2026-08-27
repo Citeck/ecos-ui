@@ -208,10 +208,17 @@ class Kanban extends React.Component {
     const bodyElement = get(this.refBody, 'current');
     const scrollElement = get(this.refScroll, 'current');
 
-    // A full reload deliberately starts the board over — forget where the user was, or the restore
-    // would drag them back down into the freshly loaded first page.
+    // A full reload (board/preset change, grouping on/off, filter apply/reset) deliberately starts the
+    // board over — put the user at the top and forget where they were, or the restore would drag them
+    // back down into the freshly loaded first page. The scroll must be reset explicitly: the container
+    // stays mounted across the reload and, when the replacement content (stale rows, skeletons) is
+    // tall enough, the browser keeps the old offset and the new board opens from the middle.
     if (isFirstLoading && !prevProps.isFirstLoading) {
       this._lastScrollTop = 0;
+
+      if (scrollElement && scrollElement.getScrollTop()) {
+        scrollElement.scrollTop(0);
+      }
     }
 
     if (scrollElement && get(snapshot, 'scrollTop') && scrollElement.getScrollTop() !== snapshot.scrollTop) {

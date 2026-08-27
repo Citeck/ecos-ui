@@ -73,6 +73,23 @@ describe('JournalsSettingsBar refresh button', () => {
     expect(button.disabled).toBe(true);
   });
 
+  it('keeps its icon and spins it while a refresh is in flight, instead of swapping in the points loader', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} isRefreshing />);
+    const button = getUpdateButton(container);
+
+    expect(button.classList.contains('ecos-journal__settings-bar-update_refreshing')).toBe(true);
+    expect(button.querySelector('svg')).toBeTruthy();
+    expect(button.querySelector('.ecos-loader, .ecos-points-loader, .points-loader')).toBeNull();
+  });
+
+  it('does not spin when no refresh is running', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} isRefreshing={false} />);
+    const button = getUpdateButton(container);
+
+    expect(button.classList.contains('ecos-journal__settings-bar-update_refreshing')).toBe(false);
+    expect(button.querySelector('svg')).toBeTruthy();
+  });
+
   it('is enabled when no refresh is running', () => {
     const { container } = render(<JournalsSettingsBar {...baseProps} isRefreshing={false} />);
     const button = getUpdateButton(container);

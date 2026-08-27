@@ -301,9 +301,11 @@ const JournalsSettingsBar = ({
             icon={null}
             className={classNames('ecos-journal__settings-bar-update ecos-journal__small-btn_new', {
               [grey]: !isMobile,
-              'ecos-btn_i ecos-btn_white': isMobile
+              'ecos-btn_i ecos-btn_white': isMobile,
+              // An in-place refresh spins the icon itself (the soft-refresh pattern of the Properties
+              // widget) rather than swapping it for the points loader — see COREDEV-426.
+              'ecos-journal__settings-bar-update_refreshing': isRefreshing
             })}
-            loading={isRefreshing}
             disabled={isRefreshing}
             onClick={onRefresh}
           >
