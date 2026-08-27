@@ -78,7 +78,9 @@ export default handleActions(
         state[stateId]?.templateList?.length === 0 ||
         (state[stateId]?.templateList?.length > 0 && settings.journalSetting?.id === '');
 
-      return updateState(state, stateId, { dataCards: [], isLoading: true, isFiltered }, initialState);
+      // A filter starts the board over like a preset or a grouping change does: `isFirstLoading` is the
+      // one signal Kanban uses to scroll back to the top and forget the sampled position (COREDEV-426).
+      return updateState(state, stateId, { dataCards: [], isLoading: true, isFirstLoading: true, isFiltered }, initialState);
     },
     [clearFiltered]: (state, { payload }) => {
       return updateState(state, payload.stateId, { isFiltered: false }, initialState);
@@ -87,7 +89,7 @@ export default handleActions(
       return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
     },
     [resetFilter]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFirstLoading: true }, initialState);
     },
     [reloadBoardData]: (state, { payload }) => {
       // A silent reload refreshes the board in place: the already loaded cards stay on screen (so the

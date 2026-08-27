@@ -75,12 +75,26 @@ describe('kanban reducer tests', () => {
     expect(ownState.isFiltered).toBeTruthy();
   });
 
+  it('applyFilter > starts the board over, so the loaded scroll position is forgotten (COREDEV-426)', () => {
+    const prevState = { [stateId]: { ...initialState, isFirstLoading: false, swimlanes: [{ id: 'sl-1', cells: {} }] } };
+    const ownState = reducer(prevState, applyFilter({ stateId, settings: { predicate: {} } }))[stateId];
+
+    expect(ownState.isFirstLoading).toBeTruthy();
+  });
+
   it('resetFilter', () => {
     const newState = reducer(undefined, resetFilter({ stateId, dataCards: [{ c: 1 }] }));
     const ownState = newState[stateId];
 
     expect(ownState.dataCards).toEqual([]);
     expect(ownState.isLoading).toBeTruthy();
+  });
+
+  it('resetFilter > starts the board over, so the loaded scroll position is forgotten (COREDEV-426)', () => {
+    const prevState = { [stateId]: { ...initialState, isFirstLoading: false, swimlanes: [{ id: 'sl-1', cells: {} }] } };
+    const ownState = reducer(prevState, resetFilter({ stateId }))[stateId];
+
+    expect(ownState.isFirstLoading).toBeTruthy();
   });
 
   it('reloadBoardData', () => {
