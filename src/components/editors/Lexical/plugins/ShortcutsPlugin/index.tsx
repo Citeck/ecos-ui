@@ -15,7 +15,9 @@ import {
   INDENT_CONTENT_COMMAND,
   KEY_MODIFIER_COMMAND,
   LexicalEditor,
-  OUTDENT_CONTENT_COMMAND
+  OUTDENT_CONTENT_COMMAND,
+  REDO_COMMAND,
+  UNDO_COMMAND
 } from 'lexical';
 import { Dispatch, useEffect } from 'react';
 
@@ -54,10 +56,12 @@ import {
   isLeftAlign,
   isLowercase,
   isOutdent,
+  isRedo,
   isRightAlign,
   isStrikeThrough,
   isSubscript,
   isSuperscript,
+  isUndo,
   isUppercase
 } from './shortcuts';
 
@@ -74,7 +78,15 @@ export default function ShortcutsPlugin({
     const keyboardShortcutsHandler = (payload: KeyboardEvent) => {
       const event: KeyboardEvent = payload;
 
-      if (isFormatParagraph(event)) {
+      // Undo / redo on a non-Latin layout (COREDEV-454): Lexical only knows the Latin key, see
+      // `isUndo` / `isRedo` in ./shortcuts.
+      if (isUndo(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      } else if (isRedo(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      } else if (isFormatParagraph(event)) {
         event.preventDefault();
         formatParagraph(editor);
       } else if (isFormatHeading(event)) {
