@@ -59,7 +59,18 @@ $rt-editor-content-line-height: 23px;
 .citeck-lexical-editor {
   position: relative;
 
-  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
     margin: 0;
     padding: 0;
     line-height: 30px;
@@ -192,6 +203,11 @@ $rt-editor-content-line-height: 23px;
       border: 0;
       max-width: 250px;
       min-width: 100px;
+      // The item is a <button>, and a button's UA default is `text-align: center`. Nothing here
+      // reset it, so a label that wraps onto a second line (the long Russian labels of the table
+      // cell menu: «Переключить чередование строк», «Закрепить/открепить первую строку», …) came
+      // out centred while one-line labels sat at the left edge (COREDEV-455).
+      text-align: left;
     }
 
     & .dropdown .item.wide {
@@ -285,6 +301,7 @@ $rt-editor-content-line-height: 23px;
     border: 0;
     max-width: 250px;
     min-width: 100px;
+    text-align: left; // see `.dropdown .item` above (COREDEV-455)
   }
 
   .switch {
@@ -369,7 +386,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-shell .editor-image img.focused {
-    outline: 2px solid var(--primary-color)3;
+    outline: 2px solid var(--primary-color) 3;
     user-select: none;
   }
 
@@ -449,7 +466,7 @@ $rt-editor-content-line-height: 23px;
     width: 7px;
     height: 7px;
     position: absolute;
-    background-color: var(--primary-color)3;
+    background-color: var(--primary-color) 3;
     border: 1px solid $color-white;
   }
 
@@ -514,7 +531,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-shell .inline-editor-image img.focused {
-    outline: 2px solid var(--primary-color)3;
+    outline: 2px solid var(--primary-color) 3;
   }
 
   .editor-shell .inline-editor-image img.focused.draggable {
@@ -953,7 +970,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .excalidraw-button.selected {
-    outline: 2px solid var(--primary-color)3;
+    outline: 2px solid var(--primary-color) 3;
     user-select: none;
   }
 
@@ -961,7 +978,8 @@ $rt-editor-content-line-height: 23px;
     animation: octocat-wave 560ms ease-in-out;
   }
 
-  @media (max-width: 500px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+  @media (max-width: 500px) {
+    // non-grid breakpoint (off Bootstrap scale, intentional)
     .github-corner:hover .octo-arm {
       animation: none;
     }
@@ -981,7 +999,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-equation.focused {
-    outline: 2px solid var(--primary-color)3;
+    outline: 2px solid var(--primary-color) 3;
   }
 
   button.item i {
@@ -1320,7 +1338,8 @@ $rt-editor-content-line-height: 23px;
     color: red;
   }
 
-  @media screen and (max-width: 1100px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+  @media screen and (max-width: 1100px) {
+    // non-grid breakpoint (off Bootstrap scale, intentional)
     .dropdown-button-text {
       display: none !important;
     }
@@ -1465,7 +1484,8 @@ $rt-editor-content-line-height: 23px;
   min-width: 150px;
 }
 
-@media screen and (max-width: 600px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+@media screen and (max-width: 600px) {
+  // non-grid breakpoint (off Bootstrap scale, intentional)
   .ecos-rt-editor-toolbar {
     gap: 10px;
   }
