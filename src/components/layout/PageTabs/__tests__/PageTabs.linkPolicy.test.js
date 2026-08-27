@@ -90,28 +90,59 @@ describe('PageTabs.handleClickLink — where a link opens', () => {
     expect(instance.props.setTab).not.toHaveBeenCalled();
   });
 
-  // A record card is the same record wherever the link came from; the user stays in the workspace
-  // they are in and gets the card as a page tab of it — the `ws` the link names is ignored.
-  it('a record card of another workspace opens a page tab in the current workspace', () => {
+  // A record card of another workspace is no exception (iteration 3): the dashboard of a record is
+  // resolved for the workspace the card is shown in, so a card shown inside the current workspace
+  // came up with the wrong dashboard. The link keeps its own `ws` and boots in a browser tab.
+  it('a record card of another workspace opens a browser tab with the workspace the link names', () => {
     const instance = makeTabs();
 
     const event = click(instance, '/v2/dashboard?recordRef=emodel/type@a&ws=OTHER');
 
     expect(event.defaultPrevented).toBe(true);
-    expect(openSpy).not.toHaveBeenCalled();
-    expect(instance.props.setTab).toHaveBeenCalledTimes(1);
-    const { data } = instance.props.setTab.mock.calls[0][0];
-    expect(data.link).toBe('/v2/dashboard?ws=TEST2&recordRef=emodel/type@a');
-    expect(data.needUpdateTabs).toBeFalsy();
+    expect(openSpy).toHaveBeenCalledWith('/v2/dashboard?recordRef=emodel/type@a&ws=OTHER', '_blank');
+    expect(instance.props.setTab).not.toHaveBeenCalled();
   });
 
-  it('an absolute link of this host to a record card of another workspace opens it in the current workspace too', () => {
+  it('an absolute link of this host to a record card of another workspace opens a browser tab too', () => {
     const instance = makeTabs();
 
     click(instance, `${HOST}/v2/dashboard?recordRef=emodel/type@a&ws=OTHER`);
 
+    expect(openSpy).toHaveBeenCalledWith(`${HOST}/v2/dashboard?recordRef=emodel/type@a&ws=OTHER`, '_blank');
+    expect(instance.props.setTab).not.toHaveBeenCalled();
+  });
+
+  // Ctrl (Cmd on macOS) and Shift are the browser's own "new tab" / "new window" modifiers. The
+  // click is not claimed at all — no preventDefault, no page tab, no window.open of our own (that
+  // would give two tabs) — so the browser opens the link as is, `ws` included.
+  it.each([['ctrlKey'], ['metaKey'], ['shiftKey']])('a click with %s pressed is left to the browser, whatever the link', modifier => {
+    const instance = makeTabs();
+
+    const sameWs = click(instance, '/v2/dashboard?recordRef=emodel/type@a&ws=TEST2', { [modifier]: true });
+    const otherWs = click(instance, '/v2/dashboard?recordRef=emodel/type@a&ws=OTHER', { [modifier]: true });
+    const noWs = click(instance, '/v2/journals?journalId=tasks', { [modifier]: true });
+
+    expect(sameWs.defaultPrevented).toBe(false);
+    expect(otherWs.defaultPrevented).toBe(false);
+    expect(noWs.defaultPrevented).toBe(false);
+    expect(instance.props.setTab).not.toHaveBeenCalled();
     expect(openSpy).not.toHaveBeenCalled();
-    expect(instance.props.setTab.mock.calls[0][0].data.link).toBe('/v2/dashboard?ws=TEST2&recordRef=emodel/type@a');
+  });
+
+  it('a link marked to open in the background still opens a background page tab on a plain click', () => {
+    const instance = makeTabs();
+    const holder = document.createElement('div');
+    holder.innerHTML = '<a href="/v2/journals?journalId=tasks&ws=TEST2" data-open-in-background="true">link</a>';
+    document.body.appendChild(holder);
+
+    const listener = event => instance.handleClickLink(event);
+    document.addEventListener('click', listener, true);
+    holder.firstChild.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+    document.removeEventListener('click', listener, true);
+    holder.remove();
+
+    expect(instance.props.setTab).toHaveBeenCalledTimes(1);
+    expect(instance.props.setTab.mock.calls[0][0].data.isActive).toBe(false);
   });
 
   it('an absolute link of this host into another workspace opens a browser tab too', () => {

@@ -593,6 +593,15 @@ export default class PageService {
       return;
     }
 
+    // Ctrl (Cmd on macOS) and Shift are the browser's own "new tab" / "new window" modifiers, and
+    // that is what a user pressing them expects (COREDEV-433). The click is left untouched — no
+    // preventDefault — so the browser opens the anchor's own href, `ws` included, as it does for a
+    // middle click. Before, Ctrl+click was claimed as a background page tab of the app, and Cmd was
+    // not recognised at all.
+    if (event.ctrlKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
     const link = decodeLink(elem.getAttribute(LINK_HREF));
 
     if (!link || !isNewVersionPage(link)) {
@@ -607,7 +616,7 @@ export default class PageService {
 
     return {
       link,
-      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
+      isActive: !isBackgroundOpening
     };
   };
 

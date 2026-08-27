@@ -264,23 +264,16 @@ class PageTabs extends React.Component {
         // opens a browser tab. Pushing a foreign workspace client-side switches the workspace under
         // the tab list and left the dashboard blank (COREDEV-433); a separate browser tab boots the
         // application in that workspace from scratch. A link that names no workspace stays in the
-        // app: the tab saga resolves it to the current one.
+        // app: the tab saga resolves it to the current one. A record card of another workspace is
+        // no exception: its dashboard is resolved for the workspace it is shown in, so opening it as
+        // a page tab of the current workspace (with `ws` swapped) showed the wrong dashboard.
         const leavesWorkspace = !!linkWorkspace && getEnabledWorkspaces() && linkWorkspace !== getWorkspaceId();
-        // The one exception: a record card. The record is the same wherever the link came from, so
-        // the user stays where they are and gets the card as a page tab of the current workspace —
-        // the workspace the link names is dropped. A workspace's own dashboard (no record) is not a
-        // card and still goes to a browser tab.
-        const isRecordCard = url.pathname === Urls.DASHBOARD && url.searchParams.has('recordRef');
-
-        if (leavesWorkspace && isRecordCard) {
-          data.link = getLinkWithWs(data.link, getWorkspaceId());
-        }
 
         if (getWsIdOfTabLink(data.link) !== getWorkspaceId()) {
           data.needUpdateTabs = true;
         }
 
-        if (url.host === window.location.host && !(leavesWorkspace && !isRecordCard)) {
+        if (url.host === window.location.host && !leavesWorkspace) {
           setTab({ data, params: { reopen, closeActiveTab } });
         } else {
           window.open(data.link, '_blank');
