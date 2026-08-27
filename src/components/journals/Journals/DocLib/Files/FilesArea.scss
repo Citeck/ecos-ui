@@ -105,10 +105,10 @@
     gap: 8px;
     height: 44px;
     padding: 0 12px;
-    // cell typography matches the journal table (.ecos-grid__td)
+    // the folder tree sets the type size of the library: a row here reads like a tree row
     color: $text-color-dark;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
     cursor: pointer;
     user-select: none;
     transition: background-color 0.12s ease-in-out;
@@ -163,8 +163,8 @@
 
     &-modified {
       flex: 0 0 130px;
-      font-size: 11px;
-      font-weight: 600;
+      font-size: $font-size-standard;
+      font-weight: $font-weight-semi-bold;
       color: $text-color-gray;
       white-space: nowrap;
     }
