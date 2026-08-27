@@ -63,6 +63,16 @@
     margin-left: auto;
     flex: 0 0 auto;
     white-space: nowrap;
+
+    // Pagination's own 20px rule targets `.ecos-pagination__arrow`, but the arrows render with
+    // `ecos-pagination__arrow_new` only, so they keep the 40px of `button.ecos-btn`. That pushed the
+    // context bar (min-height 34px) to 40px whenever a folder has content, and Pagination unmounts
+    // at total 0 — the file area border jumped 6px between empty and non-empty folders and on every
+    // folder switch (sagaOpenFolder resets the total before loading). Keep the arrows within the bar.
+    .ecos-pagination__arrow_new.ecos-btn {
+      width: 28px;
+      height: 28px;
+    }
   }
 
   &_mobile {
