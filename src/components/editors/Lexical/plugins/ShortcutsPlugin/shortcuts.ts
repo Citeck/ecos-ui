@@ -85,6 +85,29 @@ export function isRedo(event: KeyboardEvent): boolean {
   return (code === 'KeyY' && !isLatin(key, 'y') && ctrlKey) || (code === 'KeyZ' && !isLatin(key, 'z') && ctrlKey && shiftKey);
 }
 
+/**
+ * Bold / italic / underline by the physical key — Lexical's own Ctrl+B / Ctrl+I / Ctrl+U are
+ * recognised by `key` the same way as undo, so they are dead on a non-Latin layout too. Same
+ * contract as `isUndo`: false for the Latin letter Lexical has already formatted, or the same press
+ * would toggle the format straight back off. Shift is not checked, as in Lexical's `isBold`.
+ */
+export function isBold(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyB', 'b');
+}
+
+export function isItalic(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyI', 'i');
+}
+
+export function isUnderline(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyU', 'u');
+}
+
+function isFormatByCode(event: KeyboardEvent, expectedCode: string, latinLetter: string): boolean {
+  const { key, code, altKey, metaKey, ctrlKey } = event;
+  return code === expectedCode && !isLatin(key, latinLetter) && !altKey && controlOrMeta(metaKey, ctrlKey);
+}
+
 function isLatin(key: string | undefined, letter: string): boolean {
   return (key || '').toLowerCase() === letter;
 }

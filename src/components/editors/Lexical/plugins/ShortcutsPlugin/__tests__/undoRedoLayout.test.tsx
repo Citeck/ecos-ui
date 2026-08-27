@@ -5,7 +5,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { render } from '@testing-library/react';
-import { COMMAND_PRIORITY_CRITICAL, LexicalEditor, REDO_COMMAND, UNDO_COMMAND } from 'lexical';
+import { COMMAND_PRIORITY_CRITICAL, FORMAT_TEXT_COMMAND, LexicalEditor, REDO_COMMAND, UNDO_COMMAND } from 'lexical';
 import React from 'react';
 
 import { ToolbarContext } from '../../../context/ToolbarContext';
@@ -54,10 +54,12 @@ function renderEditor() {
 
   const undo = jest.fn(() => true);
   const redo = jest.fn(() => true);
+  const format = jest.fn(() => true);
   editor.registerCommand(UNDO_COMMAND, undo, COMMAND_PRIORITY_CRITICAL);
   editor.registerCommand(REDO_COMMAND, redo, COMMAND_PRIORITY_CRITICAL);
+  editor.registerCommand(FORMAT_TEXT_COMMAND, format, COMMAND_PRIORITY_CRITICAL);
 
-  return { undo, redo };
+  return { undo, redo, format };
 }
 
 function press(init: KeyboardEventInit): KeyboardEvent {
@@ -128,6 +130,52 @@ describe('ShortcutsPlugin — undo / redo by the physical key', () => {
 
     expect(undo).not.toHaveBeenCalled();
     expect(redo).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
+  });
+});
+
+/**
+ * Bold / italic / underline are Lexical's own Ctrl+B / Ctrl+I / Ctrl+U, recognised by `key` the same
+ * way — dead on the Russian layout (и / ш / г under B / I / U). A Latin press must format exactly
+ * once: a second FORMAT_TEXT_COMMAND for the same key would toggle the format straight back off.
+ */
+describe('ShortcutsPlugin — bold / italic / underline by the physical key', () => {
+  it.each([
+    ['Ctrl+и (under B)', { key: 'и', code: 'KeyB', ctrlKey: true }, 'bold'],
+    ['Ctrl+ш (under I)', { key: 'ш', code: 'KeyI', ctrlKey: true }, 'italic'],
+    ['Ctrl+г (under U)', { key: 'г', code: 'KeyU', ctrlKey: true }, 'underline']
+  ])('%s formats once and is consumed', (_name, init, expected) => {
+    const { format } = renderEditor();
+
+    const event = press(init);
+
+    expect(format).toHaveBeenCalledTimes(1);
+    expect(format).toHaveBeenCalledWith(expected, editor);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it.each([
+    ['Ctrl+B', { key: 'b', code: 'KeyB', ctrlKey: true }, 'bold'],
+    ['Ctrl+I', { key: 'i', code: 'KeyI', ctrlKey: true }, 'italic'],
+    ['Ctrl+U', { key: 'u', code: 'KeyU', ctrlKey: true }, 'underline']
+  ])('%s on the Latin layout formats exactly once — Lexical handles it, the plugin stays out', (_name, init, expected) => {
+    const { format } = renderEditor();
+
+    press(init);
+
+    expect(format).toHaveBeenCalledTimes(1);
+    expect(format).toHaveBeenCalledWith(expected, editor);
+  });
+
+  it.each([
+    ['a bare и', { key: 'и', code: 'KeyB' }],
+    ['Ctrl+Alt+и (AltGr)', { key: 'и', code: 'KeyB', ctrlKey: true, altKey: true }]
+  ])('%s is not a format', (_name, init) => {
+    const { format } = renderEditor();
+
+    const event = press(init);
+
+    expect(format).not.toHaveBeenCalled();
     expect(event.defaultPrevented).toBe(false);
   });
 });
