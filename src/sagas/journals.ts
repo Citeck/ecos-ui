@@ -89,7 +89,12 @@ import { IJournalsApi, JournalsApi } from '@/api/journals';
 import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
 import { ApiType } from '@/api/types';
 import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
-import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
+import {
+  DEFAULT_PAGINATION,
+  GROUPED_QUERY_MAX_ITEMS,
+  isKanban,
+  JOURNAL_DASHLET_CONFIG_VERSION
+} from '@/components/journals/Journals/constants';
 import JournalsService, { EditorService, PresetsServiceApi } from '@/components/journals/Journals/service';
 import { isSavedAttValueEqual, isValidAttValueForType } from '@/components/journals/Journals/service/editors/editorUtils';
 import { buildSaveAttKey } from '@/components/journals/Journals/service/journalColumnsResolver';
@@ -810,7 +815,7 @@ export function* getGridData(
   }
 
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
-  const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
+  const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: GROUPED_QUERY_MAX_ITEMS } : _pagination;
 
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
     ...forRequest,

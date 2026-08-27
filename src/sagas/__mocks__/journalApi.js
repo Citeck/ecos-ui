@@ -6,4 +6,5 @@ export default class JournalApi {
   fetchLinkedRefs = () => Promise.resolve([]);
   // The footer sum is a plain executor now: it runs the query it is handed (`buildTotalSumQuery`).
   getTotalSum = jest.fn();
+  getAspects = () => Promise.resolve([]);
 }
