@@ -1,4 +1,5 @@
 import Records from '@citeck/records-core';
+import classNames from 'classnames';
 import _ from 'lodash';
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 
@@ -52,6 +53,16 @@ const loadFromStorage = <T,>(key: string, fallback: T): T => {
 };
 
 const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
+  // `hidden` follows window.location, so it flips on every page-tab switch. Once the console has
+  // been shown it must stay mounted (hidden via CSS): unmounting the Monaco editor destroys its
+  // model — the edited text and the undo/redo history (COREDEV-3691). Mounting lazily keeps
+  // Monaco from being loaded for admins who never open the console.
+  const [wasShown, setWasShown] = useState(!hidden);
+
+  if (!hidden && !wasShown) {
+    setWasShown(true);
+  }
+
   const [initialValue, setInitialValue] = useState('');
 
   const [response, setResponse] = useState('');
@@ -509,12 +520,15 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     label: s.title
   }));
 
-  if (hidden) {
+  if (!wasShown) {
     return null;
   }
 
   return (
-    <div ref={containerRef} className={`developer-console-container panel-location-${panelSize.location}`}>
+    <div
+      ref={containerRef}
+      className={classNames('developer-console-container', `panel-location-${panelSize.location}`, { 'd-none': hidden })}
+    >
       <div className="console-toolbar">
         <div className="console-toolbar__group" onClick={handleToolbarGroupClick}>
           <button
