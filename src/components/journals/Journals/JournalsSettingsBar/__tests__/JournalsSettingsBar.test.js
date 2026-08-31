@@ -98,3 +98,41 @@ describe('JournalsSettingsBar refresh button', () => {
     expect(button.disabled).toBe(false);
   });
 });
+
+const getJournalSettingsButton = container => container.querySelector('#target-journal-settings');
+
+// The journal-settings (shape) button must reflect the "may edit this journal config" verdict
+// computed by Journals (admin-only). The views hand it over either as a boolean or as a thunk —
+// a thunk taken as-is is always truthy, which is how non-admins got the button and the misleading
+// "create a local copy" dialog behind it (COREDEV-440).
+describe('JournalsSettingsBar journal-settings button', () => {
+  it('is hidden when the user may not edit the journal, even with write permission on the config', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} hasWritePermission hasBtnEdit={false} />);
+
+    expect(getJournalSettingsButton(container)).toBeNull();
+  });
+
+  it('is hidden when the verdict comes as a thunk returning false (COREDEV-440)', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} hasWritePermission hasBtnEdit={() => false} />);
+
+    expect(getJournalSettingsButton(container)).toBeNull();
+  });
+
+  it('is shown for a user who may edit the journal', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} hasWritePermission hasBtnEdit />);
+
+    expect(getJournalSettingsButton(container)).toBeTruthy();
+  });
+
+  it('is shown when the verdict comes as a thunk returning true', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} hasWritePermission hasBtnEdit={() => true} />);
+
+    expect(getJournalSettingsButton(container)).toBeTruthy();
+  });
+
+  it('is hidden without write permission on the journal config', () => {
+    const { container } = render(<JournalsSettingsBar {...baseProps} hasWritePermission={false} hasBtnEdit />);
+
+    expect(getJournalSettingsButton(container)).toBeNull();
+  });
+});

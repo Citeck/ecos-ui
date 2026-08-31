@@ -78,15 +78,7 @@ class TableView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const {
-      isActivePage,
-      viewMode,
-      stateId,
-      journalId,
-      urlParams = {},
-      withForceUpdate: force,
-      deselectAllRecords
-    } = this.props;
+    const { isActivePage, viewMode, stateId, journalId, urlParams = {}, withForceUpdate: force, deselectAllRecords } = this.props;
 
     if (!journalId || !isActivePage || !isTableOrPreview(urlParams[JournalUrlParams.VIEW_MODE] || viewMode)) {
       if (prevProps.journalId !== journalId) {
@@ -178,7 +170,7 @@ class TableView extends React.Component {
             settingsVisible={this.state.settingsVisible}
             onToggleSettings={this.handleToggleSettings}
             hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
-            hasBtnEdit={() => hasBtnEdit(configRec)}
+            hasBtnEdit={hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
             rightChild={isMobile ? <this.RightBarChild noData hasTotalSumField={hasTotalSumField} maxHeight={maxHeight} /> : null}
