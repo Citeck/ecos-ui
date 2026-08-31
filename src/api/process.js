@@ -74,70 +74,62 @@ export class ProcessApi {
     return Records.get(procDef).load('definition');
   };
 
+  _heatmapRequests = new Map();
+
   getHeatmapData = (procDef, predicates = []) => {
-    const pageSize = 100;
+    const requestKey = JSON.stringify([procDef, predicates]);
+    const inFlight = this._heatmapRequests.get(requestKey);
 
-    const queryPage = (completed, lastElementId = null) => {
-      const baseQuery = {
-        sourceId: SourcesId.BPMN_STAT,
-        language: 'predicate',
-        page: {
-          maxItems: pageSize
-        },
-        query: {
-          t: 'and',
-          v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }, ...predicates]
-        },
-        groupBy: ['elementDefId'],
-        sort: [{ attribute: 'elementDefId', ascending: true }]
-      };
+    if (inFlight) {
+      return inFlight;
+    }
 
-      if (lastElementId) {
-        baseQuery.query.v.push({ t: 'gt', a: 'elementDefId', v: lastElementId });
-      }
+    // count(*) aggregation over bpmn-process-elements is expensive on large processes,
+    // so one query per side; the group count is bounded by the number of schema elements
+    const BPMN_STAT_PAGE_LIMIT = 10000;
 
-      return baseQuery;
-    };
+    const query = completed => ({
+      sourceId: SourcesId.BPMN_STAT,
+      language: 'predicate',
+      page: {
+        maxItems: BPMN_STAT_PAGE_LIMIT
+      },
+      query: {
+        t: 'and',
+        v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }, ...predicates]
+      },
+      groupBy: ['elementDefId']
+    });
 
-    const getAllPages = async completed => {
-      const allRecords = [];
-      let lastElementId = null;
-      let hasMoreData = true;
-
-      while (hasMoreData) {
-        const query = queryPage(completed, lastElementId);
-        const response = await Records.query(query, {
-          id: 'elementDefId',
-          [completed ? 'completedCount' : 'activeCount']: 'count(*)?num'
-        });
-
-        allRecords.push(...response.records);
-
-        if (response.records.length < pageSize) {
-          hasMoreData = false;
-        } else {
-          lastElementId = response.records[response.records.length - 1].id;
-        }
-      }
-
-      return { records: allRecords };
-    };
-
-    return Promise.all([getAllPages(true), getAllPages(false)]).then(([completedCount, activeCount]) => {
-      const mergedRecords = [...completedCount.records];
-
-      activeCount.records.forEach(rec => {
-        const foundI = completedCount.records.findIndex(r => r.id === rec.id);
-
-        if (foundI === -1) {
-          mergedRecords.push(rec);
-        } else {
-          mergedRecords[foundI] = { ...rec, ...mergedRecords[foundI] };
-        }
+    const queryCounts = completed =>
+      Records.query(query(completed), {
+        id: 'elementDefId',
+        [completed ? 'completedCount' : 'activeCount']: 'count(*)?num'
       });
 
-      return mergedRecords;
-    });
+    const request = Promise.all([queryCounts(true), queryCounts(false)])
+      .then(([completedCount, activeCount]) => {
+        const mergedRecords = [...completedCount.records];
+
+        activeCount.records.forEach(rec => {
+          const foundI = completedCount.records.findIndex(r => r.id === rec.id);
+
+          if (foundI === -1) {
+            mergedRecords.push(rec);
+          } else {
+            mergedRecords[foundI] = { ...rec, ...mergedRecords[foundI] };
+          }
+        });
+
+        return mergedRecords;
+      })
+      .finally(() => {
+        this._heatmapRequests.delete(requestKey);
+      });
+
+    this._heatmapRequests.set(requestKey, request);
+
+    return request;
   };
 
   getKPIData = async recordRef => {

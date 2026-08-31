@@ -101,9 +101,9 @@ export default class Widget extends BaseWidget {
           showCountersDefault: false
         };
 
-    this.setState({ isSimpledMode, modelConfig }, () => {
-      this.reload();
-    });
+    // display-only config: data reload is not needed, Model/Journal react to prop changes themselves.
+    // An extra reload() here used to duplicate the heavy statistics requests on every mount (COREDEV-223)
+    this.setState({ isSimpledMode, modelConfig });
   }
 
   get dashletActions() {
