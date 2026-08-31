@@ -66,10 +66,11 @@ const baseProps = {
 
 const getJournalSettingsButton = container => container.querySelector('#target-journal-settings');
 
-// The journal-settings (pencil/shape) button must reflect the "may edit this journal config"
-// verdict computed by Journals (admin-only). The views hand it over either as a boolean or as a
-// thunk — a thunk taken as-is is always truthy, which is how non-admins got the button and the
-// misleading "create a local copy" dialog behind it (COREDEV-440).
+// The journal-settings (pencil/shape) button must reflect the verdict computed by Journals (the
+// external displayElements flag + a resolvable config record). The views hand it over either as a
+// boolean or as a thunk — a thunk taken as-is is always truthy, which is how users without any
+// journal-config permission got the button and the misleading "create a local copy" dialog behind
+// it (COREDEV-440).
 describe('JournalsSettingsBar journal-settings button', () => {
   it('is hidden when the user may not edit the journal, even with write permission on the config', () => {
     const { container } = render(<JournalsSettingsBar {...baseProps} hasBtnEdit={false} />);

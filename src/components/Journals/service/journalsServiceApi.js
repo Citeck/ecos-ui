@@ -29,7 +29,10 @@ class JournalsServiceApi {
       force
     );
 
-    const hasWritePermission = await AuthorityService.hasConfigWritePermission(journalId);
+    // The permission check needs a real record ref: with the bare local id the final
+    // permissions-attribute load resolves against a nonexistent record, and its ?bool!true
+    // fallback can report write access that the user does not have (COREDEV-440).
+    const hasWritePermission = await AuthorityService.hasConfigWritePermission(`${SourcesId.JOURNAL}@${journalId}`);
 
     let config = { ...json, hasWritePermission };
 
