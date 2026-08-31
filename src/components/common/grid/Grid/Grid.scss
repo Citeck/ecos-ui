@@ -402,8 +402,11 @@ $header-height: 34px;
       }
     }
 
-    thead > tr > th:first-child {
-      z-index: 5;
+    // Above the z-index 25 that the freeze block below puts on every sticky header
+    // cell — with an equal index the data headers, later in the DOM, paint over the
+    // pinned checkbox cell on horizontal scroll.
+    #{$selector-table} > thead > tr > th:first-child {
+      z-index: 26;
     }
   }
 
