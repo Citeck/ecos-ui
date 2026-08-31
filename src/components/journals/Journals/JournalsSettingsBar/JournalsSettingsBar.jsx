@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import Export from '@/components/domain/Export/Export';
@@ -93,6 +94,10 @@ const JournalsSettingsBar = ({
   hideImportBtn = false,
   hideExportBtn = false
 }) => {
+  // hasBtnEdit carries the "may edit this journal config" verdict (admin-only). Some call sites
+  // still pass it as a thunk — evaluate it, otherwise the function object is always truthy and the
+  // settings button leaks to users who only get the "create a local copy" dialog (COREDEV-440).
+  const showEditJournalBtn = Boolean(isFunction(hasBtnEdit) ? hasBtnEdit() : hasBtnEdit);
   const journalSettingsBarRef = useRef(null);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isHideTextPagination, setIsHideTextPagination] = React.useState(false);
@@ -177,7 +182,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {!hideSettingsJournalBtn && hasWritePermission && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && hasWritePermission && !isMobile && showEditJournalBtn && (
           <Tooltip
             target={`${targetId}-journal-settings`}
             text={t(isKanban(viewMode) ? Labels.BTN_KANBAN_SETTINGS : Labels.BTN_JOURNAL_SETTINGS)}
@@ -195,7 +200,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isPreviewList(viewMode) && hasWritePermission && !isMobile && hasBtnEdit && showWidgets && (
+        {isPreviewList(viewMode) && hasWritePermission && !isMobile && showEditJournalBtn && showWidgets && (
           <Tooltip target={`${targetId}-widget-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-widget-settings`}

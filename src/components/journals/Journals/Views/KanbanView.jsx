@@ -231,7 +231,7 @@ class KanbanView extends React.Component {
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Bar
             {...this.props}
-            hasBtnEdit={() => hasBtnEdit(this.boardId)}
+            hasBtnEdit={hasBtnEdit(this.boardId)}
             onEditJournal={() => onEditJournal(this.boardId)}
             urlParams={urlParams}
             isActivePage={isActivePage}
