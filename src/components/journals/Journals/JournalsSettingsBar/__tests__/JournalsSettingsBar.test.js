@@ -101,8 +101,8 @@ describe('JournalsSettingsBar refresh button', () => {
 
 const getJournalSettingsButton = container => container.querySelector('#target-journal-settings');
 
-// The journal-settings (shape) button must reflect the "may edit this journal config" verdict
-// computed by Journals (admin-only). The views hand it over either as a boolean or as a thunk —
+// The journal-settings (shape) button must reflect the verdict computed by Journals (the external
+// displayElements flag + a resolvable config record). The views hand it over either as a boolean or as a thunk —
 // a thunk taken as-is is always truthy, which is how non-admins got the button and the misleading
 // "create a local copy" dialog behind it (COREDEV-440).
 describe('JournalsSettingsBar journal-settings button', () => {

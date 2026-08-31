@@ -250,10 +250,7 @@ class Journals extends React.Component {
       this.setState({ recordId: null });
     }
 
-    if (
-      prevProps.viewMode !== viewMode &&
-      (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode) || isDocLib(viewMode))
-    ) {
+    if (prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode) || isDocLib(viewMode))) {
       this.setState({ menuOpen: false });
     }
 
@@ -381,7 +378,12 @@ class Journals extends React.Component {
       selectedRecordId: recordId,
       onRowClick: this.onRowClick,
       onEditJournal: configRec => this.handleEditJournal(configRec),
-      hasBtnEdit: configRec => displayElements.editJournal && !!configRec,
+      // For the settings bar the admin gate must NOT apply: there the button is driven by
+      // journalConfig.hasWritePermission, which also admits a manager of the current shared
+      // workspace — for them it opens the "create a local copy" flow (COREDEV-440). Only the
+      // external displayElements flag and a resolvable config record are required here; the
+      // admin-only verdict stays on the old-view header button (getDisplayElements).
+      hasBtnEdit: configRec => get(this.props, 'displayElements.editJournal', true) && !!configRec,
       hasBtnMenu: displayElements.menu,
       onToggleMenu: this.handleToggleMenu,
       Header: this.Header,
