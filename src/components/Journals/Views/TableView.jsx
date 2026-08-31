@@ -213,7 +213,7 @@ class TableView extends React.Component {
             settingsVisible={this.state.settingsVisible}
             onToggleSettings={this.handleToggleSettings}
             hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
-            hasBtnEdit={() => hasBtnEdit(configRec)}
+            hasBtnEdit={hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
             rightChild={isMobile ? <this.RightBarChild noData hasTotalSumField={hasTotalSumField} maxHeight={maxHeight} /> : null}

@@ -233,7 +233,7 @@ class PreviewListView extends React.Component {
             hideActionsBtn
             hideSettingsJournalBtn
             reloadGrid={this.reloadGrid}
-            hasBtnEdit={() => hasBtnEdit(configRec)}
+            hasBtnEdit={hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
             rightChild={isMobile ? <this.RightBarChild noData hasTotalSumField={hasTotalSumField} maxHeight={maxHeight} /> : null}

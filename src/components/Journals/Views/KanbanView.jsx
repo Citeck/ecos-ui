@@ -228,7 +228,7 @@ class KanbanView extends React.Component {
           {!isViewNewJournal && <Header title={name} config={boardConfig} configRec={this.boardId} />}
           <Bar
             {...this.props}
-            hasBtnEdit={() => hasBtnEdit(this.boardId)}
+            hasBtnEdit={hasBtnEdit(this.boardId)}
             onEditJournal={() => onEditJournal(this.boardId)}
             urlParams={urlParams}
             isActivePage={isActivePage}
