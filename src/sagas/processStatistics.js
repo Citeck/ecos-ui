@@ -1,7 +1,7 @@
 import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 import { Predicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { all, call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   filterHeatdata,
@@ -85,24 +85,34 @@ function* sagaFilterJournal({ api }, { payload }) {
   }
 }
 
-function* sagaGetModel({ api }, { payload }) {
+export function* sagaGetModel({ api }, { payload }) {
   const { record, stateId } = payload;
+
+  try {
+    const model = yield call(api.process.getModel, record);
+
+    // show the diagram right away: statistics aggregation may take a long time on large processes
+    yield put(setModel({ stateId, model }));
+  } catch (e) {
+    yield put(setModel({ stateId, model: null, heatmapData: [], KPIData: [] }));
+    console.error('[processStatistics/sagaGetModel] error', e);
+    return;
+  }
 
   try {
     const { filters } = yield select(state => state.processStatistics[stateId]);
     const predicates = getPredicates(filters);
 
-    const model = yield call(api.process.getModel, record);
-    const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
-    const KPIData = yield call(api.process.getKPIData, record);
+    const [heatmapData, KPIData] = yield all([call(api.process.getHeatmapData, record, predicates), call(api.process.getKPIData, record)]);
 
     window.Citeck.KPIData = KPIData;
 
-    yield put(setModel({ stateId, model, heatmapData, KPIData }));
+    yield put(setModel({ stateId, heatmapData, KPIData }));
     yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {
-    yield put(setModel({ stateId, model: null, heatmapData: [], KPIData: [] }));
-    console.error('[processStatistics/sagaGetModel] error', e);
+    yield put(setModel({ stateId, heatmapData: [], KPIData: [] }));
+    yield put(setNewData({ stateId, isNewData: true }));
+    console.error('[processStatistics/sagaGetModel] statistics loading error', e);
   }
 }
 
@@ -188,7 +198,7 @@ function* sagaResetFilter({ api }, { payload }) {
   yield put(filterJournal({ stateId, record }));
 }
 function* eventsHistorySaga(ea) {
-  yield takeEvery(getModel().type, sagaGetModel, ea);
+  yield takeLatest(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
   yield takeLatest(filterJournal().type, sagaFilterJournal, ea);
   yield takeEvery(filterHeatdata().type, sagaFilterHeatdata, ea);

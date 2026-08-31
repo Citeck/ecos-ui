@@ -8,7 +8,7 @@ import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
-import { InfoText, Legend, ResizableBox, Scaler } from '@/components/common';
+import { InfoText, Legend, PointsLoader, ResizableBox, Scaler } from '@/components/common';
 import { ControlledCheckbox, Range } from '@/components/common/form';
 import { ScaleOptions } from '@/components/common/Scaler/util';
 import BPMNViewer from '@/components/editors/ModelViewer/BPMNViewer';
@@ -26,19 +26,20 @@ const mapStateToProps = (state, context) => {
 
   return {
     isLoading: psState.isLoadingModel,
+    isLoadingHeatmap: psState.isLoadingHeatmap,
     model: psState.model,
     sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
     isNewData: psState.isNewData,
     KPIData: psState.KPIData,
-    isMobile: state.view.isMobile,
+    isMobile: state.view.isMobile
   };
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  getModelData: (payload) => dispatch(getModel(payload)),
-  setNewData: (payload) => dispatch(setNewData(payload)),
-  changeFilter: (payload) => dispatch(changeFilter(payload)),
+const mapDispatchToProps = dispatch => ({
+  getModelData: payload => dispatch(getModel(payload)),
+  setNewData: payload => dispatch(setNewData(payload)),
+  changeFilter: payload => dispatch(changeFilter(payload))
 });
 
 class Model extends React.Component {
@@ -58,14 +59,14 @@ class Model extends React.Component {
         id: PropTypes.string,
         name: PropTypes.string,
         activeCount: PropTypes.number,
-        completedCount: PropTypes.number,
-      }),
-    ),
+        completedCount: PropTypes.number
+      })
+    )
   };
 
   static defaultProps = {
     className: '',
-    withPercentCount: false,
+    withPercentCount: false
   };
 
   constructor(props) {
@@ -81,7 +82,7 @@ class Model extends React.Component {
       isCompletedCount: true,
       legendData: {},
       isTempHeatmapOff: false,
-      opacity: DefSets.OPACITY,
+      opacity: DefSets.OPACITY
     };
   }
 
@@ -116,7 +117,7 @@ class Model extends React.Component {
       this.setState(
         {
           isShowCounters: this.props.formMode === KPI_MODE ? false : prevState.isShowCounters,
-          isHeatmapMounted: false,
+          isHeatmapMounted: false
         },
         () => {
           if (get(this.designer, 'heatmap')) {
@@ -124,7 +125,7 @@ class Model extends React.Component {
           }
           showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
           this.renderBadges();
-        },
+        }
       );
     }
 
@@ -150,7 +151,7 @@ class Model extends React.Component {
     const { isActiveCount, isCompletedCount } = this.state;
 
     if (formMode === KPI_MODE) {
-      return KPIData.map((item) => getPreparedKPIItem(item)).filter((item) => item.value);
+      return KPIData.map(item => getPreparedKPIItem(item)).filter(item => item.value);
     }
 
     setNewData({ stateId, isNewData: false });
@@ -159,14 +160,14 @@ class Model extends React.Component {
       return [];
     }
 
-    return heatmapData.map((item) => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter((item) => item.value);
+    return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
   };
 
-  setHeight = (height) => {
+  setHeight = height => {
     this.designer.setHeight(height);
   };
 
-  handleInitSheet = (isModelMounting) => {
+  handleInitSheet = isModelMounting => {
     this.setState({ isModelMounting });
   };
 
@@ -181,7 +182,7 @@ class Model extends React.Component {
     }
   };
 
-  toggleTempHeatmap = (isTempHeatmapOff) => {
+  toggleTempHeatmap = isTempHeatmapOff => {
     this.setState({ isTempHeatmapOff }, () => {
       this.handleToggleHeatmap();
     });
@@ -238,7 +239,7 @@ class Model extends React.Component {
     this.designer.drawBadges({
       keys,
       data: this.props.heatmapData,
-      withPercentCount,
+      withPercentCount
     });
   };
 
@@ -265,7 +266,7 @@ class Model extends React.Component {
           }, 100)();
         },
         formMode,
-        hasTooltip: false,
+        hasTooltip: false
       });
     } else {
       setNewData({ stateId, isNewData: false });
@@ -296,11 +297,16 @@ class Model extends React.Component {
       return;
     }
 
-    if (!this.designer || !this.designer.heatmap) {
+    // statistics may arrive after the sheet is mounted, when no heatmap exists yet;
+    // in that case handleReadySheet has not drawn anything and we draw the first heatmap here
+    if (!this.designer || !this.state.isModelMounted) {
       return;
     }
 
-    this.designer.heatmap.destroy();
+    if (this.designer.heatmap) {
+      this.designer.heatmap.destroy();
+    }
+
     this.renderHeatmap();
     this.renderBadges();
   };
@@ -308,7 +314,7 @@ class Model extends React.Component {
   handleToggleHeatmap = () => {
     this.setState(
       ({ isShowHeatmap }) => ({ isShowHeatmap: !isShowHeatmap }),
-      () => this.toggleHeatmap(),
+      () => this.toggleHeatmap()
     );
   };
 
@@ -327,23 +333,23 @@ class Model extends React.Component {
     }
   };
 
-  handleChangeHeatmap = (legendData) => {
+  handleChangeHeatmap = legendData => {
     this.setState({ legendData }, () => {
       this.renderBadges();
     });
   };
 
-  handleChangeOpacity = (value) => {
+  handleChangeOpacity = value => {
     this.setState({ opacity: Number(value) }, () => {
       this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
     });
   };
 
-  handleClickZoom = (value) => {
+  handleClickZoom = value => {
     this.designer.setZoom(value);
   };
 
-  handleChangeCountFlag = (data) => {
+  handleChangeCountFlag = data => {
     const { changeFilter, stateId, record } = this.props;
     let { isCompletedCount, isActiveCount } = data;
 
@@ -361,20 +367,20 @@ class Model extends React.Component {
       val: [
         {
           att: 'completed',
-          t: isActiveCount ? 'empty' : 'not-empty',
+          t: isActiveCount ? 'empty' : 'not-empty'
         },
         {
           att: 'completed',
-          t: isCompletedCount ? 'not-empty' : 'empty',
-        },
-      ],
+          t: isCompletedCount ? 'not-empty' : 'empty'
+        }
+      ]
     };
 
     changeFilter({ stateId, record, data: [predicate] });
     this.setState(data);
   };
 
-  handleToggleShowCounters = () => this.setState((state) => ({ isShowBadges: !state.isShowBadges }));
+  handleToggleShowCounters = () => this.setState(state => ({ isShowBadges: !state.isShowBadges }));
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
@@ -434,6 +440,19 @@ class Model extends React.Component {
     );
   };
 
+  renderStatsLoader = () => {
+    if (!this.props.isLoadingHeatmap) {
+      return null;
+    }
+
+    return (
+      <div className="ecos-process-statistics-model__stats-loader">
+        <PointsLoader className="ecos-process-statistics-model__stats-loader-points" color="light-blue" />
+        <span className="ecos-process-statistics-model__stats-loader-label">{t(Labels.PANEL_STATS_LOADING)}</span>
+      </div>
+    );
+  };
+
   render() {
     const { model, sectionPath, isLoading, width, isMobile } = this.props;
     const {
@@ -445,14 +464,14 @@ class Model extends React.Component {
       isActiveCount,
       isCompletedCount,
       legendData,
-      opacity,
+      opacity
     } = this.state;
 
     const Sheet = this.designer && this.designer.renderSheet;
 
     const zoomCenter = {
       x: 0,
-      y: 0,
+      y: 0
     };
 
     const showHeatmap = this.designer?.heatmap && (isTempHeatmapOff || isShowHeatmap);
@@ -466,7 +485,7 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowBadges,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap,
-          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE,
+          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE
         })}
       >
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
@@ -477,6 +496,7 @@ class Model extends React.Component {
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
               {this.renderSwitches()}
+              {this.renderStatsLoader()}
             </div>
           )}
           {model && (

@@ -19,6 +19,7 @@ import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 const initialState = {
   isLoadingJournal: false,
   isLoadingModel: false,
+  isLoadingHeatmap: false,
   data: [],
   totalCount: 0,
   journalConfig: null,
@@ -33,12 +34,18 @@ const initialState = {
 
 export default handleActions(
   {
-    [getModel]: startLoading(initialState, 'isLoadingModel'),
-    [filterHeatdata]: startLoading(initialState, 'isLoadingModel'),
+    [getModel]: (state, action) =>
+      startLoading(initialState, 'isLoadingHeatmap')(startLoading(initialState, 'isLoadingModel')(state, action), action),
+    // statistics reload keeps the already rendered model on screen, only the heatmap loader is shown
+    [filterHeatdata]: startLoading(initialState, 'isLoadingHeatmap'),
     [getJournal]: startLoading(initialState, 'isLoadingJournal'),
     [filterJournal]: startLoading(initialState, 'isLoadingJournal'),
     [setModel]: (state, { payload }) =>
-      updateState(state, payload.stateId, { ...pick(payload, 'model', 'heatmapData', 'KPIData'), isLoadingModel: false }),
+      updateState(state, payload.stateId, {
+        ...pick(payload, 'model', 'heatmapData', 'KPIData'),
+        isLoadingModel: false,
+        ...('heatmapData' in payload ? { isLoadingHeatmap: false } : {})
+      }),
     [setJournal]: (state, { payload }) =>
       updateState(state, payload.stateId, { ...pick(payload, 'data', 'journalConfig', 'totalCount'), isLoadingJournal: false }),
     [setNewData]: (state, { payload }) => updateState(state, payload.stateId, { stateId: payload.stateId, isNewData: payload.isNewData }),

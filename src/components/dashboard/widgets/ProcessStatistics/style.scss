@@ -95,6 +95,21 @@
       }
     }
 
+    &__stats-loader {
+      display: flex;
+      align-items: center;
+      color: $text-color-gray;
+
+      &-points {
+        width: 30px;
+      }
+
+      &-label {
+        padding-left: 5px;
+        white-space: nowrap;
+      }
+    }
+
     &__checkbox {
       display: flex;
       align-items: center;
