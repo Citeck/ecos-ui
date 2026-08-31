@@ -94,9 +94,9 @@ const JournalsSettingsBar = ({
   hideImportBtn = false,
   hideExportBtn = false
 }) => {
-  // hasBtnEdit carries the "may edit this journal config" verdict (admin-only). Some call sites
-  // still pass it as a thunk — evaluate it, otherwise the function object is always truthy and the
-  // settings button leaks to users who only get the "create a local copy" dialog (COREDEV-440).
+  // hasBtnEdit says whether the settings button is allowed to exist at all (external displayElements
+  // flag + a resolvable config record); hasWritePermission decides for whom. Some call sites pass
+  // hasBtnEdit as a thunk — evaluate it, a bare function object is always truthy (COREDEV-440).
   const showEditJournalBtn = Boolean(isFunction(hasBtnEdit) ? hasBtnEdit() : hasBtnEdit);
   const journalSettingsBarRef = useRef(null);
   const [isCollapsed, setIsCollapsed] = React.useState(false);

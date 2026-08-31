@@ -6,6 +6,7 @@ import isString from 'lodash/isString';
 
 import * as authorityApi from './authorityApi';
 
+import { getPersonalWorkspaceId, getWorkspaceId } from '@/helpers/urls';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 
 const GROUP_PREFIX = 'GROUP_';
@@ -162,6 +163,13 @@ class AuthorityService {
 
   private async isCurrentUserManagerOfCurrentWs(): Promise<boolean> {
     if (!getEnabledWorkspaces()) {
+      return false;
+    }
+    // Everyone formally manages their own personal workspace, but artifact privileges must not
+    // follow from that: otherwise any user who opens a global journal in their personal space is
+    // offered the "create a local copy" flow (COREDEV-440). Manager-driven artifact permissions
+    // only make sense in shared workspaces.
+    if (getWorkspaceId() === getPersonalWorkspaceId()) {
       return false;
     }
     return authorityApi.isManagerCurrentUser();
