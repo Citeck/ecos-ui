@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
+import { type AIRequestError } from '../../aiRequestError';
 import aiAssistantService from '../../AIAssistantService';
 import { generateText, cancelRequest as cancelTextRequest } from '../../TextAIService';
 import { getFieldConfig, getAvailableActions, RESULT_MODES, FieldActionConfig, QuickAction } from '../config/fieldActionConfigs';
@@ -352,9 +353,39 @@ const useAIFieldActions = ({
         if (!isCancellationError) {
           console.error('AI generation error:', error);
           if (isMountedRef.current) {
-            // Close the result popup on error
-            setIsResultVisible(false);
-            NotificationManager.error(t('ai-actions.error.generation', 'Failed to generate content'), t('ai-actions.error.title', 'Error'));
+            // Two failures are worth saying in the panel rather than closing it over.
+            //
+            // A spent waiting budget is not a failed generation, and closing the panel over it was
+            // the worst of both: the work was called off AND the user was left with a toast that
+            // named no next step. Keep the panel, say what happened, and let the retry controls it
+            // already carries do the rest (D-G-FE-TIMEOUT).
+            //
+            // A refusal that names its reason is the same case (D-G-400-SILENT): the backend's
+            // request validator answers 400 with a localized sentence the user can act on — «текст
+            // слишком большой, разделите его на части» — and that sentence was thrown away with the
+            // panel, leaving only `Request failed: 400` in the console. A refusal that explains
+            // nothing still falls through to the generic notification below.
+            const panelMessage = (error as AIRequestError & { isTimeout?: boolean })?.isTimeout
+              ? t('ai-actions.error.timeout-retry')
+              : (error as AIRequestError)?.userMessage;
+
+            if (panelMessage) {
+              const currentValue = typeof getValue === 'function' ? getValue() : '';
+              // Both sides equal, so no diff is drawn and no «Apply» is offered — the panel is
+              // showing a message, not a proposed edit.
+              setResult({
+                originalValue: currentValue,
+                generatedValue: currentValue,
+                explanation: panelMessage
+              });
+            } else {
+              // Close the result popup on error
+              setIsResultVisible(false);
+              NotificationManager.error(
+                t('ai-actions.error.generation', 'Failed to generate content'),
+                t('ai-actions.error.title', 'Error')
+              );
+            }
           }
         }
       } finally {
@@ -394,6 +425,18 @@ const useAIFieldActions = ({
   const applyResult = useCallback(() => {
     if (!result.generatedValue || isApplying) return;
 
+    // Nothing proposed, nothing to write. An explanation-only answer and the spent-budget notice
+    // both arrive with the generated value equal to what is already in the field, and writing it
+    // back is not free: every `setValue` path marks the field as changed by the user, so the form
+    // grew a Save bar for an edit that never happened (D-G-QA-APPLY-NOOP). `AIInlineResult` hides
+    // the button in that case; this is the guard behind it, for the keyboard path and for callers
+    // that render their own controls.
+    const currentValue = typeof getValue === 'function' ? getValue() : undefined;
+    if (currentValue === result.generatedValue) {
+      closeResult();
+      return;
+    }
+
     setIsApplying(true);
 
     try {
@@ -407,7 +450,7 @@ const useAIFieldActions = ({
     } finally {
       setIsApplying(false);
     }
-  }, [result.generatedValue, isApplying, setValue, closeResult]);
+  }, [result.generatedValue, isApplying, setValue, getValue, closeResult]);
 
   /**
    * Retry with new prompt (using current generated value as base)
@@ -608,9 +651,23 @@ const useAIFieldActions = ({
 function getDefaultPromptForAction(actionId: string | undefined, fieldType: string): string {
   const prompts: Record<string, string> = {
     improve: t('ai-actions.prompt.improve', 'Improve this text'),
-    translate: t('ai-actions.prompt.translate', 'Translate to English'),
+    // Names no target language, so that this fallback cannot contradict the backend: the string is
+    // merged into the quick-action prompt as "Additional instructions"
+    // (`TextEditService.resolveUserMessage`), and that prompt
+    // (`prompts/text/quick_actions/translate.md`) detects the source language and translates into
+    // the other one of the Russian/English pair only while the request names no language of its own.
+    // A directional wording here would pin the direction and make the button a no-op on a field
+    // already in the target language. Note that no mounted field takes this path today — every
+    // consumer of the hook passes `onGenerateRequest` and the branch above wins; the button was
+    // missing from the UI altogether until `translate` was added to FIELD_ACTION_CONFIGS, which is
+    // what actually fixed it.
+    translate: t('ai-actions.prompt.translate', 'Translate this text'),
     expand: t('ai-actions.prompt.expand', 'Expand and add more details'),
     summarize: t('ai-actions.prompt.summarize', 'Summarize this text'),
+    // Kept in step with FIELD_ACTION_CONFIGS: an action offered in the UI but missing here returns
+    // undefined to the default request path, which posts a quick action with no prompt at all.
+    simplify: t('ai-actions.prompt.simplify', 'Simplify this text'),
+    formalize: t('ai-actions.prompt.formalize', 'Rewrite this text in a formal style'),
     'fix-grammar': t('ai-actions.prompt.fix-grammar', 'Fix grammar and spelling'),
     explain: t('ai-actions.prompt.explain', 'Explain what this code does'),
     fix: t('ai-actions.prompt.fix', 'Find and fix errors in this code'),
@@ -618,7 +675,9 @@ function getDefaultPromptForAction(actionId: string | undefined, fieldType: stri
     'add-comments': t('ai-actions.prompt.add-comments', 'Add comments to this code')
   };
 
-  return prompts[actionId || ''] || prompts['generate'];
+  // The former `prompts['generate']` fallback named a key that does not exist, so an unmapped
+  // action silently produced `undefined` despite the `: string` return type.
+  return prompts[actionId || ''] || t('ai-actions.prompt.improve', 'Improve this text');
 }
 
 export default useAIFieldActions;

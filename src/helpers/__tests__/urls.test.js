@@ -237,4 +237,114 @@ describe('Urls helpers', () => {
       });
     });
   });
+
+  describe('Method setDownloadParam', () => {
+    const data = [
+      {
+        title: 'Adds the parameter to a url without a query string',
+        input: ['/gateway/emodel/api/ecos/webapp/content', true],
+        output: '/gateway/emodel/api/ecos/webapp/content?download=true'
+      },
+      {
+        title: 'Adds the parameter to a url which already has a query string',
+        input: ['/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id', true],
+        output: '/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id&download=true'
+      },
+      {
+        title: 'Replaces the parameter instead of repeating it',
+        input: ['/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id&download=true', false],
+        output: '/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id&download=false'
+      },
+      {
+        title: 'Collapses repeated parameters into a single one',
+        input: ['/content?ref=id&download=true&att=content&download=false', true],
+        output: '/content?ref=id&att=content&download=true'
+      },
+      {
+        title: 'Keeps the entity ref unencoded',
+        input: ['/content?ref=emodel/some-type@some$id&att=content', true],
+        output: '/content?ref=emodel/some-type@some$id&att=content&download=true'
+      },
+      {
+        title: 'Keeps the hash at the end of the url',
+        input: ['/content?ref=id#page=2', true],
+        output: '/content?ref=id&download=true#page=2'
+      },
+      {
+        title: 'Empty url is returned as is',
+        input: ['', true],
+        output: ''
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(UrlUtils.setDownloadParam(...item.input)).toEqual(item.output);
+      });
+    });
+
+    it('Result always contains exactly one download parameter', () => {
+      const url = UrlUtils.setDownloadParam('/content?download=true&ref=id&download=false', false);
+
+      expect(url.match(/download=/g)).toHaveLength(1);
+      expect(url).toContain('download=false');
+    });
+  });
+
+  describe('Method getDownloadContentUrl', () => {
+    it('Asks the content endpoint for an attachment disposition explicitly', () => {
+      const url = UrlUtils.getDownloadContentUrl('emodel/type@id');
+
+      expect(url).toEqual('/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id&download=true');
+      expect(url.match(/download=/g)).toHaveLength(1);
+    });
+
+    it('Legacy nodeRef is served by another endpoint and keeps its own url', () => {
+      const url = UrlUtils.getDownloadContentUrl('workspace://SpacesStore/1234');
+
+      expect(url).toContain('citeck/print/content?nodeRef=workspace://SpacesStore/1234');
+      expect(url).not.toContain('download=');
+    });
+  });
+
+  describe('Method isEcosContentUrl', () => {
+    const data = [
+      {
+        title: 'Recognizes the gateway url of the ecos content endpoint',
+        input: '/gateway/emodel/api/ecos/webapp/content?ref=emodel/type@id',
+        output: true
+      },
+      {
+        title: 'Recognizes the url of the ecos content endpoint of another webapp',
+        input: '/gateway/uiserv/api/ecos/webapp/content?ref=uiserv/form@id&att=content',
+        output: true
+      },
+      {
+        title: 'Alfresco content url is not the ecos content endpoint',
+        input: '/share/proxy/alfresco/citeck/node/workspace/SpacesStore/1234/content?a=true',
+        output: false
+      },
+      {
+        title: 'Legacy print service is not the ecos content endpoint',
+        input: '/share/proxy/alfresco/citeck/print/content?nodeRef=workspace://SpacesStore/1234',
+        output: false
+      },
+      {
+        title: 'Empty url is not the ecos content endpoint',
+        input: '',
+        output: false
+      },
+      {
+        title: 'Missing url is not the ecos content endpoint',
+        input: undefined,
+        output: false
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(UrlUtils.isEcosContentUrl(item.input)).toEqual(item.output);
+      });
+    });
+  });
 });

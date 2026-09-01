@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { externalLinkProps } from '../ChatMarkdownLink';
+
 import { getContextArtifactIcon } from '@/components/ai/AIAssistant/constants';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
@@ -34,7 +36,7 @@ const ContextArtifactsList = ({ contextArtifacts }) => {
             <div key={artifact.ref || artifact.displayName} className="ai-assistant-chat__context-artifact-item">
               <Icon className={`fa ${getContextArtifactIcon(artifact.type)}`} />
               {url ? (
-                <a href={url} target="_blank" rel="noopener noreferrer" className="ai-assistant-chat__context-artifact-link">
+                <a href={url} className="ai-assistant-chat__context-artifact-link" {...externalLinkProps(url)}>
                   {displayText}
                 </a>
               ) : (

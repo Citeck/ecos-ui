@@ -1,0 +1,14 @@
+@import '@/styles/constants';
+
+// Vertical half of the "one optical box per view-mode icon" rule — see VIEW_TAB_ICON_BOX
+// in ViewTabs.jsx for the sizing half (COREDEV-349).
+//
+// Matching sizes does not line the row up: an inline SVG sits on the text baseline of its wrapper,
+// which lands it a couple of pixels below the button's centre. Taking the wrapper out of inline
+// layout centres each SVG in its button, so every icon covers the same pixel rows.
+.ecos-journal__view-tabs {
+  .ecos-btn__text {
+    display: flex;
+    line-height: 1;
+  }
+}

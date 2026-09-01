@@ -33,14 +33,18 @@ global.TextEncoder = global.TextEncoder || TextEncoder;
 // @ts-ignore
 global.TextDecoder = global.TextDecoder || TextDecoder;
 
-// Polyfill ResizeObserver for jsdom environment
-window.ResizeObserver =
-  window.ResizeObserver ||
-  class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
+// Polyfill ResizeObserver for jsdom environment. Guarded on `typeof window` so this file can
+// also be loaded by a `@jest-environment node` test (used to prove a module is DOM-free, e.g.
+// src/workers/docLib/__tests__) without crashing setup.
+if (typeof window !== 'undefined') {
+  window.ResizeObserver =
+    window.ResizeObserver ||
+    class ResizeObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+}
 
 jest.mock('./services/license/licenseApi');
 

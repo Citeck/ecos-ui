@@ -79,6 +79,14 @@ export const ACTION_ICONS: Record<string, ActionIcon> = {
     fa: 'fa-pencil',
     svg: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
   },
+  simplify: {
+    fa: 'fa-eraser',
+    svg: 'M4 6h16M4 12h10M4 18h6'
+  },
+  formalize: {
+    fa: 'fa-briefcase',
+    svg: 'M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM10 5h4v2h-4V5z'
+  },
   explain: {
     fa: 'fa-lightbulb-o',
     svg: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
@@ -217,6 +225,33 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         icon: ACTION_ICONS.fixGrammar,
         getLabel: getActionLabel('fix-grammar', 'Fix grammar'),
         requiresContent: true
+      },
+      // Ids must stay exactly `simplify`/`formalize`: the backend resolves the prompt by this key
+      // (TextQuickActionsProvider.getPromptForAction), it is not a display-only value.
+      {
+        id: 'simplify',
+        icon: ACTION_ICONS.simplify,
+        getLabel: getActionLabel('simplify', 'Simplify'),
+        requiresContent: true
+      },
+      {
+        id: 'formalize',
+        icon: ACTION_ICONS.formalize,
+        getLabel: getActionLabel('formalize', 'Formal style'),
+        requiresContent: true
+      },
+      // `translate` used to be configured only for TEXT/NAME, and no component mounts those field
+      // types, so the backend action had no UI entry point at all (found by the regression pass on
+      // 2026-08-12). Adding it here is what gave it one. The direction is the backend's to choose:
+      // its `translate` prompt detects the source language and translates into the other one of the
+      // Russian/English pair as long as the request names no target language, and a quick-action
+      // click sends no prompt of its own. Any other language goes through the free-text input that
+      // sits next to these buttons.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
+        requiresContent: true
       }
     ],
     getPlaceholder: () => t('ai-actions.placeholder.textarea', 'Describe what to do with the text...')
@@ -243,6 +278,28 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         id: 'improve',
         icon: ACTION_ICONS.improve,
         getLabel: getActionLabel('improve', 'Improve'),
+        requiresContent: true
+      },
+      {
+        id: 'simplify',
+        icon: ACTION_ICONS.simplify,
+        getLabel: getActionLabel('simplify', 'Simplify'),
+        requiresContent: true
+      },
+      {
+        id: 'formalize',
+        icon: ACTION_ICONS.formalize,
+        getLabel: getActionLabel('formalize', 'Formal style'),
+        requiresContent: true
+      },
+      // See the note on TEXTAREA above. This type is mounted by the same component — `TextArea.jsx`
+      // returns it whenever `textAreaAIContextType` is `documentation` (TextArea.jsx:625) — so
+      // leaving it out here would keep the entry point missing on exactly one of the two mounted
+      // textarea flavours, which is the defect this action was added to close.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
         requiresContent: true
       }
     ],
@@ -311,6 +368,25 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         id: 'fix-grammar',
         icon: ACTION_ICONS.fixGrammar,
         getLabel: getActionLabel('fix-grammar', 'Fix grammar'),
+        requiresContent: true
+      },
+      {
+        id: 'simplify',
+        icon: ACTION_ICONS.simplify,
+        getLabel: getActionLabel('simplify', 'Simplify'),
+        requiresContent: true
+      },
+      {
+        id: 'formalize',
+        icon: ACTION_ICONS.formalize,
+        getLabel: getActionLabel('formalize', 'Formal style'),
+        requiresContent: true
+      },
+      // See the note on TEXTAREA above: same reason, same no-target-language behaviour.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
         requiresContent: true
       }
     ],

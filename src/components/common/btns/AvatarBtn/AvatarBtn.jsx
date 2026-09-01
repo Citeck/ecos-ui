@@ -9,7 +9,7 @@ import { Avatar } from '../../index';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  userFullName: state.user.fullName,
+  userDisplayName: state.user.displayName || state.user.fullName,
   userPhotoUrl: UserService.getAvatarUrl(state.user.thumbnail),
   theme: state.view.theme
 });
@@ -26,13 +26,13 @@ class AvatarBtn extends Component {
   };
 
   render() {
-    const { className, icon, children, userFullName, theme, userPhotoUrl, dispatch, ...props } = this.props;
+    const { className, icon, children, userDisplayName, theme, userPhotoUrl, dispatch, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     return (
       <button {...props} className={cssClasses}>
         <Avatar className="ecos-btn-user-avatar" theme={theme} url={userPhotoUrl} />
-        <span>{userFullName}</span>
+        <span>{userDisplayName}</span>
         {icon && <i className={classNames('ecos-btn__i', icon)} />}
       </button>
     );

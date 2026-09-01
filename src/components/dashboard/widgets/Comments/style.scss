@@ -17,13 +17,22 @@
           margin-bottom: 10px;
         }
 
+        // The checkbox stands above the buttons here instead of beside them, so the centering
+        // that keeps it level with them in a row would push it to the middle of the footer
+        &-chbx-wrapper {
+          align-self: flex-start;
+          margin-bottom: 8px;
+        }
+
         &-btn {
           width: 50%;
           //min-width: 141px;
 
+          // The footer is a column here, so the buttons take its whole width instead
           &-wrapper {
             display: flex;
             flex-wrap: nowrap;
+            margin-left: 0;
           }
         }
       }
@@ -66,6 +75,12 @@
     position: relative;
     border-bottom: 1px solid $color-gray-4;
     padding: 15px 0;
+
+    // The separator belongs between the comments, under the last one it just hangs
+    // above the bottom border of the widget
+    &:last-child {
+      border-bottom: 0;
+    }
 
     &:hover {
       #{$self}-btn-edit,
@@ -149,32 +164,13 @@
       }
     }
 
-    &-text {
-      color: $text-color-dark;
+    // The body of a comment is rendered by the read-only rich text editor: it sits right under
+    // the header and adds a bottom padding of its own on top of the padding of the comment
+    &-editor.ecos-rt-editor {
       padding-top: 10px;
-      font-style: normal;
-      font-weight: 600;
-      font-size: 12px;
-      line-height: 16px;
 
-      p {
-        margin-bottom: 0;
-      }
-
-      strong {
-        font-weight: bold;
-      }
-
-      em {
-        font-style: italic;
-        font-weight: 600;
-      }
-
-      ul {
-        margin-left: 17px;
-        list-style: disc;
-        margin-top: 5px;
-        margin-bottom: 5px;
+      .ecos-rt-editor__content {
+        padding-bottom: 0;
       }
     }
 
@@ -275,6 +271,13 @@
         padding: 5px;
       }
     }
+
+    // While a comment is being edited, the editor is already inset by the gutter of the list and
+    // by the padding of the comment itself, so its footer adds no spacing of its own
+    #{$root}__editor-footer {
+      padding: 0;
+      margin-bottom: 0;
+    }
   }
 
   &__editor {
@@ -282,6 +285,16 @@
 
     width: 100%;
     min-width: 250px;
+
+    // A new comment is written above the list, so the editor is separated from it the same way
+    // the comments are separated from each other. When nothing follows the editor there is
+    // nothing to separate it from
+    &:not(:last-child)::after {
+      content: '';
+      display: block;
+      margin: 0 16px;
+      border-bottom: 1px solid $color-gray-4;
+    }
 
     &-decorator {
       &-link {
@@ -321,9 +334,10 @@
       display: flex;
       justify-content: space-between;
       align-content: center;
-      padding: 0 4px;
-      margin-left: 8px;
-      margin-bottom: 12px;
+      // The footer keeps the same gutter as the comment list, and the gap below it matches that
+      // gutter as well: the dashlet body adds 5px of its own under the widget content
+      padding: 0 16px;
+      margin-bottom: 11px;
 
       &-btn {
         width: 141px;
@@ -333,8 +347,11 @@
           margin-right: 10px;
         }
 
+        // The buttons keep to the right of the footer even when the checkbox beside them
+        // is not rendered
         &-wrapper {
           display: flex;
+          margin-left: auto;
         }
       }
 
@@ -348,13 +365,18 @@
           label {
             display: flex;
             align-items: center;
+            // The bottom margin a label has by default keeps the checkbox above the middle
+            // of the footer, so it stops being level with the buttons beside it
+            margin-bottom: 0;
           }
 
+          // The label reads as one line with the buttons beside it, so it is set in the same type.
+          // A zero line-height used to collapse the box of the text, which is what kept it from
+          // sitting level with the checkbox next to it
           &__text {
             margin-left: 5px;
-            font-size: 12px;
+            font-size: $font-size-standard;
             font-weight: 600;
-            line-height: 0;
             color: #767676;
           }
         }

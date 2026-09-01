@@ -7,6 +7,7 @@ import { formatMessageTime } from '../../utils';
 
 import AgentPlanMessage from './AgentPlanMessage';
 import AgentProgressMessage from './AgentProgressMessage';
+import ArtifactsList from './ArtifactsList';
 import BusinessAppMessage from './BusinessAppMessage';
 import ContextArtifactsList from './ContextArtifactsList';
 import DeployConfirmation from './DeployConfirmation';
@@ -29,6 +30,15 @@ import { t } from '@/helpers/export/util';
  * @param {Function} props.onApplyScriptChanges - Apply script changes handler
  * @param {boolean} props.isApplyingTextChanges - Whether text changes are being applied
  * @param {boolean} props.isApplyingScriptChanges - Whether script changes are being applied
+ * @param {boolean} props.actionsDisabled - Whether the gate of this message is no longer live (the
+ *   dialog has moved past it, or a request is in flight); computed in MessageList
+ * @param {boolean} props.actionsFrozen - Whether a request is in flight (a subset of actionsDisabled);
+ *   file-save buttons are exempt from staleness but never from this freeze
+ * @param {boolean} props.actionsStale - Whether the gate of this message is no longer live, without
+ *   the in-flight freeze folded in; drives what a card displays (the deploy scope it sent, the hint
+ *   it is waiting on) as opposed to what it lets the user click
+ * @param {Function} props.onSelectDeployScope - (messageId, scopeKey) => void; records a deploy
+ *   card's draft scope on the message so it survives the unmount that minimizing the chat causes
  */
 const MessageItem = ({
   message,
@@ -40,7 +50,11 @@ const MessageItem = ({
   onApplyScriptChanges,
   isApplyingTextChanges,
   isApplyingScriptChanges,
-  onActionClick
+  onActionClick,
+  onSelectDeployScope,
+  actionsDisabled = false,
+  actionsFrozen = false,
+  actionsStale = false
 }) => {
   const renderContent = () => {
     // Email message
@@ -82,22 +96,57 @@ const MessageItem = ({
 
     // Agent plan message (plan approval, step approval, completed, failed)
     if (message.isAgentPlanContent) {
-      return <AgentPlanMessage message={message} markdownComponents={markdownComponents} onActionClick={onActionClick} />;
+      return (
+        <AgentPlanMessage
+          message={message}
+          markdownComponents={markdownComponents}
+          onActionClick={onActionClick}
+          actionsDisabled={actionsDisabled}
+          actionsFrozen={actionsFrozen}
+          actionsStale={actionsStale}
+        />
+      );
     }
 
     // Agent progress message (planning, executing)
     if (message.isAgentProgressContent) {
-      return <AgentProgressMessage message={message} />;
+      return (
+        <>
+          <AgentProgressMessage message={message} />
+          {/* The plan/tool-step card renders only from `messageData`, so a failed turn would show
+              no reason at all — the steps just stopped. Keep the trace, add the reason (D-B-7). */}
+          {message.isError && !!message.text && <div className="ai-assistant-chat__progress-error">{message.text}</div>}
+        </>
+      );
     }
 
     // Business app progress message
     if (message.isBusinessAppContent && message.messageData) {
-      return <BusinessAppMessage message={message} markdownComponents={markdownComponents} />;
+      return (
+        <BusinessAppMessage
+          message={message}
+          markdownComponents={markdownComponents}
+          onActionClick={onActionClick}
+          actionsDisabled={actionsDisabled}
+          actionsFrozen={actionsFrozen}
+          actionsStale={actionsStale}
+        />
+      );
     }
 
     // Config-agent HITL deploy confirmation (pendingDeploy in result, COREDEV-323 contract #3)
     if (message.messageData?.pendingDeploy) {
-      return <DeployConfirmation message={message} markdownComponents={markdownComponents} onActionClick={onActionClick} />;
+      return (
+        <DeployConfirmation
+          message={message}
+          markdownComponents={markdownComponents}
+          onActionClick={onActionClick}
+          onSelectDeployScope={onSelectDeployScope}
+          actionsDisabled={actionsDisabled}
+          actionsFrozen={actionsFrozen}
+          actionsStale={actionsStale}
+        />
+      );
     }
 
     // Default markdown message
@@ -106,9 +155,18 @@ const MessageItem = ({
         <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
           {message.text}
         </Markdown>
+        {message.messageData?.artifacts && <ArtifactsList artifacts={message.messageData.artifacts} />}
         {message.messageData?.contextArtifacts && <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />}
         {message.messageData?.actions && (
-          <MessageActions actions={message.messageData.actions} messageId={message.id} onActionClick={onActionClick} />
+          <MessageActions
+            actions={message.messageData.actions}
+            messageId={message.id}
+            onActionClick={onActionClick}
+            disabled={actionsDisabled}
+            frozen={actionsFrozen}
+            stale={actionsStale}
+            resolvedFileTempRefs={message.messageData.resolvedFileTempRefs}
+          />
         )}
       </>
     );

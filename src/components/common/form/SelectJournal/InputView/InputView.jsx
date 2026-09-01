@@ -328,7 +328,7 @@ class InputView extends Component {
     );
 
   renderActionsMenu = item => {
-    const { onCreate } = this.props;
+    const { onCreate, getCreateWorkspaceId } = this.props;
     const { aditionalButtons, isOpenMenuActions, createVariants, isFlipped } = this.state;
 
     return (
@@ -344,7 +344,9 @@ class InputView extends Component {
             <VerticalActions width={14} height={14} />
             {isOpenMenuActions && (
               <ul ref={this.menuRef} className={classNames('select-journal__values-list-actions-menu', { flip: isFlipped })}>
-                {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
+                {createVariants.length > 0 && (
+                  <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} getCreateWorkspaceId={getCreateWorkspaceId} />
+                )}
 
                 {item &&
                   !isEmpty(aditionalButtons[item.id]) &&
@@ -512,11 +514,11 @@ class InputView extends Component {
   }
 
   renderCustomButtons() {
-    const { onCreate } = this.props;
+    const { onCreate, getCreateWorkspaceId } = this.props;
     const { createVariants } = this.state;
 
     if (createVariants.length > 0) {
-      return <CreateVariants items={createVariants} onCreateFormSubmit={onCreate} />;
+      return <CreateVariants items={createVariants} onCreateFormSubmit={onCreate} getCreateWorkspaceId={getCreateWorkspaceId} />;
     }
 
     return null;
@@ -554,6 +556,8 @@ class InputView extends Component {
 
 InputView.propTypes = {
   journalId: PropTypes.string.isRequired,
+  /** Returns the workspace to create a record in. An empty string means the backend decides. */
+  getCreateWorkspaceId: PropTypes.func,
   selectedRows: PropTypes.array,
   placeholder: PropTypes.string,
   viewMode: PropTypes.string,

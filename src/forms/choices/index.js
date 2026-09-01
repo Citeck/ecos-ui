@@ -2,19 +2,253 @@ import Choices from 'choices.js';
 
 import './style.scss';
 
+import { t } from '@/helpers/util';
+
+/**
+ * Accessible name of the item a "remove" button belongs to.
+ * `data.value` is a plain string for most selects, but components that compare values with
+ * `_.isEqual` (EcosSelect) legitimately hold objects there — printing one gives "[object Object]",
+ * so fall back to the rendered label with its markup stripped.
+ */
+const getItemName = data => {
+  if (typeof data?.value === 'string') {
+    return data.value;
+  }
+
+  const label = typeof data?.label === 'string' ? data.label : '';
+
+  if (!label) {
+    return '';
+  }
+
+  const holder = document.createElement('div');
+  holder.innerHTML = label;
+
+  return holder.innerText || holder.textContent || '';
+};
+
+// choices.js 8.0.0 hardcodes the English "Remove item" in its item template — there is no option
+// for it and the library's own source marks it as a TODO (D-B-8). Patched once here, on the single
+// module every component imports the library through, so an instance built anywhere (including by
+// formiojs itself) gets the localized label; per-component `callbackOnCreateTemplates` copies had
+// to be kept in sync by hand and any new `new Choices(...)` silently got English back.
+const originItemTemplate = Choices.defaults.templates.item;
+
+Choices.defaults.templates.item = function (classNames, data, removeItemButton) {
+  const element = originItemTemplate.call(this, classNames, data, removeItemButton);
+  const removeButton = element.querySelector('[data-button]');
+
+  if (removeButton) {
+    const label = t('select.remove-item');
+    const name = getItemName(data);
+
+    removeButton.textContent = label;
+    removeButton.setAttribute('aria-label', name ? `${label}: '${name}'` : label);
+  }
+
+  return element;
+};
+
+// choices.js renders no more than `searchResultLimit` matches as soon as the user types — 4 of them by
+// default. A list cut down to four looked like the whole answer, so options past the fourth could not be
+// found by searching for them (COREDEV-359). The option is read as a plain loop bound, so no value means
+// "all of them": -1 renders nothing and a huge number spins the loop over empty indexes. Default it to
+// `null` — no limit — and resolve that to the number of matches at render time.
+Choices.defaults.options.searchResultLimit = null;
+
+const originCreateChoicesFragment = Choices.prototype._createChoicesFragment;
+
+Choices.prototype._createChoicesFragment = function (choices, fragment, withinGroup) {
+  // A limit a caller asked for is still obeyed; only the absent one means "render them all".
+  if (!this._isSearching || this.config.searchResultLimit != null) {
+    return originCreateChoicesFragment.call(this, choices, fragment, withinGroup);
+  }
+
+  this.config.searchResultLimit = Array.isArray(choices) ? choices.length : 0;
+
+  try {
+    return originCreateChoicesFragment.call(this, choices, fragment, withinGroup);
+  } finally {
+    this.config.searchResultLimit = null;
+  }
+};
+
+/**
+ * What a choice offers to the search, per configured search field. Labels pass through the
+ * component's item template, so they reach the widget as markup — match what the user sees,
+ * not the tags around it. Values are not always strings (EcosSelect holds objects for some
+ * selects) — a non-string has no text to search.
+ */
+const getChoiceSearchText = (choice, field) => {
+  // a search field may be a dot-path into an object value (`value.<searchField>`) — fuse resolved
+  // those, so keep doing it
+  const raw = field.split('.').reduce((value, key) => (value == null ? value : value[key]), choice);
+
+  if (typeof raw !== 'string') {
+    return '';
+  }
+
+  if (!raw.includes('<')) {
+    return raw;
+  }
+
+  const holder = document.createElement('div');
+  holder.innerHTML = raw;
+
+  return holder.innerText || holder.textContent || '';
+};
+
+// choices.js searches with fuse.js, a fuzzy matcher: with the threshold formio ships (0.3) a
+// version list answers «2026.2.1» with «2026.1.1», «2026.4.1» and «2026.5.1» — every value the user
+// just filtered out (COREDEV-359). The dropdown reads as "what matches what I typed", so a value
+// belongs there only when it literally contains the typed text. Matches are ranked by where the
+// text was found, an occurrence at the start of the value before one in the middle.
+Choices.prototype._searchChoices = function (value) {
+  const newValue = typeof value === 'string' ? value.trim() : value;
+  const currentValue = typeof this._currentValue === 'string' ? this._currentValue.trim() : this._currentValue;
+
+  if (newValue.length < 1 && newValue === `${currentValue} `) {
+    return 0;
+  }
+
+  const needle = String(newValue).toLowerCase();
+  const results = [];
+
+  this._store.searchableChoices.forEach(choice => {
+    let score = Infinity;
+
+    this.config.searchFields.forEach(field => {
+      const index = getChoiceSearchText(choice, field).toLowerCase().indexOf(needle);
+
+      if (index !== -1 && index < score) {
+        score = index;
+      }
+    });
+
+    if (score !== Infinity) {
+      results.push({ item: choice, score });
+    }
+  });
+
+  this._currentValue = newValue;
+  this._highlightPosition = 0;
+  this._isSearching = true;
+  this._store.dispatch({ type: 'FILTER_CHOICES', results });
+
+  return results.length;
+};
+
+const originSetChoices = Choices.prototype.setChoices;
+
+// Replacing the option list of an open select drops the filter the user is looking at: `setChoices`
+// with `replaceChoices` goes through `clearChoices()`, which wipes the store together with the
+// `active` flags `FILTER_CHOICES` had set, and every option is then re-added as active. The widget
+// paints the full list while `_isSearching` is still on and the typed text is still in the input,
+// and nothing puts the search back — the library re-filters on an input event only. Anything that
+// refreshes the list under an open search hits this: EcosSelect's infinite scroll fires at the
+// bottom of a filtered list and its "load more" replaces it with everything (COREDEV-359), and so
+// does any `setItems` triggered by a refresh. The list the widget was just given is filtered by the
+// search that is still running.
+// Cause: https://citeck.atlassian.net/browse/COREDEV-359
+Choices.prototype.setChoices = function (choicesArrayOrFetcher, value, label, replaceChoices) {
+  // `searchChoices: false` means the filtering is the server's job (a component with a `searchField`
+  // queries it and hands back an already filtered list) — there is nothing to re-apply here.
+  // The needle is what the user typed; `_currentValue` is what the last search actually ran with and
+  // is the only one set when the search was started programmatically rather than by a keystroke.
+  const needle = this._isSearching && this.config.searchChoices ? this.input.value || this._currentValue : '';
+  const result = originSetChoices.call(this, choicesArrayOrFetcher, value, label, replaceChoices);
+
+  // Only the array form is re-filtered. Both fetcher forms end in a recursive `setChoices` with the
+  // array they resolved to, so the call that actually has a list to filter comes back through this
+  // wrapper anyway; filtering here as well would run against a store that is still empty.
+  if (needle && Array.isArray(choicesArrayOrFetcher)) {
+    this._searchChoices(needle);
+  }
+
+  return result;
+};
+
+const originRenderChoices = Choices.prototype._renderChoices;
+
+Choices.prototype._renderChoices = function () {
+  originRenderChoices.call(this);
+
+  // The dropdown is placed once, when it opens, and it is anchored by its top edge — see
+  // `recalcDropdownPosition`. Filtering changes the height of the list, so a dropdown that had to open
+  // upwards would stay where it was and hang detached from its field. Re-anchor it to what it now shows.
+  if (this.dropdown.isActive) {
+    this.recalcDropdownPosition(true);
+  }
+};
+
+/**
+ * The dropdown is taken out of the flow (`position: fixed` in `recalcDropdownPosition`) so that a
+ * panel with `overflow: hidden` cannot cut it off. The flip side is that its coordinates are frozen
+ * at the moment it opens: scroll the page afterwards and the list stays where the field used to be,
+ * hanging over whatever is underneath (COREDEV-317). Keep it under its field for as long as it is
+ * open — on capture, because a scrolling container does not bubble its event.
+ */
+Choices.prototype.bindDropdownPositionSync = function () {
+  if (this.syncDropdownPosition) {
+    return;
+  }
+
+  this.syncDropdownPosition = () => {
+    if (this.dropdownPositionFrame) {
+      return;
+    }
+
+    // one recalculation per frame: a scroll fires far more often than the screen is painted
+    this.dropdownPositionFrame = requestAnimationFrame(() => {
+      this.dropdownPositionFrame = null;
+
+      if (this.dropdown.isActive) {
+        this.recalcDropdownPosition(true);
+      }
+    });
+  };
+
+  window.addEventListener('scroll', this.syncDropdownPosition, true);
+  window.addEventListener('resize', this.syncDropdownPosition);
+};
+
+Choices.prototype.unbindDropdownPositionSync = function () {
+  if (!this.syncDropdownPosition) {
+    return;
+  }
+
+  window.removeEventListener('scroll', this.syncDropdownPosition, true);
+  window.removeEventListener('resize', this.syncDropdownPosition);
+  this.syncDropdownPosition = null;
+
+  if (this.dropdownPositionFrame) {
+    cancelAnimationFrame(this.dropdownPositionFrame);
+    this.dropdownPositionFrame = null;
+  }
+};
+
+const originDestroy = Choices.prototype.destroy;
+
+Choices.prototype.destroy = function () {
+  this.unbindDropdownPositionSync();
+
+  originDestroy.call(this);
+};
+
 const originHideDropdown = Choices.prototype.hideDropdown;
 
 Choices.prototype.hideDropdown = function (preventInputFocus) {
   originHideDropdown.call(this, preventInputFocus);
 
+  this.unbindDropdownPositionSync();
   this.clearInput();
 
   this.dropdown.element.style.removeProperty('position');
   this.dropdown.element.style.removeProperty('left');
   this.dropdown.element.style.removeProperty('top');
+  this.dropdown.element.style.removeProperty('bottom');
   this.dropdown.element.style.removeProperty('width');
   this.dropdown.element.style.removeProperty('height');
-  this.dropdown.element.style.removeProperty('minHeight');
 
   if (!this.dropdown.isActive) {
     return this;
@@ -32,6 +266,7 @@ Choices.prototype.showDropdown = function (preventInputFocus) {
 
   requestAnimationFrame(() => {
     this.recalcDropdownPosition(preventInputFocus);
+    this.bindDropdownPositionSync();
 
     if (!preventInputFocus && this._canSearch) {
       this.input.focus();
@@ -47,7 +282,11 @@ Choices.prototype.recalcDropdownPosition = function (preventInputFocus) {
   try {
     const modalWrapper = this.containerInner.element.closest('.modal.show');
     const containerSizes = this.containerInner.element.getBoundingClientRect();
-    const needToFlip = this.containerOuter.shouldFlip(containerSizes.top + this.dropdown.element.offsetHeight);
+    // `containerOuter` keeps the flipped state for as long as the dropdown stays open — it drops the class
+    // only on close. Follow it, so that re-anchoring a list that has just been filtered down to a couple of
+    // matches keeps the orientation it opened with instead of jumping to the other side of the field.
+    const needToFlip =
+      this.containerOuter.isFlipped || this.containerOuter.shouldFlip(containerSizes.top + this.dropdown.element.offsetHeight);
 
     let top = containerSizes.top + containerSizes.height;
     let left = containerSizes.left;
@@ -69,8 +308,13 @@ Choices.prototype.recalcDropdownPosition = function (preventInputFocus) {
     this.dropdown.element.style.position = 'fixed';
     this.dropdown.element.style.left = `${left}px`;
     this.dropdown.element.style.top = `${top}px`;
+    // A dropdown opened upwards is laid out by the stylesheet as `top: auto; bottom: 100%`. The `top` we
+    // set just above would leave it constrained by both edges — a height of its own, and the height of
+    // the list inside it, would then be ignored. We place both orientations by their top edge.
+    this.dropdown.element.style.bottom = 'auto';
+    // No min-height here: it used to freeze the height the dropdown had when it opened, and a list
+    // filtered down to a few matches then kept the empty space of the full one below it (COREDEV-359).
     this.dropdown.element.style.width = `${dropdownSizes.width}px`;
-    this.dropdown.element.style.minHeight = `${dropdownSizes.height}px`;
 
     this.containerOuter.open(containerSizes.top + this.dropdown.element.offsetHeight);
   } catch (e) {

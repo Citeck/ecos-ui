@@ -50,7 +50,11 @@
 
     &-wrapper {
       height: $header-wrapper-height;
-      padding: 0 6px;
+      // Right padding puts the centre of the last action icon where the corner's 45° bisector
+      // (x-from-right = y-from-top, through the 12px arc centre) crosses the header's vertical
+      // middle (y = 18px): 18px - 1px panel border - 1px button side inset - half of the 15.33px
+      // glyph box
+      padding: 0 8.33px 0 6px;
       border-bottom: 1px solid $color-gray-4;
       background-color: $color-white;
       border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
@@ -88,9 +92,12 @@
       background: $color-white;
       max-height: 32px;
       color: $color-gray-5;
+      // Citeck font glyphs are painted ~1px below the middle of the line box, which makes the
+      // gaps above and below the icon row uneven — lift the row so they match
+      transform: translateY(-1px);
 
       & > :nth-child(n) {
-        margin-left: 4px;
+        margin-left: 5px;
       }
 
       button.ecos-btn_i {

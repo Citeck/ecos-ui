@@ -33,6 +33,12 @@ export interface AIFieldActionsProps {
   actionsBarContainer?: HTMLElement | null;
   resultContainer?: HTMLElement | null;
   triggerElement?: HTMLElement | null;
+  /**
+   * The field itself (editor root / textarea wrapper). Popups are anchored to the small trigger
+   * button, so without this they are only bound by the window and can cover everything to the left
+   * of the field. Passing it keeps both the actions bar and the result popup inside the field.
+   */
+  fieldElement?: HTMLElement | null;
   positionVariant?: PositionVariant;
   useSmartPosition?: boolean;
   triggerIcon?: ReactNode;
@@ -62,6 +68,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
   actionsBarContainer,
   resultContainer,
   triggerElement: externalTriggerElement,
+  fieldElement,
   positionVariant,
   useSmartPosition = true,
   triggerIcon,
@@ -235,6 +242,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
         <AIPopperWrapper
           isVisible={isVisible}
           referenceElement={triggerElement}
+          boundaryElement={fieldElement}
           variant={effectivePositionVariant}
           stickyPosition={stickyPosition}
           contentLength={contentMetrics?.length}

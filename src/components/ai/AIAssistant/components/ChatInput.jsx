@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { FILE_UPLOAD_ACCEPT_STRING } from '@/components/ai/AIAssistant/constants';
+import { AGENT_ENGINE, FILE_UPLOAD_ACCEPT_STRING, getAgentEngine } from '@/components/ai/AIAssistant/constants';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
 
@@ -18,6 +18,7 @@ import { t } from '@/helpers/export/util';
  * @param {Function} props.onClearConversation - Clear conversation handler
  * @param {React.Ref} props.fileInputRef - Ref for file input element
  * @param {Function} props.onFileUpload - File upload handler
+ * @param {Object} [props.selectedAgent] - Selected agent list item (carries `engine`); drives the placeholder wording
  */
 const ChatInput = ({
   textareaRef,
@@ -30,7 +31,8 @@ const ChatInput = ({
   onFileUploadClick,
   onClearConversation,
   fileInputRef,
-  onFileUpload
+  onFileUpload,
+  selectedAgent
 }) => {
   // Auto-resize textarea
   useEffect(() => {
@@ -40,7 +42,24 @@ const ChatInput = ({
     }
   }, [message, textareaRef]);
 
-  const placeholder = isUniversal ? t('ai-assistant.input.placeholder.universal') : t('ai-assistant.input.placeholder.contextual');
+  // The contextual tab always talks about the record at hand. On the universal tab the wording follows
+  // the engine of the selected agent: a CONFIG agent creates artifacts ("describe what you want to create"),
+  // while an operational TOOL_LOOP agent answers questions about tasks/documents/records. With no agent
+  // selected the chat is not routed yet, so the neutral universal wording stays.
+  const resolvePlaceholderKey = () => {
+    if (!isUniversal) return 'ai-assistant.input.placeholder.contextual';
+    if (!selectedAgent) return 'ai-assistant.input.placeholder.universal';
+
+    return getAgentEngine(selectedAgent) === AGENT_ENGINE.CONFIG
+      ? 'ai-assistant.input.placeholder.universal'
+      : 'ai-assistant.input.placeholder.operational';
+  };
+
+  const placeholder = t(resolvePlaceholderKey());
+  // `data-tooltip` is drawn by a CSS pseudo-element and gives no accessible name, so the same
+  // wording goes into `aria-label` — that is what a screen reader (and Playwright) reads.
+  const uploadLabel = isUploadingFile ? t('ai-assistant.input.uploading') : t('ai-assistant.input.upload');
+  const clearContextLabel = t('ai-assistant.input.clear-context');
 
   return (
     <div className="ai-assistant-chat__input-wrapper">
@@ -61,7 +80,8 @@ const ChatInput = ({
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--file-upload"
             onClick={onFileUploadClick}
             disabled={isUploadingFile}
-            data-tooltip={isUploadingFile ? t('ai-assistant.input.uploading') : t('ai-assistant.input.upload')}
+            data-tooltip={uploadLabel}
+            aria-label={uploadLabel}
           >
             <Icon className={isUploadingFile ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'} />
           </button>
@@ -69,7 +89,8 @@ const ChatInput = ({
             type="button"
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--clear-context"
             onClick={onClearConversation}
-            data-tooltip={t('ai-assistant.input.clear-context')}
+            data-tooltip={clearContextLabel}
+            aria-label={clearContextLabel}
           >
             <Icon className="fa fa-trash-o" />
           </button>

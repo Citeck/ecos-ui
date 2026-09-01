@@ -3,10 +3,8 @@ import { GROUPING_COUNT_ALL } from '@citeck/constants/journal';
 import Records from '@citeck/records-core';
 import RecordImpl from '@citeck/records-core/Record';
 import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
-import { convertAttributeValues } from '@citeck/records-core/predicates/util';
 import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
-import concat from 'lodash/concat';
 import getFirst from 'lodash/first';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -21,7 +19,7 @@ import * as queryString from 'query-string';
 import { ParsedUrl } from 'query-string';
 import { call, put, all, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
 
-import JournalsConverter from '../dto/journals'; // the shortened path is '@/...' breaks the tests
+import JournalsConverter, { buildTotalSumQuery } from '../dto/journals'; // the shortened path is '@/...' breaks the tests
 
 import { checkHierarchyEnabled, setIsHierarchyEnabled } from '@/actions/hierarchy';
 import {
@@ -91,15 +89,21 @@ import { IJournalsApi, JournalsApi } from '@/api/journals';
 import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
 import { ApiType } from '@/api/types';
 import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
-import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
+import {
+  DEFAULT_PAGINATION,
+  GROUPED_QUERY_MAX_ITEMS,
+  isKanban,
+  JOURNAL_DASHLET_CONFIG_VERSION
+} from '@/components/journals/Journals/constants';
 import JournalsService, { EditorService, PresetsServiceApi } from '@/components/journals/Journals/service';
 import { isSavedAttValueEqual, isValidAttValueForType } from '@/components/journals/Journals/service/editors/editorUtils';
 import { buildSaveAttKey } from '@/components/journals/Journals/service/journalColumnsResolver';
+import { getOnlyLinkedConfig, resolveOnlyLinkedJournalId } from '@/components/journals/Journals/service/onlyLinked';
 import ActionsRegistry from '@/components/core/Records/actions/actionsRegistry';
 import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { wrapSaga } from '@/helpers/redux';
 import { wrapArgs } from '@/helpers/store';
-import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
+import { decodeLink, getSearchParams, getUrlWithoutOrigin, getWorkspaceId, removeUrlSearchParams } from '@/helpers/urls';
 import { beArray, hasInString, isNodeRef, t } from '@/helpers/util';
 import { emptyJournalConfig, initialStateGrouping } from '@/reducers/journals';
 import {
@@ -148,31 +152,27 @@ const getDefaultSortBy = (config: IJournalState['journalConfig']): Array<{ attri
   }));
 };
 
+/**
+ * Loads the total sum shown in the table footer.
+ *
+ * The query is composed by `buildTotalSumQuery`, which reuses the query the table has already run
+ * (`gridQuery`) so the sum covers exactly the rows the table covers. `sourceId` is only the fallback
+ * source, for the one caller that has no trustworthy executed query.
+ *
+ * The `has-category:category` leaf that used to be dug out of `grid.query` by hand (ECOSUI-3614) is
+ * gone: on the main path the whole table predicate is carried over, category leaf included, so
+ * fishing for it separately would only duplicate it. On the fallback path there is, by definition,
+ * no query to fish in.
+ */
 function* getColumnsSum(
   api: ApiType,
   w: IJournalsExtraArgumentsStore['w'],
   columns: JournalColumnType[],
-  journalId: string,
   predicates: PredicateType[],
-  gridParams?: IJournalState['grid']
+  { gridQuery, sourceId }: { gridQuery?: IJournalState['grid']['query']; sourceId?: string }
 ) {
   try {
-    const clonePredicates = cloneDeep(predicates);
-
-    const { query: queryParams } = gridParams || {};
-    const { query: queryGridRequest } = queryParams || {};
-    const categoryPredicate: PredicateType | boolean =
-      !!queryParams &&
-      !!queryGridRequest &&
-      !!queryGridRequest.val &&
-      !!Array.isArray(queryGridRequest.val) &&
-      (queryGridRequest.val.find(predicate => get(predicate, 'att') === 'has-category:category') as PredicateType);
-
-    if (categoryPredicate) {
-      clonePredicates.push(categoryPredicate);
-    }
-
-    if (!columns || !columns.length || !journalId) {
+    if (!columns || !columns.length) {
       return;
     }
 
@@ -184,44 +184,47 @@ function* getColumnsSum(
       }
     });
 
-    if (countFields.length) {
-      const sumFieldsLoading: Record<string, string> = {};
-
-      countFields.forEach(countField => {
-        sumFieldsLoading[countField] = 'loading';
-      });
-
-      yield put(setFooterValue(w(sumFieldsLoading)));
-
-      let query;
-
-      if (clonePredicates) {
-        const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(clonePredicates));
-        query = convertAttributeValues(cleanPredicates, columns);
-        query = JournalsConverter.optimizePredicate({ t: 'and', val: query });
-      }
-
-      const journalType: string = yield Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
-      const result: Awaited<ReturnType<IJournalsApi['getTotalSum']>> = yield call(
-        api.journals.getTotalSum,
-        journalType,
-        countFields,
-        query
-      );
-      const sumFields: Record<string, number> = {};
-
-      if (result) {
-        Object.keys(result).forEach(key => {
-          const attributeName = key.replace('sum(', '').replace(')', '');
-
-          sumFields[attributeName] = result[key];
-        });
-      }
-
-      yield put(setFooterValue(w(sumFields)));
-    } else {
+    if (!countFields.length) {
       yield put(setFooterValue(w(null)));
+      return;
     }
+
+    const recordsQuery = buildTotalSumQuery({
+      gridQuery,
+      sourceId,
+      predicates,
+      columns,
+      workspaces: [`${getWorkspaceId()}`]
+    });
+
+    if (!recordsQuery) {
+      console.warn(
+        '[journals getColumnsSum] no record source for the footer sum: neither the executed table query nor the journal config gave one'
+      );
+      yield put(setFooterValue(w(null)));
+      return;
+    }
+
+    const sumFieldsLoading: Record<string, string> = {};
+
+    countFields.forEach(countField => {
+      sumFieldsLoading[countField] = 'loading';
+    });
+
+    yield put(setFooterValue(w(sumFieldsLoading)));
+
+    const result: Awaited<ReturnType<IJournalsApi['getTotalSum']>> = yield call(api.journals.getTotalSum, recordsQuery, countFields);
+    const sumFields: Record<string, number> = {};
+
+    if (result) {
+      Object.keys(result).forEach(key => {
+        const attributeName = key.replace('sum(', '').replace(')', '');
+
+        sumFields[attributeName] = result[key];
+      });
+    }
+
+    yield put(setFooterValue(w(sumFields)));
   } catch (e) {
     yield put(setFooterValue(w(null)));
     NotificationManager.error(t('journal.footer-sum.error'));
@@ -770,20 +773,16 @@ export function* getGridData(
   }
 
   const { recordRef, journalConfig, journalSetting }: IJournalState = yield select(selectJournalData, stateId);
-  const { id, typeRef } = journalConfig || {};
+  const { typeRef } = journalConfig || {};
 
   const config: JournalDashletConfigVersionType = yield select((state: RootState) => selectNewVersionDashletConfig(state, stateId));
-  const { customJournalMode, customJournal } = config || {};
-  const journalId = (customJournalMode ? customJournal : get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id)) as string;
+  const { customJournalMode } = config || {};
+  const journalId = resolveOnlyLinkedJournalId(config, journalConfig) as string;
 
-  const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
-
-  let attrsToLoad: Array<{ value: string; label?: string }> | undefined;
-  if (journalId && isArray(get(config, ['attrsToLoad', journalId]))) {
-    attrsToLoad = get(config, ['attrsToLoad', journalId]);
-  } else {
-    attrsToLoad = get(config, 'attrsToLoad');
-  }
+  const { onlyLinked, attrsToLoad } = getOnlyLinkedConfig(config, journalId) as {
+    onlyLinked?: boolean;
+    attrsToLoad?: Array<{ value: string; label?: string }>;
+  };
 
   const { pagination: _pagination, predicates: _predicates = [], searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords: Awaited<ReturnType<IJournalsApi['fetchLinkedRefs']>> = yield call(
@@ -816,7 +815,7 @@ export function* getGridData(
   }
 
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
-  const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
+  const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: GROUPED_QUERY_MAX_ITEMS } : _pagination;
 
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
     ...forRequest,
@@ -1172,7 +1171,10 @@ function* sagaReloadGrid(
         }
 
         if (isEmpty(payload.groupBy) && journalData?.journalConfig?.columns && journalData?.journalConfig?.id) {
-          yield getColumnsSum(api, w, journalData.journalConfig.columns, journalData.journalConfig.id, predicates, gridParams);
+          yield getColumnsSum(api, w, journalData.journalConfig.columns, predicates, {
+            gridQuery: gridParams.query,
+            sourceId: journalData.journalConfig.sourceId
+          });
         } else {
           yield put(setFooterValue(w(null)));
         }
@@ -1266,7 +1268,7 @@ function* sagaInitJournal({ api, stateId, w }: IJournalsExtraArgumentsStore, { p
         const predicates = [predicate, journalConfig.predicate];
 
         if (journalConfig?.columns) {
-          yield getColumnsSum(api, w, journalConfig.columns, journalId, predicates, grid);
+          yield getColumnsSum(api, w, journalConfig.columns, predicates, { gridQuery: grid.query, sourceId: journalConfig.sourceId });
         }
         yield put(setLoading(w(false)));
       }),
@@ -1291,7 +1293,7 @@ function* sagaOpenSelectedPreset(
       return;
     }
 
-    const { journalSetting, journalConfig, grid } = yield select(selectJournalData, stateId);
+    const { journalSetting, journalConfig } = yield select(selectJournalData, stateId);
 
     if (journalSetting.id === selectedId) {
       return;
@@ -1330,7 +1332,12 @@ function* sagaOpenSelectedPreset(
     }
     const settingsKanban = { predicate: predicates, kanban: kanbanSettings };
 
-    yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates, grid);
+    // No `gridQuery` on purpose — and `grid` is not even read here for that reason: the store still
+    // holds the PREVIOUS preset's query at this point, so reusing it would sum the filter the user
+    // has just left. The fallback source is used instead; the sum shown here is transient anyway,
+    // because applying the preset reloads the grid and `sagaReloadGrid` recomputes it from the query
+    // it has actually run.
+    yield getColumnsSum(api, w, journalConfig.columns, predicates, { sourceId: journalConfig.sourceId });
 
     yield put(applyPreset({ stateId, settings: settingsKanban }));
 
@@ -1646,7 +1653,7 @@ function* sagaGoToJournalsPage(
         const settingColumns = get(journalData, 'journalSetting.columns', columns);
         let row = cloneDeep(action.payload);
         let id = journalConfig.id || '';
-        let filter: PredicateType[] | null = null;
+        let filter: PredicateType | null = null;
 
         if (id === 'event-lines-stat') {
           //todo: move to journal config
@@ -1689,20 +1696,7 @@ function* sagaGoToJournalsPage(
             row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
           }
 
-          let originFilter = [];
-          const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([journalData.predicate]));
-
-          originFilter = convertAttributeValues(cleanPredicates, columns);
-          originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
-          filter = getFilterParam({ row, columns, groupBy, predicate: journalData.predicate });
-
-          if (!isEmpty(originFilter)) {
-            if (Array.isArray(originFilter.val)) {
-              filter = concat(filter, originFilter.val);
-            } else {
-              filter = concat(filter, originFilter);
-            }
-          }
+          filter = ParserPredicate.getGroupedRowPredicate({ row, columns, groupBy, predicate: journalData.predicate });
         }
 
         if (filter) {
@@ -1732,7 +1726,7 @@ function* sagaGoToJournalsPage(
           },
           pagination
         });
-        const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
+        const predicateValue = filter || get(params, 'predicates[0]') || [];
         set(params, 'predicates', [predicateValue]);
         set(params, 'columns', gridColumns);
         const gridData: Partial<IJournalState['grid']> = yield getGridData(api, { ...params, fromGroupBy: true }, stateId);
@@ -1757,7 +1751,7 @@ function* sagaGoToJournalsPage(
 
         if (journalConfig.columns && journalData.journalConfig?.id) {
           const { grid }: IJournalState = yield select(selectJournalData, stateId);
-          yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig.id, predicates, grid);
+          yield getColumnsSum(api, w, journalConfig.columns, predicates, { gridQuery: grid.query, sourceId: journalConfig.sourceId });
         }
       }),
       canceled: take(cancelGoToPageJournal().type)
@@ -1887,7 +1881,11 @@ export function* sagaToggleViewMode({ w }: IJournalsExtraArgumentsStore, { paylo
     const journalData: IJournalState = yield select(selectJournalData, stateId);
 
     if (isKanban(journalData.viewMode)) {
-      yield put(reloadBoardData({ stateId }));
+      // Fires both on a real table→kanban switch and on every return to the journal's page tab
+      // (Journals re-runs componentDidMount when the restored URL brings the view mode back).
+      // Refresh silently: a board that already has cards keeps them and its scroll position, while an
+      // empty one falls back to the full load inside the saga. See COREDEV-426.
+      yield put(reloadBoardData({ stateId, silent: true }));
       yield put(setForceUpdate(w(false)));
     }
   } catch (e) {

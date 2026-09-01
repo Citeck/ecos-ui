@@ -1,13 +1,7 @@
 import { Attributes } from '@citeck/constants';
 import { VIRTUAL_ATT_ID } from '@citeck/constants/journal';
 import Records from '@citeck/records-core';
-import {
-  COLUMN_DATA_TYPE_ASSOC,
-  PREDICATE_AND,
-  PREDICATE_CONTAINS,
-  PREDICATE_EQ,
-  PREDICATE_OR
-} from '@citeck/records-core/predicates/predicates';
+import { PREDICATE_AND, PREDICATE_EQ, PREDICATE_OR } from '@citeck/records-core/predicates/predicates';
 import { convertAttributeValues } from '@citeck/records-core/predicates/util';
 import * as RecordUtils from '@citeck/records-core/utils/recordUtils';
 import { ParserPredicate } from '@citeck/records-predicates';
@@ -20,6 +14,7 @@ import isObject from 'lodash/isObject';
 
 import computedService from './computed/computedService';
 import journalsServiceApi from './journalsServiceApi';
+import { buildOnlyLinkedPredicate } from './onlyLinked';
 import { COMPUTED_ATT_PREFIX } from './util';
 
 import JournalsService from '@/components/journals/Journals/service/journalsService';
@@ -300,24 +295,16 @@ class JournalsDataLoader {
     const isCustomJournalMode = get(settings, 'isCustomJournalMode', false);
 
     if (settings.onlyLinked && settings.recordRef) {
-      const mapToPredicates = a => ({
-        t: PREDICATE_CONTAINS,
-        val: settings.recordRef,
-        att: a.attribute
+      const onlyLinkedPredicate = buildOnlyLinkedPredicate({
+        onlyLinked: settings.onlyLinked,
+        attrsToLoad: settings.attrsToLoad,
+        recordRef: settings.recordRef,
+        columns,
+        isCustomJournalMode
       });
 
-      if (!isCustomJournalMode && isArray(settings.attrsToLoad)) {
-        const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);
-
-        predicates.push({
-          t: PREDICATE_OR,
-          val: attrsToLoad.map(attribute => mapToPredicates({ attribute }))
-        });
-      } else if (isCustomJournalMode) {
-        predicates.push({
-          t: PREDICATE_OR,
-          val: columns.filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable).map(mapToPredicates)
-        });
+      if (onlyLinkedPredicate) {
+        predicates.push(onlyLinkedPredicate);
       }
 
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);

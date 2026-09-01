@@ -177,7 +177,7 @@ export default class Filter extends Component {
   };
 
   ValueControl = React.memo((props, context) => {
-    const { value, predicate, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent } = props;
+    const { value, predicate, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent, autoFocus } = props;
     const predicates = column.predicates || getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
@@ -195,7 +195,9 @@ export default class Filter extends Component {
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
         onKeyDown,
-        controlProps: { predicate: omit(predicate, 'val') },
+        // `autoFocus` is a request of the column header filter only: a settings panel row never
+        // asks, or the last of its many rows would take the keyboard away when the panel opens.
+        controlProps: { predicate: omit(predicate, 'val'), autoFocus: !!autoFocus },
         isRelativeToParent
       });
 

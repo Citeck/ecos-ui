@@ -235,9 +235,9 @@
   }
 
   // Header action buttons already have 28px flex boxes with inner air around the 14px icon —
-  // drop the extra 4px gap from Dashlet.scss so spacing matches other widgets
+  // keep just 1px of the Dashlet.scss gap so spacing matches other widgets
   .dashlet__header-actions > :nth-child(n) {
-    margin-left: 0;
+    margin-left: 1px;
   }
 
   .dashlet__header-actions .ecos-btn.ecos-btn_i {

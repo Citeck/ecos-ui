@@ -1,0 +1,286 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Chunked upload e2e harness</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 900px;
+        margin: 2rem auto;
+      }
+      button {
+        margin: 0.25rem;
+        padding: 0.5rem 1rem;
+      }
+      #results div {
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem 0;
+        border-radius: 4px;
+      }
+      .pass {
+        background: #d4f7d4;
+      }
+      .fail {
+        background: #f7d4d4;
+      }
+      .pending {
+        background: #eee;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 0.5rem;
+        max-height: 300px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chunked upload e2e harness</h1>
+    <p>See <code>README.md</code> in this directory for what each scenario proves.</p>
+    <div>
+      <button onclick="runScenario('chunking')">1. Multi-chunk upload</button>
+      <button onclick="runScenario('interruption')">2. Interruption + resume</button>
+      <button onclick="runScenario('cancel')">3. Cancellation (DELETE)</button>
+      <button onclick="runScenario('offline')">4. Offline 10s + resume</button>
+      <button onclick="runAll()">Run all 4</button>
+    </div>
+    <div id="results"></div>
+    <h3>Log</h3>
+    <pre id="log"></pre>
+
+    <script src="/bundle.js"></script>
+    <script>
+      const logEl = document.getElementById('log');
+      const resultsEl = document.getElementById('results');
+      window.__allResults = {};
+
+      function appendLog(line) {
+        logEl.textContent += line + '\n';
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setResult(name, ok, detail) {
+        window.__allResults[name] = { ok, detail };
+        let el = document.getElementById('result-' + name);
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'result-' + name;
+          resultsEl.appendChild(el);
+        }
+        el.className = ok === null ? 'pending' : ok ? 'pass' : 'fail';
+        el.textContent = (ok === null ? '... ' : ok ? 'PASS ' : 'FAIL ') + name + (detail ? ' — ' + detail : '');
+      }
+
+      function makeFile(name, sizeBytes) {
+        const bytes = new Uint8Array(sizeBytes);
+        for (let i = 0; i < bytes.length; i++) bytes[i] = i % 251; // non-zero pattern
+        return new File([bytes], name, { type: 'application/octet-stream' });
+      }
+
+      async function resetServer() {
+        await fetch('/__test/reset', { method: 'POST' });
+      }
+      async function getRequests() {
+        return (await fetch('/__test/requests')).json();
+      }
+
+      // --- Scenario 1: a file above the chunking threshold uploads in several chunks ---
+      async function scenarioChunking() {
+        await resetServer();
+        const file = makeFile('big-file.bin', 3.5 * 1024 * 1024); // 3.5MB, 1MB chunks -> 4 chunks
+        const events = [];
+        let result;
+        try {
+          result = await ChunkedUpload.uploadContent(file, {
+            name: file.name,
+            handleProgress: state => {
+              events.push(state.status);
+              appendLog('[chunking] ' + state.status + ' ' + Math.round(state.percent) + '%');
+            }
+          });
+        } catch (err) {
+          setResult('chunking', false, 'uploadContent rejected: ' + (err && err.message));
+          return;
+        }
+        const requests = await getRequests();
+        const chunkRequests = requests.filter(r => r.path && r.path.includes('/chunk'));
+        const ok = !!result.entityRef && chunkRequests.length === 4 && events.includes('done');
+        setResult('chunking', ok, chunkRequests.length + ' chunk POSTs, entityRef=' + result.entityRef);
+      }
+
+      // --- Scenario 2: mid-upload network interruption -> automatic resume from server-confirmed offset ---
+      // It is not enough that the upload eventually finishes: that would also pass if the
+      // interruption were silently retried below JS without ever reaching session.js's own
+      // resync code (see server.cjs's comment on the failure-injection branch). The scenario
+      // only counts as proven if the request log shows, in order: the dropped chunk, then a
+      // `GET /upload-session/{id}` (session.js's `fetchConfirmedOffset`), then a chunk retry at
+      // exactly the offset that GET reported.
+      async function scenarioInterruption() {
+        await resetServer();
+        await fetch('/__test/fail-next-chunk-at?offset=' + 1 * 1024 * 1024, { method: 'POST' });
+        const file = makeFile('interrupt-me.bin', 4 * 1024 * 1024); // 4MB, 1MB chunks -> 4 chunks
+        let result;
+        try {
+          result = await ChunkedUpload.uploadContent(file, {
+            name: file.name,
+            handleProgress: state => appendLog('[interruption] ' + state.status + ' ' + Math.round(state.percent) + '%')
+          });
+        } catch (err) {
+          setResult('interruption', false, 'uploadContent rejected: ' + (err && err.message));
+          return;
+        }
+        const requests = await getRequests();
+        const isChunkPath = r => r.path && r.path.endsWith('/chunk');
+        const isSessionStatusPath = r => r.path && /^\/upload-session\/[^/]+$/.test(r.path);
+
+        const dropIndex = requests.findIndex(r => r.result === 'SIMULATED_TRUNCATED_RESPONSE');
+        const getIndex = requests.findIndex((r, i) => i > dropIndex && r.method === 'GET' && isSessionStatusPath(r));
+        const getEntry = getIndex !== -1 ? requests[getIndex] : null;
+        const retryIndex = requests.findIndex(
+          (r, i) => i > getIndex && r.method === 'POST' && isChunkPath(r) && typeof r.newOffset === 'number' && !r.result
+        );
+        const retryEntry = retryIndex !== -1 ? requests[retryIndex] : null;
+
+        const orderOk = dropIndex !== -1 && getIndex !== -1 && retryIndex !== -1 && dropIndex < getIndex && getIndex < retryIndex;
+        const offsetsMatch = !!getEntry && !!retryEntry && getEntry.offset === retryEntry.offset;
+        const chunkSuccesses = requests.filter(r => isChunkPath(r) && typeof r.newOffset === 'number' && !r.result);
+
+        const ok = orderOk && offsetsMatch && !!result.entityRef && chunkSuccesses.length === 4;
+        setResult(
+          'interruption',
+          ok,
+          'drop@' +
+            dropIndex +
+            ' -> GET(offset=' +
+            (getEntry && getEntry.offset) +
+            ')@' +
+            getIndex +
+            ' -> retry(offset=' +
+            (retryEntry && retryEntry.offset) +
+            ')@' +
+            retryIndex +
+            ', successful chunk POSTs=' +
+            chunkSuccesses.length +
+            ', entityRef=' +
+            result.entityRef
+        );
+      }
+
+      // --- Scenario 3: cancellation issues DELETE ---
+      async function scenarioCancel() {
+        await resetServer();
+        let facade = null;
+        let cancelIssued = false;
+        const file = makeFile('cancel-me.bin', 5 * 1024 * 1024);
+        let caught = null;
+        try {
+          await ChunkedUpload.uploadContent(file, {
+            name: file.name,
+            handleProgress: (state, ctl) => {
+              facade = ctl;
+              appendLog('[cancel] ' + state.status + ' ' + Math.round(state.percent) + '%');
+              if (state.status === 'uploading' && state.percent > 0 && !cancelIssued) {
+                cancelIssued = true;
+                appendLog('[cancel] issuing abort()');
+                facade.abort();
+              }
+            }
+          });
+        } catch (err) {
+          caught = err;
+        }
+        const requests = await getRequests();
+        const deleteReq = requests.find(r => r.method === 'DELETE');
+        const ok = !!caught && !!caught.aborted && !!deleteReq;
+        setResult('cancel', ok, deleteReq ? 'DELETE observed on ' + deleteReq.path : 'no DELETE observed');
+      }
+
+      // --- Scenario 4: the whole connection is down for 10s, then comes back ---
+      // Scenario 2's one-shot chunk drop cannot express this: a real outage kills the chunk POST
+      // *and* the status GET the client issues to recover from it. If the client treats a failed
+      // resync GET as fatal, this scenario fails at the first backoff — one failed GET is enough.
+      // It only passes if the retry loop keeps its offset, keeps backing off through the outage,
+      // and resumes once the network returns.
+      async function scenarioOffline() {
+        await resetServer();
+        const file = makeFile('offline-me.bin', 4 * 1024 * 1024); // 4MB, 1MB chunks -> 4 chunks
+        let armed = false;
+        let result;
+        try {
+          result = await ChunkedUpload.uploadContent(file, {
+            name: file.name,
+            handleProgress: state => {
+              appendLog('[offline] ' + state.status + ' ' + Math.round(state.percent) + '%');
+              // Go offline as soon as bytes are actually moving, i.e. mid-upload.
+              if (!armed && state.status === 'uploading' && state.percent > 0) {
+                armed = true;
+                appendLog('[offline] --- network down for 10s ---');
+                fetch('/__test/offline-for?ms=10000', { method: 'POST' });
+              }
+            }
+          });
+        } catch (err) {
+          setResult('offline', false, 'uploadContent rejected: ' + (err && err.message));
+          return;
+        }
+
+        const requests = await getRequests();
+        const isChunkPath = r => r.path && r.path.endsWith('/chunk');
+        const isSessionStatusPath = r => r.path && /^\/upload-session\/[^/]+$/.test(r.path);
+        const dropped = requests.filter(r => r.result === 'DROPPED_OFFLINE');
+
+        // The evidence that this scenario tested what it claims to: the outage must have taken
+        // out at least one chunk POST AND at least one status GET (the resync itself), and the
+        // upload must still have finished, with every chunk confirmed.
+        const droppedChunks = dropped.filter(isChunkPath);
+        const droppedStatusGets = dropped.filter(r => r.method === 'GET' && isSessionStatusPath(r));
+        const lastDropIndex = requests.map(r => r.result).lastIndexOf('DROPPED_OFFLINE');
+        const recoveredGet = requests.findIndex(
+          (r, i) => i > lastDropIndex && r.method === 'GET' && isSessionStatusPath(r) && r.result === 200
+        );
+        const chunkSuccesses = requests.filter(r => isChunkPath(r) && typeof r.newOffset === 'number' && !r.result);
+
+        const ok =
+          droppedChunks.length >= 1 &&
+          droppedStatusGets.length >= 1 &&
+          recoveredGet !== -1 &&
+          chunkSuccesses.length === 4 &&
+          !!result.entityRef;
+        setResult(
+          'offline',
+          ok,
+          'dropped ' +
+            droppedChunks.length +
+            ' chunk POST(s) + ' +
+            droppedStatusGets.length +
+            ' status GET(s) during the outage, recovered on GET@' +
+            recoveredGet +
+            ', successful chunk POSTs=' +
+            chunkSuccesses.length +
+            ', entityRef=' +
+            result.entityRef
+        );
+      }
+
+      const scenarios = {
+        chunking: scenarioChunking,
+        interruption: scenarioInterruption,
+        cancel: scenarioCancel,
+        offline: scenarioOffline
+      };
+
+      window.runScenario = async function (name) {
+        setResult(name, null, 'running...');
+        await scenarios[name]();
+      };
+
+      window.runAll = async function () {
+        for (const name of Object.keys(scenarios)) {
+          await window.runScenario(name);
+        }
+        appendLog('--- all scenarios finished ---');
+      };
+    </script>
+  </body>
+</html>

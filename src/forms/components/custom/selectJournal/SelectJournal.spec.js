@@ -105,33 +105,104 @@ describe('SelectJournal Component', () => {
       });
     });
 
-    it('Should not fall back to static journalId on a real form when customJournalId returns empty', done => {
+    it('Should fall back to static journalId when customJournalId returns empty', done => {
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
-        customJournalId: 'value = "";'
+        customJournalId: 'value = data._parentType === "deal" ? "deals-journal" : "";'
       }).then(component => {
-        expect(component.journalId).toBe('');
+        component.root.data = { ...component.root.data, _parentType: 'deal' };
+        expect(component.journalId).toBe('deals-journal');
+
+        // The data the expression depends on is gone: the field keeps working on the static journal
+        // instead of reporting a missing journal id.
+        component.root.data = { ...component.root.data, _parentType: undefined };
+        expect(component.journalId).toBe('static-journal');
         done();
       });
     });
 
-    it('Should fall back to static journalId in builder mode when customJournalId returns empty', done => {
+    // Typing an expression in the component editor reads `journalId` several times per keystroke,
+    // through the field being configured and the "Default value" preview both. Everything the
+    // half-written source does on the way — failing to compile, or compiling and then throwing —
+    // has to stay out of the console: formio's `evaluate` reports both itself, from the inside,
+    // which is why checking the source before handing it over was not enough.
+    const expectSilentFallback = (customJournalId, done) => {
+      Harness.testCreate(SelectJournalComponent, { ...comp1, journalId: 'static-journal', customJournalId }).then(component => {
+        const consoleSpies = ['warn', 'error', 'log', 'info'].map(level => jest.spyOn(console, level).mockImplementation(() => {}));
+        // The verbose level is the one place a persistently broken expression may leave a trace —
+        // but once per distinct error, not once per read
+        const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+        const evaluateSpy = jest.spyOn(component, 'evaluate');
+
+        expect(component.journalId).toBe('static-journal');
+
+        const tracesAfterFirstRead = debugSpy.mock.calls.length;
+
+        // Read again: what is remembered per source must not turn into a second report either
+        expect(component.journalId).toBe('static-journal');
+
+        expect(evaluateSpy).not.toHaveBeenCalled();
+        consoleSpies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+        expect(debugSpy.mock.calls.length).toBe(tracesAfterFirstRead);
+
+        consoleSpies.forEach(spy => spy.mockRestore());
+        debugSpy.mockRestore();
+        evaluateSpy.mockRestore();
+        done();
+      });
+    };
+
+    it('Should not report a customJournalId that does not compile and should fall back to static journalId', done => {
+      // Half-typed: the braces never close
+      expectSilentFallback('var typeMap = { "marketing": "country-iso3166"', done);
+    });
+
+    it('Should not report a customJournalId that compiles and throws, and should fall back to static journalId', done => {
+      // Half-typed the other way: `value = va` is valid JavaScript, and throws a ReferenceError
+      // every time it runs — the case a syntax pre-check cannot catch
+      expectSilentFallback('value = va', done);
+    });
+
+    it('Should not report a customJournalId that throws on data it reads', done => {
+      // The everyday version of the same thing: the expression reaches into data the form has not
+      // loaded yet
+      expectSilentFallback('value = data.parent.kind;', done);
+    });
+
+    it('Should keep trying an expression that threw once the data it reads arrives', done => {
+      // A run that throws says nothing about the source — remembering it as broken would leave the
+      // field on the static journal for the rest of the form's life
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
-        customJournalId: 'value = "";'
+        customJournalId: 'value = data.kind.trim();'
       }).then(component => {
-        component.options.builder = true;
         expect(component.journalId).toBe('static-journal');
 
-        component.options.builder = false;
-        component.options.preview = true;
-        expect(component.journalId).toBe('static-journal');
+        component.root.data = { ...component.root.data, kind: ' dyn-journal ' };
+        expect(component.journalId).toBe('dyn-journal');
+        done();
+      });
+    });
 
-        component.options.preview = false;
-        component.options.editInFormBuilder = true;
-        expect(component.journalId).toBe('static-journal');
+    it('Should compile the expression once per source, not once per read', done => {
+      // The editor reads `journalId` several times per keystroke; a compile on each read is what
+      // made typing expensive in the first place
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        customJournalId: 'value = "dyn-journal";'
+      }).then(component => {
+        expect(component.journalId).toBe('dyn-journal');
+        const compiled = component.customJournalIdFn;
+
+        expect(component.journalId).toBe('dyn-journal');
+        expect(component.customJournalIdFn).toBe(compiled);
+
+        // ... and an edit does produce a new one
+        component.component.customJournalId = 'value = "other-journal";';
+        expect(component.journalId).toBe('other-journal');
+        expect(component.customJournalIdFn).not.toBe(compiled);
         done();
       });
     });
@@ -148,7 +219,8 @@ describe('SelectJournal Component', () => {
         component.checkConditions(component.root.data);
 
         expect(cancelSpy).toHaveBeenCalled();
-        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'deals-journal' });
+        // First result of the expression: the child keeps the value the record was opened with
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'deals-journal', keepValueOnJournalIdChange: true });
         expect(component.customJournalIdValue).toBe('deals-journal');
 
         setReactPropsSpy.mockClear();
@@ -158,13 +230,92 @@ describe('SelectJournal Component', () => {
         component.checkConditions(component.root.data);
         expect(setReactPropsSpy).not.toHaveBeenCalled();
 
-        // Change data → pushed again
+        // Change data → pushed again, and now the switch clears the value
         component.root.data = { ...component.root.data, _parentType: 'project' };
         component.checkConditions(component.root.data);
-        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: '' });
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: '', keepValueOnJournalIdChange: false });
 
         setReactPropsSpy.mockRestore();
         cancelSpy.mockRestore();
+        done();
+      });
+    });
+
+    it('getInitialReactProps should skip the type-level journal lookup only while the expression resolves', async () => {
+      const component = await Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = data.kind ? "dyn-journal" : "";'
+      });
+      const getJournalIdSpy = jest.spyOn(component, 'getJournalId').mockResolvedValue('journal-from-type');
+
+      // expression resolves → its result owns the journal, no type-level lookup is made
+      component.root.data = { ...component.root.data, kind: 'x' };
+      expect((await component.getInitialReactProps()).journalId).toBe('dyn-journal');
+      expect(getJournalIdSpy).not.toHaveBeenCalled();
+
+      // expression empty → the static journalId goes through the pre-existing type-level lookup
+      component.root.data = { ...component.root.data, kind: undefined };
+      expect((await component.getInitialReactProps()).journalId).toBe('static-journal');
+      expect(getJournalIdSpy).toHaveBeenCalledWith('static-journal');
+
+      getJournalIdSpy.mockRestore();
+    });
+
+    it('Should not mistake a later switch for the first resolution when the expression first returns the id in play', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'deals-journal',
+        customJournalId: 'value = data.kind === "deal" ? "deals-journal" : (data.kind === "proj" ? "projects-journal" : "");'
+      }).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+        // build-time pass: no data, so the static journalId is what the child gets
+        component.checkConditions(component.root.data);
+        setReactPropsSpy.mockClear();
+
+        // the record's data arrives and the expression returns exactly the id already in play —
+        // nothing to push, but the expression *has* resolved
+        component.root.data = { ...component.root.data, kind: 'deal' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).not.toHaveBeenCalled();
+
+        // ... so this switch is a user-driven one and must clear the value picked from deals-journal
+        component.root.data = { ...component.root.data, kind: 'proj' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'projects-journal', keepValueOnJournalIdChange: false });
+
+        setReactPropsSpy.mockRestore();
+        done();
+      });
+    });
+
+    it('Should carry keepValueOnJournalIdChange on every props push, not only the one checkConditions makes', done => {
+      // `setReactProps` merges into whatever the child already has, so a `true` left over from the
+      // first resolution would swallow the reset on a journalId pushed through `delayedSettingProps`
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = data.kind ? "dyn-journal" : "";'
+      }).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+        component.root.data = { ...component.root.data, kind: 'x' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'dyn-journal', keepValueOnJournalIdChange: true });
+
+        setReactPropsSpy.mockClear();
+
+        // the debounced path pushes the journalId too, and must reset the flag while doing so
+        component.root.data = { ...component.root.data, kind: undefined };
+        component.delayedSettingProps({});
+        component.delayedSettingProps.flush();
+
+        expect(setReactPropsSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ journalId: 'static-journal', keepValueOnJournalIdChange: false })
+        );
+
+        setReactPropsSpy.mockRestore();
         done();
       });
     });
@@ -180,5 +331,46 @@ describe('SelectJournal Component', () => {
         done();
       });
     });
+  });
+});
+
+describe('workspaceId passed to the control', () => {
+  const buildComponent = async options => {
+    const component = await Harness.testCreate(SelectJournalComponent, comp1);
+
+    component.root.options = { ...component.root.options, ...options };
+
+    return component;
+  };
+
+  it('passes the workspace of the record being edited', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+
+    expect(component.getComponentAttributes().workspaceId).toBe('TEST2');
+  });
+
+  it('no longer passes recordRef', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+
+    expect(component.getComponentAttributes().recordRef).toBeUndefined();
+  });
+
+  it('pushes a new workspaceId to React when it changes', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+    component.workspaceIdValue = 'TEST2';
+    const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+    component.root.options.recordWorkspaceId = 'OTHER';
+    component.checkConditions(component.root.data);
+
+    expect(setReactPropsSpy).toHaveBeenCalledWith({ workspaceId: 'OTHER' });
+
+    setReactPropsSpy.mockClear();
+
+    // Same value -> no further push
+    component.checkConditions(component.root.data);
+    expect(setReactPropsSpy).not.toHaveBeenCalled();
+
+    setReactPropsSpy.mockRestore();
   });
 });

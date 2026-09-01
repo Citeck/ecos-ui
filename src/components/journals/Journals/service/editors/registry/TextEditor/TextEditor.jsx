@@ -1,5 +1,6 @@
 import { IGNORED_EVENT_ATTRIBUTE } from '@citeck/constants';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import React, { useState } from 'react';
 
@@ -11,8 +12,10 @@ export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
   inputType = TextEditor.TYPE;
 
-  getControl(config, scope) {
+  getControl(config, scope, params) {
     const isCell = scope === EditorScope.CELL;
+    // a cell editor always takes the keyboard; a filter only when it asks (the column header popup)
+    const autoFocus = isCell || !!get(params, 'autoFocus');
 
     return ({ value, onUpdate, onKeyDown, forwardedRef }) => {
       const [data, setData] = useState(value || '');
@@ -53,7 +56,7 @@ export default class TextEditor extends BaseEditor {
           onMouseDown={e => {
             e[IGNORED_EVENT_ATTRIBUTE] = true;
           }}
-          autoFocus={isCell}
+          autoFocus={autoFocus}
         />
       );
     };

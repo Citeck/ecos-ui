@@ -15,7 +15,9 @@ import {
   setKanbanSettings,
   setLoading,
   setLoadingColumns,
+  setRefreshing,
   setPagination,
+  setRelatedFilter,
   setResolvedActions,
   setOriginKanbanSettings,
   setTotalCount,
@@ -33,6 +35,7 @@ import { updateState } from '../helpers/redux';
 
 export const initialState = {
   isLoading: true,
+  isRefreshing: false,
   isLoadingColumns: [],
   kanbanSettings: {},
   originKanbanSettings: {},
@@ -44,6 +47,11 @@ export const initialState = {
   formProps: null,
   totalCount: 0,
   dataCards: [],
+  // "Show only linked records" predicate of the widget (id EQ for a direct association,
+  // OR[CONTAINS(attr, recordRef)] for a reverse one). Resolved once per board load and kept here so
+  // every later request (next page, search, filter/preset, reload, swimlanes) stays filtered.
+  relatedFilter: null,
+  relatedFilterJournalId: null,
   resolvedActions: [],
   pagination: DEFAULT_PAGINATION,
   swimlaneGrouping: null,
@@ -56,7 +64,10 @@ export default handleActions(
       return updateState(state, payload.stateId, { boardConfig: undefined }, initialState);
     },
     [getBoardData]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
+      // swimlanes belong to the board being replaced: keeping them here painted the previous board's
+      // rows (and its numbers) until the new cells arrived — or forever, when the new board has no
+      // matching groups.
+      return updateState(state, payload.stateId, { dataCards: [], swimlanes: [], isFirstLoading: true, isLoading: true }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
       const { stateId = '', settings = {} } = payload;
@@ -67,7 +78,9 @@ export default handleActions(
         state[stateId]?.templateList?.length === 0 ||
         (state[stateId]?.templateList?.length > 0 && settings.journalSetting?.id === '');
 
-      return updateState(state, stateId, { dataCards: [], isLoading: true, isFiltered }, initialState);
+      // A filter starts the board over like a preset or a grouping change does: `isFirstLoading` is the
+      // one signal Kanban uses to scroll back to the top and forget the sampled position (COREDEV-426).
+      return updateState(state, stateId, { dataCards: [], isLoading: true, isFirstLoading: true, isFiltered }, initialState);
     },
     [clearFiltered]: (state, { payload }) => {
       return updateState(state, payload.stateId, { isFiltered: false }, initialState);
@@ -76,10 +89,19 @@ export default handleActions(
       return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
     },
     [resetFilter]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFirstLoading: true }, initialState);
     },
     [reloadBoardData]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true }, initialState);
+      // A silent reload refreshes the board in place: the already loaded cards stay on screen (so the
+      // scroll container keeps its height and the browser does not clamp scrollTop) and no column
+      // falls back to skeletons. `isRefreshing` is owned by sagaRefreshBoardData — it raises the flag
+      // only when it actually refreshes in place, so the button does not spin during the full-reload
+      // fallback and the flag is not double-set.
+      if (payload.silent) {
+        return updateState(state, payload.stateId, {}, initialState);
+      }
+
+      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isRefreshing: false }, initialState);
     },
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;
@@ -96,6 +118,10 @@ export default handleActions(
     [setLoading]: (state, { payload }) => {
       const { stateId, isLoading } = payload;
       return updateState(state, stateId, { isLoading }, initialState);
+    },
+    [setRefreshing]: (state, { payload }) => {
+      const { stateId, isRefreshing } = payload;
+      return updateState(state, stateId, { isRefreshing }, initialState);
     },
     [setIsFiltered]: (state, { payload }) => {
       const { stateId, isFiltered } = payload;
@@ -120,6 +146,15 @@ export default handleActions(
       const { stateId, dataCards } = payload;
       return updateState(state, stateId, { dataCards, isFirstLoading: false }, initialState);
     },
+    [setRelatedFilter]: (state, { payload }) => {
+      const { stateId, relatedFilter, relatedFilterJournalId } = payload;
+      return updateState(
+        state,
+        stateId,
+        { relatedFilter: relatedFilter || null, relatedFilterJournalId: relatedFilterJournalId || null },
+        initialState
+      );
+    },
     [setTotalCount]: (state, { payload }) => {
       const { stateId, totalCount } = payload;
       return updateState(state, stateId, { totalCount }, initialState);
@@ -138,28 +173,37 @@ export default handleActions(
     },
     [setSwimlaneGrouping]: (state, { payload }) => {
       const { stateId, swimlaneGrouping } = payload;
-      return updateState(state, stateId, { swimlaneGrouping, swimlanes: [], dataCards: [], isLoading: true, isFirstLoading: true }, initialState);
+      return updateState(
+        state,
+        stateId,
+        { swimlaneGrouping, swimlanes: [], dataCards: [], isLoading: true, isFirstLoading: true },
+        initialState
+      );
     },
     [setSwimlaneValues]: (state, { payload }) => {
       const { stateId, swimlanes } = payload;
       return updateState(state, stateId, { swimlanes, isFirstLoading: false }, initialState);
     },
     [setSwimlaneCellData]: (state, { payload }) => {
-      const { stateId, swimlaneId, statusId, records, totalCount, error } = payload;
+      const { stateId, swimlaneId, statusId, records, totalCount, error, pagination } = payload;
       const prevSwimlanes = (state[stateId] || {}).swimlanes || [];
       const swimlanes = prevSwimlanes.map(sl => {
         if (sl.id !== swimlaneId) {
           return sl;
         }
+        const prevCell = sl.cells[statusId] || {};
         return {
           ...sl,
           cells: {
             ...sl.cells,
             [statusId]: {
-              ...sl.cells[statusId],
+              ...prevCell,
               records: records,
               totalCount: totalCount,
               error: error,
+              // The loaded window of the cell. Without persisting it, a row reload always requested a
+              // single default page and collapsed a cell the user had expanded with "show more".
+              pagination: pagination || prevCell.pagination,
               isLoading: false
             }
           }

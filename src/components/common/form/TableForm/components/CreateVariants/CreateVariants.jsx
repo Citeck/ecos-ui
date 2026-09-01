@@ -5,7 +5,7 @@ import React, { useContext } from 'react';
 
 import { getMLValue, t } from '../../../../../../helpers/util';
 import { Btn, IcoBtn } from '../../../../../common/btns';
-import Dropdown from '../../../Dropdown/Dropdown';
+import DropdownOuter from '../../../Dropdown/DropdownOuter';
 import { TableFormContext } from '../../TableFormContext';
 
 const CreateVariants = () => {
@@ -62,12 +62,14 @@ const CreateVariants = () => {
         showCreateForm(selected);
       };
 
+      // DropdownOuter, not Dropdown: the in-flow reactstrap menu is cut off by the
+      // `overflow: hidden` of the inline-editing wrapper on a view form (COREDEV-369)
       createButton = (
-        <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
+        <DropdownOuter source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
           <IcoBtn invert icon="icon-small-down" className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}>
             {getMLValue(customButtonName) || t('ecos-table-form.create-button')}
           </IcoBtn>
-        </Dropdown>
+        </DropdownOuter>
       );
     }
   }

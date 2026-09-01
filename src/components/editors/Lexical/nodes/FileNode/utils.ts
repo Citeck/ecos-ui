@@ -16,10 +16,10 @@ export const $createFileNode = ({ size, name, fileRecordId, key }: FileNodeProps
 export const convertFileElement = (domNode: HTMLElement | null): { node: FileNode } | null => {
   if (domNode) {
     try {
-      const size = Number(domNode.getAttribute('size'));
-      const name = domNode.getAttribute('name');
+      const size = Number(domNode.getAttribute('data-file-size'));
+      const name = domNode.getAttribute('data-file-name');
       const type = domNode.getAttribute('type');
-      const fileRecordId = domNode.getAttribute('fileRecordId');
+      const fileRecordId = domNode.getAttribute('data-file-record-id');
 
       if (type === FileNode.getHtmlElementType() && name && fileRecordId) {
         const node = $createFileNode({ size, name, fileRecordId });

@@ -7,7 +7,8 @@ import {
   ECOS_TASK_TYPES,
   ECOS_TASK_TYPE_SET_STATUS,
   ECOS_TASK_TYPE_AI_TASK,
-  AI_ICON_PATH
+  AI_ICON_PATH,
+  AI_AGENT_ICON_PATH
 } from '@citeck/constants/bpmn';
 import Records from '@citeck/records-core';
 import { is, getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
@@ -98,7 +99,10 @@ class CustomRenderer extends KPIRenderer {
         return;
       }
       case ECOS_TASK_TYPE_AI_TASK: {
-        svgAppend(parentNode, this._getImage(AI_ICON_PATH));
+        // An agent-backed task runs tools unattended, so it must be tellable from a plain AI
+        // request on the diagram itself, not only in the properties panel.
+        svgAppend(parentNode, this._getImage(this.hasAiAgent(element) ? AI_AGENT_ICON_PATH : AI_ICON_PATH));
+        break;
       }
     }
 
@@ -117,6 +121,11 @@ class CustomRenderer extends KPIRenderer {
     }
 
     return _.get(getBusinessObject(element), '$parent');
+  }
+
+  hasAiAgent(element) {
+    // moddle resolves the namespaced name for both a declared property and an $attrs fallback
+    return !_.isEmpty(getBusinessObject(element).get('ecos:aiAgentRef'));
   }
 
   getName(element) {

@@ -17,6 +17,14 @@ export const DEFAULT_PAGINATION = {
   page: 1
 };
 
+/**
+ * Page size for journal queries that carry `groupBy`.
+ * A grouped query has no pagination UI, and without `maxItems` the backend aggregates every group —
+ * on a sparse attribute (e.g. a document on time-tracking records) that is hundreds of thousands of
+ * rows and ends in a 504, see COREDEV-289.
+ */
+export const GROUPED_QUERY_MAX_ITEMS = 100;
+
 export const PAGINATION_SIZES = [
   { value: 10, label: 10 },
   { value: 30, label: 30 },

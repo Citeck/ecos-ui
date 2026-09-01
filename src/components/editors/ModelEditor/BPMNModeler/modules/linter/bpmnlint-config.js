@@ -1193,7 +1193,19 @@ var noDuplicateSequenceFlows = function () {
 function flowKey(flow) {
   const conditionExpression = flow.conditionExpression;
 
-  const condition = conditionExpression ? conditionExpression.body : '';
+  // ECOS never writes `bpmn:conditionExpression`: a flow's condition lives in the `ecos:` attributes, which is
+  // what our own rules read (see ./sequenceFlow — `get(flow.$attrs, ['ecos:conditionType'])`), and the one bpmn-js
+  // path that would create a conditionExpression is removed from the replace menu (ReplaceMenuProvider). Keying
+  // only on the OMG property therefore made EVERY ECOS flow look unconditioned, so any two flows between one pair
+  // of nodes were reported as duplicates no matter how different their outcomes were — e.g. a gateway's default
+  // arm and its `OUTCOME` arm to the same task. Both sources are keyed now; a genuine duplicate still matches.
+  // ⚠ `yarn bpmnlint-config` regenerates this file from the stock bpmnlint rules and would drop this.
+  const attrs = flow.$attrs || {};
+  const condition = [
+    conditionExpression ? conditionExpression.body : '',
+    attrs['ecos:conditionType'] || '',
+    attrs['ecos:conditionConfig'] || ''
+  ].join('|');
   const source = flow.sourceRef ? flow.sourceRef.id : flow.id;
   const target = flow.targetRef ? flow.targetRef.id : flow.id;
 

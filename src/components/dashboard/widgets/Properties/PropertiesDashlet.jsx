@@ -32,6 +32,8 @@ const Labels = {
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
 
+const MIN_REFRESH_SPIN_TIME = 500;
+
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string,
@@ -76,7 +78,8 @@ class PropertiesDashlet extends BaseWidget {
       title: '',
       isDraft: false,
       formIsValid: false,
-      componentsCount: -1
+      componentsCount: -1,
+      isRefreshing: false
     };
 
     this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
@@ -108,10 +111,12 @@ class PropertiesDashlet extends BaseWidget {
   componentWillUnmount() {
     super.componentWillUnmount();
     this.instanceRecord.unwatch(this.permissionsWatcher);
+    window.clearTimeout(this._refreshTimerId);
+    isFunction(this._refreshSpinResolve) && this._refreshSpinResolve();
   }
 
   get dashletActions() {
-    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft, isSaving } = this.state;
+    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft, isSaving, isRefreshing } = this.state;
 
     if (isShowSetting) {
       return {};
@@ -123,7 +128,9 @@ class PropertiesDashlet extends BaseWidget {
 
     let actions = {
       [DAction.Actions.RELOAD]: {
-        className: getFitnesseClassName('properties-widget', formType, DAction.Actions.RELOAD),
+        className: classNames(getFitnesseClassName('properties-widget', formType, DAction.Actions.RELOAD), {
+          'ecos-properties-dashlet__reload_active': isRefreshing
+        }),
         onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
@@ -191,26 +198,30 @@ class PropertiesDashlet extends BaseWidget {
     return get(this.props, 'config.formMode', FORM_MODE_VIEW);
   }
 
-  reload() {
-    if (get(this._propertiesRef, 'current.form')) {
-      return;
-    }
-
-    super.reload();
-  }
+  // NB: there is no `reload()` override here. BaseWidget assigns `reload` as an instance field
+  // (a debounced arrow), so a prototype method of the same name is shadowed and never runs —
+  // the guard that used to live here ("do not reload while the form is open") was dead code.
 
   checkPermissions = () => {
     const { record } = this.props;
 
     EcosFormUtils.hasWritePermission(record, true)
       .then(canEditRecord => {
-        this.setState({ canEditRecord });
+        // Only on a real change: `canEditRecord` feeds `formMode`, and re-setting it re-renders
+        // Properties with new form options, which makes EcosForm rebuild the whole form.
+        if (this.state.canEditRecord !== canEditRecord) {
+          this.setState({ canEditRecord });
+        }
       })
       .catch(console.error);
 
-    PropertiesApi.isDraftStatus(record).then(isDraft => {
-      this.setState({ isDraft });
-    });
+    PropertiesApi.isDraftStatus(record)
+      .then(isDraft => {
+        if (this.state.isDraft !== isDraft) {
+          this.setState({ isDraft });
+        }
+      })
+      .catch(console.error);
   };
 
   onInlineEditSave = () => {
@@ -242,8 +253,61 @@ class PropertiesDashlet extends BaseWidget {
       return;
     }
 
-    this.onReloadDashlet(false);
+    this.softReloadDashlet();
   }
+
+  /**
+   * Background update (the record changed outside this widget).
+   *
+   * Keeps the rendered form in place: the reload icon in the header spins while the record is
+   * re-read, and the form is patched only if the data really differs (COREDEV-429). The full
+   * reload with a loader stays on the user-triggered path — {@link onReloadDashlet}.
+   */
+  softReloadDashlet = () => {
+    // Overlapping runs would overwrite each other's spin timer and resolver, and the first one to
+    // settle would stop the icon while the other re-read is still in flight. One at a time — a
+    // request arriving mid-run (say, the edit modal's submit during a background tick) is not
+    // dropped but coalesced into one trailing pass.
+    if (this._softReloadInFlight) {
+      this._softReloadPending = true;
+      return;
+    }
+
+    const softUpdate = get(this._propertiesRef, 'current.softUpdateForm');
+    const hasForm = !!get(this._propertiesRef, 'current.form');
+
+    if (!isFunction(softUpdate) || !hasForm) {
+      this.onReloadDashlet(false);
+      return;
+    }
+
+    this._softReloadInFlight = true;
+
+    this.setState({ isRefreshing: true });
+    this.checkPermissions();
+
+    // The minimal spin keeps the indication readable: re-reading a cached record can finish in a
+    // couple of frames, and a spinner that appears and disappears within them just looks like a glitch.
+    const minSpin = new Promise(resolve => {
+      // Kept for the unmount path: clearing the timeout alone would leave this promise pending
+      // forever, and the Promise.all below — with everything it closes over — pinned in memory.
+      this._refreshSpinResolve = resolve;
+      this._refreshTimerId = window.setTimeout(resolve, MIN_REFRESH_SPIN_TIME);
+    });
+
+    Promise.all([Promise.resolve(softUpdate()).catch(console.error), minSpin]).then(() => {
+      this._softReloadInFlight = false;
+
+      if (this._isMounted) {
+        this.setState({ isRefreshing: false });
+      }
+
+      if (this._softReloadPending) {
+        this._softReloadPending = false;
+        this._isMounted && this.softReloadDashlet();
+      }
+    });
+  };
 
   onReloadDashlet = withSaveData => {
     const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
@@ -335,7 +399,10 @@ class PropertiesDashlet extends BaseWidget {
 
   onPropertiesEditFormSubmit = () => {
     this.setState({ isEditProps: false });
-    this.onReloadDashlet();
+    // The widget's own edit modal is as much a background change for the *rendered* form as a
+    // neighbouring widget's edit: the view form under the modal is intact, only the record's data
+    // moved. Patch it in place (COREDEV-429) — the full reload stays on the manual-reload path.
+    this.softReloadDashlet();
   };
 
   onPropertiesUpdate = () => {

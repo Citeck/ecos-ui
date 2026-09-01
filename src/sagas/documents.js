@@ -45,6 +45,7 @@ import recordActions from '@/components/core/Records/actions';
 import { ActionTypes } from '@/components/core/Records/actions/constants';
 import ServerGroupActionV2 from '@/components/core/Records/actions/handler/executor/ServerGroupActionV2';
 import { documentActions, documentFields } from '@/helpers/documents';
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import DocumentsConverter from '../dto/documents';
 import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import {
@@ -125,7 +126,7 @@ function* sagaInitWidget({ api }, { payload }) {
   }
 }
 
-function* sagaGetDynamicTypes({ api }, { payload }) {
+export function* sagaGetDynamicTypes({ api }, { payload }) {
   try {
     const isLoadChecklist = yield select(state => selectIsLoadChecklist(state, payload.key));
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
@@ -191,6 +192,17 @@ function* sagaGetDynamicTypes({ api }, { payload }) {
     );
 
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
+
+    // The documents themselves are already fetched above (they are the source of `countByTypes`),
+    // so publish them right away. Without this the store keeps an empty `documentsByTypes` until
+    // the user switches the type back and forth, and "Download all documents" stays disabled.
+    const documentsByTypes = {};
+
+    filledTypes.forEach((item, index) => {
+      documentsByTypes[item.type] = get(countByTypes, [index], []);
+    });
+
+    yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
 
     if (filledTypes.length === 1) {
       yield put(getDocumentsByType({ ...payload, type: filledTypes[0].type, delay: 0 }));
@@ -479,16 +491,7 @@ export function* uploadFile({ api, file, callback }) {
 
 export function* uploadFileV2({ api, file, callback, type }) {
   try {
-    const formData = new FormData();
-
-    formData.append('file', file);
-    formData.append('name', file.name);
-
-    if (!!type) {
-      formData.append('ecosType', type);
-    }
-
-    const { entityRef = null } = yield call(api.app.uploadFileV2, formData, callback);
+    const { entityRef = null } = yield call(api.app.uploadFileV2, file, { name: file.name, ecosType: type || undefined }, callback);
 
     if (!entityRef) {
       return Promise.reject('Error: No file entityRef');
@@ -561,7 +564,7 @@ function* formManager({ api, payload, files }) {
   }
 }
 
-function* sagaUploadFiles({ api }, { payload }) {
+export function* sagaUploadFiles({ api }, { payload }) {
   try {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
@@ -593,7 +596,28 @@ function* sagaUploadFiles({ api }, { payload }) {
     const results = yield Promise.allSettled(files);
     results.forEach(result => {
       if (result.status === 'rejected') {
-        rejectedMessages.push(result.reason);
+        // uploadFileV2's rejection is a real Error with a readable `.message` (see the
+        // chunked-upload module's rejection contract) — read that instead of stringifying the raw
+        // reason, which renders as "[object Object]". `result.reason` can still be a bare string
+        // for the "no entityRef" case just below in this same file, so fall back to `String(...)`
+        // when there's no `.message`.
+        const reason = result.reason;
+        // A user-initiated cancel is not an error and must stay silent: the chunked-upload module
+        // rejects an abort with `UploadError('Upload aborted', {aborted: true})`, so without this
+        // guard pressing "cancel" pops an English "Upload aborted" toast. `isRejected` is still
+        // set, so the form manager is not opened for a cancelled upload.
+        if (reason && reason.aborted) {
+          isRejected = true;
+          return;
+        }
+        // When the rejection carries a structured chunked-upload reason (storage-not-supported /
+        // max-size-exceeded / too-many-sessions), the localised, limit-substituted text takes
+        // precedence over the module's raw English `.message` — a user must never see e.g.
+        // "Upload rejected: max-size-exceeded" in this toast.
+        const chunkedUploadMessage = getChunkedUploadErrorMessage(reason);
+        const message =
+          chunkedUploadMessage || (reason && typeof reason.message === 'string' && reason.message ? reason.message : String(reason));
+        rejectedMessages.push(message);
         isRejected = true;
       }
     });

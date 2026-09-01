@@ -12,6 +12,7 @@ import uuidV4 from 'uuidv4';
 
 import aiAssistantService from '@/components/ai/AIAssistant/AIAssistantService';
 import { AIFieldActions } from '@/components/ai/AIAssistant/AIQuickActions/components';
+import { stripRecordRefAlias } from '@/components/ai/AIAssistant/utils';
 import { FIELD_TYPES } from "@/components/ai/AIAssistant";
 import { CONTENT_TYPES } from "@/components/ai/AIAssistant";
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
@@ -21,6 +22,8 @@ interface AIAssistantButtonProps {
   disabled?: boolean;
   recordRef?: string;
   attribute?: string;
+  /** Field label as written on the form; goes to the backend as the human-readable field name */
+  attributeLabel?: string;
   resultContainer?: HTMLElement | null;
 }
 
@@ -28,11 +31,15 @@ export default function AIAssistantButton({
   disabled = false,
   recordRef,
   attribute,
+  attributeLabel,
   resultContainer
 }: AIAssistantButtonProps): React.JSX.Element | null {
   const [isAvailable, setIsAvailable] = useState(false);
+  // Editor root, used as the bound for the AI popups: they are anchored to this toolbar button and
+  // would otherwise be limited only by the window, covering the side menu and the text being edited
+  const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
   const [editor] = useLexicalComposerContext();
-  const ref = recordRef ? recordRef.split('-alias-')[0] : null;
+  const ref = stripRecordRefAlias(recordRef);
   const conversationIdRef = useRef(uuidV4());
 
   useEffect(() => {
@@ -57,6 +64,8 @@ export default function AIAssistantButton({
       aiAssistantService.removeAvailabilityListener(handleAvailabilityChange);
     };
   }, [ref, attribute]);
+
+  useEffect(() => editor.registerRootListener(rootElement => setFieldElement(rootElement)), [editor]);
 
   /**
    * Update Lexical editor content with HTML
@@ -106,8 +115,9 @@ export default function AIAssistantButton({
   const aiContext = useMemo(() => ({
     recordRef: ref || '',
     attribute,
+    attributeLabel,
     conversationId: conversationIdRef.current
-  }), [ref, attribute]);
+  }), [ref, attribute, attributeLabel]);
 
   // Use centralized AI generate hook
   const handleGenerateRequest = useLexicalAIGenerate(aiContext);
@@ -126,6 +136,7 @@ export default function AIAssistantButton({
       onGenerateRequest={handleGenerateRequest}
       disabled={disabled}
       resultContainer={resultContainer || undefined}
+      fieldElement={fieldElement}
       triggerIcon={<AiAssistant />}
       triggerClassName="toolbar-item spaced ai-assistant-button"
       positionVariant="lexical"

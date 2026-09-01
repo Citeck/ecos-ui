@@ -38,9 +38,7 @@ class Filters extends Component {
     this.triggerChange(groups);
   };
 
-  onDeleteFilter = () => {
-    const index = this._filterIndex;
-    const groupIndex = this._groupIndex;
+  onDeleteFilter = ({ index, groupIndex }) => {
     const groups = this.groups;
 
     let filters = groups[groupIndex].filters;
@@ -51,8 +49,6 @@ class Filters extends Component {
     }
 
     this.triggerChange(groups);
-
-    this.closeDialog();
   };
 
   onDeleteGroup = () => {
@@ -117,7 +113,7 @@ class Filters extends Component {
         needUpdate={needUpdate}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
-        onDeleteFilter={this.showDeleteFilterDialog}
+        onDeleteFilter={this.onDeleteFilter}
         onDeleteGroup={this.showDeleteGroupDialog}
         onAddFilter={this.onAddFilter}
         onChangeGroupFilterCondition={this.onChangeGroupFilterCondition}
@@ -222,19 +218,6 @@ class Filters extends Component {
     });
 
     this.delete = this.onDeleteGroup;
-  };
-
-  showDeleteFilterDialog = ({ index, groupIndex }) => {
-    this._groupIndex = groupIndex;
-    this._filterIndex = index;
-
-    this.setState({
-      isDialogShow: true,
-      dialogTitle: t('journals.action.delete-filter-msg'),
-      dialogText: `${t('journals.action.remove-filter-msg')}`
-    });
-
-    this.delete = this.onDeleteFilter;
   };
 
   delete = () => undefined;

@@ -1,5 +1,6 @@
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { fi } from 'date-fns/locale';
+import DOMPurify from 'dompurify';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 import cloneDeep from 'lodash/cloneDeep';
@@ -22,6 +23,7 @@ import FormContextService from '@/components/ai/AIAssistant/FormContextService';
 import ScriptEditorAIButton from '@/components/ai/AIAssistant/ScriptEditorAIButton';
 import { TEXT_CONTEXT_TYPES } from '@/components/ai/AIAssistant/TextAIService';
 import TextAreaAIButton from '@/components/ai/AIAssistant/TextAreaAIButton';
+import { resolveAiRecordRef } from '@/components/ai/AIAssistant/utils';
 import LexicalEditor from '@/components/editors/LexicalEditor';
 import CodeEditor from '@/components/editors/MonacoEditor/CodeEditor';
 import { t } from '@/helpers/export/util';
@@ -29,7 +31,7 @@ import { updateEditorContent } from '@/helpers/lexical';
 import { getTextByLocale } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
-import { getStore } from '@/store';
+import { getStoreIfReady } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -85,6 +87,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   get isMonacoEditor() {
     return this.component.editor === 'monaco';
+  }
+
+  /**
+   * Editors whose value IS markup. The code editors (`ace`, `monaco`) are deliberately out: their
+   * value is source — JSON, a predicate, a JavaScript function — and an `i<n` in it is a comparison,
+   * not the start of a tag. An editor added later stays out until it is put in here on purpose.
+   */
+  get isRichTextEditor() {
+    return this.isLexicalEditor || this.isCkeEditor || this.isQuillEditor;
   }
 
   setValue(value, flags) {
@@ -208,7 +219,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         old.parentNode.replaceChild(reactContainer, old);
 
-        const store = getStore();
+        // Nothing to render into a dead root: a `<Provider>` handed the empty-object fallback of
+        // `getStore` throws while rendering and kills this root outright (D-UI-STORE-EMPTY).
+        const store = getStoreIfReady();
+        if (!store) {
+          console.warn('TextAreaComponent.setReadOnlyValue | redux store is not ready, the read-only editor is skipped');
+          return;
+        }
+
         this._lexicalViewRoot = createRoot(reactContainer);
         this._lexicalViewRoot.render(
           <Provider store={store}>
@@ -238,6 +256,19 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.component.wysiwyg) {
       value = this.interpolate(value);
       element.innerHTML = value;
+    } else if (this.isRichTextEditor) {
+      // A rich-text field (lexical is the current one) holds markup, not text — `textContent`
+      // paints its source with every tag visible. This node is not a leftover: the read-only
+      // editor that replaces it is mounted a macrotask later (`createViewOnlyValue`), so this IS
+      // what the user sees in between, and after an inline save — when the whole dashboard
+      // refreshes on the same tick and the field is rebuilt — that window is long enough to read.
+      // Sanitized, unlike the legacy `wysiwyg` branch above: the read-only Lexical renderer that
+      // takes this node over parses the markup into editor nodes and drops anything executable,
+      // so this stand-in must not be the one place where stored markup reaches the DOM raw.
+      // Rich text only, NOT every `editor`: an `ace`/`monaco` value is source, and parsing it as
+      // HTML eats it — `if (a<b) { return "<c>"; }` renders as `if (a"; }`.
+      // Cause: https://citeck.atlassian.net/browse/COREDEV-427
+      element.innerHTML = DOMPurify.sanitize(value);
     } else {
       element.textContent = value;
     }
@@ -260,7 +291,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   renderLexicalProvider(settings, onChange) {
     if (onChange) {
-      const store = getStore();
+      // Same reason as everywhere else in this file: a `<Provider>` handed the empty-object
+      // fallback of `getStore` throws while rendering (D-UI-STORE-EMPTY). `null` is what this
+      // method already answers when it has nothing to render.
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.renderLexicalProvider | redux store is not ready, the editor is skipped');
+        return null;
+      }
 
       return (
         <Provider store={store}>
@@ -273,6 +311,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             UploadDocsService={this._uploadDocsRefService}
             recordRef={this.root.options.recordId}
             attribute={this.component.key}
+            // The field's own label, sent on as the human-readable field name: without it the AI
+            // paths of the rich-text editor fell back to the attribute id, which the backend then
+            // used as a name meant for the user (D-G-LEXICAL-FIELDNAME).
+            attributeLabel={getTextByLocale(this.component.label) || ''}
             maxLength={this.component.lexicalMaxLength || undefined}
             onEditorReady={editor => {
               this.calculatedValue = this.dataValue;
@@ -467,7 +509,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         return;
       }
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addMonaco | redux store is not ready, the editor is skipped');
+        resolve(null);
+        return;
+      }
 
       try {
         const container = document.createElement('div');
@@ -542,7 +589,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         editorParent.appendChild(inlineInputContainer);
       }
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addScriptAIButton | redux store is not ready, the AI button is skipped');
+        return;
+      }
+
       this._scriptAIButtonRoot = createRoot(buttonContainer);
 
       const contextData = editorContextService.getContextData() || {};
@@ -570,36 +622,31 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         <Provider store={store}>
           <ScriptEditorAIButton
             disabled={this.options.readOnly || this.component.disabled}
-            recordRef={this.root?.options?.recordId || ''}
+            recordRef={this.aiRecordRef}
             scriptContextType={scriptContextType}
             ecosType={ecosType}
             processRef={processRef}
             formContext={formContext}
             fieldInfo={fieldInfo}
             getEditorValue={() => this.editor?.getValue() || ''}
-            setEditorValue={value => {
-              if (this.editor) {
-                if (this.isMonacoEditor) {
-                  const model = this.editor.getModel();
-                  if (model) {
-                    model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value }], () => null);
-                  } else {
-                    this.editor.setValue(value);
-                  }
-                  this.updateEditorValue(value);
-                } else {
-                  this.editor.setValue(value, -1);
-                  this.editor.clearSelection();
-                }
-              }
-            }}
+            setEditorValue={value => this.applyAIEditorValue(value)}
             inlineInputContainer={inlineInputContainer}
+            fieldElement={editorElement}
           />
         </Provider>
       );
     } catch (error) {
       console.error('TextAreaComponent.addScriptAIButton | error:', error);
     }
+  }
+
+  /**
+   * The record reference the AI services may be given.
+   *
+   * Never `options.recordId` on its own — see `resolveAiRecordRef`, which holds the whole rule.
+   */
+  get aiRecordRef() {
+    return resolveAiRecordRef(this.root?.options);
   }
 
   /**
@@ -629,6 +676,82 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     return FIELD_TYPES.TEXTAREA;
+  }
+
+  /**
+   * Applies an AI-edited value into a plain textarea the way a USER edit would.
+   *
+   * D-B-AIAPPLY-NOSAVE (regr-20260814-r1, B7): a bare `setValue(value)` carries no flags, so
+   * `valueChangedByUser` stayed false, the Properties widget's Save bar never appeared and the
+   * applied edit was silently lost on navigate-away — while a manual keypress in the same field
+   * made the bar appear at once. The flags mirror a real user edit: `modified` is what formio's
+   * own input listener passes, `changeByUser` is what sets `valueChangedByUser` in
+   * override/base/Base.js. The ace/monaco paths are covered by `applyAIEditorValue` below.
+   */
+  applyAITextAreaValue(value, textareaElement) {
+    this.setValue(value, { modified: true, changeByUser: true });
+    // Also update the textarea element directly for immediate visual feedback
+    if (textareaElement) {
+      textareaElement.value = value;
+    }
+  }
+
+  /**
+   * Applies an AI-edited value into a code editor (ace/monaco) the way a USER edit would.
+   *
+   * D-B-AIAPPLY-NOSAVE-ACE (regr-20260816-r1, B5/B7): the flags of an editor edit were derived from
+   * the editor's own change event, which cannot tell an AI apply from a programmatic refresh —
+   * and on the two ends of that guess the same field behaved in two opposite wrong ways.
+   *
+   * Empty field, real edit, no flag. `setWysiwygValue` (formiojs/components/textarea/TextArea.js)
+   * latches `autoModified = true` on the first value push, and only `updateEditorValue` below
+   * clears it. On a field that starts EMPTY ace reports no change for a no-op `setValue('')`, so the
+   * latch survived untouched until the AI apply and turned the apply's own change into
+   * `modified: false`; `Base.onChange` left `valueChangedByUser` false, the Properties Save bar
+   * never appeared and the applied edit was lost on navigate-away. Six applies out of six failed on
+   * empty fields, none on filled ones — there the initial push had cleared the latch.
+   *
+   * Filled field, no edit, flag raised (D-G-QA-APPLY-NOOP, case G14). An answer that proposes no
+   * edit — a question about the script, answered with prose — still went through `editor.setValue`,
+   * and ace replaces a document in two steps, remove then insert. The intermediate EMPTY state
+   * raised the change flag for an edit that never happened, and the user was told there were
+   * unsaved changes with nothing to save.
+   *
+   * So the apply states its own flags, and an apply of the value already in the editor touches
+   * nothing at all.
+   */
+  applyAIEditorValue(value) {
+    if (!this.editor) {
+      return;
+    }
+
+    if (this.editor.getValue?.() === value) {
+      return;
+    }
+
+    // Read by `updateEditorValue`: whatever the editor's change event says, this edit came from a
+    // user action on the AI panel, so it carries `changeByUser` — the flag the Save bar reads —
+    // and `modified` regardless of the `autoModified` latch left over from the initial value push.
+    this._aiValueApplyInProgress = true;
+    try {
+      if (this.isMonacoEditor) {
+        const model = this.editor.getModel();
+        if (model) {
+          model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value }], () => null);
+        } else {
+          this.editor.setValue(value);
+        }
+        this.updateEditorValue(value);
+      } else {
+        this.editor.setValue(value, -1);
+        this.editor.clearSelection();
+      }
+    } finally {
+      // Both editors emit their change events synchronously from `setValue`/`pushEditOperations`,
+      // so the flag is consumed before this runs. It is cleared in `finally` all the same: a throw
+      // out of the editor must not leave every later keystroke marked as an AI apply.
+      this._aiValueApplyInProgress = false;
+    }
   }
 
   /**
@@ -668,7 +791,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       wrapper.appendChild(buttonContainer);
       wrapper.appendChild(aiContainer);
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addTextAreaAIButton | redux store is not ready, the AI button is skipped');
+        return;
+      }
+
       this._textAreaAIButtonRoot = createRoot(buttonContainer);
 
       // Extract field info for AI context
@@ -684,19 +812,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         <Provider store={store}>
           <TextAreaAIButton
             disabled={this.options.readOnly || this.component.disabled}
-            recordRef={this.root?.options?.recordId || ''}
+            recordRef={this.aiRecordRef}
             fieldType={this.aiFieldType}
             fieldLabel={getTextByLocale(this.component.label) || this.component.key || ''}
             contextType={this.textAreaAIContextType}
             fieldInfo={fieldInfo}
             getValue={() => this.getValue() || ''}
-            setValue={value => {
-              this.setValue(value);
-              // Also update the textarea element directly for immediate visual feedback
-              if (textareaElement) {
-                textareaElement.value = value;
-              }
-            }}
+            setValue={value => this.applyAITextAreaValue(value, textareaElement)}
+            fieldElement={textareaElement}
             actionsBarContainer={aiContainer}
             resultContainer={aiContainer}
           />
@@ -717,9 +840,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     if (newValue !== this.dataValue && (!isEmpty(newValue) || !isEmpty(this.dataValue))) {
+      // `applyAIEditorValue` raises the flag around its own call: the change event alone cannot say
+      // whether the editor was written to by the user or refreshed programmatically, and on an
+      // initially empty field the `autoModified` latch is still up at that point
+      // (D-B-AIAPPLY-NOSAVE-ACE).
+      const byAIApply = !!this._aiValueApplyInProgress;
       this.updateValue(
         {
-          modified: !this.autoModified
+          modified: byAIApply || !this.autoModified,
+          ...(byAIApply && { changeByUser: true })
         },
         newValue
       );

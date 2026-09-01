@@ -37,23 +37,22 @@ function* sagaGetUserData({ api }, { payload }) {
   }
 }
 
-function* sagaChangePhoto({ api }, { payload }) {
+export function* sagaChangePhoto({ api }, { payload }) {
   const { data: file, record, stateId } = payload;
 
   try {
-    const formData = new FormData();
-
-    formData.append('file', file);
-    formData.append('name', file.name);
-
-    let fileUploadFunc;
+    let entityRef = null;
 
     if (isNodeRef(record)) {
-      fileUploadFunc = api.app.uploadFile;
+      const formData = new FormData();
+
+      formData.append('file', file);
+      formData.append('name', file.name);
+
+      ({ entityRef = null } = yield call(api.app.uploadFile, formData));
     } else {
-      fileUploadFunc = api.app.uploadFileV2;
+      ({ entityRef = null } = yield call(api.app.uploadFileV2, file, { name: file.name }));
     }
-    const { entityRef = null } = yield call(fileUploadFunc, formData);
 
     if (!entityRef) {
       throw new Error('No file entityRef');

@@ -28,6 +28,15 @@ export interface LexicalAIContext {
   recordRef: string;
   /** Attribute name being edited (defaults to 'text') */
   attribute?: string;
+  /**
+   * Human-readable label of the field being edited, as it is written on the form.
+   *
+   * D-G-LEXICAL-FIELDNAME (regr-20260816-r1, G3/G7): without it `field.name` carried the attribute
+   * id — `{"id":"richNotes","name":"richNotes"}` where the plain textarea path sends
+   * `{"id":"notes","name":"Заметка"}` — and the backend uses `field.name` as the human-readable
+   * name, so the raw id could surface in text written for the user.
+   */
+  attributeLabel?: string;
   /** Selected text within the editor (for partial editing) */
   selectedText?: string;
   /** Conversation ID for multi-turn interactions */
@@ -43,7 +52,7 @@ export async function lexicalAIGenerateRequest(
   context: LexicalAIContext,
   params: GenerateRequestParams
 ): Promise<GenerateRequestResult> {
-  const { recordRef, attribute, selectedText, conversationId } = context;
+  const { recordRef, attribute, attributeLabel, selectedText, conversationId } = context;
   const { prompt, quickActionId, currentValue } = params;
 
   // Load current page record with full info (recordRef, displayName, type)
@@ -58,7 +67,9 @@ export async function lexicalAIGenerateRequest(
   const attributeId = attribute || 'text';
   const fieldInfo: FieldInfo = {
     id: attributeId,
-    name: attributeId,
+    // The label when the editor was given one; the id only as a last resort, which is still better
+    // than nothing for a field whose form carries no label at all (D-G-LEXICAL-FIELDNAME).
+    name: attributeLabel || attributeId,
     type: ATTRIBUTE_TYPES.TEXT
   };
 

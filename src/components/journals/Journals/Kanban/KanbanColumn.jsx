@@ -9,6 +9,7 @@ import { Loader } from '@/components/common';
 import { Labels } from '@/components/journals/Journals/constants';
 
 import Card from './Card';
+import ColumnSum from './ColumnSum';
 import SkeletonCards from './SkeletonCard';
 import { isDropDisabled as checkDropDisabled } from './utils';
 
@@ -31,6 +32,14 @@ const KanbanColumn = ({
   isFirstLoading,
   isFiltered,
   hasSum,
+  predicate,
+  searchPredicate,
+  groupPredicate,
+  relatedFilter,
+  sourceId,
+  ecosType,
+  sumTypeRef,
+  journalPredicate,
   isDragging,
   draggingSwimlaneId,
   isCollapsed,
@@ -143,6 +152,22 @@ const KanbanColumn = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
+            {isSwimlaneMode && columnInfo.hasSum && (
+              <ColumnSum
+                className="ecos-kanban__column-sum_inline"
+                data={columnInfo}
+                targetId={`cell-sum_${swimlaneId}_${statusId}_${columnInfo.sumAtt}`.replace(/[^\w-]/g, '_')}
+                sumTypeRef={sumTypeRef}
+                predicate={predicate}
+                searchPredicate={searchPredicate}
+                groupPredicate={groupPredicate}
+                relatedFilter={relatedFilter}
+                sourceId={sourceId}
+                ecosType={ecosType}
+                journalPredicate={journalPredicate}
+                totalCount={totalCount}
+              />
+            )}
             {/* While reloading a NON-empty column keep its cards rendered under a blur overlay: swapping
                 them for a short skeleton collapses the scroll container's height, and the browser clamps
                 scrollTop — the board "jumps" to the top right after a card is dropped far down the list. */}
@@ -183,6 +208,14 @@ KanbanColumn.propTypes = {
   isFirstLoading: PropTypes.bool,
   isFiltered: PropTypes.bool,
   hasSum: PropTypes.bool,
+  predicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  groupPredicate: PropTypes.object,
+  relatedFilter: PropTypes.object,
+  sourceId: PropTypes.string,
+  ecosType: PropTypes.string,
+  sumTypeRef: PropTypes.string,
+  journalPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   isCollapsed: PropTypes.bool,

@@ -342,22 +342,28 @@ class JournalsService {
    * Returns workspace IDs based on the specified search policy.
    * @param {SearchInWorkspacePolicy} policy - The policy determining which workspaces to include.
    * @param {Array<string>} [additional=[]] - Additional workspace IDs to include, if applicable.
-   * @returns {Array<string>|Set<string>} An array or set of workspace IDs based on the policy.
+   * @param {string} [currentWorkspaceId] - Workspace to treat as "current". Defaults to the workspace
+   *   from the URL. Passed by SelectJournal, which uses the workspace of the record being edited.
+   * @returns {Array<string>} An array of workspace IDs based on the policy.
    */
-  getWorkspaceByPolicy = (policy, additional = []) => {
+  getWorkspaceByPolicy = (policy, additional = [], currentWorkspaceId) => {
     if (policy === SearchInWorkspacePolicy.ALL) {
       return [];
     }
 
-    if (policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL) {
-      return [...new Set([getWorkspaceId(), ...additional])];
-    }
-
     if (policy === SearchInWorkspacePolicy.ONLY_ADDITIONAL) {
-      return additional;
+      // A copy: callers append to the result (SelectJournal adds `default` for system journals),
+      // and `additional` is a prop array owned by the caller
+      return [...additional];
     }
 
-    return [getWorkspaceId()];
+    const current = currentWorkspaceId || getWorkspaceId();
+
+    if (policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL) {
+      return [...new Set([current, ...additional])];
+    }
+
+    return [current];
   };
 
   /**

@@ -100,6 +100,7 @@ $box-shadow-hover:
   0px 4px 8px rgba(0, 0, 0, 0.1);
 $box-shadow-tooltip: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 $box-shadow-tooltip-arrow-top: -3px 3px 5px rgba(0, 0, 0, 0.2);
+$box-shadow-tooltip-arrow-bottom: -3px -3px 5px rgba(0, 0, 0, 0.2);
 
 $box-shadow-grid-head: 0 3px 3px -2px rgba(0, 0, 0, 0.7);
 $box-shadow-grid-left: 3px 0 3px -2px rgba(0, 0, 0, 0.7);
@@ -129,12 +130,12 @@ $transparent: none;
 // element, so a 22px slot paints a 22px box, matching the 22px ink of the old icon-font glyph.
 // (An uncropped `0 0 24 24` paints only 18/24 of the slot = 16.5px, which is how the switch to
 // masks silently shrank the form checkbox.) Keep all four cropped identically or they desync.
-$citeck-icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath d='M6 3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3zm0 2a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V6a1 1 0 00-1-1H6z' fill='%23000'/%3E%3C/svg%3E");
-$citeck-icon-checkbox-checked: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath fill-rule='evenodd' d='M6 3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3zm10.707 5.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L10 13.586l5.293-5.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
-$citeck-icon-checkbox-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Crect x='3' y='3' width='18' height='18' rx='3' fill='%23000'/%3E%3C/svg%3E");
+$citeck-icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath d='M7.914 3H16.086A4.914 4.914 0 0 1 21 7.914V16.086A4.914 4.914 0 0 1 16.086 21H7.914A4.914 4.914 0 0 1 3 16.086V7.914A4.914 4.914 0 0 1 7.914 3ZM7.914 4.638A3.276 3.276 0 0 0 4.638 7.914V16.086A3.276 3.276 0 0 0 7.914 19.362H16.086A3.276 3.276 0 0 0 19.362 16.086V7.914A3.276 3.276 0 0 0 16.086 4.638Z' fill='%23000'/%3E%3C/svg%3E");
+$citeck-icon-checkbox-checked: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath fill-rule='evenodd' d='M7.914 3H16.086A4.914 4.914 0 0 1 21 7.914V16.086A4.914 4.914 0 0 1 16.086 21H7.914A4.914 4.914 0 0 1 3 16.086V7.914A4.914 4.914 0 0 1 7.914 3ZM6.518 12.575L9.785 15.851A0.815 0.815 0 0 0 10.938 15.852L17.49 9.3A0.815 0.815 0 0 0 16.338 8.148L10.363 14.123L7.672 11.425A0.815 0.815 0 0 0 6.518 12.575Z'/%3E%3C/svg%3E");
+$citeck-icon-checkbox-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Crect x='3' y='3' width='18' height='18' rx='4.914' fill='%23000'/%3E%3C/svg%3E");
 // Tri-state "false": same filled box as -checked, with the X knocked out instead of the check
 // (single evenodd subpath — two overlapping strokes would fill the crossing back in).
-$citeck-icon-checkbox-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath fill-rule='evenodd' d='M6 3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a3 3 0 013-3zM17.707 16.293a1 1 0 01-1.414 1.414L12 13.414l-4.293 4.293a1 1 0 01-1.414-1.414L10.586 12 6.293 7.707a1 1 0 011.414-1.414L12 10.586l4.293-4.293a1 1 0 011.414 1.414L13.414 12l4.293 4.293z'/%3E%3C/svg%3E");
+$citeck-icon-checkbox-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='3 3 18 18'%3E%3Cpath fill-rule='evenodd' d='M7.914 3H16.086A4.914 4.914 0 0 1 21 7.914V16.086A4.914 4.914 0 0 1 16.086 21H7.914A4.914 4.914 0 0 1 3 16.086V7.914A4.914 4.914 0 0 1 7.914 3ZM13.309 12L16.399 15.089A0.926 0.926 0 0 1 15.089 16.399L12 13.309L8.911 16.399A0.926 0.926 0 0 1 7.601 15.089L10.691 12L7.601 8.911A0.926 0.926 0 0 1 8.911 7.601L12 10.691L15.089 7.601A0.926 0.926 0 0 1 16.399 8.911L13.309 12Z'/%3E%3C/svg%3E");
 $citeck-icon-radio: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 100 18 9 9 0 000-18zm0 2a7 7 0 110 14 7 7 0 010-14z' fill='%23000'/%3E%3C/svg%3E");
 $citeck-icon-radio-checked: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 100 18 9 9 0 000-18zm0 2a7 7 0 110 14 7 7 0 010-14z' fill='%23000'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23000'/%3E%3C/svg%3E");
 $citeck-icon-radio-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a9 9 0 100 18 9 9 0 000-18zm0 2a7 7 0 110 14 7 7 0 010-14z' fill='%23000'/%3E%3C/svg%3E");

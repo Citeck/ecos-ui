@@ -9,7 +9,12 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 import { animateScrollTo, getMLValue } from '../../../../helpers/util';
 
+import { buildErrorsMessage, TAB_ERROR_ICON_CLASS, TAB_ERRORS_CLASS, TAB_INVALID_CLASS } from './tabErrors';
+
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
+/** The bar is scrolled all the way to the left / to the right — the arrow on that side has no use. */
+const SCROLL_AT_START_CLASS = 'formio-component-tabs_scroll-at-start';
+const SCROLL_AT_END_CLASS = 'formio-component-tabs_scroll-at-end';
 
 //Override default tabs component to fix validation in inner fields
 export default class TabsComponent extends NestedComponent {
@@ -46,13 +51,31 @@ export default class TabsComponent extends NestedComponent {
     };
   }
 
-  #tabs = new Map();
+  /**
+   * Components of the form, by the index of the tab that holds them.
+   *
+   * A plain property rather than a `#private` field on purpose: a form is not the only owner of its
+   * components — the app hands component trees to `cloneDeep`, and a lodash clone keeps the
+   * prototype (so every method still resolves) while private fields, being per-instance and outside
+   * the property model, are NOT copied. Reading a private field on such a copy throws
+   * "Cannot read private member ... from an object whose class did not declare it" and takes the
+   * whole call down with it — which is exactly what `showErrors` -> `_activateFirstInvalidTab` ->
+   * `setTab` ran into (COREDEV-431), leaving the error alert of the form behind on top of the
+   * per-tab lists. Read it through {@link _getTabsMap}, never directly.
+   */
+  _tabsByIndex = new Map();
 
   constructor(component, options, data) {
     super(component, options, data);
 
     this.currentTab = lodashGet(component, 'currentTab', 0) || lodashGet(options, 'currentTab', 0) || 0;
     this.validityTabs = [];
+
+    // COREDEV-431: per-tab error lists rendered inside the tab panes, keyed by tab index
+    this._tabErrorAlerts = {};
+    // the lists only appear once the form has actually reported errors (i.e. on submit);
+    // before that only the tab indicator reacts to validation
+    this._tabErrorsShown = false;
   }
 
   get defaultSchema() {
@@ -274,6 +297,9 @@ export default class TabsComponent extends NestedComponent {
     this.tabsBar = this.ce('ul', {
       class: 'nav nav-tabs'
     });
+    // The bar scrolls by wheel and touch too, not only through the arrows, so which arrow is of
+    // any use has to follow the bar itself. Attached here because `createElement` rebuilds it.
+    this.tabsBar.addEventListener('scroll', this.onTabsBarScroll);
 
     let classNames = ['tab-content'];
     if (this.component.scrollableContent) {
@@ -286,6 +312,8 @@ export default class TabsComponent extends NestedComponent {
 
     this.tabLinks = [];
     this.tabs = [];
+    // panes are re-created below, so the remembered alert nodes are detached now
+    this._tabErrorAlerts = {};
     this.component.components.forEach((tab, index) => {
       if (tab.ignored) {
         return;
@@ -411,6 +439,7 @@ export default class TabsComponent extends NestedComponent {
   removeEventListeners() {
     clearInterval(this.detectScrollInterval);
 
+    this.tabsBar && this.tabsBar.removeEventListener('scroll', this.onTabsBarScroll);
     this.tabsBarLeftButton.removeEventListener('click', this.onLeftButtonClick);
     this.tabsBarRightButton.removeEventListener('click', this.onRightButtonClick);
 
@@ -431,17 +460,38 @@ export default class TabsComponent extends NestedComponent {
     const scrollWidth = this.tabsBar.scrollWidth;
 
     if (scrollWidth - containerWidth > 1) {
-      if (this.element.classList.contains(SCROLLABLE_CLASS)) {
-        return null;
+      if (!this.element.classList.contains(SCROLLABLE_CLASS)) {
+        this.element.classList.add(SCROLLABLE_CLASS);
+        this.tabsBarLeftButton.addEventListener('click', this.onLeftButtonClick);
+        this.tabsBarRightButton.addEventListener('click', this.onRightButtonClick);
       }
-
-      this.element.classList.add(SCROLLABLE_CLASS);
-      this.tabsBarLeftButton.addEventListener('click', this.onLeftButtonClick);
-      this.tabsBarRightButton.addEventListener('click', this.onRightButtonClick);
     } else {
       this.element.classList.remove(SCROLLABLE_CLASS);
     }
+
+    this.updateScrollButtons();
   };
+
+  /**
+   * Which of the two arrows is worth showing. An arrow at the end it already points to would be a
+   * control that does nothing — the CSS drops it, and the fade that belongs to it, by these classes.
+   *
+   * Cause: https://citeck.atlassian.net/browse/COREDEV-431
+   */
+  updateScrollButtons = () => {
+    if (!this.element || !this.tabsBar) {
+      return;
+    }
+
+    const bar = this.tabsBar;
+    // `scrollLeft` is fractional on a scaled display and the far end is never reached exactly
+    const maxScrollLeft = bar.scrollWidth - bar.clientWidth;
+
+    this.element.classList.toggle(SCROLL_AT_START_CLASS, bar.scrollLeft <= 1);
+    this.element.classList.toggle(SCROLL_AT_END_CLASS, bar.scrollLeft >= maxScrollLeft - 1);
+  };
+
+  onTabsBarScroll = () => this.updateScrollButtons();
 
   detectScrollThrottled = throttle(this.detectScroll, 300);
   _calculateTabsContentHeightThrottled = throttle(this._calculateTabsContentHeight, 300);
@@ -494,8 +544,400 @@ export default class TabsComponent extends NestedComponent {
     this.checkNeedUpdate(index);
   }
 
+  /**
+   * COREDEV-431.
+   *
+   * Renders the errors that belong to this tabs component inside its own tabs (both the marker on
+   * the tab label and the error list at the top of the tab pane) and returns the errors that could
+   * not be attributed to any tab, so the caller can keep showing those the old way.
+   *
+   * @param {Array} errors
+   * @param {Object} [options]
+   * @param {boolean} [options.switchToInvalidTab] jump to the first tab holding errors. Only for a
+   *   failed submit the user is waiting for (`Webform.onSubmissionError`): formio re-runs
+   *   `showErrors` on EVERY change once the form has been submitted (`Webform.onChange` /
+   *   `Webform.checkData`), and inline editing calls it after a per-field save — switching there
+   *   would throw the user off the tab they are working on.
+   * @returns {Array} errors not belonging to any tab of this component
+   */
+  showTabErrors(errors = [], { switchToInvalidTab = false } = {}) {
+    this._tabErrorsShown = true;
+
+    const remaining = this._applyTabErrors(errors, true);
+
+    if (switchToInvalidTab) {
+      this._activateFirstInvalidTab();
+    }
+
+    return remaining;
+  }
+
+  /**
+   * Re-syncs the markers and the error lists with the current state of the fields. Called on every
+   * validation pass, so an indicator appears/disappears while the user edits, not only on submit.
+   */
+  refreshTabErrors() {
+    // Whether the lists are on screen is asked of the PANES, not only of this object's own flag:
+    // the same tabs of the same form can be driven by more than one component instance (see
+    // `_tabsByIndex`), and the one that renders the lists on submit is not always the one that
+    // validates afterwards. Reading the flag alone left the other instance clearing the marker of a
+    // tab while its list stayed behind — the list of a field the user had just filled in
+    // (COREDEV-431).
+    const withLists = this._tabErrorsShown || this._hasRenderedTabErrors();
+
+    this._applyTabErrors(withLists ? this.errors : [], withLists);
+  }
+
+  /**
+   * Is an error list rendered in any pane of this component — by whichever instance put it there?
+   *
+   * @returns {boolean}
+   */
+  _hasRenderedTabErrors() {
+    return (this.tabs || []).some(tabPanel => !!this._getRenderedTabErrors(tabPanel));
+  }
+
+  /**
+   * The error list rendered in a pane, if any. Looked up in the DOM rather than in
+   * `_tabErrorAlerts`, so that a list another instance of this component rendered into the same
+   * pane is still found — and updated or removed — instead of being left there forever.
+   *
+   * @param {Element} [tabPanel]
+   * @returns {Element|null}
+   */
+  _getRenderedTabErrors(tabPanel) {
+    if (!tabPanel || !tabPanel.children) {
+      return null;
+    }
+
+    return Array.from(tabPanel.children).find(node => node.classList && node.classList.contains(TAB_ERRORS_CLASS)) || null;
+  }
+
+  checkValidity(data, dirty, rowData) {
+    const result = super.checkValidity(data, dirty, rowData);
+
+    this.refreshTabErrors();
+
+    return result;
+  }
+
+  _applyTabErrors(errors, withLists) {
+    if (!this._canClaimErrors()) {
+      return errors || [];
+    }
+
+    const errorList = this._dropErrorsOfNestedTabs(errors || []);
+    // the map is a walk over every component of the form — only worth building when there is
+    // something to attribute (a validation pass with no errors is the common case)
+    const maps = errorList.length ? this._getTabIndexMaps() : null;
+    const errorsByTab = new Map();
+    const remaining = [];
+
+    errorList.forEach(error => {
+      const index = this._getErrorTabIndex(error, maps);
+
+      if (index < 0 || index >= this.tabs.length) {
+        remaining.push(error);
+        return;
+      }
+
+      const tabErrors = errorsByTab.get(index) || [];
+      tabErrors.push(error);
+      errorsByTab.set(index, tabErrors);
+    });
+
+    // The marker is computed from the components themselves rather than from the errors passed in:
+    // that keeps a tab holding nested tabs marked even though the inner tabs component claimed the
+    // error list, and lets the marker react to editing when no list is shown yet.
+    const invalidTabs = this._getTabsWithComponentErrors();
+    errorsByTab.forEach((_tabErrors, index) => invalidTabs.add(index));
+
+    this._renderTabErrors(errorsByTab, invalidTabs, withLists);
+    this._invalidTabs = invalidTabs;
+
+    return remaining;
+  }
+
+  /**
+   * Whether this component shows errors on its own tabs at all: a builder preview and a flattened
+   * form have no tabs to put them on, and hand every error back to the caller instead.
+   *
+   * @returns {boolean}
+   */
+  _canClaimErrors() {
+    return !this.options.builder && !this.options.flatten && Array.isArray(this.tabs) && !!this.tabs.length;
+  }
+
+  /**
+   * Would this component put the error on one of its own tabs?
+   *
+   * @param {Object} error
+   * @param {Object} [maps] result of `_getTabIndexMaps`, to build it once for a whole error list
+   * @returns {boolean}
+   */
+  claimsError(error, maps) {
+    if (!this._canClaimErrors()) {
+      return false;
+    }
+
+    const index = this._getErrorTabIndex(error, maps || this._getTabIndexMaps());
+
+    return index >= 0 && index < this.tabs.length;
+  }
+
+  /**
+   * Drops the errors a tabs component nested in this one shows itself.
+   *
+   * A component of an inner tabs component belongs to a tab of this one too — through the tab that
+   * holds the whole inner component — so without this the error would be listed twice: once in the
+   * pane of the inner tab it really lives on, and once more in the pane of the outer tab. On the
+   * `Webform.showErrors` path this cannot happen (errors are handed out innermost first, and what
+   * an inner component claimed never reaches the outer one), but `refreshTabErrors` runs off
+   * `this.errors` — the deep aggregate — on every `checkValidity`, with no such order to lean on.
+   *
+   * @param {Array} errors
+   * @returns {Array}
+   */
+  _dropErrorsOfNestedTabs(errors) {
+    if (!errors.length || typeof this.everyComponent !== 'function') {
+      return errors;
+    }
+
+    const nested = [];
+
+    this.everyComponent(component => {
+      if (component !== this && component && typeof component.claimsError === 'function' && component._canClaimErrors()) {
+        nested.push([component, component._getTabIndexMaps()]);
+      }
+    });
+
+    if (!nested.length) {
+      return errors;
+    }
+
+    return errors.filter(error => !nested.some(([component, maps]) => component.claimsError(error, maps)));
+  }
+
+  /**
+   * Tabs of this component that currently hold at least one invalid field, at any nesting depth.
+   *
+   * @returns {Set<number>}
+   */
+  _getTabsWithComponentErrors() {
+    const result = new Set();
+
+    this.getComponents().forEach(component => {
+      const tabIndex = lodashGet(component, 'component.tab', -1);
+
+      if (!(tabIndex >= 0)) {
+        return;
+      }
+
+      if ((component.errors || []).length) {
+        result.add(tabIndex);
+      }
+    });
+
+    return result;
+  }
+
+  /**
+   * Maps every component living inside a tab — at any nesting depth — to that tab's index.
+   *
+   * `addComponents` writes `tab` into the schema of the direct children of the tabs component only,
+   * so anything deeper (a field in a panel, a column, a data grid) inherits the index of its
+   * top-level ancestor here.
+   *
+   * @returns {{ bySchema: Map, byKey: Map }}
+   */
+  _getTabIndexMaps() {
+    const bySchema = new Map();
+    const byKey = new Map();
+
+    const register = (component, tabIndex) => {
+      const schema = lodashGet(component, 'component');
+
+      if (!schema) {
+        return;
+      }
+
+      bySchema.set(schema, tabIndex);
+
+      if (schema.key && !byKey.has(schema.key)) {
+        byKey.set(schema.key, tabIndex);
+      }
+    };
+
+    this.getComponents().forEach(component => {
+      const tabIndex = lodashGet(component, 'component.tab', -1);
+
+      if (!(tabIndex >= 0)) {
+        return;
+      }
+
+      register(component, tabIndex);
+
+      if (typeof component.everyComponent === 'function') {
+        component.everyComponent(child => register(child, tabIndex));
+      }
+    });
+
+    return { bySchema, byKey };
+  }
+
+  /**
+   * Which tab does an error belong to?
+   *
+   * A validation error carries the *schema object* of its component (see `Base.setCustomValidity`),
+   * so identity lookup is the reliable path. Errors coming from outside the form (server side,
+   * custom errors) only have a key or a path — those fall back to the key map.
+   *
+   * @returns {number} tab index or -1
+   */
+  _getErrorTabIndex(error, maps) {
+    if (!error) {
+      return -1;
+    }
+
+    const component = error.component;
+
+    if (component && typeof component === 'object') {
+      if (maps.bySchema.has(component)) {
+        return maps.bySchema.get(component);
+      }
+
+      if (component.key && maps.byKey.has(component.key)) {
+        return maps.byKey.get(component.key);
+      }
+    }
+
+    const paths = [typeof component === 'string' ? component : null, error.path].filter(path => typeof path === 'string' && path);
+
+    for (const path of paths) {
+      if (maps.byKey.has(path)) {
+        return maps.byKey.get(path);
+      }
+
+      const lastSegment = path.split('.').pop();
+
+      if (maps.byKey.has(lastSegment)) {
+        return maps.byKey.get(lastSegment);
+      }
+    }
+
+    return -1;
+  }
+
+  _renderTabErrors(errorsByTab, invalidTabs, withLists) {
+    this._tabErrorAlerts = this._tabErrorAlerts || {};
+
+    this.tabs.forEach((tabPanel, index) => {
+      const tabItem = this.tabLinks[index];
+      const tabLink = tabItem && tabItem.tabLink;
+      const isInvalid = invalidTabs.has(index);
+
+      if (tabItem) {
+        if (isInvalid) {
+          this.addClass(tabItem, TAB_INVALID_CLASS);
+        } else {
+          this.removeClass(tabItem, TAB_INVALID_CLASS);
+        }
+      }
+
+      if (tabLink) {
+        let icon = tabLink.querySelector(`.${TAB_ERROR_ICON_CLASS}`);
+
+        if (isInvalid && !icon) {
+          icon = this.ce('span', {
+            class: `${TAB_ERROR_ICON_CLASS} icon-alert`,
+            'aria-hidden': 'true'
+          });
+          tabLink.insertBefore(icon, tabLink.firstChild);
+        } else if (!isInvalid && icon && icon.parentNode) {
+          icon.parentNode.removeChild(icon);
+        }
+      }
+
+      const tabErrors = errorsByTab.get(index) || [];
+      const html = !withLists || !tabErrors.length || !tabPanel ? null : buildErrorsMessage(this.t('error'), tabErrors);
+      const rendered = this._getRenderedTabErrors(tabPanel);
+      let previous = this._tabErrorAlerts[index];
+
+      // The pane, not this object's memory, says what is on screen: another instance of this
+      // component may have rendered the list (see `refreshTabErrors`), and a list nobody claims is
+      // a list nobody ever takes away. Adopt whatever is in the pane.
+      if (!previous || previous.node !== rendered) {
+        previous = rendered ? { node: rendered, html: rendered.innerHTML } : null;
+      }
+
+      // This runs on every validation pass, i.e. on every keystroke once the form has been
+      // submitted. Re-creating an identical node would drop a selection inside the list, and
+      // the errors of a tab the user is not even on do not change from one keystroke to the next.
+      if (previous && previous.html === html && previous.node.parentNode) {
+        return;
+      }
+
+      if (previous && previous.node.parentNode) {
+        previous.node.parentNode.removeChild(previous.node);
+      }
+
+      delete this._tabErrorAlerts[index];
+
+      if (!html) {
+        return;
+      }
+
+      const alert = this.ce('div', {
+        class: `alert alert-danger ${TAB_ERRORS_CLASS}`,
+        role: 'alert'
+      });
+      alert.innerHTML = html;
+
+      tabPanel.insertBefore(alert, tabPanel.firstChild);
+      this._tabErrorAlerts[index] = { node: alert, html };
+    });
+  }
+
+  /**
+   * Errors are no longer duplicated at the top of the form, so a user submitting from a valid tab
+   * would otherwise get no feedback at all — switch to the first tab that actually has errors.
+   */
+  _activateFirstInvalidTab() {
+    const invalidTabs = this._invalidTabs;
+
+    if (!invalidTabs || !invalidTabs.size || invalidTabs.has(this.currentTab)) {
+      return;
+    }
+
+    const target = Array.from(invalidTabs)
+      .sort((a, b) => a - b)
+      .find(index => {
+        const tabItem = this.tabLinks[index];
+        return !!tabItem && !tabItem.classList.contains('hidden');
+      });
+
+    if (target !== undefined) {
+      this.setTab(target);
+    }
+  }
+
+  /**
+   * The tab -> component map, created on demand so that even a copy of this component that never
+   * ran the constructor (see {@link _tabsByIndex}) works instead of throwing.
+   *
+   * @returns {Map}
+   */
+  _getTabsMap() {
+    if (!(this._tabsByIndex instanceof Map)) {
+      this._tabsByIndex = new Map();
+    }
+
+    return this._tabsByIndex;
+  }
+
   checkNeedUpdate(index) {
-    const tab = this.#tabs.get(index);
+    const tabs = this._getTabsMap();
+    const tab = tabs.get(index);
     const setUpdateStatus = (component, status) => {
       if (Array.isArray(component.components)) {
         component.components.forEach(c => setUpdateStatus(c, status));
@@ -507,7 +949,7 @@ export default class TabsComponent extends NestedComponent {
       }
     };
 
-    [...this.#tabs.values()].forEach(t => setUpdateStatus(t, false));
+    [...tabs.values()].forEach(t => setUpdateStatus(t, false));
 
     if (tab) {
       setUpdateStatus(tab, true);
@@ -519,7 +961,7 @@ export default class TabsComponent extends NestedComponent {
 
     state.currentTab = this.currentTab;
 
-    this.#tabs.clear();
+    this._getTabsMap().clear();
 
     return state;
   }
@@ -529,7 +971,7 @@ export default class TabsComponent extends NestedComponent {
     const tabId = lodashGet(component, 'component.tab');
 
     if (tabId !== undefined) {
-      this.#tabs.set(tabId, component);
+      this._getTabsMap().set(tabId, component);
     }
 
     return component;

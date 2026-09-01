@@ -16,6 +16,7 @@ import {
   setVersionsComparison,
   setWritePermission
 } from '../actions/versionsJournal';
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import VersionsJournalConverter from '../dto/versionsJournal';
 import { t } from '../helpers/util';
 
@@ -37,7 +38,7 @@ function* sagaGetVersions({ api }, { payload }) {
   }
 }
 
-function* sagaAddNewVersion({ api }, { payload }) {
+export function* sagaAddNewVersion({ api }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.addNewVersion, {
       body: VersionsJournalConverter.getAddVersionFormDataForServer(payload),
@@ -53,7 +54,15 @@ function* sagaAddNewVersion({ api }, { payload }) {
   } catch (e) {
     console.error('[versionJournal/sagaAddNewVersion saga] error', e);
     NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
-    yield put(addNewVersionError({ message: e.message, id: payload.id }));
+    // `addModalErrorMessage` (this reducer's `addNewVersionError` payload) ends up as
+    // AddModal.jsx's `errorMessage` prop, rendered right next to the `clientError` that
+    // handleChangeStatus already localises via the same helper, fed from the same uploadContent
+    // rejection through a separate path: api.versionsJournal.addNewVersion's emodel branch
+    // rejects with the raw UploadError, uncaught, straight into this saga's catch. Without this,
+    // the dialog shows the localised text and the raw English "Upload rejected:
+    // max-size-exceeded" glued together.
+    const chunkedUploadMessage = getChunkedUploadErrorMessage(e);
+    yield put(addNewVersionError({ message: chunkedUploadMessage || e.message, id: payload.id }));
   }
 }
 

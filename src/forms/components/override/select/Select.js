@@ -216,6 +216,7 @@ export default class SelectComponent extends FormIOSelectComponent {
         _.get(this, 'component.fuseOptions', {})
       ),
       itemComparer: _.isEqual,
+      // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
       ...customOptions
     };
 

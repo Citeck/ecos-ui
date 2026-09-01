@@ -6,7 +6,7 @@ import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
 import { createDocumentUrl } from '@/helpers/urls';
-import { getMLValue, isNodeRef, isRecordRef } from '@/helpers/util';
+import { getMLValue, isNodeRef, isRecordRef, t } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -923,6 +923,7 @@ export default class SelectComponent extends BaseComponent {
       itemComparer: _.isEqual,
       callbackOnCreateTemplates: template => {
         return {
+          // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
           choice: (classNames, data, itemSelectText) => {
             // label is wrapped in template
             const labelInTemplate = data.label;
@@ -962,6 +963,16 @@ export default class SelectComponent extends BaseComponent {
 
     this.scrollList = this.choices.choiceList.element;
     this.onScroll = () => {
+      // While a client-side search is running the filter owns the list, and there is nothing more to
+      // load: the matches are all already in the store. Loading anyway replaces the filtered list with
+      // the whole option set plus a "Loading..." row (see the `scrollLoading` setter), so scrolling to
+      // the bottom of a short list of matches would show every option there is with the typed text
+      // still in the input.
+      // Cause: https://citeck.atlassian.net/browse/COREDEV-359
+      if (this.choices && this.choices._isSearching && this.choices.config.searchChoices) {
+        return;
+      }
+
       if (!this.scrollLoading && this.scrollList.scrollTop + this.scrollList.clientHeight >= this.scrollList.scrollHeight) {
         this.scrollTop = this.scrollList.scrollTop;
         this.scrollLoading = true;

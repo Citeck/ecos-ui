@@ -1,6 +1,5 @@
 import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '@citeck/constants';
 import { PROXY_URI } from '@citeck/constants/alfresco';
-import { ParserPredicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -152,10 +151,6 @@ export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
 
-export const getFilterParam = options => {
-  return ParserPredicate.getRowPredicates(options);
-};
-
 export const getJournalPageUrl = ({ journalId, journalSettingId, boardId, filter, search, viewMode }) => {
   let params = {
     [JOURNAL_ID_KEY]: journalId,
@@ -182,11 +177,48 @@ function getValidNodeRef(nodeRef) {
   return nodeRef;
 }
 
+const ECOS_CONTENT_API_PATH = '/api/ecos/webapp/content';
+
+/**
+ * Tells whether the url is served by the ecos content endpoint, the only one which reads the
+ * `download` parameter. Alfresco content urls (`a=true/false`) and the legacy print service have
+ * their own conventions and must not be given a parameter they do not read.
+ */
+export const isEcosContentUrl = url => !!url && url.includes(ECOS_CONTENT_API_PATH);
+
+/**
+ * Sets the `download` parameter of a content url to the given intent, dropping any `download`
+ * parameter the url already carries. The content endpoint answers with `Content-Disposition:
+ * inline` unless `download=true` is asked for explicitly, and it binds the first occurrence of a
+ * repeated parameter — so an intent can only be expressed by replacing, never by appending.
+ *
+ * The url is edited as a string instead of being re-serialized with `query-string`: entity refs
+ * (`ref=emodel/some-type@id`) are passed unencoded and must stay that way.
+ */
+export const setDownloadParam = (url, download) => {
+  if (!url) {
+    return url;
+  }
+
+  const hashIdx = url.indexOf('#');
+  const hash = hashIdx === -1 ? '' : url.substring(hashIdx);
+  const base = hashIdx === -1 ? url : url.substring(0, hashIdx);
+  const queryIdx = base.indexOf('?');
+  const path = queryIdx === -1 ? base : base.substring(0, queryIdx);
+  const params = queryIdx === -1 ? [] : base.substring(queryIdx + 1).split('&');
+
+  const rest = params.filter(param => param && !param.startsWith('download='));
+
+  rest.push(`download=${download ? 'true' : 'false'}`);
+
+  return `${path}?${rest.join('&')}${hash}`;
+};
+
 export const getDownloadContentUrl = entityRef => {
   if (entityRef.indexOf('workspace://SpacesStore/') !== -1) {
     return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(entityRef)}`;
   }
-  return `/gateway/emodel/api/ecos/webapp/content?ref=${entityRef}`;
+  return `/gateway/emodel${ECOS_CONTENT_API_PATH}?ref=${entityRef}&download=true`;
 };
 
 export const getZipUrl = nodeRef => {
@@ -232,18 +264,28 @@ export const goToAdminPage = options => {
   changeUrl(link, { openNewTab: true });
 };
 
-export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
-  let dashboardLink = `${Urls.DASHBOARD}?recordRef=${nodeRef}`;
+/**
+ * Link to the dashboard of a record. Use it to render a real anchor for a record,
+ * so that the browser keeps its native behaviour (middle click, ctrl/cmd click,
+ * "open link in new tab"), and use goToCardDetailsPage to navigate imperatively.
+ *
+ * @param {String} nodeRef - record reference
+ * @returns {String}
+ */
+export const getCardDetailsLink = nodeRef => {
+  const dashboardLink = `${Urls.DASHBOARD}?recordRef=${nodeRef}`;
 
-  if (getEnabledWorkspaces()) {
-    const workspaceId = getWorkspaceId();
-
-    if (!workspaceId.startsWith('user$')) {
-      dashboardLink = getLinkWithWs(dashboardLink, workspaceId);
-    }
+  if (!getEnabledWorkspaces()) {
+    return dashboardLink;
   }
 
-  changeUrl(dashboardLink, params);
+  const workspaceId = getWorkspaceId();
+
+  return workspaceId.startsWith('user$') ? dashboardLink : getLinkWithWs(dashboardLink, workspaceId);
+};
+
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
+  changeUrl(getCardDetailsLink(nodeRef), params);
 };
 
 export const updateCurrentUrl = (params = {}) => {

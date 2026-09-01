@@ -23,6 +23,7 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
+import { uploadContent } from '@/helpers/chunkedUpload';
 import { getWorkspaceId } from '@/helpers/urls';
 import { allowedLanguages, LANGUAGE_EN } from '@/i18n/lang';
 import PageService from '@/services/PageService';
@@ -64,13 +65,10 @@ export class AppApi extends CommonApi {
     return ConfigService.getValue(ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME).then(resp => resp || ALL_USERS_GROUP_SHORT_NAME);
   };
 
-  // upload file without alfresco
-  uploadFileV2 = (data, callback) => {
-    return ecosXhr('/gateway/emodel/api/ecos/webapp/content', {
-      method: 'POST',
-      body: data,
-      handleProgress: callback
-    }).then(
+  // upload file without alfresco — routed through the chunked-upload module: small files still
+  // go through a single POST, large ones are chunked automatically.
+  uploadFileV2 = (file, { ecosType, workspace, name, attributes } = {}, callback) => {
+    return uploadContent(file, { ecosType, workspace, name, attributes, handleProgress: callback }).then(
       response => response,
       error => {
         throw error;

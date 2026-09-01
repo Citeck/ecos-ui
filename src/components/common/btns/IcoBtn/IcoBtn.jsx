@@ -41,7 +41,9 @@ export default class IcoBtn extends Component {
   }
 
   render() {
-    const { className, invert, children, loading, colorLoader, loaderType, ...props } = this.props;
+    // `icon` is consumed via this.props in elIcon and must not spread into <button>:
+    // a React element would be stringified into an invalid attribute like icon="[object Object]"
+    const { className, icon, invert, children, loading, colorLoader, loaderType, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     const text = children ? <span className={'ecos-btn__text'}>{children}</span> : null;

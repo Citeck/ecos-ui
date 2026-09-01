@@ -7,6 +7,7 @@ import React from 'react';
 import EcosForm from './EcosForm';
 import EcosFormUtils from './EcosFormUtils';
 import { FORM_MODE_EDIT } from './constants';
+import { handleSubmitResult, isAwaitedSubmit } from './submitUtils';
 
 import EcosModal from '@/components/common/EcosModal';
 import UncontrolledTooltip from '@/components/common/UncontrolledTooltip';
@@ -256,7 +257,16 @@ export default class EcosFormModal extends React.Component {
     formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
-    formProps['onSubmit'] = (record, form, alias) => {
+    formProps['onSubmit'] = (record, form, alias, meta) => {
+      // The record is saved by the consumer's onSubmit and EcosForm awaits its result: the modal
+      // must stay open until the mutation succeeds, so that a failure is shown in the still filled
+      // in form. A rejection is rethrown and handled by EcosForm, which awaits this promise.
+      if (isAwaitedSubmit(meta) && this.props.onSubmit) {
+        return handleSubmitResult(this.props.onSubmit(record, form, alias, meta), {
+          onSuccess: () => this.hide()
+        });
+      }
+
       this.hide();
       if (this.props.onSubmit) {
         this.props.onSubmit(record, form, alias);

@@ -25,6 +25,7 @@ export const Labels = {
   PANEL_HEATMAP: 'process-statistics-widget.panel.heatmap',
   PANEL_COUNTERS: 'process-statistics-widget.panel.counters',
   PANEL_OPACITY: 'process-statistics-widget.panel.opacity',
+  PANEL_STATS_LOADING: 'process-statistics-widget.panel.stats-loading',
   PANEL_ACTIVE_COUNT: 'process-statistics-widget.panel.active-count',
   PANEL_COMPLETED_COUNT: 'process-statistics-widget.panel.completed-count',
   MODEL_TITLE: 'process-statistics-widget.model.title',

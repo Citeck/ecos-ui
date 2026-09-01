@@ -27,20 +27,63 @@ import {
   toggleSwimlaneCollapse
 } from '@/actions/kanban';
 import EmptyColumns from '@/components/common/icons/EmptyColumns';
+import { guessTypeSourceId } from '@/dto/kanban';
 import { t } from '@/helpers/util';
 import { selectJournalPageProps, selectJournalSetting } from '@/selectors/journals';
-import { selectKanbanProps } from '@/selectors/kanban';
+import { selectBoardConfig, selectKanbanProps, selectRelatedFilter } from '@/selectors/kanban';
+import AttributesService from '@/services/AttributesService';
 import './style.scss';
 
+const EMPTY_COLUMNS = [];
+
+/**
+ * Scope the column sum has to be queried with, so that it counts exactly the records the cards are
+ * loaded with. The cards go through `board-cards`, where the SERVER picks source, type and predicate
+ * (`BoardCardOrderService.resolveCardsSourceAndPredicate`); the sum goes straight to the record
+ * source, so the same choice has to be made here. Its three cases:
+ *
+ *  (a) the board is backed by the journal the page has loaded — the server scopes the cards by that
+ *      journal's type, source and predicate, and so do we: the FULL scope;
+ *  (b) the board has no `journalRef` at all — the server ignores the journal completely and scopes the
+ *      cards by the BOARD's own type with `VoidPredicate`. Sending the page journal's predicate here
+ *      would filter the sum by something the cards are not filtered by — the COREDEV-87 mismatch the
+ *      other way round. A board whose journal has no `typeRef` is the same case server-side;
+ *  (c) the board declares a journal whose config the page does not have — it is still on its way, or
+ *      (during a switch between journals) the store still holds the previous one. Nothing may be
+ *      queried in that window: the whole type would be summed and that wrong number would sit on
+ *      screen until the config lands (`ColumnSum` reads a missing `sourceId` as "not ready"). A board
+ *      pointing at a journal the page will NEVER load is unreachable — the board list itself is built
+ *      from the page journal's `boardRefs` — so waiting cannot strand such a board forever.
+ */
 function mapStateToProps(state, props) {
   const settings = selectJournalSetting(state, props.stateId);
   const journalPageProps = selectJournalPageProps(state, props.stateId);
+  const boardConfig = selectBoardConfig(state, props.stateId);
+  const journalConfig = get(journalPageProps, 'journalConfig') || {};
+
+  const boardJournalId = boardConfig.journalRef ? AttributesService.parseId(boardConfig.journalRef) : undefined;
+  // (a) — the board is backed by the very journal whose config the page has loaded
+  const isBoardJournal = !!boardJournalId && boardJournalId === journalConfig.id && !!journalConfig.typeRef;
+  // (c) — the board declares a journal whose config the page does not have. Comparing the ids (rather
+  // than just asking whether ANY config has arrived) also covers the switch between two journals, when
+  // the new `boardConfig` is already in the store and `journalConfig` is still the previous journal's.
+  const isJournalConfigPending = !!boardJournalId && journalConfig.id !== boardJournalId;
+  const cardsSourceId = isBoardJournal ? journalConfig.sourceId : guessTypeSourceId(boardConfig.typeRef);
+  const cardsTypeRef = isBoardJournal ? journalConfig.typeRef : boardConfig.typeRef;
 
   return {
     ...selectKanbanProps(state, props.stateId),
+    relatedFilter: selectRelatedFilter(state, props.stateId),
     predicate: settings.predicate,
     searchText: get(journalPageProps, 'grid.search'),
-    journalSetting: journalPageProps.journalSetting
+    journalSetting: journalPageProps.journalSetting,
+    journalPredicate: isBoardJournal ? journalConfig.predicate : undefined,
+    sourceId: isJournalConfigPending ? undefined : cardsSourceId,
+    ecosType: isJournalConfigPending || !cardsTypeRef ? undefined : AttributesService.parseId(cardsTypeRef),
+    // The sum's tooltip names the summed attribute, and that name is resolved on a TYPE. It has to be
+    // the same type the sum is computed on: on a journal-backed board whose own `typeRef` differs, the
+    // board's type need not even have the attribute, and the tooltip would read `Sum by ""`.
+    sumTypeRef: isJournalConfigPending ? undefined : cardsTypeRef
   };
 }
 
@@ -75,15 +118,39 @@ class Kanban extends React.Component {
     draggingSwimlaneId: null
   };
 
+  // Cache of the getter below, keyed by the two props it is built from. Not an optimization of the
+  // build itself — of its RESULT IDENTITY: see the getter.
+  _searchPredicate = { isSet: false, text: undefined, columns: undefined, value: null };
+
+  /**
+   * The search filter of the board, as one predicate — handed to every column header and to every
+   * swimlane cell on every render.
+   *
+   * The result is cached so that an unchanged search yields the very SAME object every time. Each
+   * `ColumnSum` memoizes its query build (cloning every predicate, then serializing the result) on
+   * the props it is given; a getter that rebuilt this predicate per read would hand out a new object
+   * on every render and defeat that memo in every cell at once — including on every frame of a drag.
+   */
   get searchPredicate() {
     const { searchText, journalSetting } = this.props;
+    // Never `|| []` inline: a fresh empty array on every read would miss the cache every time.
+    const columns = get(journalSetting, 'columns');
+    const cache = this._searchPredicate;
 
-    return !isEmpty(searchText)
+    if (cache.isSet && cache.text === searchText && cache.columns === columns) {
+      return cache.value;
+    }
+
+    const value = !isEmpty(searchText)
       ? ParserPredicate.getSearchPredicates({
           text: searchText,
-          columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
+          columns: ParserPredicate.getAvailableSearchColumns(columns || EMPTY_COLUMNS)
         })
       : null;
+
+    this._searchPredicate = { isSet: true, text: searchText, columns, value };
+
+    return value;
   }
 
   componentDidMount() {
@@ -92,12 +159,71 @@ class Kanban extends React.Component {
     });
 
     this.observer.observe(this.refBottom.current);
+
+    // Leaving the page tab hides the whole journal (App renders the tab panel with `display: none`)
+    // and the browser drops the scroll container's scrollTop the moment the element stops being laid
+    // out. That happens in a commit of its own, well before anything down here re-renders, so the
+    // position cannot be caught on the way out — it is sampled from the scroll frames instead
+    // (handleScrollFrame) and put back on the way in. This observer is the "way in": it sees the
+    // viewport collapse to 0×0 and come back, after layout, which is the first moment the board can
+    // be scrolled again. See COREDEV-426.
+    const scrollView = get(this.refScroll, 'current.view');
+
+    if (scrollView && typeof ResizeObserver !== 'undefined') {
+      this.viewObserver = new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
+
+        if (!width && !height) {
+          this._wasHidden = true;
+          return;
+        }
+
+        if (this._wasHidden) {
+          this._wasHidden = false;
+          this.restoreScrollPosition();
+        }
+      });
+      this.viewObserver.observe(scrollView);
+    }
+  }
+
+  /**
+   * A silent refresh swaps every column's records in one commit. The replacement set is the same size,
+   * so the board keeps its height — but between the two paints the browser is free to clamp scrollTop
+   * if any column is momentarily shorter. Remember where the user was, and only while refreshing.
+   */
+  getSnapshotBeforeUpdate(prevProps) {
+    if (!prevProps.isRefreshing && !this.props.isRefreshing) {
+      return null;
+    }
+
+    const scrollElement = get(this.refScroll, 'current');
+
+    return scrollElement ? { scrollTop: scrollElement.getScrollTop() } : null;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping } = this.props;
+    const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping, isLoadingColumns } = this.props;
     const headerElement = get(this.refHeader, 'current');
     const bodyElement = get(this.refBody, 'current');
+    const scrollElement = get(this.refScroll, 'current');
+
+    // A full reload (board/preset change, grouping on/off, filter apply/reset) deliberately starts the
+    // board over — put the user at the top and forget where they were, or the restore would drag them
+    // back down into the freshly loaded first page. The scroll must be reset explicitly: the container
+    // stays mounted across the reload and, when the replacement content (stale rows, skeletons) is
+    // tall enough, the browser keeps the old offset and the new board opens from the middle.
+    if (isFirstLoading && !prevProps.isFirstLoading) {
+      this._lastScrollTop = 0;
+
+      if (scrollElement && scrollElement.getScrollTop()) {
+        scrollElement.scrollTop(0);
+      }
+    }
+
+    if (scrollElement && get(snapshot, 'scrollTop') && scrollElement.getScrollTop() !== snapshot.scrollTop) {
+      scrollElement.scrollTop(snapshot.scrollTop);
+    }
 
     if (isLoading || isFirstLoading) {
       if (headerElement) {
@@ -107,7 +233,19 @@ class Kanban extends React.Component {
       return;
     }
 
-    if (!swimlaneGrouping && !this.state.isDragging && this.state.isInView && !this.isNoMore()) {
+    // `isLoadingColumns` stays filled for the whole card move (set before the optimistic update,
+    // cleared when the affected columns have been reloaded). Without this check every one of those
+    // intermediate commits re-dispatches getNextPage, which flips the board loader on and off again.
+    // Likewise no lazy page while a silent refresh is in flight — the two sagas would race over the
+    // same columns.
+    if (
+      !swimlaneGrouping &&
+      isEmpty(isLoadingColumns) &&
+      !this.props.isRefreshing &&
+      !this.state.isDragging &&
+      this.state.isInView &&
+      !this.isNoMore()
+    ) {
       const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
       const colsFromSettings = get(kanbanSettings, 'columns');
       const cols = colsFromSettings ? [] : defaultColumns;
@@ -137,6 +275,7 @@ class Kanban extends React.Component {
 
   componentWillUnmount() {
     this.observer.disconnect();
+    this.viewObserver && this.viewObserver.disconnect();
   }
 
   getHeight(changes = 0) {
@@ -146,6 +285,21 @@ class Kanban extends React.Component {
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
     return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
+  };
+
+  /** Put back the position the browser dropped while the board was hidden. */
+  restoreScrollPosition = () => {
+    const scrollElement = get(this.refScroll, 'current');
+
+    if (!scrollElement || !this._lastScrollTop) {
+      return;
+    }
+
+    if (scrollElement.getScrollTop() !== 0 || scrollElement.getScrollHeight() <= scrollElement.getClientHeight()) {
+      return;
+    }
+
+    scrollElement.scrollTop(this._lastScrollTop);
   };
 
   handleResize = () => {
@@ -158,9 +312,27 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
+    // Sample the position for restoreScrollPosition. Hiding the board makes the browser drop
+    // scrollTop, and that arrives here as an ordinary frame — but it is emitted while the container
+    // is display:none, and react-custom-scrollbars reads live DOM metrics, so the frame carries a
+    // zero clientHeight (a visible board always has a real one). Ignore that frame and keep the
+    // last real position; any frame with real metrics is a genuine position, including a deliberate
+    // jump to the top (scrollbar-track click, programmatic scrollTop(0)).
+    const isScrollReset = !scroll.scrollTop && !scroll.clientHeight;
+
+    if (!isScrollReset) {
+      this._lastScrollTop = scroll.scrollTop;
+    }
+
+    // Flat-board pagination only: swimlane cells page via their own "load more". Same guards as
+    // componentDidUpdate: while a card move keeps isLoadingColumns filled, or a silent refresh is
+    // replacing the board, a bottom-of-scroll page request would race the reload over the same columns.
     if (
+      !this.props.swimlaneGrouping &&
       !this.state.isDragging &&
       !this.props.isLoading &&
+      isEmpty(this.props.isLoadingColumns) &&
+      !this.props.isRefreshing &&
       !this.isNoMore() &&
       scroll.scrollTop &&
       scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight
@@ -348,8 +520,12 @@ class Kanban extends React.Component {
     );
   }
 
+  // In grouped mode the sum lives in each swimlane CELL, so this header turns it off — and with
+  // `showSum={false}` `HeaderColumn` mounts no `ColumnSum` at all. None of the scope props the sum
+  // needs (predicate, search, card type/source, journal predicate) are read here: passing them would
+  // be dead weight that quietly pins a shape nothing depends on.
   renderSwimlaneHeader = cols => {
-    const { swimlanes, isFirstLoading, selectedBoard, predicate, boardConfig } = this.props;
+    const { swimlanes, isFirstLoading, selectedBoard } = this.props;
 
     return cols.map(data => {
       let totalCount = 0;
@@ -365,17 +541,28 @@ class Kanban extends React.Component {
           key={`head_${selectedBoard}-${data.id}`}
           isReady={!isFirstLoading}
           data={data}
-          predicate={predicate}
-          searchPredicate={this.searchPredicate}
-          typeRef={get(boardConfig, 'typeRef')}
           totalCount={totalCount}
+          showSum={false}
         />
       );
     });
   };
 
   renderSwimlaneBody = cols => {
-    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading } = this.props;
+    const {
+      swimlanes,
+      formProps,
+      boardConfig,
+      resolvedActions,
+      isLoading,
+      swimlaneGrouping,
+      predicate,
+      relatedFilter,
+      journalPredicate,
+      sourceId,
+      ecosType,
+      sumTypeRef
+    } = this.props;
     const { isDragging, draggingSwimlaneId } = this.state;
     const readOnly = get(boardConfig, 'readOnly');
 
@@ -398,6 +585,14 @@ class Kanban extends React.Component {
               readOnly={readOnly}
               boardConfig={boardConfig}
               resolvedActions={resolvedActions}
+              swimlaneGrouping={swimlaneGrouping}
+              predicate={predicate}
+              searchPredicate={this.searchPredicate}
+              relatedFilter={relatedFilter}
+              sourceId={sourceId}
+              ecosType={ecosType}
+              sumTypeRef={sumTypeRef}
+              journalPredicate={journalPredicate}
               isDragging={isDragging}
               draggingSwimlaneId={draggingSwimlaneId}
               onToggleCollapse={this.props.toggleSwimlaneCollapse}
@@ -411,7 +606,17 @@ class Kanban extends React.Component {
   };
 
   renderDefaultHeader = cols => {
-    const { dataCards = [], isFirstLoading, selectedBoard, predicate, boardConfig } = this.props;
+    const {
+      dataCards = [],
+      isFirstLoading,
+      selectedBoard,
+      predicate,
+      relatedFilter,
+      journalPredicate,
+      sourceId,
+      ecosType,
+      sumTypeRef
+    } = this.props;
 
     return cols.map(data => {
       const column = dataCards.find(card => card.status === data.id);
@@ -423,8 +628,12 @@ class Kanban extends React.Component {
           data={data}
           predicate={predicate}
           searchPredicate={this.searchPredicate}
-          typeRef={get(boardConfig, 'typeRef')}
           totalCount={get(column, 'totalCount', '⭯')}
+          relatedFilter={relatedFilter}
+          sourceId={sourceId}
+          ecosType={ecosType}
+          sumTypeRef={sumTypeRef}
+          journalPredicate={journalPredicate}
         />
       );
     });
@@ -468,6 +677,9 @@ class Kanban extends React.Component {
     if (swimlaneGrouping) {
       return this.renderLayout({
         extraClassName: 'ecos-kanban_swimlane',
+        // Sampling only: the flat-board lazy paging inside is gated off by swimlaneGrouping,
+        // but restoreScrollPosition still needs the frames to bring the position back on tab return.
+        onScrollFrame: this.handleScrollFrame,
         renderHeader: this.renderSwimlaneHeader,
         renderBody: this.renderSwimlaneBody
       });
@@ -481,5 +693,9 @@ class Kanban extends React.Component {
     });
   }
 }
+
+// The bare class and the props mapping are exported for the tests, the application uses the
+// connected default export.
+export { Kanban, mapStateToProps };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Kanban);

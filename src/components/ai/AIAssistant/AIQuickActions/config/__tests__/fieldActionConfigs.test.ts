@@ -205,6 +205,72 @@ describe('getAvailableActions', () => {
     });
   });
 
+  // D-B-2: the backend has prompts for `simplify`/`formalize` (TextQuickActionsProvider), but the
+  // panel never offered them, so those quick actions were unreachable from the UI.
+  describe('simplify / formalize quick actions', () => {
+    const TEXT_FIELD_TYPES = [FIELD_TYPES.TEXTAREA, FIELD_TYPES.RICHTEXT, FIELD_TYPES.DOCUMENTATION];
+
+    it.each(TEXT_FIELD_TYPES)('exposes simplify and formalize for %s', fieldType => {
+      const actions = getAvailableActions(fieldType, 'some text', '');
+
+      expect(actions.find(a => a.id === 'simplify')).toBeDefined();
+      expect(actions.find(a => a.id === 'formalize')).toBeDefined();
+    });
+
+    it.each(TEXT_FIELD_TYPES)('hides both on an empty %s field, like every content action', fieldType => {
+      const actions = getAvailableActions(fieldType, '', '');
+
+      expect(actions.find(a => a.id === 'simplify')).toBeUndefined();
+      expect(actions.find(a => a.id === 'formalize')).toBeUndefined();
+    });
+
+    // The id is the backend's prompt key, not a display value: renaming it silently breaks the action
+    it('keeps the ids the backend resolves prompts by', () => {
+      const actions = getAvailableActions(FIELD_TYPES.RICHTEXT, 'some text', '');
+      const ids = actions.map(a => a.id);
+
+      expect(ids).toContain('simplify');
+      expect(ids).toContain('formalize');
+      expect(ids.every(id => id === id.toLowerCase() && !id.includes('_'))).toBe(true);
+    });
+
+    it('does not add them to plain TEXT and NAME fields', () => {
+      const textActions = getAvailableActions(FIELD_TYPES.TEXT, 'some text', '');
+      const nameActions = getAvailableActions(FIELD_TYPES.NAME, 'some text', '');
+
+      expect(textActions.find(a => a.id === 'simplify')).toBeUndefined();
+      expect(nameActions.find(a => a.id === 'formalize')).toBeUndefined();
+    });
+  });
+
+  // Same class as simplify/formalize above, found by the regression pass on 2026-08-12: the backend
+  // has a `translate` prompt and Tier A covers it, but the action was configured only for TEXT and
+  // NAME — and no component mounts those two field types (TextArea.jsx mounts TEXTAREA and
+  // DOCUMENTATION, Lexical mounts RICHTEXT, the script editor mounts CODE). So the capability had no
+  // UI entry point at all while looking covered.
+  describe('translate quick action', () => {
+    // DOCUMENTATION belongs here for the same reason as TEXTAREA: `TextArea.aiFieldType` returns it
+    // instead of TEXTAREA whenever the field is configured with `textAreaAIContextType:
+    // 'documentation'`, so a list that omits it lets the entry point go missing on a mounted type.
+    const MOUNTED_TEXT_FIELD_TYPES = [FIELD_TYPES.TEXTAREA, FIELD_TYPES.DOCUMENTATION, FIELD_TYPES.RICHTEXT];
+
+    it.each(MOUNTED_TEXT_FIELD_TYPES)('exposes translate for %s', fieldType => {
+      const actions = getAvailableActions(fieldType, 'some text', '');
+
+      expect(actions.find(a => a.id === 'translate')).toBeDefined();
+    });
+
+    it.each(MOUNTED_TEXT_FIELD_TYPES)('hides translate on an empty %s field, like every content action', fieldType => {
+      const actions = getAvailableActions(fieldType, '', '');
+
+      expect(actions.find(a => a.id === 'translate')).toBeUndefined();
+    });
+
+    // No separate "the id is still `translate`" or "reachable from at least one mounted type" case:
+    // the two `it.each` blocks above already look the action up *by* that id, on every mounted type,
+    // so either would restate their premise and pass whatever the config says.
+  });
+
   describe('combined filtering', () => {
     it('applies both content requirement and context type filtering', () => {
       // With content and correct context - should show all applicable actions

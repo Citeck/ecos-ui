@@ -1,4 +1,6 @@
+import fs from 'fs';
 import cloneDeep from 'lodash/cloneDeep';
+import path from 'path';
 
 import Harness from '../../../test/harness';
 import EcosSelectComponent from './EcosSelect';
@@ -203,6 +205,116 @@ describe('EcosSelect Component', () => {
 
       // The widget is populated, so it IS the authority: nothing is selected in it any more.
       expect(component.getValue()).toBe('');
+    });
+  });
+
+  /**
+   * COREDEV-359 (follow-up): the component listens for a scroll to the bottom of the option list and
+   * treats it as "load more" — it sets `scrollLoading`, which re-sets the widget with the FULL option
+   * list plus a "Loading..." row, and asks for the next page. Under a client-side search there is no
+   * next page: the matches are all in the store already, so the only thing the load did was replace
+   * the filtered list with everything while the typed text stayed in the input.
+   */
+  describe('infinite scroll under a running search', () => {
+    // jsdom lays nothing out, so the "scrolled to the bottom" arithmetic has to be given its numbers.
+    const scrolledToBottom = element => {
+      Object.defineProperty(element, 'scrollTop', { configurable: true, value: 100 });
+      Object.defineProperty(element, 'clientHeight', { configurable: true, value: 100 });
+      Object.defineProperty(element, 'scrollHeight', { configurable: true, value: 200 });
+    };
+
+    // scoped to the list: choices.js marks the original `<select>` with `data-choice` too
+    const renderedChoices = component => component.scrollList.querySelectorAll('[data-choice]').length;
+
+    it('should keep showing the matches when the user scrolls to the bottom of them', async () => {
+      const component = await Harness.testCreate(EcosSelectComponent, cloneDeep(comp1));
+      const { choices } = component;
+
+      // what a keystroke leaves behind: the text in the input and the store filtered by it
+      choices.input.element.value = 'r';
+      const found = choices._searchChoices('r');
+
+      // Red, Green, Purple, Orange — fewer than the seven the component was given
+      expect(found).toBe(4);
+      expect(renderedChoices(component)).toBe(found);
+
+      scrolledToBottom(component.scrollList);
+      component.scrollList.dispatchEvent(new Event('scroll'));
+
+      expect(component.scrollLoading).toBe(false);
+      expect(renderedChoices(component)).toBe(found);
+    });
+
+    it('should still load more when no search is running', async () => {
+      const component = await Harness.testCreate(EcosSelectComponent, cloneDeep(comp1));
+
+      scrolledToBottom(component.scrollList);
+      component.scrollList.dispatchEvent(new Event('scroll'));
+
+      expect(component.scrollLoading).toBe(true);
+    });
+  });
+
+  /**
+   * A multi-value chip has no layout of its own: the vendored choices.js base makes it an
+   * `inline-block` with `word-break: break-all` and no width cap, so a label wider than the field
+   * pushes the remove button onto a second line and the pill doubles in height (COREDEV-14). The
+   * one-row layout that fixes it lives in `components/override/select/select.scss` and is written
+   * against this markup — the label ellipsizes because it is a direct `<span>` child of the chip,
+   * the button holds its width because it carries `.choices__button`. Neither selector is produced
+   * by this repository: the chip comes from the choices.js default `item` template (wrapped in
+   * `forms/choices/index.js`) and the label wrapper from the component's `template` option. When
+   * either stops matching, the CSS silently stops applying and the chips wrap again, which no
+   * layout-less renderer can observe — so what is pinned here is the markup the stylesheet needs.
+   */
+  describe('multiple value chips', () => {
+    const CHIP = '.choices__list--multiple .choices__item';
+    const LABEL = `${CHIP} > span`;
+    const REMOVE = `${CHIP} .choices__button`;
+
+    const withChips = () =>
+      Harness.testCreate(EcosSelectComponent, Object.assign(cloneDeep(comp1), { multiple: true })).then(component => {
+        component.setValue(['red', 'blue']);
+        return component;
+      });
+
+    it('should render one chip per selected value', async () => {
+      const component = await withChips();
+
+      expect(component.element.querySelectorAll(CHIP)).toHaveLength(2);
+    });
+
+    it('should carry the label in a direct span of the chip, which is what the ellipsis rule targets', async () => {
+      const component = await withChips();
+
+      expect(Array.from(component.element.querySelectorAll(LABEL), span => span.textContent)).toEqual(['Red', 'Blue']);
+    });
+
+    it('should keep the remove control inside the chip, which is what the one-row rule holds in place', async () => {
+      const component = await withChips();
+
+      expect(component.element.querySelectorAll(REMOVE)).toHaveLength(2);
+    });
+
+    it('should lay the chip out on a single row in the stylesheet', () => {
+      const styles = fs.readFileSync(path.resolve(__dirname, '../../override/select/select.scss'), 'utf8');
+      // The declarations that keep label and button on one line; `> span` gets `%ellipsis` extended
+      // onto it, so it is the selector rather than the properties that is asserted there.
+      const chipRule = styles.slice(styles.indexOf('.choices__list--multiple'));
+
+      expect(chipRule).toContain('display: inline-flex');
+      expect(chipRule).toContain('white-space: nowrap');
+      expect(chipRule).toContain('> span');
+    });
+
+    it('should keep the remove control a hover-only overlay in the stylesheet, like SelectOrgstruct', () => {
+      const styles = fs.readFileSync(path.resolve(__dirname, '../../override/select/select.scss'), 'utf8');
+      const chipRule = styles.slice(styles.indexOf('.choices__list--multiple'));
+
+      // the ✕ holds no inline space and only shows on chip hover (QA round of COREDEV-14)
+      expect(chipRule).toContain('position: absolute');
+      expect(chipRule).toContain('visibility: hidden');
+      expect(chipRule).toContain(':hover .choices__button');
     });
   });
 });

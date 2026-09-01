@@ -49,7 +49,8 @@ const ScriptEditorAIButton = ({
   language = 'javascript',
   popperClassName,
   positionVariant,
-  onRegisterClose
+  onRegisterClose,
+  fieldElement
 }) => {
   /**
    * Get resolved context data
@@ -97,9 +98,14 @@ const ScriptEditorAIButton = ({
         onRequestId
       });
 
-      // Return unified result format for AIInlineResult with CodeDiffPreview
+      // Return unified result format for AIInlineResult with CodeDiffPreview.
+      // An empty `modifiedScript` means the answer proposes no edit — a question about the script
+      // answered with prose (D-G-QA-DROP). Showing the current script as the generated value is
+      // what keeps the preview honest: `AIFieldActions` then finds the two sides equal, hides the
+      // diff, and «Apply» writes back exactly what is already there. Passing the empty string
+      // instead would render a diff that deletes the whole script.
       return {
-        generatedValue: result.modifiedScript,
+        generatedValue: result.modifiedScript || currentValue,
         explanation: result.explanation,
         originalValue: result.originalScript || currentValue,
         contextType: result.contextType || scriptContextType
@@ -123,6 +129,11 @@ const ScriptEditorAIButton = ({
       }}
       onGenerateRequest={handleGenerateRequest}
       disabled={disabled}
+      // Without this the popups are bounded by the window alone and cover the code being edited —
+      // D-B-1. The rich-text and plain-textarea entry points were wired at the time; this one was
+      // missed, so the fix never reached any script editor (computed attribute/role, journal
+      // formatter, BPMN script task).
+      fieldElement={fieldElement}
       actionsBarContainer={inlineInputContainer}
       resultContainer={resultContainer}
       popperClassName={popperClassName}

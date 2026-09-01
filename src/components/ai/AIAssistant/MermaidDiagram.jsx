@@ -28,9 +28,78 @@ const setMermaidInstance = instance => {
   window[MERMAID_INSTANCE_KEY] = instance;
 };
 
+// The mermaid instance is a process-wide singleton, so `initialize` is global state, not per-render
+// options. The fullscreen render below has to reconfigure it and then put this back — otherwise
+// every diagram rendered afterwards inherits `useMaxWidth: false` and the viewport-scaled spacing,
+// and since the inline SVG is now drawn at its natural width it comes out thousands of px wide in a
+// 438px chat panel.
+const INLINE_MERMAID_CONFIG = {
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontSize: 12,
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+    curve: 'cardinal',
+    padding: 30,
+    nodeSpacing: 80,
+    rankSpacing: 60,
+    wrappingWidth: 200
+  },
+  sequence: {
+    useMaxWidth: true,
+    wrap: true,
+    diagramMarginX: 20,
+    diagramMarginY: 20,
+    boxMargin: 12,
+    boxTextMargin: 8,
+    noteMargin: 12
+  },
+  gantt: {
+    useMaxWidth: true,
+    fontSize: 14,
+    fontFamily: 'inherit'
+  },
+  er: {
+    useMaxWidth: true,
+    fontSize: 14
+  },
+  gitGraph: {
+    useMaxWidth: true
+  }
+};
+
+// The fullscreen wrapper animates `transform` (0.2s), so a rect measured during that animation
+// reports the interpolated scale rather than the target zoom. Read the scale actually applied.
+const readAppliedScale = element => {
+  const transform = element && window.getComputedStyle(element)?.transform;
+
+  if (!transform || transform === 'none') {
+    return null;
+  }
+
+  const matrix = transform.match(/^matrix\(\s*([^,]+),/);
+  if (matrix) {
+    return parseFloat(matrix[1]) || null;
+  }
+
+  const scale = transform.match(/^scale\(\s*([^,)]+)/);
+  return scale ? parseFloat(scale[1]) || null : null;
+};
+
+// Canvas has a per-browser area/edge cap; past it `toBlob` hands back null. The inline SVG is drawn
+// at natural size now, so a large flowchart reaches that cap where the old panel-width export never did.
+const MAX_EXPORT_EDGE = 8192;
+
 const MermaidDiagram = ({ chart, className = '' }) => {
   const elementRef = useRef(null);
   const fullscreenRef = useRef(null);
+  // Zoom that makes the whole diagram fit the fullscreen modal; also what the "fit" button returns to
+  const fitZoomRef = useRef(1);
+  // Current zoom, readable from callbacks without making them depend on it
+  const zoomRef = useRef(1);
   const [svgContent, setSvgContent] = useState('');
   const [fullscreenSvgContent, setFullscreenSvgContent] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -57,43 +126,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
 
           // Initialize mermaid
           if (!isMermaidInitialized()) {
-            mermaid.initialize({
-              startOnLoad: false,
-              theme: 'default',
-              securityLevel: 'loose',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: 12,
-              flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'cardinal',
-                padding: 30,
-                nodeSpacing: 80,
-                rankSpacing: 60,
-                wrappingWidth: 200
-              },
-              sequence: {
-                useMaxWidth: true,
-                wrap: true,
-                diagramMarginX: 20,
-                diagramMarginY: 20,
-                boxMargin: 12,
-                boxTextMargin: 8,
-                noteMargin: 12
-              },
-              gantt: {
-                useMaxWidth: true,
-                fontSize: 14,
-                fontFamily: 'inherit'
-              },
-              er: {
-                useMaxWidth: true,
-                fontSize: 14
-              },
-              gitGraph: {
-                useMaxWidth: true
-              }
-            });
+            mermaid.initialize(INLINE_MERMAID_CONFIG);
             setMermaidInitialized();
           }
 
@@ -204,11 +237,16 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       // Initialize with fullscreen config
       mermaid.initialize(fullscreenConfig);
 
-      // Render with unique ID
-      const id = `fullscreen-diagram-${Math.random().toString(36).substr(2, 9)}`;
-      const { svg } = await mermaid.render(id, chart.trim());
+      try {
+        // Render with unique ID
+        const id = `fullscreen-diagram-${Math.random().toString(36).substr(2, 9)}`;
+        const { svg } = await mermaid.render(id, chart.trim());
 
-      return svg;
+        return svg;
+      } finally {
+        // Hand the shared instance back the inline config — see INLINE_MERMAID_CONFIG
+        mermaid.initialize(INLINE_MERMAID_CONFIG);
+      }
     } catch (error) {
       console.error('Fullscreen rendering error:', error);
       return null;
@@ -226,7 +264,8 @@ const MermaidDiagram = ({ chart, className = '' }) => {
   const toggleFullscreen = useCallback(async () => {
     setIsFullscreen(prev => {
       if (!prev) {
-        // Opening fullscreen - set zoom to 100% and render fullscreen version
+        // Opening fullscreen - render fullscreen version; the zoom that fits the window is measured
+        // once the SVG is in the DOM (see the fit effect below)
         setZoom(1);
         renderFullscreenDiagram().then(fullscreenSvg => {
           if (fullscreenSvg) {
@@ -250,8 +289,71 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     setZoom(prev => Math.max(prev - 0.25, 0.25));
   }, []);
 
+  // Zoom at which the whole diagram fits the modal. "100 %" is the diagram's natural size, which for
+  // a large flowchart is far too small to read — opening fullscreen at 1 forced everyone to zoom in
+  // by hand (D-B-10). Measured once the fullscreen SVG is in the DOM, and reused by "fit".
+  const measureFitZoom = useCallback(() => {
+    const svgElement = fullscreenRef.current?.querySelector('svg');
+    const container = fullscreenRef.current?.closest('.mermaid-fullscreen-modal__content');
+
+    if (!svgElement || !container) {
+      return 1;
+    }
+
+    // Measure what is actually laid out, with the wrapper's current scale divided back out. The
+    // viewBox would be wrong here: mermaid already sizes the fullscreen SVG to the modal, so a
+    // viewBox-based factor shrank an already-fitted diagram a second time.
+    //
+    // The scale comes from the DOM, not from `zoomRef`: this effect can re-run while the wrapper is
+    // still animating towards the previous `setZoom`, and dividing a mid-transition rect by the
+    // target zoom stores a fit value that "Вписать" then returns to forever.
+    const wrapper = fullscreenRef.current?.closest('.mermaid-diagram-content');
+    const zoomInEffect = readAppliedScale(wrapper) || zoomRef.current || 1;
+    const svgRect = svgElement.getBoundingClientRect();
+    const layoutWidth = svgRect.width / zoomInEffect;
+    const layoutHeight = svgRect.height / zoomInEffect;
+
+    // The diagram can only occupy the container's CONTENT box: the modal pads its content area by
+    // 20px a side, and a border-box measurement would hand the fit factor 40px per axis that are
+    // not there — enough to leave scrollbars and clip the diagram at the value "fit" lands on.
+    // `clientWidth/Height` already exclude any scrollbar, so only the padding has to come off.
+    const style = window.getComputedStyle(container);
+    const availableWidth =
+      container.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
+    const availableHeight =
+      container.clientHeight - (parseFloat(style.paddingTop) || 0) - (parseFloat(style.paddingBottom) || 0);
+
+    if (!layoutWidth || !layoutHeight || availableWidth <= 0 || availableHeight <= 0) {
+      return 1;
+    }
+
+    const fit = Math.min(availableWidth / layoutWidth, availableHeight / layoutHeight);
+
+    // Same bounds as the zoom buttons, so "fit" never lands on a value they cannot return to
+    return Math.min(Math.max(fit, 0.25), 5);
+  }, []);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    if (!isFullscreen || !fullscreenSvgContent) {
+      return;
+    }
+
+    // One frame later: the SVG has just been written via dangerouslySetInnerHTML
+    const frameId = requestAnimationFrame(() => {
+      const fit = measureFitZoom();
+      fitZoomRef.current = fit;
+      setZoom(fit);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [isFullscreen, fullscreenSvgContent, measureFitZoom]);
+
   const resetZoom = useCallback(() => {
-    setZoom(1); // Simply reset to 100%
+    setZoom(fitZoomRef.current || 1);
   }, []);
 
   // PNG export function - direct SVG to Canvas conversion
@@ -275,9 +377,14 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
-      canvas.width = svgWidth * 2;
-      canvas.height = svgHeight * 2;
-      ctx.scale(2, 2);
+      // 2x for a crisp export, but only as far as the canvas cap allows: the inline SVG is drawn at
+      // natural size now, so a wide flowchart would otherwise ask for a canvas the browser refuses
+      // to allocate and `toBlob` would silently yield null.
+      const scale = Math.min(2, MAX_EXPORT_EDGE / svgWidth, MAX_EXPORT_EDGE / svgHeight);
+
+      canvas.width = svgWidth * scale;
+      canvas.height = svgHeight * scale;
+      ctx.scale(scale, scale);
 
       // White background
       ctx.fillStyle = 'white';
@@ -314,6 +421,13 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         // Download
         canvas.toBlob(
           pngBlob => {
+            // Null when the browser refused the canvas — reported, not thrown into an async
+            // callback the try/catch below can never see
+            if (!pngBlob) {
+              NotificationManager.error(t('ai-assistant.mermaid.export-error'));
+              return;
+            }
+
             const pngUrl = URL.createObjectURL(pngBlob);
             const link = document.createElement('a');
             link.href = pngUrl;
@@ -367,10 +481,16 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       // Apply responsive styles to SVG
       const svgElement = elementRef.current.querySelector('svg');
       if (svgElement) {
-        svgElement.style.maxWidth = '100%';
-        svgElement.style.width = '100%';
-        svgElement.style.minHeight = '300px';
-        svgElement.style.minWidth = '700px';
+        // Mermaid draws into a viewBox, so `width: 100%` scales the WHOLE diagram to the chat width
+        // while `min-width: 700px` (which beats `max-width: 100%`) keeps it overflowing anyway — a
+        // 12-node flowchart came out squeezed with unreadable labels (D-B-10). Draw at natural size
+        // and let the container scroll instead of shrinking the picture.
+        const viewBoxWidth = svgElement.viewBox?.baseVal?.width || 0;
+
+        svgElement.style.maxWidth = 'none';
+        svgElement.style.minWidth = '0';
+        svgElement.style.height = 'auto';
+        svgElement.style.width = viewBoxWidth ? `${Math.round(viewBoxWidth)}px` : 'auto';
       }
     }
   }, [svgContent]);
@@ -384,7 +504,12 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         alignItems: isRendering || !mermaidLoaded ? 'center' : 'stretch',
         justifyContent: isRendering || !mermaidLoaded ? 'center' : 'stretch',
         transform: isFullscreenMode ? `scale(${zoom})` : 'none',
-        transformOrigin: 'center center',
+        // Scale from the top in fullscreen. `scale()` leaves the LAYOUT box untouched, so a diagram
+        // taller than the modal keeps an oversized layout box; scaling about its own centre then
+        // pushes the picture down by half the excess, and "fit" — a zoom at which the diagram
+        // provably fits — still cut off its bottom (measured: 55px at 900x650). This inline value
+        // is what actually applies; the rule in `_mermaid.scss` cannot win against it.
+        transformOrigin: isFullscreenMode ? 'top center' : 'center center',
         transition: 'transform 0.2s ease-in-out'
       }}
     >

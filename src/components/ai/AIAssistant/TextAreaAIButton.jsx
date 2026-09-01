@@ -44,6 +44,7 @@ const mapActionId = actionId => {
  * @param {Function} props.setValue - Function to set textarea value
  * @param {HTMLElement} [props.actionsBarContainer] - Container for actions bar (portal)
  * @param {HTMLElement} [props.resultContainer] - Container for result display (portal)
+ * @param {HTMLElement} [props.fieldElement] - The field itself; AI popups may not leave its bounds
  */
 const TextAreaAIButton = ({
   disabled = false,
@@ -56,7 +57,8 @@ const TextAreaAIButton = ({
   getValue,
   setValue,
   actionsBarContainer,
-  resultContainer
+  resultContainer,
+  fieldElement
 }) => {
   // Conversation ID for multi-turn interactions
   const conversationIdRef = useRef(uuidV4());
@@ -104,6 +106,7 @@ const TextAreaAIButton = ({
       disabled={disabled}
       actionsBarContainer={actionsBarContainer}
       resultContainer={resultContainer}
+      fieldElement={fieldElement}
       className="textarea-ai-button-wrapper"
     />
   );

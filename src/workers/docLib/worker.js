@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import { WORKER_STATUSES, ACTION_CANCEL_REQUEST, Endpoints } from './constants';
 
 import { DocLibServiceApi } from '@/components/journals/Journals/DocLib/DocLibServiceApi';
+import { uploadContent } from '@/helpers/chunkedUpload';
 
 const activeRequests = {};
 const cancelledRequests = [];
@@ -405,11 +406,24 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
 }
 
 async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount, ws }) {
-  const controller = new AbortController();
-  const signal = controller.signal;
-
   const requestId = `${file.name || ''}-${file.size || 0}-${file.lastModified || 0}-${dirId}`;
-  activeRequests[requestId] = controller;
+
+  // `uploadContent`'s own control facade (captured from the first `handleProgress` call below)
+  // only knows how to cancel the upload/session it manages. The record-creation request further
+  // down (`createChild`) is a separate fetch this function owns directly, so it keeps its own
+  // AbortController. `ACTION_CANCEL_REQUEST` just does `activeRequests[requestId].abort()` — this
+  // object's `.abort()` cancels whichever of the two requests is currently in flight.
+  const createChildController = new AbortController();
+  let uploadControlFacade = null;
+
+  activeRequests[requestId] = {
+    abort() {
+      createChildController.abort();
+      if (uploadControlFacade) {
+        uploadControlFacade.abort();
+      }
+    }
+  };
 
   self.postMessage({
     status: WORKER_STATUSES.PROGRESS_UPDATE,
@@ -419,49 +433,48 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     file: { file, isLoading: true, isError: false }
   });
 
-  const formData = new FormData();
-
-  formData.append('file', file);
-  formData.append('name', file.name);
-
-  if (!!ws) {
-    formData.append('_workspace', ws);
-  }
-
-  const responseData = await citeckFetch(Endpoints.CONTENT, {
-    body: formData,
-    method: 'POST',
-    signal
-  })
-    .then(async res => {
-      if (res.ok) {
-        return await res.json();
-      } else {
-        self.postMessage({
-          status: WORKER_STATUSES.UPLOAD_ERROR,
-          errorStatus: res.status,
-          totalCount,
-          successFileCount,
-          isCancelled: cancelledRequests.includes(requestId),
-          file: { file, isLoading: false, isError: true }
-        });
+  let uploadResult;
+  try {
+    uploadResult = await uploadContent(file, {
+      name: file.name,
+      // No `ecosType` here, deliberately. On the server, `uploadImpl` branches on exactly this —
+      // an empty `ecosType` goes through `ecosContentService.uploadTempFile()` (a temp-file record that
+      // `createChild` below then attaches to the real doc-lib record), while a non-empty one goes
+      // through `uploadFile().withEcosType(...)` and creates a *different* record of that type
+      // directly. Passing `destinationFile` here would silently switch which of those two
+      // happens on top of the `createChild` call that still runs afterwards. `workspace` is safe
+      // to pass — the chunked path already threads it through its init body.
+      workspace: ws,
+      urlBase: Endpoints.CONTENT,
+      handleProgress: (state, controlFacade) => {
+        // Captured on every call (including the synchronous PREPARING emission before
+        // uploadContent's first await), so it is set before any cancel message can arrive.
+        uploadControlFacade = controlFacade;
       }
-    })
-    .catch(() => {
-      self.postMessage({
-        status: WORKER_STATUSES.UPLOAD_ERROR,
-        totalCount,
-        successFileCount,
-        isCancelled: cancelledRequests.includes(requestId),
-        file: { file, isLoading: false, isError: true }
-      });
     });
-
-  if (!responseData) {
+  } catch (err) {
+    // uploadContent always rejects with an UploadError (see src/helpers/chunkedUpload/index.js
+    // header comment, "Rejection contract") — `.status` is the HTTP status when known (e.g. 413),
+    // which UploadStatus.jsx keys off for the size-specific error message. `.reason` (plus its
+    // paired limit field) is present instead for a chunked-upload-rejected error — forwarded as
+    // separate primitives, never the `UploadError` instance itself, since only primitives
+    // reliably survive the postMessage/structured-clone boundary. UploadStatus.jsx localises
+    // `errorReason` into user-facing text.
+    self.postMessage({
+      status: WORKER_STATUSES.UPLOAD_ERROR,
+      errorStatus: err && err.status,
+      errorReason: err && err.reason,
+      errorMaxSingleUploadSize: err && err.maxSingleUploadSize,
+      errorMaxFileSize: err && err.maxFileSize,
+      totalCount,
+      successFileCount,
+      isCancelled: cancelledRequests.includes(requestId),
+      file: { file, isLoading: false, isError: true }
+    });
     return undefined;
   }
 
-  const { entityRef = null } = responseData;
+  const { entityRef = null } = uploadResult || {};
   if (!entityRef) {
     return Promise.reject('Error: No file entityRef');
   }
@@ -477,7 +490,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     return Promise.reject('Error: Error when converting a file');
   }
 
-  return await createChild(rootId, dirId, destinationFile, convertFile, ws, signal)
+  return await createChild(rootId, dirId, destinationFile, convertFile, ws, createChildController.signal)
     .then(async res => {
       if (res.ok) {
         self.postMessage({

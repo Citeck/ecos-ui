@@ -66,16 +66,22 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
     );
   }
 
+  // COREDEV-435: only the rendered name may open the record. Without this modifier the value box
+  // stretches over the whole control, so a click into the blank space to the right of a short name
+  // navigates away from a record the user never pointed at. The modifier shrinks the box to its
+  // text and keeps a four-character floor, so one- and two-letter names stay a hittable target.
+  const linkClassName = classNames('assoc-value', 'assoc-value_link', className);
+
   if (isHandleClick) {
     return (
-      <span title={label} onClick={onClickHandler} onMouseDown={onClickHandler} className={classNames('assoc-value', className)}>
+      <span title={label} onClick={onClickHandler} onMouseDown={onClickHandler} className={linkClassName}>
         {label}
       </span>
     );
   }
 
   return (
-    <a href={link} title={label} onClick={onClickHandler} className={classNames('assoc-value', className)}>
+    <a href={link} title={label} onClick={onClickHandler} className={linkClassName}>
       {label}
     </a>
   );

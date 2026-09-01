@@ -19,6 +19,17 @@ export type SwimlaneData = {
   cells: { [statusId: string]: SwimlaneCellData };
 };
 
+/**
+ * "Show only linked records" predicate of the board, resolved once per board load and kept in the
+ * kanban store: `id EQ [...]` for a direct association, `OR[CONTAINS(attr, recordRef)]` for a reverse
+ * one, `null` when the widget is not filtered by a record.
+ */
+export type KanbanRelatedFilter = {
+  t: string;
+  att?: string;
+  val?: unknown;
+} | null;
+
 export type SwimlaneGrouping = {
   attribute: string;
   label: string;

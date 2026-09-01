@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.28.5",
+  "version": "2.29.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -22,6 +22,17 @@
     "test:win": "jest --watch",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "bpmnlint-config": "npx bpmnlint-pack-config -c .bpmnlintrc -o src/components/ModelEditor/BPMNModeler/modules/linter/bpmnlint-config.js -t es"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,server}/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "@babel/runtime": "^7.26.9",

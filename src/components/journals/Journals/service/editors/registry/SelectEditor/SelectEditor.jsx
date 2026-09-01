@@ -1,4 +1,5 @@
 import Records from '@citeck/records-core';
+import get from 'lodash/get';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Select } from '@/components/common/form';
@@ -11,7 +12,11 @@ import { handleCloseMenuOnScroll } from '@/helpers/util';
 export default class SelectEditor extends BaseEditor {
   static TYPE = 'select';
 
-  getControl(config, scope) {
+  getControl(config, scope, params) {
+    // a cell editor always takes the keyboard; a filter only when it asks (the column header popup).
+    // react-select focuses its input without opening the menu, so typing narrows the options at once.
+    const autoFocus = scope === EditorScope.CELL || !!get(params, 'autoFocus');
+
     return ({ value, attribute, recordRef, multiple, onUpdate }) => {
       const [options, setOptions] = useState([]);
       const [isLoading, setLoading] = useState(false);
@@ -106,7 +111,7 @@ export default class SelectEditor extends BaseEditor {
         <div ref={containerRef} className="ecos-select__editor-wrapper select_width_full">
           <Select
             isMulti={multiple}
-            autoFocus={scope === EditorScope.CELL}
+            autoFocus={autoFocus}
             onChange={onSelectUpdate}
             className="select_narrow select_width_full ecos-select__editor"
             getOptionLabel={option => option.label || option}

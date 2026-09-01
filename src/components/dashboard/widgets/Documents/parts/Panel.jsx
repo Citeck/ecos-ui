@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { Labels } from '@/helpers/documents';
+import { Labels, PANEL_MENU_HEIGHT_MAX } from '@/helpers/documents';
 import { t } from '@/helpers/util';
 import { Search } from '@/components/common';
-import { Dropdown } from '@/components/common/form';
+import { DropdownOuter } from '@/components/common/form';
 import { Btn } from '@/components/common/btns';
 
 export default React.memo(props => {
@@ -21,7 +21,6 @@ export default React.memo(props => {
     onChangeFilter,
     renderUploadButton,
     forwardedRef,
-    scrollbarHeightMax,
     isMobile
   } = props;
 
@@ -33,7 +32,7 @@ export default React.memo(props => {
       {renderUploadButton()}
       <Search text={searchText} cleaner liveSearch searchWithEmpty onSearch={onSearch} className="ecos-docs__panel-search" />
       {!selectedType && dynamicTypes.length > 1 && (
-        <Dropdown
+        <DropdownOuter
           withScrollbar
           valueField="key"
           titleField="value"
@@ -42,7 +41,7 @@ export default React.memo(props => {
           className="ecos-docs__panel-filter"
           controlClassName="ecos-docs__panel-filter-control"
           onChange={onChangeFilter}
-          scrollbarHeightMax={scrollbarHeightMax}
+          scrollbarHeightMax={PANEL_MENU_HEIGHT_MAX}
         />
       )}
       <Btn loading={loading} disabled={disabled} onClick={() => downloadAllDocuments(allDocuments)}>

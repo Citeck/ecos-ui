@@ -6,6 +6,7 @@
 import Records from '@citeck/records-core';
 
 import { ADDITIONAL_CONTEXT_TYPES } from './constants';
+import { isSameRecordRef, stripRecordRefAlias } from './utils';
 
 import type { WorkspaceContext } from './types';
 
@@ -66,9 +67,12 @@ class AdditionalContextService {
 
   /**
    * Load current record data from URL
+   *
+   * The reference comes from the page address, so it goes through `stripRecordRefAlias` like every
+   * other such reading — see the helper for what the suffix is and what leaving it on costs.
    */
   async loadCurrentRecordData(): Promise<RecordData | null> {
-    const recordRef = getRecordRef();
+    const recordRef = stripRecordRefAlias(getRecordRef());
     if (!recordRef) return null;
 
     return this.loadRecordData(recordRef);
@@ -76,9 +80,13 @@ class AdditionalContextService {
 
   /**
    * Load documents for current record
+   *
+   * The alias is cut for the extra reason that `parentRef` below falls back to this reference: kept
+   * as read, that fallback travels into the request as a parent record written differently from the
+   * same record's chip, so the record is sent, and shown, twice (D-B-18).
    */
   async loadDocumentsData(): Promise<DocumentData[]> {
-    const currentRecordRef = getRecordRef();
+    const currentRecordRef = stripRecordRefAlias(getRecordRef());
     if (!currentRecordRef) return [];
 
     try {
@@ -116,7 +124,10 @@ class AdditionalContextService {
    * Check if record already exists in context
    */
   isRecordInContext(recordRef: string, records: RecordData[]): boolean {
-    return records.some(record => record.recordRef === recordRef);
+    // Not `===`: references are not normalised across their sources, so the same record reaches this
+    // guard as `emodel/type@id` from the page address and as `type@id` from a search result. Strict
+    // equality lets it into the context twice, which shows up as two chips for one record.
+    return records.some(record => isSameRecordRef(record.recordRef, recordRef));
   }
 
   /**
@@ -235,6 +246,26 @@ class AdditionalContextService {
 
       this.addContextType(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, selectedTypes, setSelectedTypes);
     }
+  }
+
+  /**
+   * Remove record from context (drops CURRENT_RECORD type when no records left)
+   */
+  removeRecordFromContext(
+    recordRef: string,
+    setAdditionalContext: Dispatch<AdditionalContext>,
+    setSelectedTypes: Dispatch<string[]>
+  ): void {
+    setAdditionalContext((prev: AdditionalContext) => {
+      const updatedRecords = prev.records.filter(r => r.recordRef !== recordRef);
+      if (updatedRecords.length === prev.records.length) {
+        return prev;
+      }
+      if (updatedRecords.length === 0) {
+        setSelectedTypes((prevTypes: string[]) => prevTypes.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD));
+      }
+      return { ...prev, records: updatedRecords };
+    });
   }
 
   /**

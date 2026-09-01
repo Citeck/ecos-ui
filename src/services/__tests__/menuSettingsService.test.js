@@ -203,6 +203,12 @@ describe('Menu Settings Service', () => {
         params: { level: 1, configType: 'left' }
       },
       {
+        title: `Type ${ms.ItemTypes.INCLUDE_MENU} has no icon even on level 1 — the item is replaced by the included menu on the backend`,
+        input: { type: ms.ItemTypes.INCLUDE_MENU },
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.INCLUDE_MENU],
+        params: { level: 1, configType: 'left' }
+      },
+      {
         title: `Type ${ms.ItemTypes.CREATE_IN_SECTION} has all permissions, except edit and hasIcon`,
         input: { type: ms.ItemTypes.CREATE_IN_SECTION },
         output: PERMISSIONS_BY_TYPE[ms.ItemTypes.CREATE_IN_SECTION],

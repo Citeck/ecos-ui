@@ -15,7 +15,9 @@ import {
   INDENT_CONTENT_COMMAND,
   KEY_MODIFIER_COMMAND,
   LexicalEditor,
-  OUTDENT_CONTENT_COMMAND
+  OUTDENT_CONTENT_COMMAND,
+  REDO_COMMAND,
+  UNDO_COMMAND
 } from 'lexical';
 import { Dispatch, useEffect } from 'react';
 
@@ -35,6 +37,7 @@ import {
 } from '../ToolbarPlugin/utils';
 
 import {
+  isBold,
   isCapitalize,
   isCenterAlign,
   isClearFormatting,
@@ -50,14 +53,18 @@ import {
   isIndent,
   isInsertCodeBlock,
   isInsertLink,
+  isItalic,
   isJustifyAlign,
   isLeftAlign,
   isLowercase,
   isOutdent,
+  isRedo,
   isRightAlign,
   isStrikeThrough,
   isSubscript,
   isSuperscript,
+  isUnderline,
+  isUndo,
   isUppercase
 } from './shortcuts';
 
@@ -74,7 +81,24 @@ export default function ShortcutsPlugin({
     const keyboardShortcutsHandler = (payload: KeyboardEvent) => {
       const event: KeyboardEvent = payload;
 
-      if (isFormatParagraph(event)) {
+      // Undo / redo and bold / italic / underline on a non-Latin layout (COREDEV-454): Lexical only
+      // knows the Latin key, see `isUndo` / `isRedo` / `isBold` in ./shortcuts.
+      if (isUndo(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      } else if (isRedo(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      } else if (isBold(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+      } else if (isItalic(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+      } else if (isUnderline(event)) {
+        event.preventDefault();
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+      } else if (isFormatParagraph(event)) {
         event.preventDefault();
         formatParagraph(editor);
       } else if (isFormatHeading(event)) {

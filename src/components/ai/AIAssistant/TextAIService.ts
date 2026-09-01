@@ -6,7 +6,9 @@
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES } from './constants';
+import { buildRequestError } from './aiRequestError';
+import { extractAnswerText } from './assistantResponse';
+import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, CONTENT_TYPES } from './constants';
 import { ATTRIBUTE_TYPES, FIELD_TYPE_VALUES, type AttributeType, type FieldTypeValue, type FieldInfo, type ProgressInfo } from './types';
 
 import { getWorkspaceId } from '@/helpers/urls';
@@ -21,8 +23,6 @@ export interface SelectionRecord {
   displayName: string;
   type: string;
 }
-
-const MAX_POLLING_ATTEMPTS = 120; // 2 minutes max
 
 // Track active polling timeouts for cleanup
 const activePollingTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
@@ -175,7 +175,9 @@ export const generateText = async ({
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    // Carries the server's own reason when it gave one, so the panel can show it instead of
+    // closing over a bare status code (D-G-400-SILENT).
+    throw await buildRequestError(response);
   }
 
   const data = await response.json();
@@ -204,18 +206,32 @@ const pollForResult = (
   onProgress?: (info: ProgressInfo) => void
 ): Promise<GenerateTextResult> => {
   return new Promise((resolve, reject) => {
-    let attempts = 0;
+    let waitedMs = 0;
 
     const cleanup = () => {
       activePollingTimeouts.delete(trackingId);
     };
 
-    const poll = async () => {
-      attempts++;
+    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
+    // page was doing between two polls, and the tests can step through it with fake timers.
+    const scheduleDelay = () => {
+      const delay = getFieldAiPollDelay(waitedMs);
+      waitedMs += delay;
+      return delay;
+    };
 
-      if (attempts > MAX_POLLING_ATTEMPTS) {
+    const poll = async () => {
+      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
+      // describing any particular span. The budget is the backend's own limit — see
+      // FIELD_AI_TIMEOUT_MS.
+      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
         cleanup();
-        reject(new Error('Request timed out'));
+        // The request is still running server-side, and nobody is going to collect its answer now —
+        // so it is called off rather than left to burn tokens on a result no one will read.
+        void cancelRequest(requestId);
+        const timedOut = new Error('Request timed out');
+        (timedOut as Error & { isTimeout?: boolean }).isTimeout = true;
+        reject(timedOut);
         return;
       }
 
@@ -269,7 +285,7 @@ const pollForResult = (
             });
           } else {
             // Try to extract text from response
-            const text = extractTextFromResponse(responseData as ResponseData);
+            const text = extractAnswerText(responseData);
             if (text) {
               resolve({
                 originalText: originalText || '',
@@ -306,13 +322,13 @@ const pollForResult = (
           }
 
           // Continue polling - track timeout for cleanup
-          const timeoutId = setTimeout(poll, POLLING_INTERVAL);
+          const timeoutId = setTimeout(poll, scheduleDelay());
           activePollingTimeouts.set(trackingId, timeoutId);
           return;
         }
 
         // Unknown status, continue polling - track timeout for cleanup
-        const timeoutId = setTimeout(poll, POLLING_INTERVAL);
+        const timeoutId = setTimeout(poll, scheduleDelay());
         activePollingTimeouts.set(trackingId, timeoutId);
       } catch (error) {
         cleanup();
@@ -323,42 +339,6 @@ const pollForResult = (
     // Start polling
     poll();
   });
-};
-
-/**
- * Try to extract text from various response formats
- */
-const extractTextFromResponse = (responseData: ResponseData): string | null => {
-  if (!responseData) return null;
-
-  // Direct text
-  if (typeof responseData === 'string') return responseData;
-
-  // message.text
-  if (typeof responseData.message === 'object' && responseData.message?.text) {
-    return responseData.message.text;
-  }
-
-  // message.generatedText
-  if (typeof responseData.message === 'object' && responseData.message?.generatedText) {
-    return responseData.message.generatedText;
-  }
-
-  // message.modifiedText
-  if (typeof responseData.message === 'object' && responseData.message?.modifiedText) {
-    return responseData.message.modifiedText;
-  }
-
-  // Direct message string
-  if (typeof responseData.message === 'string') return responseData.message;
-
-  // text field
-  if (responseData.text) return responseData.text;
-
-  // content field
-  if (responseData.content) return responseData.content;
-
-  return null;
 };
 
 /**

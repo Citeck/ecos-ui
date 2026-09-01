@@ -100,6 +100,13 @@
       overflow: hidden;
       z-index: 5;
 
+      // `position: relative` + `z-index` make this a stacking context, so the choices dropdown's
+      // own z-index: 100 is capped at this level. Sibling widgets' grid headers sit at z-index 25+
+      // and would paint through the open list (COREDEV-317) — outrank them while it is open.
+      &:has(.choices.is-open) {
+        z-index: 1000;
+      }
+
       &.alert-danger {
         background-color: $color-white;
       }
@@ -238,8 +245,25 @@
     }
   }
 
-  // Panel gets breathing room from the preceding dl rows in view mode
-  &.formio-form .formio-component-panel:not(:first-child) {
+  // A titled panel needs breathing room from the rows above it, but not from the top of the widget.
+  //
+  // Formio builds the panel root element itself ('mb-2 card border panel panel-<theme>'), so it has
+  // no `formio-component-panel` class to hook on — match the classes it really has ($titled-panel,
+  // guarded by Panel.spec.js). Only a titled panel needs the gap; a headerless one is an invisible
+  // grouping.
+  //
+  // Hidden components stay in the DOM (Formio marks them with an inline `visibility: hidden`,
+  // elsewhere a `d-none` class does it), so `:first-child` says nothing about what is actually
+  // rendered — a panel whose siblings above it are all hidden would be pushed away from the top of
+  // its widget. The gap therefore goes to a panel that has at least one *rendered* sibling above it;
+  // `~` keeps that check independent of how many hidden components sit in between.
+  //
+  // It stays on the panel rather than on the row above it because rows often carry Bootstrap's `m-0`
+  // utility (`margin: 0 !important`) from the form definition, which would swallow it.
+  $titled-panel: '.card.panel:has(> .card-header)';
+  $hidden-component: ':is([style*="visibility: hidden"], [style*="display: none"], .d-none, [hidden])';
+
+  &.formio-form :not(#{$hidden-component}) ~ #{$titled-panel} {
     margin-top: 8px;
   }
 
@@ -247,6 +271,14 @@
     .card-body {
       padding: 4px 0 0;
       overflow: hidden;
+    }
+
+    // A panel with no title has nothing for that 4px to separate its body from, so it is dead
+    // space at the top of whatever the panel wraps. It shows up as an uneven vertical gap when
+    // one tab's content happens to be wrapped in such a panel and its neighbours' is not.
+    // Cause: https://citeck.atlassian.net/browse/COREDEV-431
+    .card-body:first-child {
+      padding-top: 0;
     }
 
     .card-title {
@@ -277,5 +309,26 @@
     &-inner {
       max-width: 100% !important;
     }
+  }
+}
+
+// The per-field saving ring of an inline edit (COREDEV-429): the same Oval the widget's reload
+// shows, scoped to the component whose value is being saved and re-read. The rest of the form is
+// untouched — no skeleton, no form-wide blur.
+.inline-editing_saving {
+  position: relative;
+
+  .inline-editing__saving-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--primary-color);
   }
 }

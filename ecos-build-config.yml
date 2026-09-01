@@ -10,7 +10,7 @@ properties:
         - charts-widget:1.7.0
         - stages-widget:1.7.0
         - kanban-widget:1.10.0
-        - activities-widget:1.6.2
+        - activities-widget:1.6.5
         - gantt-chart-widget:1.2.0
     - enterprise: false
       plugins:

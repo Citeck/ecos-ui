@@ -80,7 +80,10 @@ $positions: (
 
     .form-check-label {
       line-height: 24px;
-      font-size: 14px;
+      // The checkbox caption IS the field's label, so it takes the same size as .control-label
+      // does for every other field. It was hardcoded to 14px back when $font-size-standard was
+      // 14px, and got stranded when the form font scale moved to pt.
+      font-size: $font-size-small;
       cursor: pointer;
 
       &_top,

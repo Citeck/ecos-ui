@@ -36,7 +36,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
     super.build();
 
     const attribute = (this.component.properties || {}).attribute || this.key;
-    const recordId = this.root.options.recordId || '@';
+    const recordId = this.getRecordId();
 
     EcosFormUtils.getCreateVariants(recordId, attribute, this.options.typeRef).then(cv => {
       if (Array.isArray(cv) && cv.length > 0) {

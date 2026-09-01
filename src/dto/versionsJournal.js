@@ -49,19 +49,31 @@ export default class VersionsJournalConverter {
     return target;
   }
 
+  // For an emodel record the api layer does not POST multipart form data — it uploads the raw
+  // `file` through the chunked-upload module and mutates the record directly, so it needs the raw
+  // fields (`record`/`file`/`comment`/`isMajor`), not just a FormData. `formData` is used only by
+  // the legacy Alfresco branch (workspace://SpacesStore/ refs).
   static getAddVersionFormDataForServer(source = {}) {
-    const target = new FormData();
+    const target = {
+      record: source.record,
+      file: source.file,
+      comment: source.comment,
+      isMajor: !!source.isMajor
+    };
 
     if (!source || (source && !Object.keys(source))) {
       return target;
     }
 
-    target.append('filedata', source.file, source.file.name);
-    target.append('filename', source.file.name);
-    target.append('updateNodeRef', source.record);
-    target.append('description', source.comment);
-    target.append('majorversion', source.isMajor);
-    target.append('overwrite', 'true');
+    const formData = new FormData();
+    formData.append('filedata', source.file, source.file.name);
+    formData.append('filename', source.file.name);
+    formData.append('updateNodeRef', source.record);
+    formData.append('description', source.comment);
+    formData.append('majorversion', source.isMajor);
+    formData.append('overwrite', 'true');
+
+    target.formData = formData;
 
     return target;
   }

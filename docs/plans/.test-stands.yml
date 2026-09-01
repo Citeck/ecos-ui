@@ -1,0 +1,26 @@
+# Test-stand policy (checked-in). Read by the citeck-test-feature skill — has PRIORITY over the
+# fallback table in the skill's references/environment.md. Deny-by-default: a stand NOT listed here
+# is fail-closed (read-only / STOP).
+stands:
+  local:
+    classification: local
+    base_url: http://localhost
+    destructive_allowed: true
+    allowed_workspaces: ["test-*", "user$admin"]
+    notes: >
+      Citeck Launcher, namespace tdcuosa (containers citeck_<service>_tdcuosa_default).
+      Auth BASIC admin:admin. The stand is also reachable as http://tdcuosa.localhost.
+      ecos-ui is served either from the proxy container (built bundle) or from the local
+      vite-express dev server on http://localhost:3000, which proxies to this base_url
+      (see .env.development SHARE_PROXY_URL). The AI backend (citeck-ai) runs OUTSIDE
+      docker via `mvnw spring-boot:run` and may be restarted by a parallel session —
+      verify it is alive before a run and re-check after unexplained hangs.
+
+  production:
+    classification: prod
+    base_url: https://citeck.ecos24.ru
+    destructive_allowed: false
+    allowed_workspaces: []
+    notes: >
+      Tracker (ept_profile) and docs (docs_profile) live here — issue/comment reads are fine.
+      records_mutate, config patches and any acceptance mutations are FORBIDDEN.

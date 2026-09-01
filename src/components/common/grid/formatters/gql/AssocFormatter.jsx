@@ -17,7 +17,9 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
   static getEditor(editorProps, value, row, column) {
     if (column.type === 'assoc') {
-      return <AssocEditor {...editorProps} value={value} column={column} />;
+      // The row ref defines the workspace options are searched in: the row may belong to
+      // a workspace other than the one the user is currently in
+      return <AssocEditor {...editorProps} recordRef={get(row, 'id')} value={value} column={column} />;
     }
 
     return <AssocOrgstructEditor {...editorProps} value={value} column={column} />;

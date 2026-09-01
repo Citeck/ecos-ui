@@ -88,6 +88,16 @@
 .mermaid-diagram {
   position: relative;
 
+  // The inline diagram is drawn at its natural size so labels stay readable in a narrow chat panel
+  // (D-B-10); anything wider than the panel scrolls instead of shrinking the whole picture. The
+  // scroll container is the inner content, NOT `.mermaid-diagram` itself: the controls below are
+  // absolutely positioned against it, and an abs-positioned child of a scroll container scrolls
+  // away with the content — the fullscreen and PNG buttons would leave the visible area on any
+  // horizontal scroll. Fullscreen is excluded: that copy is transform-scaled and scrolls in the modal.
+  > .mermaid-diagram-content:not(.mermaid-diagram-content--fullscreen) {
+    overflow-x: auto;
+  }
+
   &__controls {
     position: absolute;
     top: $spacing-sm;
@@ -243,7 +253,9 @@
       justify-content: center;
 
       &--fullscreen {
-        transform-origin: center;
+        // The component sets `transform-origin` inline (see MermaidDiagram.jsx), which always beats
+        // this rule; kept in step with it so the two do not disagree when read side by side.
+        transform-origin: top center;
         align-items: flex-start;
       }
 

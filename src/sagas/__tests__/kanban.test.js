@@ -18,16 +18,21 @@ import {
   setLoadingColumns,
   setOriginKanbanSettings,
   setPagination,
+  setRelatedFilter,
+  setRefreshing,
   setResolvedActions,
   setTotalCount,
   refreshCardData,
   reloadBoardData,
   setSwimlaneGrouping,
+  setSwimlaneValues,
   setSwimlaneCellData,
   setSwimlaneCellLoading
 } from '../../actions/kanban';
+import reducer from '../../reducers/kanban';
+import { computeSwimlanesTotalCount } from '../../selectors/kanban';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
-import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
+import { DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
 import RecordActions from '@/components/core/Records/actions/recordActions';
 import PageService from '../../services/PageService';
@@ -420,6 +425,47 @@ describe('kanban sagas tests', () => {
     expect(get(spyGetBoardCards.mock.calls, '[0][0].columns[0].id')).toBe('some-id-1');
   });
 
+  it('sagaGetData > a column that failed on first load keeps its column id and is retried later', async () => {
+    // First load: the server omits some-id-1 from its response (errored/missing entry).
+    spyGetBoardCards.mockClear();
+    spyGetBoardCards.mockImplementationOnce(({ columns }) =>
+      Promise.resolve(
+        (columns || [])
+          .filter(col => col.id !== 'some-id-1')
+          .map(col => ({ columnId: col.id, records: data.journalData.records, totalCount: data.journalData.totalCount }))
+      )
+    );
+
+    const payload = {
+      boardConfig: data.boardConfig,
+      journalConfig: { ...data.journalConfig, id: 'set-data-cards' },
+      journalSetting: data.journalSetting,
+      formProps: data.formProps,
+      pagination: DEFAULT_PAGINATION
+    };
+
+    const dispatched = await wrapRunSaga(kanban.sagaGetData, payload, { kanban: { [stateId]: {} }, journals: { [stateId]: {} } });
+
+    const firstCards = dispatched.find(d => d.type === setDataCards().type).payload.dataCards;
+    // The failed column must keep its real column id (not the '' of the missing prev entry)…
+    expect(firstCards[0].status).toBe('some-id-1');
+    // …and a truthy error marker, so later fetches know it was requested and failed.
+    expect(firstCards[0].error).toBeTruthy();
+    expect(firstCards[0].records).toHaveLength(0);
+    // The healthy column must NOT get the marker.
+    expect(firstCards[1].status).toBe('some-id-2');
+    expect(firstCards[1].error).toBeFalsy();
+
+    // Second fetch: the errored column must be requested again even though records.length (0)
+    // equals its totalCount (0) — the error marker defeats the fully-loaded skip. The healthy,
+    // fully-loaded column stays omitted.
+    spyGetBoardCards.mockClear();
+    await wrapRunSaga(kanban.sagaGetData, payload, { kanban: { [stateId]: { dataCards: firstCards } }, journals: { [stateId]: {} } });
+
+    expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+    expect(spyGetBoardCards.mock.calls[0][0].columns.map(c => c.id)).toEqual(['some-id-1']);
+  });
+
   it('sagaGetNextPage > there is _some data', async () => {
     const dispatched = await wrapRunSaga(
       kanban.sagaGetNextPage,
@@ -449,6 +495,35 @@ describe('kanban sagas tests', () => {
     expect(_lastLoading.payload.isLoading).toBeFalsy();
 
     expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaGetNextPage > no-ops while a silent refresh is in flight (isRefreshing)', async () => {
+    const dispatched = await wrapRunSaga(
+      kanban.sagaGetNextPage,
+      {},
+      {
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
+          }
+        },
+        kanban: {
+          [stateId]: {
+            formProps: data.formProps,
+            boardConfig: data.boardConfig,
+            pagination: DEFAULT_PAGINATION,
+            totalCount: 100,
+            isRefreshing: true
+          }
+        }
+      }
+    );
+
+    // The refresh re-fetches every loaded record from the top; a concurrent next-page fetch would
+    // race it over the same window. The pagination must not advance and no request may go out.
+    expect(dispatched.some(d => d.type === setPagination().type)).toBeFalsy();
+    expect(spyGetBoardCards).not.toHaveBeenCalled();
   });
 
   it('sagaRunAction > view action dispatches refreshCardData', async () => {
@@ -576,7 +651,10 @@ describe('kanban sagas tests', () => {
 
     // After API success, reloadColumns reloads data with server sorting.
     const reloadedDataCards = dispatched.filter(d => d.type === setDataCards().type);
-    expect(reloadedDataCards.length).toBeGreaterThanOrEqual(1);
+
+    // Exactly two commits of the board data per move — the optimistic one and the settled one.
+    // Every extra commit is another re-render of the moved card, i.e. another visible blink.
+    expect(reloadedDataCards).toHaveLength(2);
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
@@ -976,6 +1054,230 @@ describe('kanban sagas tests', () => {
     expect(_lastLoading.payload.isLoading).toBeFalsy();
   });
 
+  describe('sagaReloadBoardData > silent refresh (COREDEV-426)', () => {
+    const silentState = {
+      journals: {
+        [stateId]: {
+          journalConfig: data.journalConfig,
+          journalSetting: data.journalSetting
+        }
+      },
+      kanban: {
+        [stateId]: {
+          boardConfig: data.boardConfig,
+          formProps: data.formProps,
+          dataCards: dataCardsWithRecords,
+          pagination: { skipCount: 20, maxItems: 10, page: 3 }
+        }
+      }
+    };
+
+    it('refreshes in place: no setLoading, no pagination reset, isRefreshing raised and cleared', async () => {
+      spyGetBoardCards.mockImplementationOnce(({ columns }) =>
+        Promise.resolve(boardCardsFor(columns, col => ({ records: [{ id: `${col.id}-fresh`, cardId: `${col.id}-fresh` }], totalCount: 1 })))
+      );
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, silentState);
+
+      // The loader that used to blank the whole board never fires, and the pagination that used to be
+      // rewound to page 1 is left alone so getNextPage keeps counting from where the user got to.
+      expect(dispatched.some(d => d.type === setLoading().type)).toBeFalsy();
+      expect(dispatched.some(d => d.type === setPagination().type)).toBeFalsy();
+
+      const refreshing = dispatched.filter(d => d.type === setRefreshing().type);
+      expect(refreshing.map(d => d.payload.isRefreshing)).toEqual([true, false]);
+
+      expect(dispatched.some(d => d.type === setDataCards().type)).toBeTruthy();
+      expect(console.error).not.toHaveBeenCalled();
+    });
+
+    it('re-fetches exactly the volume already loaded per column, from the top', async () => {
+      await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, silentState);
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([
+        expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: DEFAULT_PAGINATION.maxItems }),
+        expect.objectContaining({ id: 'some-id-2', skipCount: 0, maxItems: DEFAULT_PAGINATION.maxItems })
+      ]);
+    });
+
+    it('a column loaded past the first page is re-fetched at its full loaded size', async () => {
+      const records = Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` }));
+      const state = {
+        ...silentState,
+        kanban: { [stateId]: { ...silentState.kanban[stateId], dataCards: [{ status: 'some-id-1', records, totalCount: 40 }] } }
+      };
+
+      await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 })]);
+    });
+
+    it('falls back to the full reload when there is nothing loaded to refresh', async () => {
+      const state = {
+        ...silentState,
+        kanban: { [stateId]: { ...silentState.kanban[stateId], dataCards: [] } }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      expect(dispatched.some(d => d.type === setLoading().type && d.payload.isLoading)).toBeTruthy();
+      expect(dispatched.some(d => d.type === setPagination().type)).toBeTruthy();
+    });
+
+    it('is skipped while a load is already in flight (isLoading) — no request, no isRefreshing', async () => {
+      const state = {
+        ...silentState,
+        kanban: { [stateId]: { ...silentState.kanban[stateId], isLoading: true } }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      expect(dispatched).toHaveLength(0);
+      expect(spyGetBoardCards).not.toHaveBeenCalled();
+    });
+
+    it('is skipped while another refresh is already in flight (isRefreshing) — no request, no re-raise', async () => {
+      const state = {
+        ...silentState,
+        kanban: { [stateId]: { ...silentState.kanban[stateId], isRefreshing: true } }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      expect(dispatched).toHaveLength(0);
+      expect(spyGetBoardCards).not.toHaveBeenCalled();
+    });
+
+    it('refreshes every loaded swimlane cell instead of the flat columns', async () => {
+      const state = {
+        ...silentState,
+        kanban: {
+          [stateId]: {
+            ...silentState.kanban[stateId],
+            dataCards: [],
+            swimlaneGrouping: swimlaneData.swimlaneGrouping,
+            swimlanes: swimlaneData.swimlanes
+          }
+        }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      expect(dispatched.some(d => d.type === setLoading().type)).toBeFalsy();
+      const cells = dispatched.filter(d => d.type === setSwimlaneCellData().type).map(d => `${d.payload.swimlaneId}/${d.payload.statusId}`);
+      expect(cells.sort()).toEqual([
+        'priority-high/some-id-1',
+        'priority-high/some-id-2',
+        'priority-low/some-id-1',
+        'priority-low/some-id-2'
+      ]);
+    });
+
+    it('a swimlane cell loaded past the first page is re-fetched at its full loaded size', async () => {
+      const records = Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` }));
+      const swimlanes = [
+        {
+          ...swimlaneData.swimlanes[0],
+          cells: {
+            ...swimlaneData.swimlanes[0].cells,
+            'some-id-1': { ...swimlaneData.swimlanes[0].cells['some-id-1'], records, totalCount: 40 }
+          }
+        },
+        swimlaneData.swimlanes[1]
+      ];
+      const state = {
+        ...silentState,
+        kanban: {
+          [stateId]: {
+            ...silentState.kanban[stateId],
+            dataCards: [],
+            swimlaneGrouping: swimlaneData.swimlaneGrouping,
+            swimlanes
+          }
+        }
+      };
+
+      // The first row request is priority-high: the server returns all 25 records but a stale
+      // totalCount — the written totalCount must never fall below the loaded count.
+      spyGetBoardCards.mockImplementationOnce(({ columns }) =>
+        Promise.resolve(
+          boardCardsFor(columns, col => (col.id === 'some-id-1' ? { records, totalCount: 20 } : { records: [], totalCount: 0 }))
+        )
+      );
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      // The priority-high row request carries the cell's loaded volume for some-id-1 (25, from the
+      // top) and the default page for some-id-2 — not the constant first page for both.
+      const rowCall = spyGetBoardCards.mock.calls.map(([args]) => args).find(args => (args.columns || []).some(c => c.maxItems === 25));
+      expect(rowCall).toBeDefined();
+      expect(rowCall.columns).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 }),
+          expect.objectContaining({ id: 'some-id-2', skipCount: 0, maxItems: DEFAULT_PAGINATION.maxItems })
+        ])
+      );
+      expect(rowCall.maxItemsPerColumn).toBe(25);
+
+      const bigCell = dispatched.find(
+        d => d.type === setSwimlaneCellData().type && d.payload.swimlaneId === 'priority-high' && d.payload.statusId === 'some-id-1'
+      );
+      expect(bigCell).toBeDefined();
+      expect(bigCell.payload.records).toHaveLength(25);
+      expect(bigCell.payload.totalCount).toBe(25);
+    });
+
+    it('re-derives the swimlane rows: keeps loaded rows, adds new ones, drops vanished ones', async () => {
+      const spyGetDistinctValues = jest.spyOn(api.kanban, 'getDistinctValues').mockReturnValueOnce([
+        { id: 'priority-high', label: 'High' },
+        { id: 'priority-new', label: 'New' }
+      ]);
+
+      const swimlanes = [{ ...swimlaneData.swimlanes[0], isCollapsed: true }, swimlaneData.swimlanes[1]];
+      const state = {
+        ...silentState,
+        kanban: {
+          [stateId]: {
+            ...silentState.kanban[stateId],
+            dataCards: [],
+            swimlaneGrouping: swimlaneData.swimlaneGrouping,
+            swimlanes
+          }
+        }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      expect(spyGetDistinctValues).toHaveBeenCalledTimes(1);
+
+      const valuesAction = dispatched.find(d => d.type === setSwimlaneValues().type);
+      expect(valuesAction).toBeDefined();
+      const merged = valuesAction.payload.swimlanes;
+      expect(merged.map(sl => sl.id)).toEqual(['priority-high', 'priority-new']);
+
+      // The surviving row keeps its collapsed state and its loaded cell records.
+      const surviving = merged.find(sl => sl.id === 'priority-high');
+      expect(surviving.isCollapsed).toBe(true);
+      expect(surviving.cells['some-id-1'].records.map(r => r.id)).toEqual(['rec-1', 'rec-2']);
+
+      // The new row appears with skeleton cells, exactly like a first swimlane load builds them.
+      const fresh = merged.find(sl => sl.id === 'priority-new');
+      expect(fresh.cells['some-id-1']).toEqual({ records: [], totalCount: 0, pagination: { ...DEFAULT_PAGINATION }, isLoading: true });
+      expect(fresh.cells['some-id-2']).toEqual({ records: [], totalCount: 0, pagination: { ...DEFAULT_PAGINATION }, isLoading: true });
+
+      // ...and the cell reload covers the new row too, while the vanished row is gone.
+      const cells = dispatched.filter(d => d.type === setSwimlaneCellData().type).map(d => `${d.payload.swimlaneId}/${d.payload.statusId}`);
+      expect(cells.sort()).toEqual([
+        'priority-high/some-id-1',
+        'priority-high/some-id-2',
+        'priority-new/some-id-1',
+        'priority-new/some-id-2'
+      ]);
+    });
+  });
+
   describe('sagaRefreshCard', () => {
     const baseKanbanState = {
       boardConfig: data.boardConfig,
@@ -1177,6 +1479,28 @@ describe('kanban sagas tests', () => {
       expect(console.error).not.toHaveBeenCalled();
     });
 
+    it('post-move reload re-fetches each cell of the row at its loaded volume, not the first page', async () => {
+      const bigRecords = Array.from({ length: 25 }, (_, i) => ({ id: `big-${i}`, cardId: `big-${i}` }));
+      const swimlanes = swimlaneData.swimlanes.map(sl =>
+        sl.id === 'priority-high'
+          ? { ...sl, cells: { ...sl.cells, 'some-id-1': { ...sl.cells['some-id-1'], records: bigRecords, totalCount: 40 } } }
+          : sl
+      );
+
+      await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, toIndex: 1, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-1' },
+        {
+          ...makeState({ swimlanes }),
+          journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+        }
+      );
+
+      const reloadArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      const reloadedCell = (reloadArgs.columns || []).find(col => col.id === 'some-id-1');
+      expect(reloadedCell).toEqual(expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 }));
+    });
+
     it('swimlane not found is noop', async () => {
       const dispatched = await wrapRunSaga(
         kanban.sagaMoveSwimlaneCard,
@@ -1239,6 +1563,381 @@ describe('kanban sagas tests', () => {
 
       const loadingActions = dispatched.filter(d => d.type === setLoading().type);
       expect(loadingActions.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('sagaLoadSwimlaneValues', () => {
+    const journalsState = {
+      journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } }
+    };
+
+    const makeState = (kanbanOverrides = {}) => ({
+      ...journalsState,
+      kanban: {
+        [stateId]: {
+          boardConfig: data.boardConfig,
+          formProps: data.formProps,
+          swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+          swimlanes: [],
+          ...kanbanOverrides
+        }
+      }
+    });
+
+    // per-column server counts used by the aggregate assertions below
+    const countByColumn = { 'some-id-1': 3, 'some-id-2': 2 };
+
+    beforeEach(() => {
+      spyGetBoardCards.mockImplementation(({ columns }) =>
+        Promise.resolve(
+          boardCardsFor(columns, col => ({
+            records: Array.from({ length: countByColumn[col.id] }, (_, i) => ({ id: `${col.id}-rec-${i}`, attributes: {} })),
+            totalCount: countByColumn[col.id]
+          }))
+        )
+      );
+    });
+
+    afterEach(() => {
+      spyGetBoardCards.mockReset();
+      spyGetBoardCards.mockResolvedValue([]);
+    });
+
+    it('builds a row per distinct value and fills every cell with the server totalCount', async () => {
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      const valuesAction = dispatched.find(d => d.type === setSwimlaneValues().type);
+      expect(valuesAction).toBeDefined();
+      expect(valuesAction.payload.swimlanes.map(sl => sl.id)).toEqual(['priority-high', 'priority-low']);
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      // 2 rows x 2 columns
+      expect(cellActions).toHaveLength(4);
+      cellActions.forEach(action => {
+        expect(action.payload.totalCount).toBe(countByColumn[action.payload.statusId]);
+      });
+
+      // every row is queried with the grouping attribute, i.e. the counts are per (row, column)
+      spyGetBoardCards.mock.calls.forEach(([arg]) => expect(arg.grouping).toBe('priority'));
+    });
+
+    it('loads rows in bounded concurrent batches and still loads every row', async () => {
+      const rows = 2 * kanban.SWIMLANE_ROWS_CHUNK + 5;
+      const spyDistinct = jest
+        .spyOn(api.kanban, 'getDistinctValues')
+        .mockReturnValueOnce(Array.from({ length: rows }, (_, i) => ({ id: `group-${i}`, label: `Group ${i}` })));
+
+      // Track how many row requests are in flight at once: resolution is deferred to a macrotask,
+      // so every request of a batch starts before any of them settles.
+      let inFlight = 0;
+      let maxInFlight = 0;
+      spyGetBoardCards.mockImplementation(
+        ({ columns }) =>
+          new Promise(resolve => {
+            inFlight += 1;
+            maxInFlight = Math.max(maxInFlight, inFlight);
+            setTimeout(() => {
+              inFlight -= 1;
+              resolve(boardCardsFor(columns, () => ({ records: [], totalCount: 0 })));
+            }, 0);
+          })
+      );
+
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      // completeness: a broken chunk loop would skip or duplicate rows
+      expect(spyGetBoardCards).toHaveBeenCalledTimes(rows);
+      const valuesAction = dispatched.find(d => d.type === setSwimlaneValues().type);
+      expect(valuesAction.payload.swimlanes).toHaveLength(rows);
+      // boundedness: an unchunked all() would put all rows in flight at once
+      expect(maxInFlight).toBeLessThanOrEqual(kanban.SWIMLANE_ROWS_CHUNK);
+
+      spyDistinct.mockRestore();
+    });
+
+    it('column badges and the board total are the sum of the loaded cells', async () => {
+      const dispatched = await wrapRunSaga(kanban.sagaLoadSwimlaneValues, {}, makeState());
+
+      // replay what the store would do, then read the numbers the UI shows
+      const storeState = dispatched.reduce((acc, action) => reducer(acc, action), {});
+      const swimlanes = storeState[stateId].swimlanes;
+
+      const badge = columnId => swimlanes.reduce((sum, sl) => sum + get(sl, ['cells', columnId, 'totalCount'], 0), 0);
+
+      expect(badge('some-id-1')).toBe(6);
+      expect(badge('some-id-2')).toBe(4);
+      // "Total: N" must equal the sum of the badges — no stale state.totalCount from the flat path
+      expect(computeSwimlanesTotalCount(swimlanes, data.boardConfig)).toBe(10);
+    });
+  });
+
+  describe('sagaLoadSwimlaneCells', () => {
+    const makeState = swimlanes => ({
+      journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+      kanban: {
+        [stateId]: {
+          boardConfig: data.boardConfig,
+          formProps: data.formProps,
+          swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+          swimlanes
+        }
+      }
+    });
+
+    it('reloads the whole loaded window of every cell from the start', async () => {
+      // Both terms of the window formula must decide somewhere:
+      // - cell 1: 25 records loaded but pagination is stale at 10 (a DnD insert via
+      //   setSwimlaneCellData never updates pagination) — loadedCount must win, ask for 25;
+      // - cell 2: 1 record on a window expanded to 30 — the stored window must win, ask for 30.
+      // Always from skipCount 0 — requesting the "next" page would collapse the cell.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10 },
+              isLoading: false
+            },
+            'some-id-2': {
+              records: [{ id: 'rec-x', cardId: 'rec-x' }],
+              totalCount: 1,
+              pagination: { skipCount: 0, maxItems: 30 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      await wrapRunSaga(kanban.sagaLoadSwimlaneCells, { swimlaneId: 'priority-high' }, makeState(swimlanes));
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([
+        expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 }),
+        expect.objectContaining({ id: 'some-id-2', skipCount: 0, maxItems: 30 })
+      ]);
+      expect(callArgs.maxItemsPerColumn).toBe(30);
+    });
+
+    it('a cell badge never shows fewer than the cards it holds (missing/low server totalCount)', async () => {
+      spyGetBoardCards.mockResolvedValueOnce([
+        { columnId: 'some-id-1', records: Array.from({ length: 3 }, (_, i) => ({ id: `rec-${i}`, attributes: {} })) },
+        { columnId: 'some-id-2', records: Array.from({ length: 2 }, (_, i) => ({ id: `rec-b-${i}`, attributes: {} })), totalCount: 1 }
+      ]);
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadSwimlaneCells,
+        { swimlaneId: 'priority-high' },
+        makeState([{ id: 'priority-high', label: 'High', cells: {} }])
+      );
+
+      const byStatus = new Map(dispatched.filter(d => d.type === setSwimlaneCellData().type).map(a => [a.payload.statusId, a.payload]));
+      expect(byStatus.get('some-id-1').totalCount).toBe(3);
+      expect(byStatus.get('some-id-2').totalCount).toBe(2);
+    });
+
+    it('reloadSwimlaneCells (silent reload after a card edit) keeps the expanded window too', async () => {
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 25 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 25 },
+              isLoading: false
+            },
+            'some-id-2': { records: [], totalCount: 0, pagination: DEFAULT_PAGINATION, isLoading: false }
+          }
+        }
+      ];
+
+      const dispatched = [];
+      await runSaga({ dispatch: action => dispatched.push(action), getState: () => makeState(swimlanes) }, kanban.reloadSwimlaneCells, {
+        api,
+        stateId,
+        boardConfig: data.boardConfig,
+        swimlaneGrouping: { attribute: 'priority' },
+        cells: [{ swimlaneId: 'priority-high', statusId: 'some-id-1' }]
+      }).done;
+
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 0, maxItems: 25 })]);
+      expect(callArgs.maxItemsPerColumn).toBe(25);
+
+      const cellAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellAction.payload.pagination).toEqual({ skipCount: 0, maxItems: 25 });
+    });
+
+    it('a failed row request keeps the previous counters instead of zeroing the whole row', async () => {
+      spyGetBoardCards.mockRejectedValueOnce(new Error('row request failed'));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadSwimlaneCells,
+        { swimlaneId: 'priority-high' },
+        makeState(swimlaneData.swimlanes)
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(2);
+
+      const byStatus = new Map(cellActions.map(a => [a.payload.statusId, a.payload]));
+      // fixture counts for row priority-high: 2 and 1 — they must survive the error
+      expect(byStatus.get('some-id-1').totalCount).toBe(2);
+      expect(byStatus.get('some-id-1').records).toHaveLength(2);
+      expect(byStatus.get('some-id-2').totalCount).toBe(1);
+      cellActions.forEach(action => expect(action.payload.error).toBe('row request failed'));
+    });
+  });
+
+  describe('sagaGetBoardData with swimlane grouping', () => {
+    it('reloads the swimlanes instead of the flat columns when grouping is on', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { stateId },
+        {
+          journals: {
+            [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting }
+          },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes: []
+            }
+          }
+        }
+      );
+
+      expect(dispatched.some(d => d.type === setSwimlaneValues().type)).toBeTruthy();
+      expect(dispatched.some(d => d.type === setSwimlaneCellData().type)).toBeTruthy();
+      // the flat path must not run in parallel — it would publish a second, inconsistent total
+      expect(dispatched.some(d => d.type === setDataCards().type)).toBeFalsy();
+      expect(dispatched.some(d => d.type === setTotalCount().type)).toBeFalsy();
+      spyGetBoardCards.mock.calls.forEach(([arg]) => expect(arg.grouping).toBe('priority'));
+    });
+  });
+
+  describe('swimlane counters stability', () => {
+    it('"show more" with a short page does not shrink the cell counter', async () => {
+      // 10 of 41 loaded, the server answers with a short page (4 records) — the badge must stay 41.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 10 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10, page: 1 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: Array.from({ length: 4 }, (_, i) => ({ id: `rec-new-${i}`, attributes: {} })),
+          totalCount: 41
+        }
+      ]);
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes
+            }
+          }
+        }
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction.payload.records).toHaveLength(14);
+      expect(cellDataAction.payload.totalCount).toBe(41);
+      // the expanded window is remembered, so a later row reload restores all 14 cards
+      expect(cellDataAction.payload.pagination).toEqual(expect.objectContaining({ skipCount: 0, maxItems: 14 }));
+    });
+
+    it('"show more" that returns only already-loaded records caps the counter (no infinite show-more)', async () => {
+      // A concurrent reorder shifted the pages: the next page holds only known records, so
+      // skipCount (= records.length) would never advance — the counter must cap at what is loaded.
+      const swimlanes = [
+        {
+          id: 'priority-high',
+          label: 'High',
+          cells: {
+            'some-id-1': {
+              records: Array.from({ length: 10 }, (_, i) => ({ id: `rec-${i}`, cardId: `rec-${i}` })),
+              totalCount: 41,
+              pagination: { skipCount: 0, maxItems: 10 },
+              isLoading: false
+            }
+          }
+        }
+      ];
+
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: Array.from({ length: 4 }, (_, i) => ({ id: `rec-${i}`, attributes: {} })),
+          totalCount: 41
+        }
+      ]);
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+          kanban: {
+            [stateId]: {
+              boardConfig: data.boardConfig,
+              formProps: data.formProps,
+              swimlaneGrouping: { attribute: 'priority', label: 'Priority' },
+              swimlanes
+            }
+          }
+        }
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction.payload.records).toHaveLength(10);
+      expect(cellDataAction.payload.totalCount).toBe(10);
+    });
+
+    it('DnD across cells moves the card without touching the counters', async () => {
+      const state = {
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+        kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData } }
+      };
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        state
+      );
+
+      const [fromOptimistic, toOptimistic] = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+
+      // records move at once...
+      expect(fromOptimistic.payload.records).toHaveLength(1);
+      expect(toOptimistic.payload.records).toHaveLength(2);
+      // ...but the counters wait for the server reload — no "3 → 2 → 3" jump in the badge/total
+      expect(fromOptimistic.payload.totalCount).toBe(2);
+      expect(toOptimistic.payload.totalCount).toBe(1);
     });
   });
 
@@ -1377,6 +2076,279 @@ describe('kanban sagas tests', () => {
       const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
       // ONE column requested with skipCount = already-loaded count (2).
       expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 2, maxItems: DEFAULT_PAGINATION.maxItems })]);
+    });
+  });
+
+  // COREDEV-288: "show only linked records" was lost for kanban — a reverse association never
+  // produced a predicate at all (all records were shown), and even the direct one was dropped by
+  // every repeated load (next page / search / filter / preset / reload).
+  describe('only linked records filter', () => {
+    const recordRef = 'emodel/request@request-1';
+    const linkedAttr = 'request';
+    const reverseFilter = { t: 'or', val: [{ t: 'contains', att: linkedAttr, val: recordRef }] };
+
+    // The shared filter is either the single predicate or an `and` of all shared parts.
+    const filterParts = filter => (get(filter, 't') === 'and' ? get(filter, 'v') || [] : [filter].filter(Boolean));
+    const lastFilterParts = () => filterParts(get(spyGetBoardCards.mock.calls, [spyGetBoardCards.mock.calls.length - 1, 0, 'filter']));
+
+    // earlier suites leave their own Records.get implementation behind (clearAllMocks keeps it)
+    beforeEach(() => spyRecordsGet.mockImplementation(recordsGet));
+
+    const journalsState = (extra = {}) => ({
+      journalConfig: data.journalConfig,
+      journalSetting: {
+        ...data.journalSetting,
+        columns: [{ attribute: 'name', type: 'text', searchable: true, default: true, visible: true }]
+      },
+      recordRef,
+      ...extra
+    });
+
+    const kanbanState = (extra = {}) => ({
+      boardConfig: data.boardConfig,
+      formProps: data.formProps,
+      pagination: DEFAULT_PAGINATION,
+      ...extra
+    });
+
+    it('reverse association > board-cards filter gets OR[CONTAINS(attr, recordRef)]', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+
+      // and it is kept in the store so repeated loads stay filtered
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toEqual(reverseFilter);
+      expect(console.error).not.toHaveBeenCalled();
+    });
+
+    it('direct association > refs handed over by the widget stay an id EQ predicate', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }], recordRefs: ['cand@1', 'cand@2'] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual({ t: 'eq', att: 'id', val: ['cand@1', 'cand@2'] });
+      expect(parts.find(p => get(p, 't') === 'or')).toBeUndefined();
+    });
+
+    it('direct association > refs loaded from the record win over the reverse predicate', async () => {
+      const spyLinkedRefs = jest.spyOn(api.journals, 'fetchLinkedRefs').mockResolvedValue(['cand@7']);
+
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(spyLinkedRefs).toHaveBeenCalledWith(recordRef, [{ value: linkedAttr }]);
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual({ t: 'eq', att: 'id', val: ['cand@7'] });
+      expect(parts.find(p => get(p, 't') === 'or')).toBeUndefined();
+
+      spyLinkedRefs.mockRestore();
+    });
+
+    it('journal dashlet config > kanban tab reads onlyLinked from the dashlet config', async () => {
+      // KanbanView dispatches getBoardData without any related-records payload: the settings must be
+      // taken from the journal dashlet config instead.
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: {
+            [stateId]: journalsState({
+              config: {
+                [JOURNAL_DASHLET_CONFIG_VERSION]: {
+                  journalId: 'journalId',
+                  onlyLinkedJournals: { journalId: true },
+                  attrsToLoad: { journalId: [{ value: linkedAttr }] }
+                }
+              }
+            })
+          },
+          kanban: { [stateId]: {} }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('onlyLinked is off > no related predicate', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: false, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(lastFilterParts().find(p => get(p, 't') === 'or')).toBeUndefined();
+    });
+
+    it('survives the next page load', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetNextPage,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter, totalCount: 100 }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives a search + reload', async () => {
+      window.location = { search: '?search=abc' };
+
+      await wrapRunSaga(
+        kanban.sagaReloadBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter }) }
+        }
+      );
+
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual(reverseFilter);
+      // the search itself is still applied — related filter and search are ANDed, not replaced
+      expect(JSON.stringify(parts)).toContain('abc');
+    });
+
+    it('survives applying a filter/preset', async () => {
+      await wrapRunSaga(
+        kanban.sagaApplyFilter,
+        { settings: { predicate: { t: 'eq', att: 'name', val: 'x' } } },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('swimlane cells and swimlane values are filtered too', async () => {
+      const spyDistinct = jest.spyOn(api.kanban, 'getDistinctValues');
+
+      await wrapRunSaga(
+        kanban.sagaLoadSwimlaneValues,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ ...swimlaneData, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      // swimlane rows are built from the same record set...
+      expect(get(spyDistinct.mock.calls, '[0][0].predicates')).toContainEqual(reverseFilter);
+      // ...and so are the cards inside every row
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+
+      spyDistinct.mockRestore();
+    });
+
+    it('a settings-less reload keeps the stored filter of the SAME journal', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: { relatedFilter: reverseFilter, relatedFilterJournalId: 'journalId' } }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toEqual(reverseFilter);
+    });
+
+    it('another journal of the dashlet does not inherit the stored filter', async () => {
+      // multi-journal dashlet: the user switches to a journal that has no only-linked entry at all —
+      // the previous journal's OR[CONTAINS(...)] must not stick to it
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: { relatedFilter: reverseFilter, relatedFilterJournalId: 'anotherJournal' } }
+        }
+      );
+
+      expect(lastFilterParts().find(p => get(p, 't') === 'or')).toBeUndefined();
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toBeNull();
+    });
+
+    it('survives the column reload after a card move', async () => {
+      const dataCards = [
+        { status: 'some-id-1', records: [{ id: '1', cardId: '1', attributes: {} }], totalCount: 1 },
+        { status: 'some-id-2', records: [], totalCount: 0 }
+      ];
+
+      await wrapRunSaga(
+        kanban.sagaMoveCard,
+        { cardIndex: 0, toIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ dataCards, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives the silent swimlane cell reload after a card edit', async () => {
+      const dispatched = [];
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action),
+          getState: () => ({
+            journals: { [stateId]: journalsState() },
+            kanban: { [stateId]: kanbanState({ ...swimlaneData, relatedFilter: reverseFilter }) }
+          })
+        },
+        kanban.reloadSwimlaneCells,
+        {
+          api,
+          stateId,
+          boardConfig: data.boardConfig,
+          swimlaneGrouping: swimlaneData.swimlaneGrouping,
+          cells: [{ swimlaneId: 'priority-high', statusId: 'some-id-1' }]
+        }
+      ).done;
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives "show more" on a swimlane cell', async () => {
+      // the cell needs room to grow, otherwise the saga bails out before any request
+      const swimlanes = [
+        {
+          ...swimlaneData.swimlanes[0],
+          cells: {
+            ...swimlaneData.swimlanes[0].cells,
+            'some-id-1': { ...swimlaneData.swimlanes[0].cells['some-id-1'], totalCount: 5 }
+          }
+        }
+      ];
+
+      await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ ...swimlaneData, swimlanes, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
     });
   });
 });

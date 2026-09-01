@@ -256,6 +256,19 @@
     &--apply {
       @include button-success;
     }
+
+    // Buttons of a gate the dialog has moved past. They stay visible so the history remains
+    // readable and the layout does not jump, but read as inactive: muted colour, no hover
+    // reaction (the button mixins already guard hover with `:not(:disabled)`), no pointer.
+    // The `:disabled` selector is repeated because a stale button is always disabled and the
+    // `&:disabled { opacity: .6 }` of the button mixins would otherwise outweigh a plain class.
+    &--stale,
+    &--stale:disabled {
+      opacity: 0.45;
+      filter: grayscale(0.5);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
   }
 
   &__loading-indicator {

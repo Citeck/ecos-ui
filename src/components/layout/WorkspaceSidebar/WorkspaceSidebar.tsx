@@ -67,6 +67,7 @@ const Labels = {
 
 class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSidebarState> {
   private _containerSidebarRef: React.RefObject<HTMLDivElement | null> = React.createRef();
+  private _searchRef: React.RefObject<SearchWorkspaceSidebar | null> = React.createRef();
   timeoutId?: NodeJS.Timeout;
 
   constructor(props: WorkspaceSidebarProps) {
@@ -99,7 +100,13 @@ class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSid
   }
 
   setActiveTab = (activeTab: TabId) => {
-    this.setState({ activeTab });
+    // A tab is a plain div, so clicking one drops the focus of the search field. The field takes
+    // it back, so that the list of the tab just opened can go on being filtered from the keyboard
+    this.setState({ activeTab }, () => {
+      if (!this.props.isMobile) {
+        this._searchRef.current?.focus();
+      }
+    });
   };
 
   handleClickOutside = (event: MouseEvent) => {
@@ -293,7 +300,7 @@ class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSid
   };
 
   render() {
-    const { onSearch, isMobile, isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
+    const { onSearch, isOpen, isMobile, isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
     const { visible, shouldAnimateOpen, activeTab } = this.state;
 
     if (!visible) {
@@ -311,7 +318,8 @@ class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSid
               })}
             >
               <div className="citeck-workspace-sidebar__search-row">
-                <SearchWorkspaceSidebar onSearch={onSearch} />
+                {/* On a phone the focus would raise the on-screen keyboard over the workspaces */}
+                <SearchWorkspaceSidebar ref={this._searchRef} onSearch={onSearch} autoFocus={isOpen && !isMobile} />
                 {isAllowToCreateWorkspace && (
                   <button className="citeck-workspace-sidebar__create-btn" onClick={onCreateWorkspace} title={t(Labels.CREATE_WORKSPACE)}>
                     <CreateIcon width={14} height={14} />

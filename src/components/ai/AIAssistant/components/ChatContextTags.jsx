@@ -10,9 +10,11 @@ import {
   getContextArtifactIcon,
   getRecordRefIcon
 } from '@/components/ai/AIAssistant/constants';
+import { applyAgentSwitch } from '@/components/ai/AIAssistant/utils';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
 import { getTextByLocale } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
 
 /**
  * Icon mapping for context types
@@ -57,7 +59,30 @@ export const getDocumentIcon = document => {
 };
 
 /**
+ * How an agent is named on screen, for the dropdown row and the chip alike.
+ *
+ * Neither may end up blank. `name` is not guaranteed to be a plain string — the list endpoint may
+ * return it as an MLText object — and an agent restored from the session storage keeps only what
+ * `sanitizeAgent` accepted, which a non-string `name` is not: after a reload such an agent arrives
+ * as `{id, engine}` alone. The id is a poor label but an honest one, and it is what the dropdown
+ * has always fallen back to; the chip used to render nothing at all.
+ * @param {?Object} agent
+ * @returns {string}
+ */
+export const getAgentLabel = agent => getTextByLocale(agent?.name) || agent?.id || '';
+
+/**
  * Agent selector dropdown component
+ * @param {Object} props
+ * @param {?Object} props.selectedAgent - Currently selected agent, null for the default "Citeck AI"
+ * @param {Function} props.onSelectAgent - Applies the new selection
+ * @param {Function} props.onClearConversation - Clears the conversation, reporting the outcome as
+ *   `Promise<boolean>`; anything but `true` is read as "the conversation is still there", and the
+ *   selection is then left untouched — unless there was no dialog to lose (see `applyAgentSwitch`)
+ * @param {boolean} props.hasMessages - Whether the chat holds a dialog worth confirming the loss of.
+ *   Not the same thing as a non-empty message list: after a reload the list starts empty while the
+ *   restored conversation still holds its history server-side, and switching agents deletes it
+ *   (`AIAssistantChat` passes `hasRestoredConversation` in as well)
  */
 const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasMessages }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -97,8 +122,28 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
     setShowDropdown(!showDropdown);
   };
 
-  const confirmSwitch = () => {
-    return !hasMessages || window.confirm(t('ai-agent.confirm-switch'));
+  // Switching agents confirms the loss of the dialog and clears it first, so the chip may only
+  // change once the clearing actually happened — see `applyAgentSwitch`, which holds that whole rule
+  // for both entry points into an agent switch (this dropdown and the welcome-screen shortcut).
+  const switchAgent = agent => {
+    setShowDropdown(false);
+    applyAgentSwitch({
+      agent,
+      hasConversation: hasMessages,
+      // `null` when there is nothing to lose, as the helper's contract asks: on a chat that has
+      // never been used the DELETE is answered 404 — which `runClearConversation` rightly reads as
+      // success — and the reset behind it would drop the context staged for the first question
+      // (@-records, uploaded files, the editor/script chip) without ever asking. The confirmation
+      // inside the helper is skipped on exactly the same `hasMessages`.
+      clearConversation: hasMessages ? onClearConversation : null,
+      selectAgent: onSelectAgent
+      // The clearing is asynchronous and may throw — the callback behind it does more than the
+      // DELETE. Unhandled, the rejection would be reported nowhere but the console, with the
+      // dropdown already closed over an agent that was never switched.
+    }).catch(error => {
+      console.error('Error switching agent:', error);
+      NotificationManager.error(t('ai-agent.switch-failed'), t('ai-agent.switch-error-title'));
+    });
   };
 
   const handleSelect = agent => {
@@ -106,10 +151,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
       setShowDropdown(false);
       return;
     }
-    if (!confirmSwitch()) return;
-    onClearConversation?.();
-    onSelectAgent?.(agent);
-    setShowDropdown(false);
+    switchAgent(agent);
   };
 
   const handleDeselect = () => {
@@ -117,10 +159,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
       setShowDropdown(false);
       return;
     }
-    if (!confirmSwitch()) return;
-    onClearConversation?.();
-    onSelectAgent?.(null);
-    setShowDropdown(false);
+    switchAgent(null);
   };
 
   return (
@@ -133,7 +172,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
         onClick={handleToggle}
       >
         <Icon className={classNames('fa', selectedAgent ? getAgentEngineIcon(getAgentEngine(selectedAgent)) : 'fa-magic')} />
-        <span>{selectedAgent ? selectedAgent.name : 'Citeck AI'}</span>
+        <span>{selectedAgent ? getAgentLabel(selectedAgent) : 'Citeck AI'}</span>
         <Icon className="fa fa-caret-down" />
       </button>
       {showDropdown && (
@@ -161,17 +200,24 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
             return (
               <div
                 key={agent.id}
-                className={classNames('ai-assistant-chat__agent-dropdown-item', `ai-assistant-chat__agent-dropdown-item--${engine.toLowerCase()}`, {
-                  'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
-                })}
+                className={classNames(
+                  'ai-assistant-chat__agent-dropdown-item',
+                  `ai-assistant-chat__agent-dropdown-item--${engine.toLowerCase()}`,
+                  {
+                    'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
+                  }
+                )}
                 onClick={() => handleSelect(agent)}
               >
                 <Icon className={classNames('fa', getAgentEngineIcon(engine))} />
                 <div className="ai-assistant-chat__agent-dropdown-item-text">
                   <span className="ai-assistant-chat__agent-dropdown-item-header">
-                    <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
+                    <span className="ai-assistant-chat__agent-dropdown-item-name">{getAgentLabel(agent)}</span>
                     <span
-                      className={classNames('ai-assistant-chat__agent-engine-badge', `ai-assistant-chat__agent-engine-badge--${engine.toLowerCase()}`)}
+                      className={classNames(
+                        'ai-assistant-chat__agent-engine-badge',
+                        `ai-assistant-chat__agent-engine-badge--${engine.toLowerCase()}`
+                      )}
                     >
                       {t(getAgentEngineLabelKey(engine))}
                     </span>
@@ -250,8 +296,8 @@ const ChatContextTags = ({
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--selected-text">
           <Icon className="fa fa-quote-left" />
           <span>
-            {t('ai-assistant.context-tag.selected-text-prefix')}"
-            {selectedTextContext.text.length > 50 ? selectedTextContext.text.substring(0, 50) + '...' : selectedTextContext.text}"
+            {t('ai-assistant.context-tag.selected-text-prefix')}&quot;
+            {selectedTextContext.text.length > 50 ? selectedTextContext.text.substring(0, 50) + '...' : selectedTextContext.text}&quot;
           </span>
           <button
             className="ai-assistant-chat__context-tag-remove"

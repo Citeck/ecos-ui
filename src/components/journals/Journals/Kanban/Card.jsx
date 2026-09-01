@@ -1,3 +1,4 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
@@ -7,6 +8,7 @@ import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 
+import { getCardDetailsLink } from '@/helpers/urls';
 import { extractLabel } from '@/helpers/util';
 import ViewAction from '@/components/core/Records/actions/handler/executor/ViewAction';
 import { Icon, Tooltip } from '@/components/common';
@@ -32,9 +34,18 @@ class Card extends React.PureComponent {
     return { stableFormData: nextProps.data };
   }
 
+  componentWillUnmount() {
+    this.handleDetectHeight.cancel();
+  }
+
   get target() {
     const { data } = this.props;
     return `card-title_${data.id}`.replace(/[:@/]/gim, '');
+  }
+
+  get cardLink() {
+    const { data } = this.props;
+    return getCardDetailsLink(data.cardId);
   }
 
   handleAction = action => {
@@ -45,13 +56,27 @@ class Card extends React.PureComponent {
     }
   };
 
-  handleHeaderClick = () => {
+  /**
+   * The record is opened by a real link, so a middle click, a ctrl/cmd/shift click and the
+   * "open link in new tab" context menu item are left to the browser. Only a plain left click
+   * is handled by the application, which opens the record in a tab of the current page.
+   */
+  handleHeaderClick = event => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
     this.handleAction({ type: ViewAction.ACTION_ID });
   };
 
-  handleDetectHeight = (w, h) => {
+  // Debounced once per instance. An inline `debounce(...)` in render gives every render its own
+  // timer (react-resize-detector reads `onResize` off props at fire time, so pending calls still
+  // fire — they just stop coalescing into one), and the timer armed by the last render outlives the
+  // card. One instance field keeps a single shared timer, and componentWillUnmount cancels it.
+  handleDetectHeight = debounce((w, h) => {
     this.setState({ noForm: !h });
-  };
+  }, 400);
 
   renderHeader = provided => {
     const { data, boardConfig = {} } = this.props;
@@ -65,13 +90,16 @@ class Card extends React.PureComponent {
       <div className="ecos-kanban__card-head">
         <div className="ecos-kanban__card-label">
           <Tooltip target={this.target} text={data.cardTitle} uncontrolled off={!data.cardTitle || !data.cardSubtitle}>
-            <div
+            <a
               id={this.target}
+              href={this.cardLink}
+              draggable={false}
               className={classNames('ecos-kanban__card-label_main', { 'ecos-kanban__card-label_main-with-sub': data.cardSubtitle })}
               onClick={this.handleHeaderClick}
+              {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
             >
               {extractLabel(data.cardTitle || Labels.Kanban.CARD_NO_TITLE)}
-            </div>
+            </a>
           </Tooltip>
           {data.cardSubtitle && <div className="ecos-kanban__card-label_secondary">{data.cardSubtitle}</div>}
         </div>
@@ -108,7 +136,15 @@ class Card extends React.PureComponent {
           </DropdownOuter>
         )}
         {withoutTitle && (
-          <Icon className="ecos-kanban__card-action-icon icon-eye-show ecos-kanban__card-action-show" onClick={this.handleHeaderClick} />
+          <a
+            href={this.cardLink}
+            draggable={false}
+            className="ecos-kanban__card-action-show"
+            onClick={this.handleHeaderClick}
+            {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+          >
+            <Icon className="ecos-kanban__card-action-icon icon-eye-show" />
+          </a>
         )}
         {!readOnly && (
           <Icon
@@ -144,7 +180,7 @@ class Card extends React.PureComponent {
             }
           }}
         />
-        <ReactResizeDetector handleHeight onResize={debounce(this.handleDetectHeight, 400)} targetRef={this._cardBodyRef} />
+        <ReactResizeDetector handleHeight onResize={this.handleDetectHeight} targetRef={this._cardBodyRef} />
       </div>
     );
   };

@@ -38,6 +38,8 @@ interface OpenEventDetail {
   currentValue: string;
   recordRef: string;
   attribute: string;
+  /** Field label as written on the form; sent to the backend as the human-readable field name */
+  attributeLabel?: string;
 }
 
 /**
@@ -59,6 +61,8 @@ const createVirtualElement = (rect: DOMRect): HTMLElement => {
 
 export default function AIFloatingPopup() {
   const [virtualElement, setVirtualElement] = useState<HTMLElement | null>(null);
+  // Editor root: bounds the popup so it cannot slide out of the field it edits (see AIPopperWrapper)
+  const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
   // Ref for cleanup to avoid stale closure issues
   const virtualElementRef = useRef<HTMLElement | null>(null);
 
@@ -162,16 +166,18 @@ export default function AIFloatingPopup() {
   // Listen for open event
   useEffect(() => {
     const handleOpen = (e: CustomEvent<OpenEventDetail>) => {
-      const { editor, triggerRect, selectedText, currentValue, recordRef, attribute } = e.detail;
+      const { editor, triggerRect, selectedText, currentValue, recordRef, attribute, attributeLabel } = e.detail;
 
       // Store event data in refs
       editorRef.current = editor;
+      setFieldElement(editor.getRootElement());
       currentValueRef.current = currentValue;
 
       // Update AI context ref
       contextRef.current = {
         recordRef,
         attribute,
+        attributeLabel,
         selectedText,
         conversationId: uuidV4()
       };
@@ -215,7 +221,13 @@ export default function AIFloatingPopup() {
   }
 
   return (
-    <AIPopperWrapper isVisible={isPopupVisible} referenceElement={virtualElement} variant="lexical" stickyPosition={true}>
+    <AIPopperWrapper
+      isVisible={isPopupVisible}
+      referenceElement={virtualElement}
+      boundaryElement={fieldElement}
+      variant="lexical"
+      stickyPosition={true}
+    >
       <div className="ai-floating-popup">
         {isActionsBarVisible && !isResultVisible && (
           <AIActionsBar

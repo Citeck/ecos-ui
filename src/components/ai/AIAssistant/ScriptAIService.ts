@@ -7,7 +7,9 @@
 import uuidV4 from 'uuidv4';
 
 import { getWorkspaceId } from '@/helpers/urls';
-import { MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, PLATFORM_CONFIG_AGENT_REF } from './constants';
+import { buildRequestError } from './aiRequestError';
+import { extractAnswerText } from './assistantResponse';
+import { MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, PLATFORM_CONFIG_AGENT_REF } from './constants';
 import {
   ATTRIBUTE_TYPES,
   SCRIPT_CONTEXT_TYPES,
@@ -19,8 +21,6 @@ import {
 
 export { ATTRIBUTE_TYPES, SCRIPT_CONTEXT_TYPES };
 export type { AttributeType, ScriptContextType, FieldInfo, ProgressInfo };
-
-const MAX_POLLING_ATTEMPTS = 120; // 2 minutes max
 
 const activePollingTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -140,7 +140,9 @@ export const generateScript = async ({
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    // Carries the server's own reason when it gave one, so the panel can show it instead of
+    // closing over a bare status code (D-G-400-SILENT).
+    throw await buildRequestError(response);
   }
 
   const data = await response.json();
@@ -162,24 +164,34 @@ export const generateScript = async ({
 /**
  * Poll for script generation result
  */
-const pollForResult = (
-  requestId: string,
-  trackingId: string,
-  onProgress?: (info: ProgressInfo) => void
-): Promise<GenerateScriptResult> => {
+const pollForResult = (requestId: string, trackingId: string, onProgress?: (info: ProgressInfo) => void): Promise<GenerateScriptResult> => {
   return new Promise((resolve, reject) => {
-    let attempts = 0;
+    let waitedMs = 0;
 
     const cleanup = () => {
       activePollingTimeouts.delete(trackingId);
     };
 
-    const poll = async () => {
-      attempts++;
+    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
+    // page was doing between two polls, and the tests can step through it with fake timers.
+    const scheduleDelay = () => {
+      const delay = getFieldAiPollDelay(waitedMs);
+      waitedMs += delay;
+      return delay;
+    };
 
-      if (attempts > MAX_POLLING_ATTEMPTS) {
+    const poll = async () => {
+      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
+      // describing any particular span. The budget is the backend's own limit — see
+      // FIELD_AI_TIMEOUT_MS.
+      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
         cleanup();
-        reject(new Error('Request timed out'));
+        // The request is still running server-side, and nobody is going to collect its answer now —
+        // so it is called off rather than left to burn tokens on a result no one will read.
+        void cancelRequest(requestId);
+        const timedOut = new Error('Request timed out');
+        (timedOut as Error & { isTimeout?: boolean }).isTimeout = true;
+        reject(timedOut);
         return;
       }
 
@@ -198,8 +210,7 @@ const pollForResult = (
           // Check if result is a script writing response
           const responseData = data.result;
           const isScriptDiffMessage =
-            typeof responseData.message === 'object' &&
-            responseData.message?.type === MESSAGE_TYPES.SCRIPT_WRITING;
+            typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.SCRIPT_WRITING;
 
           if (isScriptDiffMessage) {
             const msg = responseData.message as ScriptWritingMessage;
@@ -209,10 +220,28 @@ const pollForResult = (
               explanation: msg.explanation || '',
               contextType: msg.contextType || ''
             });
-          } else {
-            // Unexpected response type
-            reject(new Error('Unexpected response type from AI'));
+            return;
           }
+
+          // Not a diff, but not a failure either: a question about the script («что делает этот
+          // скрипт?») is answered with prose, and prose is a perfectly good answer — it just
+          // proposes no edit. Rejecting it threw the answer away and closed the panel with a
+          // technical error, so the user saw nothing at all (D-G-QA-DROP, case G14). An empty
+          // `modifiedScript` is what says "nothing to apply"; `ScriptEditorAIButton` then shows the
+          // script unchanged and puts the answer above it as the explanation.
+          const answerText = extractAnswerText(responseData);
+          if (answerText) {
+            resolve({
+              originalScript: '',
+              modifiedScript: '',
+              explanation: answerText,
+              contextType: ''
+            });
+            return;
+          }
+
+          // Nothing text-like anywhere in the payload — there is genuinely nothing to show.
+          reject(new Error('Unexpected response type from AI'));
           return;
         }
 
@@ -239,13 +268,13 @@ const pollForResult = (
           }
 
           // Continue polling - track timeout for cleanup
-          const timeoutId = setTimeout(poll, POLLING_INTERVAL);
+          const timeoutId = setTimeout(poll, scheduleDelay());
           activePollingTimeouts.set(trackingId, timeoutId);
           return;
         }
 
         // Unknown status, continue polling - track timeout for cleanup
-        const timeoutId = setTimeout(poll, POLLING_INTERVAL);
+        const timeoutId = setTimeout(poll, scheduleDelay());
         activePollingTimeouts.set(trackingId, timeoutId);
       } catch (error) {
         cleanup();

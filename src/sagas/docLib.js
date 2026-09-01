@@ -860,6 +860,9 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
           requestId,
           isCancelled,
           errorStatus,
+          errorReason,
+          errorMaxSingleUploadSize,
+          errorMaxFileSize,
           typeCurrentItem,
           targetDirTitle
         } = event.data;
@@ -900,6 +903,12 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
                 type: SERVICE_WORKER_TYPES.PROGRESS,
                 status,
                 errorStatus,
+                // Forwarded on to UploadStatus.jsx, which localises a chunked-upload-rejected
+                // reason (storage-not-supported / max-size-exceeded / too-many-sessions) into
+                // user-facing text — see worker.js's matching comment.
+                errorReason,
+                errorMaxSingleUploadSize,
+                errorMaxFileSize,
                 file,
                 isCancelled,
                 typeCurrentItem,

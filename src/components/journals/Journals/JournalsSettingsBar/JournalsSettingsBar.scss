@@ -516,3 +516,20 @@
     max-width: 100% !important;
   }
 }
+
+// «Обновить» during an in-place board refresh: the icon stays and spins, nothing else changes.
+.ecos-journal__settings-bar-update_refreshing {
+  svg {
+    animation: ecos-journal-refresh-spin 1s linear infinite;
+  }
+}
+
+@keyframes ecos-journal-refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

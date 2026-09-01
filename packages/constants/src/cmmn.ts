@@ -67,6 +67,9 @@ export const EventListeners = {
   ELEMENT_UPDATE_ID: 'element.updateId',
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
   CS_CONNECTION_CREATE_PRE_EXECUTE: 'commandStack.connection.create.preExecute',
+  // Fired after every command stack transition: `{ trigger: 'execute' | 'undo' | 'redo' | 'clear' }`.
+  // `clear` is emitted when the undo history is wiped (diagram (re)import / destroy), not by a user edit.
+  CS_CHANGED: 'commandStack.changed',
   DRAG_START: 'drag.start',
   ROOT_SET: 'root.set',
   COPY_ELEMENTS: 'copyPaste.elementsCopied',

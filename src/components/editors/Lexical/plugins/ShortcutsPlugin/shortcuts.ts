@@ -53,6 +53,65 @@ export function controlOrMeta(metaKey: boolean, ctrlKey: boolean): boolean {
   return IS_APPLE ? metaKey : ctrlKey;
 }
 
+/**
+ * Undo / redo by the PHYSICAL key (COREDEV-454). Lexical recognises Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z
+ * by `event.key` only (`isUndo` / `isRedo` in its `onKeyDown`), so on a non-Latin layout — Russian
+ * Ctrl+я — it does nothing, and the only undo left is the browser's own, which fires
+ * `beforeinput: historyUndo` only while its native stack holds an entry. Typing adds one, a paste
+ * or a node inserted from the toolbar never does — hence "Ctrl+Z works, except after Ctrl+V or
+ * «Вставка»".
+ *
+ * `KEY_MODIFIER_COMMAND` is dispatched AFTER Lexical's own chain, for the Latin key too, so these
+ * predicates stay false when `key` is the Latin letter Lexical has already acted on — otherwise a
+ * Latin Ctrl+Z would undo twice. Alt is excluded like in every other predicate here: AltGr on
+ * Windows arrives as Ctrl+Alt.
+ */
+export function isUndo(event: KeyboardEvent): boolean {
+  const { key, code, shiftKey, altKey, metaKey, ctrlKey } = event;
+  return code === 'KeyZ' && !isLatin(key, 'z') && !shiftKey && !altKey && controlOrMeta(metaKey, ctrlKey);
+}
+
+export function isRedo(event: KeyboardEvent): boolean {
+  const { key, code, shiftKey, altKey, metaKey, ctrlKey } = event;
+
+  if (altKey) {
+    return false;
+  }
+
+  if (IS_APPLE) {
+    return code === 'KeyZ' && !isLatin(key, 'z') && shiftKey && metaKey;
+  }
+
+  return (code === 'KeyY' && !isLatin(key, 'y') && ctrlKey) || (code === 'KeyZ' && !isLatin(key, 'z') && ctrlKey && shiftKey);
+}
+
+/**
+ * Bold / italic / underline by the physical key — Lexical's own Ctrl+B / Ctrl+I / Ctrl+U are
+ * recognised by `key` the same way as undo, so they are dead on a non-Latin layout too. Same
+ * contract as `isUndo`: false for the Latin letter Lexical has already formatted, or the same press
+ * would toggle the format straight back off. Shift is not checked, as in Lexical's `isBold`.
+ */
+export function isBold(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyB', 'b');
+}
+
+export function isItalic(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyI', 'i');
+}
+
+export function isUnderline(event: KeyboardEvent): boolean {
+  return isFormatByCode(event, 'KeyU', 'u');
+}
+
+function isFormatByCode(event: KeyboardEvent, expectedCode: string, latinLetter: string): boolean {
+  const { key, code, altKey, metaKey, ctrlKey } = event;
+  return code === expectedCode && !isLatin(key, latinLetter) && !altKey && controlOrMeta(metaKey, ctrlKey);
+}
+
+function isLatin(key: string | undefined, letter: string): boolean {
+  return (key || '').toLowerCase() === letter;
+}
+
 export function isFormatParagraph(event: KeyboardEvent): boolean {
   const { code, shiftKey, altKey, metaKey, ctrlKey } = event;
 

@@ -16,6 +16,7 @@ import { withRouter } from 'react-router';
 import ClickOutside from '@/components/common/ClickOutside';
 import { SortableContainer } from '@/components/common/DragAndDrop';
 import { dropByCacheKey } from '@/components/common/ReactRouterCache';
+import { closeAllTooltips } from '@/components/common/Tooltip';
 import DialogManager from '@/components/common/dialogs/Manager';
 
 import Tab from './Tab';
@@ -32,7 +33,7 @@ import {
   updateTabsFromStorage
 } from '@/actions/pageTabs';
 import CopyToClipboard from '@/helpers/copyToClipboard';
-import { getLinkWithWs, getWorkspaceId, replaceHistoryLink } from '@/helpers/urls';
+import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink, replaceHistoryLink } from '@/helpers/urls';
 import { animateScrollTo, getEnabledWorkspaces, getScrollbarWidth, IS_DEV_ENV, t } from '@/helpers/util';
 import { selectWorkspaceHomeLinkById } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -46,6 +47,10 @@ const Labels = {
   CLOSE_ALL_TABS: 'page-tabs.close-all-tabs',
   CONFIRM_REMOVE_ALL_TABS_TITLE: 'page-tabs.close-all-tabs-title',
   CONFIRM_REMOVE_ALL_TABS_TEXT: 'page-tabs.close-all-tabs-text',
+  CONFIRM_CLOSE_TAB_UNSAVED_TITLE: 'page-tabs.close-tab-unsaved-title',
+  CONFIRM_CLOSE_TAB_UNSAVED_TEXT: 'page-tabs.close-tab-unsaved-text',
+  CONFIRM_CLOSE_TABS_UNSAVED_TITLE: 'page-tabs.close-tabs-unsaved-title',
+  CONFIRM_CLOSE_TABS_UNSAVED_TEXT: 'page-tabs.close-tabs-unsaved-text',
   CONTEXT_COPY_LINK: 'page-tabs.context-menu.copy-link',
   CONTEXT_CLOSE_SELF: 'page-tabs.context-menu.close-self',
   CONTEXT_CLOSE_OTHER: 'page-tabs.context-menu.close-other',
@@ -251,19 +256,24 @@ class PageTabs extends React.Component {
 
     try {
       if (data.link) {
-        let link = data.link;
+        // A link without a host (`/v2/…`) is a link of this host.
+        const url = new URL(data.link, window.location.origin);
+        const linkWorkspace = url.searchParams.get('ws');
 
-        if (!link.includes('http') && link[0] === '/') {
-          link = `${window.location.origin}${link}`;
-        }
+        // A link that leaves the current host — or, with workspaces on, names another workspace —
+        // opens a browser tab. Pushing a foreign workspace client-side switches the workspace under
+        // the tab list and left the dashboard blank (COREDEV-433); a separate browser tab boots the
+        // application in that workspace from scratch. A link that names no workspace stays in the
+        // app: the tab saga resolves it to the current one. A record card of another workspace is
+        // no exception: its dashboard is resolved for the workspace it is shown in, so opening it as
+        // a page tab of the current workspace (with `ws` swapped) showed the wrong dashboard.
+        const leavesWorkspace = !!linkWorkspace && getEnabledWorkspaces() && linkWorkspace !== getWorkspaceId();
 
-        const url = new URL(link);
-        const searchParams = new URLSearchParams(url.search);
-        if (searchParams.get('ws') !== getWorkspaceId()) {
+        if (getWsIdOfTabLink(data.link) !== getWorkspaceId()) {
           data.needUpdateTabs = true;
         }
 
-        if (url.host === window.location.host) {
+        if (url.host === window.location.host && !leavesWorkspace) {
           setTab({ data, params: { reopen, closeActiveTab } });
         } else {
           window.open(data.link, '_blank');
@@ -275,7 +285,21 @@ class PageTabs extends React.Component {
     }
   };
 
+  /**
+   * Closing a tab (cross, middle click, context menu) deletes it directly — it never goes through the
+   * url-change guards — so a page holding unsaved changes (model editors) is asked here first.
+   */
   handleCloseTab = tab => {
+    if (PageService.hasUnsavedChangesInTab(get(tab, 'id'))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TAB_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TAB_UNSAVED_TEXT),
+        onYes: () => this.closeTab(tab)
+      });
+
+      return;
+    }
+
     this.closeTab(tab);
   };
 
@@ -286,6 +310,11 @@ class PageTabs extends React.Component {
   };
 
   handleClickTab = tab => {
+    // Every one of these moves the tabs out from under the pointer — the strip scrolls to the
+    // active tab, a dragged tab changes places — and a tooltip whose target walks away has no
+    // `mouseout` left to close it (COREDEV-356).
+    closeAllTooltips();
+
     if (tab.isActive) {
       this.scrollToTop();
       return;
@@ -350,14 +379,44 @@ class PageTabs extends React.Component {
   };
 
   handleCloseAllTabs = () => {
+    // One question, the sharper one: when unsaved changes are among the tabs, the data-loss confirm
+    // replaces the generic "close all?" instead of stacking after it
+    if (this.props.tabs.some(item => PageService.hasUnsavedChangesInTab(get(item, 'id')))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TEXT),
+        onYes: () => this.closeTabs(this.props.tabs)
+      });
+
+      return;
+    }
+
     DialogManager.confirmDialog({
       title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
       text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
-      onYes: this.handleCloseTabs
+      onYes: () => this.closeTabs(this.props.tabs)
     });
   };
 
+  /**
+   * The bulk closings ("Close all", "Close other", "Close tabs to the left/right") delete tabs just as
+   * directly as the cross does — any unsaved changes among them are asked about first, once.
+   */
   handleCloseTabs = (tabs = this.props.tabs, tab) => {
+    if (tabs.some(item => PageService.hasUnsavedChangesInTab(get(item, 'id')))) {
+      DialogManager.confirmDialog({
+        title: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TITLE),
+        text: t(Labels.CONFIRM_CLOSE_TABS_UNSAVED_TEXT),
+        onYes: () => this.closeTabs(tabs, tab)
+      });
+
+      return;
+    }
+
+    this.closeTabs(tabs, tab);
+  };
+
+  closeTabs = (tabs, tab) => {
     const { closeTabs, homepageLink, homePageLink } = this.props;
 
     if (getEnabledWorkspaces()) {
@@ -436,6 +495,10 @@ class PageTabs extends React.Component {
       return;
     }
 
+    // Only when the strip is actually about to scroll — the debounced resize path lands here too,
+    // and a strip that does not overflow moves nothing out from under the pointer.
+    closeAllTooltips();
+
     const { offsetLeft = 0, offsetWidth = 0 } = this.elmActiveTab || {};
     const scrollLeft = offsetLeft - this.wrapper.offsetWidth / 2 + offsetWidth / 2;
 
@@ -444,6 +507,7 @@ class PageTabs extends React.Component {
   };
 
   handleBeforeSortStart = ({ node }) => {
+    closeAllTooltips();
     node.classList.add('page-tab__tabs-item_sorting');
     this.wrapper && this.wrapper.classList.add('page-tab__tabs_sorting');
 
@@ -453,6 +517,7 @@ class PageTabs extends React.Component {
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { draggableNode } = this.state;
 
+    closeAllTooltips();
     event.stopPropagation();
     draggableNode && draggableNode.classList.remove('page-tab__tabs-item_sorting');
     this.wrapper && this.wrapper.classList.remove('page-tab__tabs_sorting');
@@ -743,4 +808,5 @@ const mapDispatchToProps = dispatch => ({
   updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
+export { PageTabs };
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PageTabs));

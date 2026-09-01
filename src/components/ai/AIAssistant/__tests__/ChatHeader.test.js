@@ -1,7 +1,7 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ChatHeader from '../components/ChatHeader';
-import { ACTIVE_AGENT_STATUSES, AGENT_STATUS_LABELS } from '../components/ChatHeader';
+import React from 'react';
+
+import ChatHeader, { ACTIVE_AGENT_STATUSES, AGENT_STATUS_LABELS } from '../components/ChatHeader';
 import { AGENT_STATUSES } from '../types';
 
 // Mock Icon component
@@ -10,7 +10,7 @@ jest.mock('@/components/common', () => ({
 }));
 
 jest.mock('@/helpers/export/util', () => ({
-  t: (key) => key
+  t: key => key
 }));
 
 describe('ChatHeader', () => {
@@ -108,6 +108,55 @@ describe('AGENT_STATUS_LABELS', () => {
   });
 });
 
+// D-405-3: header buttons are named via aria-label + data-tooltip (the module's styled tooltip)
+// instead of title, which would draw a second, native tooltip on top of the styled one.
+// The mocked t() returns keys as-is, so accessible names are compared against locale keys.
+describe('Header button tooltips and accessible names (D-405-3)', () => {
+  const defaultProps = {
+    isMinimized: false,
+    onMinimize: jest.fn(),
+    onClose: jest.fn()
+  };
+
+  it('close button has accessible name and styled tooltip', () => {
+    render(<ChatHeader {...defaultProps} />);
+    const button = screen.getByRole('button', { name: 'ai-assistant.header.close' });
+    expect(button.getAttribute('aria-label')).toBe('ai-assistant.header.close');
+    expect(button.getAttribute('data-tooltip')).toBe('ai-assistant.header.close');
+  });
+
+  it('minimize button has accessible name and styled tooltip', () => {
+    render(<ChatHeader {...defaultProps} />);
+    const button = screen.getByRole('button', { name: 'ai-assistant.header.minimize' });
+    expect(button.getAttribute('aria-label')).toBe('ai-assistant.header.minimize');
+    expect(button.getAttribute('data-tooltip')).toBe('ai-assistant.header.minimize');
+  });
+
+  it('minimize button label switches to expand when minimized', () => {
+    render(<ChatHeader {...defaultProps} isMinimized={true} />);
+    const button = screen.getByRole('button', { name: 'ai-assistant.header.expand' });
+    expect(button.getAttribute('aria-label')).toBe('ai-assistant.header.expand');
+    expect(button.getAttribute('data-tooltip')).toBe('ai-assistant.header.expand');
+    expect(screen.queryByRole('button', { name: 'ai-assistant.header.minimize' })).toBeNull();
+  });
+
+  it('export button has accessible name and styled tooltip', () => {
+    render(<ChatHeader {...defaultProps} hasMessages={true} />);
+    const button = screen.getByRole('button', { name: 'ai-assistant.export.button-title' });
+    expect(button.getAttribute('aria-label')).toBe('ai-assistant.export.button-title');
+    expect(button.getAttribute('data-tooltip')).toBe('ai-assistant.export.button-title');
+  });
+
+  it('header buttons have no title attribute', () => {
+    render(<ChatHeader {...defaultProps} hasMessages={true} />);
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBe(3);
+    buttons.forEach(button => {
+      expect(button.hasAttribute('title')).toBe(false);
+    });
+  });
+});
+
 describe('Export button', () => {
   const defaultProps = {
     isMinimized: false,
@@ -117,7 +166,7 @@ describe('Export button', () => {
     onExportHtml: jest.fn()
   };
 
-  const getExportButton = (container) => {
+  const getExportButton = container => {
     const downloadIcon = container.querySelector('.fa-download');
     return downloadIcon ? downloadIcon.closest('button') : null;
   };

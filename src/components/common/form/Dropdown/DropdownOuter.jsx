@@ -49,8 +49,13 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '', trigger, boundariesElement, modifiers, placement, disabled } = this.props;
+    const { className, outClassName = '', toggleClassName, trigger, boundariesElement, modifiers, placement, disabled } = this.props;
     const { dropdownOpen, targetId } = this.state;
+
+    // The portaled menu lands at z-index 1040, EcosModal sits at 1050 — inside a modal it would be
+    // covered. Tooltip.jsx solves this with the same class; DropdownOuter goes through
+    // TooltipContainer and misses it, so mirror the check here (COREDEV-369).
+    const isInModal = !!(this.dropdownOuterRef.current && this.dropdownOuterRef.current.closest('.modal'));
 
     return (
       <div
@@ -61,7 +66,11 @@ export default class DropdownOuter extends Dropdown {
         })}
         ref={this.dropdownOuterRef}
       >
-        <div onClick={this.toggle}>{this.renderToggle()}</div>
+        {/* the toggle wrapper carries toggleClassName, the way the in-flow Dropdown puts it on its
+            DropdownToggle — only the caller's class, without the base `ecos-dropdown__toggle` */}
+        <div className={toggleClassName || undefined} onClick={this.toggle}>
+          {this.renderToggle()}
+        </div>
         <Tooltip
           isOpen={dropdownOpen}
           toggle={this.toggle}
@@ -69,7 +78,7 @@ export default class DropdownOuter extends Dropdown {
           trigger={trigger}
           hideArrow
           boundariesElement={boundariesElement}
-          className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
+          className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName, { 'ecos-modal-tooltip': isInModal })}
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement={placement}
           modifiers={modifiers}

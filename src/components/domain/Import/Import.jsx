@@ -47,6 +47,9 @@ const StatusesUpdate = {
 
 class Import extends Component {
   static propTypes = {
+    // Reaches the root element, so a Tooltip can target the whole control (Export does the same by
+    // spreading its leftover props)
+    id: PropTypes.string,
     className: PropTypes.string,
     classNameBtn: PropTypes.string,
     right: PropTypes.bool,
@@ -344,7 +347,7 @@ class Import extends Component {
   };
 
   render() {
-    const { classNameBtn, children, className, right, journalConfig } = this.props;
+    const { id, classNameBtn, children, className, right, journalConfig } = this.props;
     const { importDataConfig, isOpenDropdown, authorityGroupsCurrentUser } = this.state;
     const { hideImportDataActions = false } = journalConfig || {};
 
@@ -372,7 +375,7 @@ class Import extends Component {
     }
 
     return (
-      <div className={classNames('citeck-import-data', { [className]: !!className })}>
+      <div id={id} className={classNames('citeck-import-data', { [className]: !!className })}>
         <Dropdown
           isButton
           hasEmpty

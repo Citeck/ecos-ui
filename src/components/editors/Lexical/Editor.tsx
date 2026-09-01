@@ -86,6 +86,8 @@ export type LexicalEditorProps = {
   withoutTimeout?: boolean;
   UploadDocsService?: UploadDocsRefServiceInstance;
   attribute?: string;
+  /** Field label as written on the form; the AI paths send it as the human-readable field name */
+  attributeLabel?: string;
   recordRef?: string;
   maxLength?: number;
 };
@@ -107,6 +109,7 @@ export default function Editor({
   onUpload,
   UploadDocsService,
   attribute,
+  attributeLabel,
   recordRef,
   maxLength = DEFAULT_MAX_LENGTH
 }: LexicalEditorProps): React.JSX.Element {
@@ -188,6 +191,7 @@ export default function Editor({
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
           attribute={attribute}
+          attributeLabel={attributeLabel}
           recordRef={recordRef}
         />
       )}
@@ -281,6 +285,7 @@ export default function Editor({
                   setIsLinkEditMode={setIsLinkEditMode}
                   recordRef={recordRef}
                   attribute={attribute}
+                  attributeLabel={attributeLabel}
                 />
                 <AIFloatingPopup />
               </>

@@ -3,7 +3,7 @@ import Records from '@citeck/records-core';
 
 import actionsRegistry from '../../../actionsRegistry';
 import RecordsExportAction from '../RecordsExport';
-import '../__mocks__/RecordsExport.mock';
+import { CONTENT_URL, FOREIGN_URL } from '../__mocks__/RecordsExport.mock';
 import ServerGroupAction from '../ServerGroupAction';
 
 //for new cases don't use "-" in test exportType
@@ -119,6 +119,106 @@ describe('RecordsExport action', () => {
       expect(result.type).toEqual('results');
       expect(errorSpy).toHaveBeenCalledTimes(0);
       expect(openSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('download parameter of the result link', () => {
+    const getOpenedUrl = () => openSpy.mock.calls[0][0];
+    const countDownloadParams = url => (url.match(/download=/g) || []).length;
+
+    it('download: true - the link asks for an attachment', async () => {
+      const result = await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'content_link',
+          columns: [{}],
+          download: true
+        }
+      });
+
+      expect(result).toEqual(true);
+      expect(openSpy).toHaveBeenCalledTimes(1);
+      expect(countDownloadParams(getOpenedUrl())).toEqual(1);
+      expect(getOpenedUrl()).toContain('download=true');
+    });
+
+    it('download not specified - the link asks for an attachment', async () => {
+      const result = await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'content_link',
+          columns: [{}]
+        }
+      });
+
+      expect(result).toEqual(true);
+      expect(countDownloadParams(getOpenedUrl())).toEqual(1);
+      expect(getOpenedUrl()).toContain('download=true');
+    });
+
+    it('download: false - the link opens the file instead of downloading it', async () => {
+      const result = await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'content_link_download_true',
+          columns: [{}],
+          download: false
+        }
+      });
+
+      expect(result).toEqual(true);
+      expect(countDownloadParams(getOpenedUrl())).toEqual(1);
+      expect(getOpenedUrl()).not.toContain('download=true');
+      expect(getOpenedUrl()).toEqual(`${CONTENT_URL}&download=false`);
+    });
+
+    it('the rest of the url given by the group action is kept', async () => {
+      await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'content_link',
+          columns: [{}],
+          download: true
+        }
+      });
+
+      expect(getOpenedUrl()).toEqual(`${CONTENT_URL}&download=true`);
+      expect(getOpenedUrl()).toContain('/gateway/emodel/api/ecos/webapp/content?ref=emodel/temp-file@report');
+    });
+
+    it('download: true - a link of another endpoint keeps its signed query string', async () => {
+      const result = await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'foreign_link',
+          columns: [{}],
+          download: true
+        }
+      });
+
+      expect(result).toEqual(true);
+      expect(getOpenedUrl()).toEqual(FOREIGN_URL);
+      expect(getOpenedUrl()).not.toContain('download=');
+    });
+
+    it('download not specified - a link of another endpoint keeps its signed query string', async () => {
+      await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'foreign_link',
+          columns: [{}]
+        }
+      });
+
+      expect(getOpenedUrl()).toEqual(FOREIGN_URL);
+      expect(getOpenedUrl()).not.toContain('download=');
+    });
+
+    it('download: false - a link of another endpoint keeps its signed query string', async () => {
+      await actionRecordsExport.execForQuery(record, {
+        config: {
+          exportType: 'foreign_link',
+          columns: [{}],
+          download: false
+        }
+      });
+
+      expect(getOpenedUrl()).toEqual(FOREIGN_URL);
+      expect(getOpenedUrl()).not.toContain('download=');
     });
   });
 });

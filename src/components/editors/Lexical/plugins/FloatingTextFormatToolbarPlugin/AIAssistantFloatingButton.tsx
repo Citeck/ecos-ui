@@ -9,19 +9,24 @@ import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import aiAssistantService from '@/components/ai/AIAssistant/AIAssistantService';
+import { stripRecordRefAlias } from '@/components/ai/AIAssistant/utils';
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
 import { AI_FLOATING_POPUP_OPEN } from './AIFloatingPopup';
+
+import { t } from '@/helpers/export/util';
 
 interface AIAssistantFloatingButtonProps {
   editor: LexicalEditor;
   recordRef?: string;
   attribute?: string;
+  /** Field label as written on the form; sent to the backend as the human-readable field name */
+  attributeLabel?: string;
 }
 
-export default function AIAssistantFloatingButton({ editor, recordRef, attribute }: AIAssistantFloatingButtonProps) {
+export default function AIAssistantFloatingButton({ editor, recordRef, attribute, attributeLabel }: AIAssistantFloatingButtonProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const ref = recordRef ? recordRef.split('-alias-')[0] : null;
+  const ref = stripRecordRefAlias(recordRef);
 
   useEffect(() => {
     let isMounted = true;
@@ -72,12 +77,13 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
             selectedText,
             currentValue,
             recordRef: ref || '',
-            attribute: attribute || ''
+            attribute: attribute || '',
+            attributeLabel: attributeLabel || ''
           }
         })
       );
     },
-    [editor, ref, attribute]
+    [editor, ref, attribute, attributeLabel]
   );
 
   // Prevent selection loss on mousedown
@@ -96,8 +102,8 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
       className="popup-item spaced ai-assistant-selection"
       onClick={handleClick}
       onMouseDown={handleMouseDown}
-      title="AI Assistant"
-      aria-label="AI Assistant"
+      title={t('ai-actions.trigger.aria-label')}
+      aria-label={t('ai-actions.trigger.aria-label')}
     >
       <AiAssistant />
     </button>

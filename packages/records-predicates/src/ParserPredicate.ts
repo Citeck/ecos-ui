@@ -6,13 +6,12 @@ import {
   filterPredicates,
   getPredicates,
   PREDICATE_AND,
-  PREDICATE_EMPTY,
   PREDICATE_EQ,
-  PREDICATE_NOT_EMPTY,
   PREDICATE_NOT,
   PREDICATE_NOT_EQ,
   PREDICATE_OR,
   PREDICATE_TIME_INTERVAL,
+  PREDICATES_WITHOUT_VALUE,
   SEARCH_EQUAL_PREDICATES_MAP
 } from '@citeck/records-core/predicates/predicates';
 import cloneDeep from 'lodash/cloneDeep';
@@ -26,11 +25,12 @@ import isString from 'lodash/isString';
 import FilterPredicate from './FilterPredicate';
 import GroupPredicate from './GroupPredicate';
 import Predicate from './Predicate';
-import { getAttFromPredicate } from './utils';
+import { buildGroupedRowPredicate, buildRowPredicates } from './groupedRowPredicate';
+import { getAttFromPredicate, isIgnoredByQuery } from './utils';
 
 export default class ParserPredicate {
   static get predicatesWithoutValue(): any[] {
-    return [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
+    return PREDICATES_WITHOUT_VALUE;
   }
 
   static getSearchPredicates({ text, columns, groupBy }: { text: any; columns: any[]; groupBy: any }): any {
@@ -69,41 +69,29 @@ export default class ParserPredicate {
     return columns.filter((item: any) => ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type));
   }
 
-  static getRowPredicates({ row, columns, groupBy, predicate }: { row: any; columns: any[]; groupBy: any[]; predicate: any }): any[] {
-    const values: any[] = [];
-    let filteredColumns: any[] = [];
-    let filterColumns: any[] = [];
+  static getRowPredicates({ row, columns, groupBy }: { row: any; columns: any[]; groupBy: any[] }): any[] {
+    return buildRowPredicates({ row, columns, groupBy });
+  }
 
-    const filters = ParserPredicate.getFilters(predicate, columns);
+  /**
+   * Predicate for the records behind one row of a grouped journal — the grouped attributes pinned to
+   * the values of that row, on top of the part of the active filter that still has something to say.
+   *
+   * The conditions of the active filter that only constrain the grouped attributes are dropped: the
+   * clicked group already fixes those attributes, so keeping them would duplicate the pinned
+   * condition and, for an OR filter, leave branches of groups the user did not click.
+   * See `groupedRowPredicate.ts` for the rules.
+   */
+  static getGroupedRowPredicate({ row, columns, groupBy, predicate }: { row: any; columns: any[]; groupBy: any[]; predicate: any }): any {
+    const pinned = ParserPredicate.getRowPredicates({ row, columns, groupBy });
 
-    if (groupBy.length) {
-      const _groupBy = groupBy[0].split('&');
-      filteredColumns = columns.filter((c: any) => _groupBy.find((g: any) => g === c.attribute));
-      filterColumns = filters.filter((f: any) => _groupBy.find((g: any) => g === f.predicate?.att));
+    if (!pinned.length) {
+      return predicate;
     }
 
-    for (const key in row) {
-      if (!row.hasOwnProperty(key)) {
-        continue;
-      }
+    const atts = (groupBy || []).reduce((res: string[], item: any) => res.concat(String(item).split('&')), []);
 
-      const val = get(row, [key, 'value']) || get(row, [key]);
-      const column = filteredColumns.find((c: any) => c.attribute === key) || {};
-      const filterColumn = filterColumns.find((f: any) => f.predicate?.att === key) || {};
-      const type = column.type;
-
-      let predicate = isEmpty(filterColumn) ? (EQUAL_PREDICATES_MAP as any)[type] : filterColumn.predicate.t;
-
-      if (val === null && column.type) {
-        predicate = PREDICATE_EMPTY;
-      }
-
-      if (predicate) {
-        values.push(new Predicate({ att: key, t: predicate, val }));
-      }
-    }
-
-    return values;
+    return buildGroupedRowPredicate({ predicate, atts, pinned });
   }
 
   static getDefaultPredicates(columns: any[], extra: any, defaultPredicatesList: any[]): any {
@@ -173,19 +161,12 @@ export default class ParserPredicate {
         return false;
       }
 
-      if (Array.isArray(v.val)) {
-        return !!v.val.length;
+      if (typeof v === 'string') {
+        return !isEmpty(v);
       }
 
-      if (ParserPredicate.isWithoutValue(v)) {
-        return true;
-      }
-
-      if (typeof v === 'string' && !isEmpty(v)) {
-        return true;
-      }
-
-      return !!v.val || v.val === 0 || v.val === false;
+      // shared with the group drill-down pre-clean, which must mirror this rule exactly
+      return !isIgnoredByQuery(v);
     });
   }
 
@@ -476,61 +457,53 @@ export default class ParserPredicate {
     return predicates;
   }
 
+  /**
+   * Adds a condition on an attribute the filter does not mention yet so that it is AND-ed with
+   * everything the filter already requires — a column header filter narrows the current result set,
+   * never widens it. The filter is an OR of settings groups, each an OR of AND-ed criteria (the shape
+   * `reverse` and `buildGroupedRowPredicate` produce), so the condition is distributed into every
+   * disjunctive branch and appended to a conjunctive one. A branch that is a bare criterion — a
+   * settings group with a single criterion, or a drill-down that left nothing but the pinned group
+   * value — has no `and` to append to and gets one; pushed into the `or` it sits in, the condition
+   * used to become an alternative instead of a restriction (COREDEV-371). Inside an `and` holding
+   * nested groups the condition goes to the first group only: `(A and B) and X` ≡ `(A and X) and B`,
+   * while a copy in every group would show up twice in the settings panel.
+   */
   static addNewPredicate(_predicates: any, predicate: any): any {
     const predicates = cloneDeep(_predicates);
-    const val = new Predicate(predicate);
+    const condition = new Predicate(predicate);
+    const isContainer = (item: any): boolean => !!item && !item.att && isArray(item.val);
 
-    (function forEach(arr: any) {
-      arr.forEach((item: any) => {
-        if (isArray(item.val)) {
-          if (!item.val.length || item.val.every((v: any) => Predicate.isEndVal(v.val))) {
-            item.val.push(val);
-          } else {
-            forEach(item.val);
+    const add = (container: any): void => {
+      if (!container.val.length) {
+        container.val.push(condition);
+        return;
+      }
+
+      if (container.t === PREDICATE_OR) {
+        container.val = container.val.map((item: any) => {
+          if (isContainer(item)) {
+            add(item);
+            return item;
           }
-        }
-      });
-    })(predicates.val || []);
 
-    return predicates;
-  }
+          return new Predicate({ t: PREDICATE_AND, val: [item, condition] });
+        });
+        return;
+      }
 
-  static setPredicateValue(predicates: any, newPredicate: any): any {
-    if (!predicates) {
-      return [];
-    }
+      const nested = container.val.find(isContainer);
 
-    if (Array.isArray(newPredicate)) {
-      let newPredicates = predicates;
-
-      newPredicate.forEach((item: any) => {
-        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
-      });
-
-      return newPredicates;
-    }
-
-    predicates = cloneDeep(predicates);
-
-    const foreach = (arr: any) => {
-      arr.forEach((item: any) => {
-        if (isString(item)) {
-          return;
-        }
-
-        if (!isArray(item.val) && item.att === newPredicate.att) {
-          item.val = newPredicate.val || '';
-
-          if (newPredicate.t) {
-            item.t = newPredicate.t;
-          }
-        } else if (isArray(item.val)) {
-          foreach(item.val);
-        }
-      });
+      if (nested) {
+        add(nested);
+      } else {
+        container.val.push(condition);
+      }
     };
 
-    foreach(predicates.val || []);
+    if (isContainer(predicates)) {
+      add(predicates);
+    }
 
     return predicates;
   }

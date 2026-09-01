@@ -4,6 +4,8 @@ import get from 'lodash/get';
 
 import { getMLValue } from '../helpers/util';
 
+import ecosUrlStorage from './providers/ecosUrlStorage';
+
 jsonLogic.add_operation('getMLValue', value => getMLValue(value));
 
 const originProviders = Formio.providers;
@@ -47,7 +49,10 @@ Formio.providers = {
   ...originProviders,
   storage: {
     base64: get(originProviders, 'storage.base64'),
-    url: get(originProviders, 'storage.url')
+    // Subs out the stock `url` provider for one that routes through src/helpers/chunkedUpload,
+    // keeping the stored field-value format identical so existing forms/stored values need no
+    // reconfiguration.
+    url: ecosUrlStorage
   }
 };
 

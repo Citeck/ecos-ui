@@ -21,6 +21,7 @@ function mapStateToProps(state, props) {
     grid: { ...journalProps.grid, search },
     isFilterOn: kanbanProps.isFiltered || journalProps.isFilterOn,
     isLoading: kanbanProps.isLoading,
+    isRefreshing: kanbanProps.isRefreshing,
     hasWritePermission: kanbanProps.hasWritePermission,
     noGroupActions: true,
     settingsColumnsData: null,
@@ -37,7 +38,8 @@ function mapDispatchToProps(dispatch, props) {
     applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
     resetFiltering: () => dispatch(resetFilter({ stateId })),
     runSearch: text => dispatch(runSearchCard({ text, stateId })),
-    reloadGrid: debounce(() => dispatch(reloadBoardData({ stateId })), 300),
+    // «Обновить» refreshes in place: the cards and the scroll position stay, only the button spins.
+    reloadGrid: debounce(() => dispatch(reloadBoardData({ stateId, silent: true })), 300),
     clearSearch: _ => _
   };
 }

@@ -57,6 +57,35 @@
     @media (min-width: $tablet) {
       display: flex;
       height: 50px !important;
+      // Minimized, the panel is just this 50px header; the header buttons' tooltips (and the
+      // export dropdown) are drawn below it, so the panel's `overflow: hidden` would clip them
+      // together with everything past the header. Safe to lift: the messages and the input form
+      // are not rendered at all while minimized (AIAssistantChat.jsx), so nothing else can leak
+      // out, and the rounded corners come from the header's own border-radius, not from clipping.
+      overflow: visible;
+
+      // Minimized, the panel is the last 50px before the window's bottom edge (`bottom: 20px` on
+      // .ai-assistant-resizable), and a bubble below the button needs ~34px more than that — so
+      // lifting the panel's clipping only moved the problem to the viewport, which cannot scroll a
+      // fixed panel into view and where `title` is no longer there to fall back on. Above the
+      // minimized panel there is a whole screen of room and, since `overflow: visible`, nothing
+      // left to clip against.
+      .ai-assistant-chat__close,
+      .ai-assistant-chat__minimize {
+        @include tooltip-direction(top);
+      }
+
+      // COREDEV-411: the export menu opens downward (`top: 100%` on __export-dropdown), but the
+      // minimized panel is the last 50px before the window's bottom edge, so a ~80px menu hangs
+      // past the viewport, which cannot scroll a fixed panel into view — "HTML (.html)" was
+      // unreachable. Same geometry as the tooltips above: flip the menu upward, where a whole
+      // screen of room is available.
+      .ai-assistant-chat__export-dropdown {
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 4px;
+      }
     }
   }
 
@@ -126,8 +155,13 @@
   }
 
   @keyframes agent-badge-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
   }
 
   &__header-actions {
@@ -140,6 +174,11 @@
 
   &__close {
     @include close-button;
+    // The tooltip pseudo-elements must anchor to the button itself: without `position: relative`
+    // they would anchor to the `__header-actions` wrapper (which is `position: relative`) and the
+    // bubble would drift. The export dropdown is a sibling of the buttons, not a descendant,
+    // so it keeps anchoring to the wrapper and is unaffected.
+    position: relative;
     font-size: 24px;
     padding: 8px;
     line-height: 1;
@@ -155,10 +194,30 @@
       min-height: auto;
       font-size: 20px;
     }
+
+    // The header is the panel's top edge — a bubble above the button would be clipped.
+    @include tooltip(bottom);
+
+    // Rightmost button of a panel pinned to the right edge of the window: a centered nowrap
+    // bubble would stick out past the panel and be cut by its `overflow: hidden`. Anchor bubble
+    // and arrow to the button's right edge instead (same as `--clear-context` in _chat-input.scss).
+    &::after {
+      left: auto;
+      right: 0;
+      transform: translateX(0);
+    }
+
+    &::before {
+      left: auto;
+      right: $spacing-md;
+      transform: translateX(0);
+    }
   }
 
   &__minimize {
     @include close-button;
+    // Same anchoring requirement as `__close` above.
+    position: relative;
     font-size: 18px;
     width: 40px;
     min-width: 40px;
@@ -177,6 +236,9 @@
       margin-right: 8px;
       font-size: 16px;
     }
+
+    // The header is the panel's top edge — a bubble above the button would be clipped.
+    @include tooltip(bottom);
   }
 
   &__export-dropdown {
@@ -232,7 +294,9 @@
     transition: all $transition-normal;
 
     &::before {
-      content: "Отпустите файлы для загрузки";
+      // The wording comes from the element's `data-drop-hint` (AIAssistantChat.jsx), not from the
+      // stylesheet: a literal here cannot be translated and showed Russian in the English UI.
+      content: attr(data-drop-hint);
       position: absolute;
       top: 50%;
       left: 50%;
@@ -357,7 +421,7 @@
       height: 200%;
       pointer-events: none;
       border-radius: inherit;
-      background: linear-gradient(90deg,rgba(255, 255, 255, 0) 0%,rgba(255, 255, 255, 0.55) 50%,rgba(255, 255, 255, 0) 100%);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0) 100%);
       transform: translateX(-180%) skewX(-20deg);
       animation: ai-button-sheen 10s ease-in-out infinite;
     }

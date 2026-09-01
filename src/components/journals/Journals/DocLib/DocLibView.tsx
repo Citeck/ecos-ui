@@ -12,6 +12,7 @@ import DocLibToolbar from './Toolbar/DocLibToolbar';
 import { useDisplayMode } from './hooks/useDisplayMode';
 import { useDocLibDispatch } from './hooks/useDocLibDispatch';
 import { useDocLibSelector } from './hooks/useDocLibSelector';
+import { useFolderFromUrl } from './hooks/useFolderFromUrl';
 import { FileViewerState } from './types';
 
 import { initDocLib, loadFilesViewerData, setFileViewerPagination } from '@/actions/docLib';
@@ -83,6 +84,10 @@ const DocLibView = (props: DocLibViewProps) => {
       dispatchW(initDocLib, {});
     }
   }, [typeRef, isActivePage, viewMode, dispatchW]);
+
+  // A link to another folder of this library reuses the page tab (tabs are keyed by journal), so the
+  // init above does not run again — follow the tab's link instead. See useFolderFromUrl.
+  useFolderFromUrl(stateId, isInitialized && isActivePage);
 
   const onToggleTreeCollapsed = useCallback(() => {
     setIsTreeCollapsed(collapsed => {

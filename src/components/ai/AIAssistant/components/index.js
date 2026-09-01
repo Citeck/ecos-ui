@@ -1,6 +1,7 @@
 // AI Assistant UI Components
 
 export { default as ChatHeader } from './ChatHeader';
+export { default as ChatMarkdownLink } from './ChatMarkdownLink';
 export { default as ChatTabs } from './ChatTabs';
 export { default as ChatWelcome } from './ChatWelcome';
 export { default as ChatInput } from './ChatInput';

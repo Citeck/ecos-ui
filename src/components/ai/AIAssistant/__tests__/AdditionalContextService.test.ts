@@ -12,10 +12,10 @@ jest.mock('@/helpers/urls', () => ({
 import Records from '@citeck/records-core';
 
 import additionalContextService from '../AdditionalContextService';
-import { ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
 
 import type { AdditionalContext, RecordData, DocumentData } from '../AdditionalContextService';
 
+import { ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
 import { getRecordRef } from '@/helpers/urls';
 
 const mockRecords = Records as jest.Mocked<typeof Records>;
@@ -127,6 +127,36 @@ describe('AdditionalContextService', () => {
         type: 'type1'
       });
     });
+
+    // The reference that leaves here is compared against the chat context, and `syncCurrentRecord`
+    // puts the record there with the alias already cut off. Keeping it on this side made the two
+    // forms of the same reference look like two records: the current record was offered by the `@`
+    // dropdown although its chip was on screen, and listed a second time as its own search result
+    // (D-B-18). `isSameRecordRef` cannot bridge the difference — it normalises the application
+    // prefix, not the alias.
+    it('cuts the -alias- suffix off the reference taken from the address', async () => {
+      mockGetRecordRef.mockReturnValue('emodel/contract@rec-1-alias-abc');
+      const load = jest.fn().mockResolvedValue({ displayName: 'Current', type: 'type1' });
+      mockRecords.get.mockReturnValue({ reset: jest.fn(), load } as any);
+
+      const result = await additionalContextService.loadCurrentRecordData();
+
+      expect(mockRecords.get).toHaveBeenCalledWith('emodel/contract@rec-1');
+      expect(result).toEqual({
+        recordRef: 'emodel/contract@rec-1',
+        displayName: 'Current',
+        type: 'type1'
+      });
+    });
+
+    it('returns null when the address carries nothing but an alias suffix', async () => {
+      mockGetRecordRef.mockReturnValue('-alias-abc');
+
+      const result = await additionalContextService.loadCurrentRecordData();
+
+      expect(result).toBeNull();
+      expect(mockRecords.get).not.toHaveBeenCalled();
+    });
   });
 
   describe('loadDocumentsData', () => {
@@ -149,6 +179,58 @@ describe('AdditionalContextService', () => {
 
       expect(result).toEqual([]);
       errorSpy.mockRestore();
+    });
+
+    // Same cut as in `loadCurrentRecordData`, and for the same consequence: `parentRef` falls back
+    // to this reference and travels into the request as the document's parent record, so with the
+    // alias left on it the parent is written differently from the very record whose chip is on
+    // screen — one record sent, and shown, twice.
+    it('cuts the -alias- suffix off the reference it loads the documents by', async () => {
+      mockGetRecordRef.mockReturnValue('emodel/contract@rec-1-alias-abc');
+      const load = jest.fn().mockResolvedValue([{ '.id': 'doc-1', '.disp': 'Договор.pdf', '_type{.id, .disp}': { '.id': 'attach' } }]);
+      mockRecords.get.mockReturnValue({ load } as any);
+
+      const result = await additionalContextService.loadDocumentsData();
+
+      expect(mockRecords.get).toHaveBeenCalledWith('emodel/contract@rec-1');
+      expect(result[0].parentRef).toBe('emodel/contract@rec-1');
+    });
+
+    it('returns empty array when the address carries nothing but an alias suffix', async () => {
+      mockGetRecordRef.mockReturnValue('-alias-abc');
+
+      const result = await additionalContextService.loadDocumentsData();
+
+      expect(result).toEqual([]);
+      expect(mockRecords.get).not.toHaveBeenCalled();
+    });
+  });
+
+  // The guard behind the duplicate-chip defects: the same record reaches it written as the page
+  // address has it (`emodel/type@id`) and as a search result returned it (`type@id`), so `===`
+  // would let it into the context a second time.
+  describe('isRecordInContext', () => {
+    const record = (recordRef: string): RecordData => ({ recordRef, displayName: 'R', type: 't' });
+
+    it('recognises the same record written with and without the application prefix', () => {
+      expect(additionalContextService.isRecordInContext('type@employee', [record('emodel/type@employee')])).toBe(true);
+      expect(additionalContextService.isRecordInContext('emodel/type@employee', [record('type@employee')])).toBe(true);
+    });
+
+    it('recognises an identical reference', () => {
+      expect(additionalContextService.isRecordInContext('emodel/type@employee', [record('emodel/type@employee')])).toBe(true);
+    });
+
+    it('keeps two records of different applications apart', () => {
+      expect(additionalContextService.isRecordInContext('alfresco/type@employee', [record('emodel/type@employee')])).toBe(false);
+    });
+
+    it('does not match a different record', () => {
+      expect(additionalContextService.isRecordInContext('emodel/type@manager', [record('emodel/type@employee')])).toBe(false);
+    });
+
+    it('reports nothing in an empty context', () => {
+      expect(additionalContextService.isRecordInContext('emodel/type@employee', [])).toBe(false);
     });
   });
 
@@ -217,6 +299,65 @@ describe('AdditionalContextService', () => {
       const typeUpdater = setSelectedTypes.mock.calls[0][0];
       const result = typeUpdater([ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]);
       expect(result).not.toContain(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
+    });
+  });
+
+  describe('removeRecordFromContext', () => {
+    it('removes record and keeps other records', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [
+          { recordRef: 'rec-1', displayName: 'R1', type: 't1' },
+          { recordRef: 'rec-2', displayName: 'R2', type: 't1' }
+        ],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      const result = updater(context);
+      expect(result.records).toEqual([{ recordRef: 'rec-2', displayName: 'R2', type: 't1' }]);
+      expect(setSelectedTypes).not.toHaveBeenCalled();
+    });
+
+    it('removes CURRENT_RECORD type when last record removed', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [{ recordRef: 'rec-1', displayName: 'R1', type: 't1' }],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      const result = updater(context);
+      expect(result.records).toHaveLength(0);
+
+      const typeUpdater = setSelectedTypes.mock.calls[0][0];
+      expect(typeUpdater([ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS])).toEqual([
+        ADDITIONAL_CONTEXT_TYPES.DOCUMENTS
+      ]);
+    });
+
+    it('returns same state when record is not in context', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [{ recordRef: 'rec-2', displayName: 'R2', type: 't1' }],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      expect(updater(context)).toBe(context);
+      expect(setSelectedTypes).not.toHaveBeenCalled();
     });
   });
 
@@ -302,7 +443,9 @@ describe('AdditionalContextService', () => {
 
       const result = await additionalContextService.loadWorkspaceContext('test-ws');
 
-      expect(result!.workspaceName).toBe('test-ws');
+      // `?.` rather than `!`: a null result yields `undefined` and fails the assertion just the
+      // same, without the lint-forbidden non-null assertion.
+      expect(result?.workspaceName).toBe('test-ws');
     });
 
     it('returns null on error', async () => {

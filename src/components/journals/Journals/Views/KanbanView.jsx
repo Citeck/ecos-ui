@@ -63,7 +63,7 @@ function mapDispatchToProps(dispatch, props) {
     resetFiltering: () => dispatch(resetFilter({ stateId: props.stateId })),
     applyFiltering: settings => dispatch(applyFilter({ stateId: props.stateId, settings })),
     getBoardData: (boardId, templateId) => dispatch(getBoardData({ boardId, templateId, stateId: props.stateId })),
-    reloadBoardData: () => dispatch(reloadBoardData({ stateId: props.stateId })),
+    reloadBoardData: options => dispatch(reloadBoardData({ stateId: props.stateId, ...options })),
     selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId: props.stateId })),
     selectPreset: id => dispatch(selectPreset(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
@@ -95,25 +95,42 @@ class KanbanView extends React.Component {
       return;
     }
 
+    // `urlParams` is read from window.location, which always describes the ACTIVE page tab — not this
+    // one. prevProps.urlParams belongs to whichever tab was active before this commit, so when this
+    // tab was inactive that is another tab's URL — comparing against it would make every param look
+    // "changed": boardId, search and templateId all fired at once and re-ran the full board load —
+    // skeletons over the whole board and the scroll thrown back to the first page (COREDEV-426).
+    // Substitute the current params so only genuine changes register.
+    const prevUrlParams = prevProps.isActivePage ? get(prevProps, 'urlParams', {}) : urlParams;
+
+    if (!prevProps.isActivePage && isActivePage) {
+      // Coming back to this page tab: the URL diff above is neutralized, so trigger the in-place data
+      // refresh explicitly. The saga drops the dispatch if a refresh/load is already in flight (e.g. the
+      // one sagaToggleViewMode fires when the view mode really changed), so double dispatch is safe.
+      this.props.reloadBoardData({ silent: true });
+    }
+
     if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId)) {
       this.props.getJournalsData({ force, savePredicate: true });
     }
 
-    if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
-      this.props.reloadBoardData();
+    if (urlParams[JUP.SEARCH] !== prevUrlParams[JUP.SEARCH]) {
+      // The silent reload re-reads the search text from the URL while refreshing the loaded volumes
+      // in place — a full skeleton reload here is exactly what COREDEV-426 removes.
+      this.props.reloadBoardData({ silent: true });
     }
 
-    if (
-      !isEqualWith(boardList, prevProps.boardList, isEqual) ||
-      (!isEmpty(boardList) && this.state.isClose) ||
-      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID])
-    ) {
+    // Second guard for the same class of false positive: whatever the previous URL said, the board
+    // does not need reloading when the requested board is the one already loaded.
+    const isBoardIdChanged = urlParams[KUP.BOARD_ID] !== prevUrlParams[KUP.BOARD_ID] && (urlParams[KUP.BOARD_ID] || '') !== this.boardId;
+
+    if (!isEqualWith(boardList, prevProps.boardList, isEqual) || (!isEmpty(boardList) && this.state.isClose) || isBoardIdChanged) {
       this.setState({ isClose: false }, () => {
         this.props.getBoardData(this.getSelectedBoardFromUrl(), urlParams.journalSettingId || '');
       });
     }
 
-    if (urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])) {
+    if (urlParams[KUP.TEMPLATE_ID] !== prevUrlParams[KUP.TEMPLATE_ID]) {
       this.setState({ isClose: true });
     }
   }
@@ -214,7 +231,7 @@ class KanbanView extends React.Component {
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Bar
             {...this.props}
-            hasBtnEdit={() => hasBtnEdit(this.boardId)}
+            hasBtnEdit={hasBtnEdit(this.boardId)}
             onEditJournal={() => onEditJournal(this.boardId)}
             urlParams={urlParams}
             isActivePage={isActivePage}

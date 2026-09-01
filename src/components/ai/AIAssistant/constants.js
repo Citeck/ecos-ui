@@ -15,17 +15,43 @@ const SCRIPT_CONTEXT_TYPES = {
   dev_console: 'dev-console'
 };
 
+// Text context types (see TEXT_CONTEXT_TYPES in TextAIService.ts). The localization key suffix
+// matches the type itself, so a plain list is enough — unlike the script types above, which turn
+// an underscore into a hyphen.
+//
+// The list is duplicated rather than imported because `TextAIService.ts` imports this module, so
+// the import back would close a cycle (`yarn check:cycles`). Drift between the two copies is not
+// harmless — an unknown type falls through to the *script* fallback and labels a text field
+// "Скрипт" — so `getScriptContextLabel.test.js` asserts the two lists match and fails on drift.
+// Exported for that test.
+//
+// Deliberately NOT named `TEXT_CONTEXT_TYPES`: `TextAIService.ts` exports a constant under that
+// name from the same module tree (and `AIAssistant/index.js` re-exports it), but as a *table*
+// (`{ GENERAL: 'general', … }`). Two same-named exports of incompatible shape next to each other are
+// a trap that fails silently — `TEXT_CONTEXT_TYPES.GENERAL` resolved against the list is
+// `undefined`, and `TextArea.jsx` uses exactly that expression as the fallback context type, so a
+// misresolved import would quietly turn AI off for a textarea instead of raising anything.
+export const TEXT_CONTEXT_TYPE_LIST = ['documentation', 'description', 'name', 'comment', 'general'];
+
 /**
- * Get localized label for script context type
- * @param {string} contextType - Context type key (e.g., 'computed_attribute')
+ * Get localized label for a script or text context type
+ * @param {string} contextType - Context type key (e.g., 'computed_attribute', 'general')
  * @returns {string} Localized label
  */
 export const getScriptContextLabel = contextType => {
-  const localeKey = SCRIPT_CONTEXT_TYPES[contextType];
+  // Own keys only: a plain object literal answers `toString`/`constructor`/`valueOf` from
+  // `Object.prototype` with a truthy function, which the template below would interpolate into the
+  // header as `script-context.function toString() { [native code] }` — the raw-identifier defect
+  // this fallback exists to prevent, in its ugliest form.
+  const localeKey = Object.prototype.hasOwnProperty.call(SCRIPT_CONTEXT_TYPES, contextType) ? SCRIPT_CONTEXT_TYPES[contextType] : null;
   if (localeKey) {
     return t(`script-context.${localeKey}`);
   }
-  return contextType || t('script-context.default');
+  if (TEXT_CONTEXT_TYPE_LIST.includes(contextType)) {
+    return t(`text-context.${contextType}`);
+  }
+  // An unknown type is never shown as is: a raw identifier in the header reads as a defect.
+  return t('script-context.default');
 };
 
 // Events
@@ -145,11 +171,60 @@ export const EDITOR_CONTEXT_HANDLERS = {
 
 // Polling configuration
 export const POLLING_INTERVAL = 1000;
-// Client-side watchdog: max consecutive "processing" polls before the chat gives up and surfaces a
+// Client-side watchdog: how long the chat waits on one request before giving up and surfacing a
 // timeout error instead of spinning forever. Guards against a request that never leaves the
 // "processing" state (e.g. after a transient backend 500), which otherwise hangs the typing
-// indicator with no way to recover. 600 × 1s ≈ 10 min — well above any normal agent run.
-export const POLLING_MAX_ATTEMPTS = 600;
+// indicator with no way to recover. Ten minutes is well above any normal agent run.
+//
+// Stated in time and not in polls (it used to be `POLLING_MAX_ATTEMPTS = 600`, meant to be read as
+// 600 × 1s). A budget counted in polls is only worth ten minutes while exactly one poll per second
+// happens, and every extra poll — a duplicated chain, a retry, a shorter interval — spends the
+// user's patience without a second of it passing. Measured on the stand at regr-20260816-r1: 600
+// polls of one request burned in two minutes, then in eight to fifteen seconds, so the config agent
+// (which thinks for one to ten minutes) never once reached its answer in the panel
+// (D-B2d-CHAT-POLL-BUDGET). Wall-clock time cannot be spent faster than it passes.
+export const POLLING_TIMEOUT_MS = 10 * 60 * 1000;
+
+// How long the field services (text, script, content) wait for their own request. They poll it
+// themselves rather than through `usePolling`, and each used to hold a private
+// `MAX_POLLING_ATTEMPTS = 120` — two minutes against the backend's thirty
+// (`REQUEST_TIMEOUT_MINUTES` in citeck-ai: up to nine provider calls with a ten-minute read timeout
+// each, cut off by the controller). Fifteen times too early, and the answer that arrived after the
+// client had given up was held by the server for another hour with nobody left to collect it
+// (D-G-FE-TIMEOUT). One constant for the three, matched to the limit that actually decides the
+// outcome.
+export const FIELD_AI_TIMEOUT_MS = 30 * 60 * 1000;
+
+// The wait between polls grows, so that thirty minutes do not become eighteen hundred requests: a
+// quick answer is still noticed within a second, a long one is checked every five. The ramp is over
+// the first half-minute — past that the request is plainly not a quick one.
+export const FIELD_AI_POLL_INTERVAL_MIN_MS = POLLING_INTERVAL;
+export const FIELD_AI_POLL_INTERVAL_MAX_MS = 5000;
+export const FIELD_AI_POLL_RAMP_MS = 30 * 1000;
+
+/**
+ * How long to wait before the next poll, given how long this request has been waited on already.
+ * @param {number} waitedMs - Total wait scheduled so far
+ * @returns {number} Delay in ms, between the minimum and the maximum interval
+ */
+export const getFieldAiPollDelay = waitedMs => {
+  const progress = Math.min(1, Math.max(0, waitedMs) / FIELD_AI_POLL_RAMP_MS);
+  return Math.round(FIELD_AI_POLL_INTERVAL_MIN_MS + progress * (FIELD_AI_POLL_INTERVAL_MAX_MS - FIELD_AI_POLL_INTERVAL_MIN_MS));
+};
+
+// Lifetime of the persisted chat session record (sessionStorage), matched to what the backend
+// actually keeps: `ConversationDataStore.DATA_EXPIRY_HOURS` in citeck-ai retires a conversation 24 h
+// after its last write, and the record is worthless past that point. Deliberately NOT the polling
+// window — that is the client's own watchdog, and expiring the record with it threw away exactly the
+// long-running generations the persistence exists to rescue (D-B-14).
+export const CHAT_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+
+// Separate, much shorter horizon for resuming the request itself: citeck-ai kills a request after
+// `REQUEST_TIMEOUT_MINUTES` (30) and drops the finished result `COMPLETED_RETENTION_MINUTES` (60)
+// later, so 90 min is the longest a stored `requestId` can still answer anything. Past it the id is
+// dropped while the conversation is kept — resuming would only fetch a 404 and show "request lost"
+// for a chat the user can otherwise carry on using.
+export const CHAT_REQUEST_RESUME_TTL_MS = 90 * 60 * 1000;
 
 // Chat dimensions
 export const CHAT_DIMENSIONS = {

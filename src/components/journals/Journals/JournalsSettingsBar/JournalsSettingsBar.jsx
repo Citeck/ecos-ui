@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import Export from '@/components/domain/Export/Export';
@@ -63,6 +64,7 @@ const JournalsSettingsBar = ({
   viewMode,
 
   isLoading,
+  isRefreshing,
   isMobile,
   isCreateLoading,
   isShowResetFilter,
@@ -92,6 +94,10 @@ const JournalsSettingsBar = ({
   hideImportBtn = false,
   hideExportBtn = false
 }) => {
+  // hasBtnEdit says whether the settings button is allowed to exist at all (external displayElements
+  // flag + a resolvable config record); hasWritePermission decides for whom. Some call sites pass
+  // hasBtnEdit as a thunk — evaluate it, a bare function object is always truthy (COREDEV-440).
+  const showEditJournalBtn = Boolean(isFunction(hasBtnEdit) ? hasBtnEdit() : hasBtnEdit);
   const journalSettingsBarRef = useRef(null);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isHideTextPagination, setIsHideTextPagination] = React.useState(false);
@@ -155,22 +161,19 @@ const JournalsSettingsBar = ({
         })}
         ref={journalSettingsBarRef}
       >
-        {!noCreateMenu && (
-          <CreateMenu
-            createIsLoading={isCreateLoading}
-            createVariants={createVariants}
-            onAddRecord={onAddRecord}
-          />
-        )}
+        {!noCreateMenu && <CreateMenu createIsLoading={isCreateLoading} createVariants={createVariants} onAddRecord={onAddRecord} />}
 
         {!isMobile && (
           <Tooltip target={`${targetId}-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-table-settings`}
               icon={null}
-              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content ecos-journal__btn_new filter', {
-                'ecos-btn-settings-filter-on': !isDefaultSettings
-              })}
+              className={classNames(
+                'ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content ecos-journal__btn_new filter',
+                {
+                  'ecos-btn-settings-filter-on': !isDefaultSettings
+                }
+              )}
               onClick={onToggleSettings}
               // loading={isLoading}
             >
@@ -179,7 +182,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {!hideSettingsJournalBtn && hasWritePermission && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && hasWritePermission && !isMobile && showEditJournalBtn && (
           <Tooltip
             target={`${targetId}-journal-settings`}
             text={t(isKanban(viewMode) ? Labels.BTN_KANBAN_SETTINGS : Labels.BTN_JOURNAL_SETTINGS)}
@@ -197,10 +200,10 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isPreviewList(viewMode) && hasWritePermission && !isMobile && hasBtnEdit && showWidgets && (
-          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
+        {isPreviewList(viewMode) && hasWritePermission && !isMobile && showEditJournalBtn && showWidgets && (
+          <Tooltip target={`${targetId}-widget-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
-              id={`${targetId}-journal-settings`}
+              id={`${targetId}-widget-settings`}
               icon={null}
               className="journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-journal__btn_new shape"
               onClick={() => WidgetService.openEditJournalWidgets()}
@@ -235,70 +238,80 @@ const JournalsSettingsBar = ({
 
           <div className={classNames('ecos-journal__settings-bar-actions', { 'full-width': isCollapsed })}>
             {!hideExportBtn && !isMobile && (
-              <Export
-                journalConfig={journalConfig}
-                journalSetting={journalSetting}
-                grid={grid}
-                className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
-                classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
-                  'full-width': isCollapsed
-                })}
-                selectedItems={selectedRecords}
-                getStateOpen={changeIsOpen}
-              >
-                <IcoBtn
-                  invert
-                  icon="icon-small-down"
-                  className={classNames(
-                    'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
-                    {
-                      'ecos-journal__btn_new_focus': isOpenDropdownExport,
-                      'full-width': isCollapsed
-                    }
-                  )}
-                  // loading={isLoading}
+              <Tooltip target={`${targetId}-export`} text={t(Labels.BTN_EXPORT)} {...tooltipSettings}>
+                <Export
+                  id={`${targetId}-export`}
+                  journalConfig={journalConfig}
+                  journalSetting={journalSetting}
+                  grid={grid}
+                  className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
+                  classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
+                    'full-width': isCollapsed
+                  })}
+                  selectedItems={selectedRecords}
+                  getStateOpen={changeIsOpen}
                 >
-                  <ExportIcon />
-                </IcoBtn>
-              </Export>
+                  <IcoBtn
+                    invert
+                    icon="icon-small-down"
+                    className={classNames(
+                      'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
+                      {
+                        'ecos-journal__btn_new_focus': isOpenDropdownExport,
+                        'full-width': isCollapsed
+                      }
+                    )}
+                    // loading={isLoading}
+                  >
+                    <ExportIcon />
+                  </IcoBtn>
+                </Export>
+              </Tooltip>
             )}
 
             {!hideImportBtn && get(journalConfig, 'typeRef') && (
-              <Import
-                stateId={stateId}
-                getStateOpen={changeIsOpenImport}
-                className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
-                classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
-                  'full-width': isCollapsed
-                })}
-              >
-                <IcoBtn
-                  invert
-                  icon="icon-small-down"
-                  className={classNames(
-                    'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
-                    {
-                      'ecos-journal__btn_new_focus': isOpenDropdownImport,
-                      'full-width': isCollapsed
-                    }
-                  )}
-                  // loading={isLoading}
+              <Tooltip target={`${targetId}-import`} text={t(Labels.BTN_IMPORT)} {...tooltipSettings}>
+                <Import
+                  id={`${targetId}-import`}
+                  stateId={stateId}
+                  getStateOpen={changeIsOpenImport}
+                  className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
+                  classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
+                    'full-width': isCollapsed
+                  })}
                 >
-                  <ImportIcon />
-                </IcoBtn>
-              </Import>
+                  <IcoBtn
+                    invert
+                    icon="icon-small-down"
+                    className={classNames(
+                      'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
+                      {
+                        'ecos-journal__btn_new_focus': isOpenDropdownImport,
+                        'full-width': isCollapsed
+                      }
+                    )}
+                    // loading={isLoading}
+                  >
+                    <ImportIcon />
+                  </IcoBtn>
+                </Import>
+              </Tooltip>
             )}
           </div>
         </OverflowMenu>
 
-        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={[]}>
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={null}
             className={classNames('ecos-journal__settings-bar-update ecos-journal__small-btn_new', {
               [grey]: !isMobile,
-              'ecos-btn_i ecos-btn_white': isMobile
+              'ecos-btn_i ecos-btn_white': isMobile,
+              // An in-place refresh spins the icon itself (the soft-refresh pattern of the Properties
+              // widget) rather than swapping it for the points loader — see COREDEV-426.
+              'ecos-journal__settings-bar-update_refreshing': isRefreshing
             })}
+            disabled={isRefreshing}
             onClick={onRefresh}
           >
             <Repeat />

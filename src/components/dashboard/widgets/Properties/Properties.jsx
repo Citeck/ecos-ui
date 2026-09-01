@@ -58,7 +58,9 @@ class Properties extends React.Component {
   }
 
   get form() {
-    return get(this._ecosForm, 'current.form') || {};
+    // The formio instance, or null when the form is not built yet. Used to be `|| {}`, which is
+    // truthy and made every "is the form ready" check pass on an empty widget.
+    return get(this._ecosForm, 'current.form') || null;
   }
 
   onSubmitForm = () => {
@@ -90,9 +92,10 @@ class Properties extends React.Component {
   handleInlineEditSave = () => {
     const { onInlineEditSave } = this.props;
 
-    this._isReloading = true;
-    this.setState({ isReloading: true });
-
+    // No `isReloading` here: it dims the whole widget behind `<Loader blur/>` and its only reset
+    // is `onReady`, which fires after a full rebuild. An inline save patches the form in place
+    // (COREDEV-429) — the edited field's own edit→view switch is the feedback, and blurring every
+    // other field for it is exactly the flash the soft path removes.
     if (isFunction(onInlineEditSave)) {
       onInlineEditSave();
     }
@@ -156,6 +159,24 @@ class Properties extends React.Component {
     }
   };
 
+  /**
+   * Background update of the form already on screen.
+   *
+   * Unlike {@link onUpdateForm} it sets neither `isReloading` nor `loaded`, so neither the loader
+   * nor the skeleton appears: the form keeps its DOM and only the changed values are patched.
+   *
+   * @returns {Promise<{changed: boolean, rebuilt: boolean}>}
+   */
+  softUpdateForm = () => {
+    const form = get(this._ecosForm, 'current');
+
+    if (!form || !isFunction(form.softReload)) {
+      return Promise.resolve({ changed: false, rebuilt: false });
+    }
+
+    return form.softReload();
+  };
+
   setHeight = contentHeight => {
     this.setState({ contentHeight });
   };
@@ -197,12 +218,16 @@ class Properties extends React.Component {
     const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate } = this.props;
     const { isReadySubmit, loaded, isLoading, isReloading, reloadHeight } = this.state;
     const isShow = isReadySubmit;
-    const isLoaded = loaded && !isLoading;
+    // The skeleton stands in for a form whose size is not known yet — before the first load.
+    // Once the form is on screen, any busy state dims it in place instead: swapping living
+    // content for a skeleton is the flash COREDEV-429 removes.
+    const isFirstLoading = !loaded;
+    const isBusy = loaded && isLoading;
 
     return (
       <>
-        {!isLoaded && !isReloading && this.renderSkeleton()}
-        {isReloading && <Loader blur />}
+        {isFirstLoading && !isReloading && this.renderSkeleton()}
+        {(isReloading || isBusy) && <Loader blur />}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -223,9 +248,8 @@ class Properties extends React.Component {
           onReady={this.onReady}
           onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {
-            'ecos-properties__formio_small': isSmallMode,
             'ecos-properties__formio_mobile': isMobile,
-            'd-none': !isShow || (!isLoaded && !isReloading)
+            'd-none': !isShow || (isFirstLoading && !isReloading)
           })}
           getTitle={this.getTitle}
           initiator={{
@@ -254,8 +278,7 @@ class Properties extends React.Component {
 
   render() {
     const { forwardedRef, className, scrollProps, minHeight } = this.props;
-    const { loaded, isLoading, isReloading } = this.state;
-    const isLoaded = loaded && !isLoading;
+    const { loaded, isReloading } = this.state;
 
     return (
       <Scrollbars
@@ -264,7 +287,9 @@ class Properties extends React.Component {
         hideTracksWhenNotNeeded
         {...scrollProps}
       >
-        <div ref={forwardedRef} style={{ position: 'relative', minHeight: isLoaded || isReloading ? undefined : minHeight || '50px' }}>
+        {/* A loaded form keeps its natural height even while busy — only the first load, whose
+            size is unknown, gets the placeholder minHeight. */}
+        <div ref={forwardedRef} style={{ position: 'relative', minHeight: loaded || isReloading ? undefined : minHeight || '50px' }}>
           {this.renderForm()}
         </div>
       </Scrollbars>

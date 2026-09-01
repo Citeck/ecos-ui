@@ -11,13 +11,29 @@ import { isDocLib, isHierarchy, isKanban, isKanbanOrDocLib, isPreviewList, isTab
 import { toggleViewMode } from '@/actions/journals';
 import { Tooltip } from '@/components/common';
 import { IcoBtn } from '@/components/common/btns';
+import Folder from '@/components/common/icons/Folder';
 import HierarchyTree from '@/components/common/icons/HierarchyTree';
+import Kanban from '@/components/common/icons/Kanban';
+import List from '@/components/common/icons/List';
 import PreviewList from '@/components/common/icons/PreviewList';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
 import { wrapArgs } from '@/helpers/redux';
 import { updateCurrentUrl } from '@/helpers/urls';
 import { getBool, getSearchParams, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
+import './ViewTabs.scss';
+
+/**
+ * The optical box every view-mode icon is drawn into (COREDEV-349).
+ *
+ * Every icon in the bar is an inline SVG sharing this box, so the whole row is laid out and
+ * rasterized identically — the box height fills the same rows in every button, and each drawing
+ * keeps its own natural width inside the box, on integer viewBox units. The bar deliberately uses
+ * no `citeck` font glyphs: a glyph's ink sits on fractional pixels of its em box and the browser
+ * snaps text to whole-pixel positions, so a glyph could never share pixel rows with the SVGs —
+ * `icon-list`, `icon-kanban` and `icon-folder` are all replaced by `common/icons` components.
+ */
+export const VIEW_TAB_ICON_BOX = { width: 20, height: 18 };
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -98,26 +114,28 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.TABLE)}
-              icon="icon-list"
               className={classNames(common, {
                 [available]: isTableMode,
                 [disable]: !isTableMode
               })}
               onClick={() => this.onToggleViewMode(JVM.TABLE)}
-            />
+            >
+              <List {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {!isMobile && isKanbanEnabled && (
           <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.KANBAN)}
-              icon="icon-kanban"
               className={classNames(common, 'ecos-journal__view-btn_kanban', {
                 [available]: isKanbanMode,
                 [disable]: !isKanbanMode
               })}
               onClick={() => this.onToggleViewMode(JVM.KANBAN)}
-            />
+            >
+              <Kanban {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {isHierarchyEnabled && (
@@ -130,7 +148,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.HIERARCHY)}
             >
-              <HierarchyTree width={18} height={18} />
+              <HierarchyTree {...VIEW_TAB_ICON_BOX} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -138,13 +156,14 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.DOC_LIB)}
-              icon="icon-folder"
               className={classNames(common, {
                 [available]: isDocLibMode,
                 [disable]: !isDocLibMode
               })}
               onClick={() => this.onToggleViewMode(JVM.DOC_LIB)}
-            />
+            >
+              <Folder {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {isPreviewListEnabled && (
@@ -163,7 +182,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.PREVIEW_LIST)}
             >
-              <PreviewList width={18} height={20} />
+              <PreviewList {...VIEW_TAB_ICON_BOX} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -182,7 +201,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewWidgets(!isViewWidgetsPreview)}
             >
-              <WidgetsPreview width={24} height={24} isLeft={isLeftPositionWidgets} />
+              <WidgetsPreview {...VIEW_TAB_ICON_BOX} isLeft={isLeftPositionWidgets} />
             </IcoBtn>
           </Tooltip>
         )}

@@ -15,13 +15,20 @@ import { Labels } from './util';
 import { getScaleModes, t } from '@/helpers/util';
 
 export const CUSTOM = 'custom';
+
+/** Paging is a property of a paginated document, and only one kind is paginated. */
+const PAGED_KINDS = ['pdf'];
+
+/** Zooming needs something laid out to zoom; a player has its own controls and no scale. */
+const ZOOMABLE_KINDS = ['image', 'pdf', 'text', 'markdown'];
+
 const ZOOM_STEP = 0.15;
 const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 4;
 
 class Toolbar extends Component {
   static propTypes = {
-    isPDF: PropTypes.bool.isRequired,
+    kind: PropTypes.oneOf(['image', 'pdf', 'text', 'markdown', 'video', 'audio', 'none']).isRequired,
     className: PropTypes.string,
     fileName: PropTypes.string,
     filesList: PropTypes.array,
@@ -242,6 +249,20 @@ class Toolbar extends Component {
     );
   }
 
+  /**
+   * Full screen is not part of zooming, even though it lived inside it: a video has no scale and
+   * still deserves the whole window.
+   */
+  renderFullscreen() {
+    return (
+      <IcoBtn
+        icon="glyphicon glyphicon-fullscreen"
+        className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
+        onClick={this.setFullScreen}
+      />
+    );
+  }
+
   renderZoom() {
     const { scale, selectedZoom } = this.state;
     const bodyH = get(window, 'document.body.offsetHeight', 400);
@@ -281,11 +302,7 @@ class Toolbar extends Component {
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
-        <IcoBtn
-          icon="glyphicon glyphicon-fullscreen"
-          className="ecos-doc-preview__toolbar-zoom-fullscreen ecos-btn_sq_sm ecos-btn_tight"
-          onClick={this.setFullScreen}
-        />
+        {this.renderFullscreen()}
       </div>
     );
   }
@@ -293,7 +310,7 @@ class Toolbar extends Component {
   renderExtraBtns() {
     const { downloadData, fileName } = this.props;
 
-    if (!downloadData && !downloadData.link) {
+    if (!downloadData || !downloadData.link) {
       return null;
     }
 
@@ -334,21 +351,26 @@ class Toolbar extends Component {
           controlLabel={controlLabel}
           value={fileValue}
           onChange={this.onFileChange}
-          itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
+          itemClassName={item => (get(item, 'preview.url') ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
         />
       </div>
     );
   }
 
   render() {
-    const { isPDF, inputRef, className } = this.props;
+    const { kind, inputRef, className } = this.props;
+    const isZoomable = ZOOMABLE_KINDS.includes(kind);
 
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
         <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
           {this.renderFilesList()}
-          {isPDF && this.renderPager()}
-          {this.renderZoom()}
+          {PAGED_KINDS.includes(kind) && this.renderPager()}
+          {isZoomable ? (
+            this.renderZoom()
+          ) : (
+            <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom">{this.renderFullscreen()}</div>
+          )}
           {this.renderExtraBtns()}
         </div>
       </div>
