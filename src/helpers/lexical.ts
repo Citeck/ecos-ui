@@ -4,6 +4,7 @@ import {
   $createTextNode,
   $getRoot,
   $getSelection,
+  $isDecoratorNode,
   $isParagraphNode,
   $isRangeSelection,
   LexicalEditor,
@@ -13,7 +14,6 @@ import {
 import { LexicalNode } from 'lexical/LexicalNode';
 import isArray from 'lodash/isArray';
 
-import { $isImageNode } from '@/components/editors/Lexical/nodes/ImageNode';
 import { parseAllowedFontSize } from '@/components/editors/Lexical/plugins/ToolbarPlugin/fontSize';
 import { parseAllowedColor } from '@/components/editors/Lexical/ui/ColorPicker';
 import { theme } from '@/components/editors/LexicalEditor';
@@ -150,13 +150,15 @@ export function updateEditorContent(editor: LexicalEditor, value?: string | null
 
     if (children.length > 1) {
       const first = children[0];
-      if ($isParagraphNode(first) && first.getTextContent() === '' && !first.getChildren().some(child => $isImageNode(child))) {
+      // A decorator carries no text of its own, so a paragraph holding only one - a picture, an
+      // attached file - reads as empty here and would be dropped with the real empty ones.
+      if ($isParagraphNode(first) && first.getTextContent() === '' && !first.getChildren().some(child => $isDecoratorNode(child))) {
         first.remove();
       }
 
       const updatedChildren = root.getChildren();
       const last = updatedChildren[updatedChildren.length - 1];
-      if ($isParagraphNode(last) && last.getTextContent() === '' && !last.getChildren().some(child => $isImageNode(child))) {
+      if ($isParagraphNode(last) && last.getTextContent() === '' && !last.getChildren().some(child => $isDecoratorNode(child))) {
         last.remove();
       }
     }

@@ -1,0 +1,156 @@
+import queryString from 'query-string';
+
+import { uploadContent } from '@/helpers/chunkedUpload';
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
+import { getDownloadContentUrl } from '@/helpers/urls';
+
+/**
+ * formio storage provider that replaces the stock `url` provider. Forked from
+ * `node_modules/formiojs/providers/storage/url.js` — same `uploadFile`/`downloadFile` contract and
+ * same stored field-value shape — but the actual transport is `src/helpers/chunkedUpload`
+ * (`uploadContent`), which decides by itself whether to chunk: small files go through one POST,
+ * large ones are chunked automatically. Registered in `src/forms/Formio.js` under the `url` key,
+ * so existing forms/stored values need no reconfiguration.
+ *
+ * Field-value shape produced by `uploadFile` — verified against both the stock provider's own
+ * computation and `src/forms/components/override/file/File.js` (`extractFileRecordRef`,
+ * `getFileUrl`, `createFileLink`'s `FILE_CLICK_ACTION_DOWNLOAD` branch — the only readers of a
+ * `url`-storage file value in this app):
+ *   `{storage: 'url', name, url, size, type, data: {entityRef}}`
+ * `data.entityRef` is what `File.js`'s `extractFileRecordRef`/download-link building actually key
+ * off — `uploadContent` always resolves with (or wraps) an `entityRef` (see its own doc header),
+ * so it is always present here, never falls back to the legacy query-string-on-`url` path.
+ *
+ * `url` itself: the backend (`EcosContentController.postMultipartContent`/`postStreamContent`,
+ * ecos-webapp-commons) returns a bare `{"entityRef": "..."}` body and never a `url` field, so the
+ * stock provider falls back to `` `${xhr.responseURL}/${name}` ``, an inert string. One `File.js`
+ * call site reads `file.url` functionally — the `FILE_CLICK_ACTION_DOWNLOAD` link
+ * (`linkAttributes.href = file.url || getDownloadContentUrl(recordRef)`) — so this provider stores
+ * `getDownloadContentUrl(entityRef)` instead, the same `.../content?ref=...` URL `File.js` already
+ * uses to fetch this content. `getFileUrl`'s pre-submit delete handler (`File.js`'s
+ * `fileService.makeRequest('', url, 'delete')`) also reads `file.url`, but `EcosContentController`
+ * has no DELETE mapping on this endpoint — only on `/upload-session/{id}` — so that handler is a
+ * no-op whatever is stored here.
+ */
+
+/**
+ * Deliberately no `ecosType`.
+ *
+ * `File.js#getFileUrl` builds `component.url` as `<endpoint>?containerTypeId=<type>`, which looks
+ * like an `ecosType` to pass to `uploadContent`. It is not: `containerTypeId` is an inert query
+ * parameter the server never reads (it appears nowhere in ecos-model or ecos-webapp-commons), so
+ * every formio attachment goes through `uploadImpl`'s `meta.ecosType.isEmpty()` branch →
+ * `ecosContentService.uploadTempFile()`. Passing it would turn it into a real FormData part →
+ * `uploadFile().withEcosType(type)` → a record of the container type created at upload time, for
+ * every formio attachment, small files included.
+ *
+ * Note the asymmetry that makes this easy to get wrong: on the chunked path `ecosType` only
+ * selects the target STORAGE (the session itself always lives in the `temp-file` DAO), while on
+ * the single-shot path it selects the RECORD KIND.
+ */
+
+/**
+ * The formio form builder exposes a real "Url" text field for storage type `url`
+ * (`editForm/File.edit.file.js` — "Enter the url to post the files to"): `component.url` is
+ * either that form-configured value or, when unset, the default `File.js#getFileUrl` generates.
+ * Under the stock provider that value was the literal POST target, so it must keep being honoured
+ * here too — derive `uploadContent`'s `urlBase` from the same `url` argument, stripped of its
+ * query string (`uploadContent`'s own endpoints, e.g. `${urlBase}/upload-session`, assume a bare
+ * path), falling back to the module's own default (`DEFAULT_URL_BASE`) when `url` is empty. Also
+ * strips a single trailing slash: an admin-configured upload URL ending in e.g. `.../content/`
+ * would otherwise combine with `uploadContent`'s own appended sub-paths into a double slash
+ * (`.../content//upload-session`).
+ * @param {string} url
+ * @returns {string|undefined}
+ */
+function extractUrlBase(url) {
+  if (!url) {
+    return undefined;
+  }
+  const { url: path } = queryString.parseUrl(url);
+  if (!path) {
+    return undefined;
+  }
+  const normalized = path.endsWith('/') ? path.slice(0, -1) : path;
+  return normalized || undefined;
+}
+
+/**
+ * formio calls `progressCallback(evt)` with an XHR-ProgressEvent-shaped `{loaded, total}` (see
+ * the stock provider's `xhr.upload.onprogress = onprogress`) and formio's own File component does
+ * `parseInt(100 * evt.loaded / evt.total)` to get a percent. Feeding `loaded: percent, total: 100`
+ * keeps that formula correct without formio needing to know `uploadContent`'s status vocabulary.
+ * @param {Function} progressCallback
+ * @returns {Function} a `handleProgress(state, controlFacade)` per the chunkedUpload contract
+ */
+function adaptProgress(progressCallback) {
+  if (typeof progressCallback !== 'function') {
+    return () => {};
+  }
+  return state => {
+    const percent = typeof (state && state.percent) === 'number' ? state.percent : 0;
+    progressCallback({ loaded: percent, total: 100 });
+  };
+}
+
+/**
+ * `uploadContent` always rejects with an `UploadError` (a real `Error` subclass) whose `.message`
+ * is already human-readable — see that module's "Rejection contract" doc. Reject with that string
+ * (not the raw `UploadError` instance) so it reaches formio's own error display exactly like the
+ * stock provider's rejection did (formio's File component does
+ * `.catch(response => { fileUpload.message = response; ... })` and renders `fileUpload.message`
+ * as-is — the stock provider always rejects with a string, never an Error object).
+ *
+ * When the rejection carries a structured `reason` (storage-not-supported / max-size-exceeded /
+ * too-many-sessions), the localised, limit-substituted text from `getChunkedUploadErrorMessage`
+ * takes precedence over `.message`, which is English-only and unlocalised — a user must never
+ * see e.g. "Upload rejected: max-size-exceeded".
+ * @param {*} err
+ * @returns {string}
+ */
+function extractUploadErrorMessage(err) {
+  return getChunkedUploadErrorMessage(err) || (err && typeof err.message === 'string' && err.message) || 'Upload failed';
+}
+
+const ecosUrlStorage = function ecosUrlStorage() {
+  return {
+    title: 'Url',
+    name: 'url',
+    uploadFile(file, name, dir, progressCallback, url) {
+      const urlBase = extractUrlBase(url);
+
+      return uploadContent(file, {
+        name,
+        urlBase,
+        handleProgress: adaptProgress(progressCallback)
+      }).then(
+        response => {
+          const entityRef = response && response.entityRef;
+
+          return {
+            storage: 'url',
+            name,
+            // `entityRef` is falsy here only if `uploadContent` ever violated its own documented
+            // contract (it always resolves with an entityRef) — defensive, not reachable in
+            // practice; kept so a future contract regression degrades instead of throwing.
+            url: entityRef ? getDownloadContentUrl(entityRef) : url,
+            size: file.size,
+            type: file.type,
+            data: { entityRef }
+          };
+        },
+        err => Promise.reject(extractUploadErrorMessage(err))
+      );
+    },
+    downloadFile(file) {
+      // ecos never sets `file.private` (formio's hosted-project private-download flow isn't used
+      // here — File.js builds its own document/download URLs) — always resolve unchanged, exactly
+      // like the stock provider's non-private branch.
+      return Promise.resolve(file);
+    }
+  };
+};
+
+ecosUrlStorage.title = 'Url';
+
+export default ecosUrlStorage;

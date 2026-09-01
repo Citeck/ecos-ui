@@ -15,16 +15,19 @@ import ReactResizeDetector from 'react-resize-detector';
 import { InfoText, Loader } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 
+import AudioViewer from './AudioViewer';
 import ImgViewer from './ImgViewer';
+import MarkdownViewer from './MarkdownViewer';
 import PdfViewer from './PdfViewer';
 import TextViewer from './TextViewer';
+import VideoViewer from './VideoViewer';
 import Toolbar from './Toolbar';
 import getViewer from './Viewer';
 import { Labels } from './util';
 
-import { DocPreviewApi } from '@/api/docPreview';
+import { DocPreviewApi, normalizePreviewInfo } from '@/api/docPreview';
 import { getOptimalHeight } from '@/helpers/layout';
-import { isPDFbyStr, isTextByStr, t } from '@/helpers/util';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -33,6 +36,21 @@ import './style.scss';
 pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}js/lib/pdf.worker.min.js?v=2.4.456`;
 
 const decreasingSteps = [562, 387, 293];
+
+/**
+ * How long to keep asking whether a preview that is being prepared is ready: quickly at first,
+ * because most conversions finish in seconds, then slowly, giving up after about two minutes. A
+ * conversion that takes longer than that is better answered by a button the reader presses than by
+ * a page that keeps asking on its own for the rest of the day.
+ */
+const PREVIEW_POLL_DELAYS_MS = [3000, 3000, 3000, 5000, 5000, ...Array(11).fill(10000)];
+
+/** What to say when there is no preview, by the reason the backend gave for there being none. */
+const MESSAGE_BY_STATUS = {
+  processing: Labels.Status.PROCESSING,
+  failed: Labels.Status.FAILED,
+  unsupported: Labels.Status.UNSUPPORTED
+};
 
 class DocPreview extends Component {
   _toolbarRef = null;
@@ -51,7 +69,6 @@ class DocPreview extends Component {
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     firstPageNumber: PropTypes.number,
-    byLink: PropTypes.bool,
     noIndents: PropTypes.bool,
     resizable: PropTypes.bool,
     isCollapsed: PropTypes.bool,
@@ -62,6 +79,31 @@ class DocPreview extends Component {
     scrollbarProps: PropTypes.object,
     toolbarConfig: PropTypes.object
   };
+
+  /**
+   * The dashlet may be configured with a bare url and no record behind it, so there is no
+   * `previewInfo` to normalize - the url has to describe itself. It goes through the very same
+   * normalizer, whose legacy branch is written for exactly that: a link and nothing else.
+   */
+  /**
+   * Whether a row is worth listing: something to render, or a reason and a file to offer instead.
+   */
+  static hasSomethingToShow(doc) {
+    return !!get(doc, 'preview.url') || !!get(doc, 'preview.download.link');
+  }
+
+  /**
+   * Whether two descriptors say the same thing about a document. Compared by what is shown and by
+   * why nothing is: the preview of a record changes under the ui while it is open - a conversion
+   * finishes, or fails - and that is the moment the screen has to be replaced.
+   */
+  static isSamePreview(a, b) {
+    return get(a, 'url') === get(b, 'url') && get(a, 'kind') === get(b, 'kind') && get(a, 'status') === get(b, 'status');
+  }
+
+  static previewOfConfiguredLink({ link, fileName }) {
+    return normalizePreviewInfo(link ? { url: link } : null, { fileName });
+  }
 
   static defaultProps = {
     className: '',
@@ -75,6 +117,24 @@ class DocPreview extends Component {
 
   state = {};
 
+  /**
+   * Which viewer renders which kind. The registry is the whole extension point: a new kind is a new
+   * entry here and a viewer to go with it, not another branch to thread through the component.
+   */
+  /** How many times the preview has been asked about since the record was opened. */
+  previewPollAttempt = 0;
+
+  previewPollTimer = null;
+
+  viewerByKind = {
+    pdf: () => this.pdfViewer(),
+    text: () => this.textViewer(),
+    markdown: () => this.markdownViewer(),
+    video: () => this.mediaViewer(Video),
+    audio: () => this.mediaViewer(Audio),
+    image: () => this.imgViewer()
+  };
+
   constructor(props) {
     super(props);
 
@@ -85,12 +145,11 @@ class DocPreview extends Component {
       scrollPage: props.firstPageNumber,
       recordId: props.recordId || this.getUrlRecordId(),
       mainRecordId: props.recordId || this.getUrlRecordId(),
-      link: props.link,
+      preview: DocPreview.previewOfConfiguredLink(props),
       contentHeight: 0,
       error: '',
       fileName: props.fileName,
       filesList: [],
-      downloadData: {},
       wrapperWidth: 0,
       needRecalculateScale: false,
       mainDoc: {}
@@ -101,7 +160,8 @@ class DocPreview extends Component {
 
   componentDidMount() {
     this.exist = true;
-    this.isPDF && this.loadPDF(this.props.link);
+    document.addEventListener('fullscreenchange', this.handleFullscreenChange, false);
+    this.loadPDF(this.state.preview);
     this.runGetData();
   }
 
@@ -121,26 +181,18 @@ class DocPreview extends Component {
       }
 
       this.setState({ ...newState }, () => {
-        this.getDownloadData();
-        this.loadPDF(this.state.link);
+        this.loadPDF(this.state.preview);
         this.runGetData();
         this.showFileBootstrap();
       });
       return;
     }
 
-    const { clear, recordId: propRecordId, isLoading: propLoading, byLink, link: propLink, fileName: propFileName, runUpdate } = this.props;
-    const {
-      clear: prevClear,
-      recordId: prevPropRecordId,
-      isLoading: prevPropLoading,
-      link: prevPropLink,
-      runUpdate: prevRunUpdate
-    } = prevProps;
+    const { clear, recordId: propRecordId, isLoading: propLoading, fileName: propFileName, runUpdate } = this.props;
+    const { clear: prevClear, recordId: prevPropRecordId, isLoading: prevPropLoading, runUpdate: prevRunUpdate } = prevProps;
 
     let newState = {};
     let isBigUpdate = false;
-    let isUpdatePdf = false;
 
     // Clear state on clear flag
     if (!prevClear && clear) {
@@ -155,14 +207,8 @@ class DocPreview extends Component {
     }
 
     // Loader toggle for non-PDFs
-    if (propLoading !== prevPropLoading && !isPDFbyStr(this.state.link)) {
+    if (propLoading !== prevPropLoading && !this.isPDF) {
       newState.isLoading = propLoading;
-    }
-
-    // Update link when byLink changes
-    if (byLink && prevPropLink !== propLink) {
-      newState.link = propLink;
-      isUpdatePdf = isPDFbyStr(propLink);
     }
 
     // Trigger data refresh
@@ -176,17 +222,19 @@ class DocPreview extends Component {
     if (Object.keys(newState).length > 0) {
       this.setState({ ...newState }, () => {
         isBigUpdate && this.runGetData();
-        isUpdatePdf && this.loadPDF(newState.link);
-        !newState.fileName && this.getFileName();
-        !get(newState, 'downloadData.link') && this.getDownloadData();
       });
     }
   }
 
   componentWillUnmount() {
     this.exist = false;
+    document.removeEventListener('fullscreenchange', this.handleFullscreenChange, false);
     this.handleResizeWrapper.cancel();
+    this.clearPreviewPoll();
   }
+
+  // hiddenPreview is measured from the dom, which nothing else re-renders on
+  handleFullscreenChange = () => this.exist && this.forceUpdate();
 
   get decreasingStep() {
     const { wrapperWidth } = this.state;
@@ -204,11 +252,16 @@ class DocPreview extends Component {
   }
 
   get isPDF() {
-    return isPDFbyStr(this.state.link);
+    return this.state.preview.kind === 'pdf';
   }
 
-  get isText() {
-    return !this.isPDF && isTextByStr(this.state.link);
+  /**
+   * The original of what is on screen, and the name to save it under. A property of the descriptor
+   * rather than a piece of state of its own: it is answered by the very query that says what to
+   * show, so there is nothing to fetch separately and nothing that can fall out of step with it.
+   */
+  get downloadData() {
+    return this.state.preview.download;
   }
 
   get commonProps() {
@@ -237,14 +290,14 @@ class DocPreview extends Component {
   }
 
   get loaded() {
-    const { link, isLoading } = this.state;
+    const { preview, isLoading } = this.state;
 
-    return !isLoading && !!link && !this.message;
+    return !isLoading && !!preview.url && !this.message;
   }
 
   get message() {
-    const { pdf, link, error } = this.state;
-    const { isLoading, byLink, link: customLink } = this.props;
+    const { pdf, preview, error } = this.state;
+    const { isLoading } = this.props;
 
     if (isLoading) {
       return null;
@@ -254,7 +307,13 @@ class DocPreview extends Component {
       return error;
     }
 
-    if ((byLink && !customLink) || (pdf === undefined && !link)) {
+    // nothing to render, but the backend said why - which is worth more to the reader than the
+    // blank "the document was not received" a broken picture used to produce
+    if (preview.kind === 'none' && MESSAGE_BY_STATUS[preview.status]) {
+      return t(MESSAGE_BY_STATUS[preview.status]);
+    }
+
+    if (pdf === undefined && !preview.url) {
       return t(Labels.Errors.NOT_SPECIFIED);
     }
 
@@ -273,6 +332,17 @@ class DocPreview extends Component {
   }
 
   get hiddenPreview() {
+    // A fullscreen descendant is out of flow, so the body measured below collapses to nothing.
+    // Hiding the widget then hides the fullscreen element itself - `visibility` is inherited, and
+    // a media player put fullscreen by its own controls stays a child of this tree.
+    if (
+      document.fullscreenElement &&
+      get(this._wrapperRef, 'current.contains') &&
+      this._wrapperRef.current.contains(document.fullscreenElement)
+    ) {
+      return false;
+    }
+
     const heightTool = get(this._toolbarRef, 'offsetHeight', 0) + 10;
     const viewer = this._bodyRef && this._bodyRef.querySelector('.ecos-doc-preview__viewer');
     const heightBody = get(viewer, 'offsetHeight', 0);
@@ -281,12 +351,12 @@ class DocPreview extends Component {
   }
 
   get hiddenToolbar() {
-    const { filesList, link, isLoading, error } = this.state;
-    return isLoading ? false : filesList.length < 2 && (!!error || !link);
+    const { filesList, preview, isLoading, error } = this.state;
+    return isLoading ? false : filesList.length < 2 && (!!error || !preview.url);
   }
 
   get isBlockedByRecord() {
-    return this.props.byLink || !this.state.mainRecordId;
+    return !this.state.mainRecordId;
   }
 
   get isLastDocument() {
@@ -306,11 +376,11 @@ class DocPreview extends Component {
     isLoading: true,
     scrollPage: 1,
     recordId: '',
-    link: '',
+    preview: normalizePreviewInfo(null),
     contentHeight: 0,
     error: '',
     fileName: '',
-    downloadData: {},
+    isPreviewPollExhausted: false,
     needRecalculateScale: false
   });
 
@@ -320,20 +390,65 @@ class DocPreview extends Component {
     await this.fetchInfoMainDoc();
     await this.fetchFilesByRecord();
     this.showFileBootstrap();
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false }, this.schedulePreviewPoll);
+  };
+
+  /**
+   * Asks again while the backend says the preview is still being made. The wait grows and then
+   * stops: past that point the reader is offered the button instead, so a conversion that never
+   * finishes costs one request rather than a request every ten seconds forever.
+   */
+  schedulePreviewPoll = () => {
+    this.clearPreviewPoll();
+
+    if (get(this.state, 'preview.status') !== 'processing') {
+      this.previewPollAttempt = 0;
+      return;
+    }
+
+    const delay = PREVIEW_POLL_DELAYS_MS[this.previewPollAttempt];
+
+    if (delay === undefined) {
+      this.setState({ isPreviewPollExhausted: true });
+      return;
+    }
+
+    this.previewPollAttempt += 1;
+    this.previewPollTimer = setTimeout(() => this.exist && this.runGetData(), delay);
+  };
+
+  clearPreviewPoll = () => {
+    if (this.previewPollTimer) {
+      clearTimeout(this.previewPollTimer);
+      this.previewPollTimer = null;
+    }
+  };
+
+  handleRefreshPreview = () => {
+    this.previewPollAttempt = 0;
+    this.setState({ isPreviewPollExhausted: false }, this.runGetData);
   };
 
   fetchInfoMainDoc = async () => {
-    if (!this.isBlockedByRecord) {
-      return new Promise(async resolve => {
-        const recordId = this.state.mainRecordId;
-        const fileName = await DocPreviewApi.getFileName(recordId);
-        const link = await DocPreviewApi.getPreviewLinkByRecord(recordId);
-        const mainDoc = { recordId, fileName, link };
-
-        this.exist && this.setState({ mainDoc }, () => resolve());
-      });
+    if (this.isBlockedByRecord) {
+      return;
     }
+
+    const recordId = this.state.mainRecordId;
+    // one descriptor answers both what to show and what to save it as; asking for the link and for
+    // the name separately used to cost two round trips saying the same thing
+    const preview = await DocPreviewApi.getPreview(recordId).catch(e => {
+      console.error(e);
+      return normalizePreviewInfo(null);
+    });
+
+    if (!this.exist) {
+      return;
+    }
+
+    return new Promise(resolve => {
+      this.setState({ mainDoc: { recordId, fileName: preview.download.fileName, preview } }, () => resolve());
+    });
   };
 
   fetchFilesByRecord = async () => {
@@ -343,12 +458,14 @@ class DocPreview extends Component {
       const filesList = [];
       const newState = {};
 
-      if (!!mainDoc.link) {
+      // a document with no preview is still a document: it has a reason to show and a file to
+      // hand over, and dropping it here is what used to turn both into "there is no document"
+      if (DocPreview.hasSomethingToShow(mainDoc)) {
         filesList.unshift(mainDoc);
       }
 
       if (!(this.isBlockedByRecord || !showAllDocuments)) {
-        const list = await DocPreviewApi.getFilesList(mainRecordId);
+        const list = await DocPreviewApi.getPreviews(mainRecordId);
         filesList.push(...list);
       }
 
@@ -367,49 +484,23 @@ class DocPreview extends Component {
   };
 
   showFileBootstrap = () => {
-    const { filesList = [], mainDoc = {}, link } = this.state;
-    const isActualLink = link === mainDoc.link || !!filesList.find(file => file.link === link);
+    const { filesList = [], recordId, preview } = this.state;
+    const currentRow = filesList.find(file => file.recordId === recordId);
+    const isActual = !!currentRow && DocPreview.isSamePreview(currentRow.preview, preview);
 
-    this.bootstrapLink = isActualLink && this.bootstrapLink;
+    this.bootstrapLink = isActual && this.bootstrapLink;
 
-    if (!this.bootstrapLink && filesList.length) {
-      this.handleFileChange(get(filesList, '[0]'));
-      this.bootstrapLink = true;
+    if (this.bootstrapLink || !filesList.length) {
+      return;
     }
+
+    // Either nothing has been shown yet, or the backend now answers differently about the document
+    // on screen - the conversion it was waiting for has finished. Applied rather than offered:
+    // the record is already in the state, so asking "is this a different document" would answer no
+    // and leave the screen as it was.
+    this.showFile(currentRow || get(filesList, '[0]'));
+    this.bootstrapLink = true;
   };
-
-  getFileName = async () => {
-    if (this.isBlockedByRecord) {
-      return;
-    }
-
-    const fileName = await DocPreviewApi.getFileName(this.state.recordId);
-    this.exist && this.setState({ fileName });
-  };
-
-  getDownloadData() {
-    const { recordId, byLink, link, fileName = '' } = this.state;
-
-    if (byLink && link) {
-      if (recordId) {
-        DocPreviewApi.getDownloadData(recordId).then(downloadData => {
-          this.exist && this.setState({ downloadData });
-        });
-      } else {
-        this.setState({ downloadData: { link, fileName } });
-      }
-      return;
-    }
-
-    if (!recordId) {
-      this.setState({ downloadData: {} });
-      return;
-    }
-
-    DocPreviewApi.getDownloadData(recordId).then(downloadData => {
-      this.exist && this.setState({ downloadData });
-    });
-  }
 
   setToolbarRef = ref => {
     if (ref) {
@@ -424,12 +515,12 @@ class DocPreview extends Component {
     }
   };
 
-  loadPDF = link => {
-    if (!isPDFbyStr(link)) {
+  loadPDF = preview => {
+    if (preview.kind !== 'pdf' || !preview.url) {
       return;
     }
 
-    const loadingTask = pdfjs.getDocument(link);
+    const loadingTask = pdfjs.getDocument(preview.url);
     const scrollPage = this.state.scrollPage || this.props.firstPageNumber;
 
     this.setState({ scrollPage, isLoading: true, pdf: {}, error: '' });
@@ -443,25 +534,30 @@ class DocPreview extends Component {
     );
   };
 
-  handleFileChange = ({ fileName, recordId, link }) => {
-    if (link !== this.state.link) {
-      const error = !link && t(Labels.Errors.FAILURE_FETCH);
-
-      this.setState(
-        {
-          ...this.getCleanState(),
-          isLoading: isPDFbyStr(link),
-          recordId,
-          link,
-          error,
-          fileName
-        },
-        () => {
-          this.loadPDF(link);
-          this.getDownloadData();
-        }
-      );
+  handleFileChange = doc => {
+    if (doc.recordId !== this.state.recordId) {
+      this.showFile(doc);
     }
+  };
+
+  showFile = ({ fileName, recordId, preview }) => {
+    // a stated reason for there being no preview is not an error; `message` speaks for it
+    const error = !preview.url && preview.kind !== 'none' && t(Labels.Errors.FAILURE_FETCH);
+
+    this.setState(
+      {
+        ...this.getCleanState(),
+        isLoading: preview.kind === 'pdf',
+        recordId,
+        preview,
+        error,
+        fileName
+      },
+      () => {
+        this.loadPDF(preview);
+        this.schedulePreviewPoll();
+      }
+    );
   };
 
   handleChangeSettings = settings => {
@@ -541,11 +637,10 @@ class DocPreview extends Component {
 
   imgViewer() {
     const { resizable, forwardedRef } = this.props;
-    const { link } = this.state;
 
     return (
       <Img
-        src={link}
+        src={this.state.preview.url}
         forwardedRef={forwardedRef}
         resizable={resizable}
         isLastDocument={this.isLastDocument}
@@ -558,15 +653,53 @@ class DocPreview extends Component {
     );
   }
 
+  /**
+   * A player takes only what is behind the url and what to call it: there is nothing to load, to
+   * scale or to lay out, so video and audio differ by the element alone.
+   */
+  mediaViewer(Player) {
+    const { forwardedRef } = this.props;
+    const { preview, fileName } = this.state;
+
+    return (
+      <Player
+        src={preview.url}
+        ext={preview.ext}
+        fileName={fileName}
+        forwardedRef={forwardedRef}
+        downloadData={this.downloadData}
+        isLastDocument={this.isLastDocument}
+        {...this.commonProps}
+      />
+    );
+  }
+
+  markdownViewer() {
+    const { forwardedRef } = this.props;
+
+    return (
+      <MarkdownDoc
+        src={this.state.preview.url}
+        forwardedRef={forwardedRef}
+        downloadData={this.downloadData}
+        isLastDocument={this.isLastDocument}
+        {...this.commonProps}
+        onError={error => {
+          console.error(error);
+          this.setState({ error: t(Labels.Errors.FAILURE_FETCH) });
+        }}
+      />
+    );
+  }
+
   textViewer() {
     const { forwardedRef } = this.props;
-    const { link, downloadData } = this.state;
 
     return (
       <Text
-        src={link}
+        src={this.state.preview.url}
         forwardedRef={forwardedRef}
-        downloadData={downloadData}
+        downloadData={this.downloadData}
         isLastDocument={this.isLastDocument}
         {...this.commonProps}
         onError={error => {
@@ -579,13 +712,13 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale, toolbarConfig } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
+    const { pdf, scrollPage, calcScale, filesList, fileName, recordId } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     return (
       <Toolbar
         totalPages={pages}
-        isPDF={this.isPDF}
+        kind={this.state.preview.kind}
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
@@ -593,7 +726,7 @@ class DocPreview extends Component {
         fileValue={recordId}
         fileName={fileName}
         filesList={filesList}
-        downloadData={downloadData}
+        downloadData={this.downloadData}
         onChangeSettings={this.handleChangeSettings}
         onFullscreen={this.handleFullscreen}
         onFileChange={this.handleFileChange}
@@ -604,30 +737,32 @@ class DocPreview extends Component {
   }
 
   renderViewer() {
-    const { link, error } = this.state;
+    const { preview, error } = this.state;
 
-    if (!!error || (!this.bootstrapLink && !link)) {
+    if (!!error || preview.kind === 'none' || (!this.bootstrapLink && !preview.url)) {
       return null;
     }
 
-    if (this.isPDF) {
-      return this.pdfViewer();
-    }
+    // A kind with no viewer of its own is shown as a picture, which is what this ui did with
+    // anything it could not place back when it read the type out of the link.
+    const viewer = this.viewerByKind[preview.kind] || this.viewerByKind.image;
 
-    if (this.isText) {
-      return this.textViewer();
-    }
-
-    return this.imgViewer();
+    return viewer();
   }
 
   renderMessage() {
-    const { downloadData } = this.state;
+    const { downloadData } = this;
+    const { isPreviewPollExhausted } = this.state;
 
     return (
       this.message && (
         <div className="ecos-doc-preview__info-block">
           <InfoText className="ecos-doc-preview__info-block-msg" text={this.message} />
+          {isPreviewPollExhausted && (
+            <Btn className="ecos-btn_narrow" onClick={this.handleRefreshPreview}>
+              {t(Labels.REFRESH)}
+            </Btn>
+          )}
           {downloadData && downloadData.link && (
             <a href={downloadData.link} download={downloadData.fileName} data-external>
               <Btn className="ecos-btn_narrow">{t(Labels.DOWNLOAD)}</Btn>
@@ -676,5 +811,8 @@ class DocPreview extends Component {
 const Pdf = getViewer(PdfViewer, true);
 const Img = getViewer(ImgViewer, false);
 const Text = getViewer(TextViewer, false);
+const MarkdownDoc = getViewer(MarkdownViewer, false);
+const Video = getViewer(VideoViewer, false);
+const Audio = getViewer(AudioViewer, false);
 
 export default DocPreview;

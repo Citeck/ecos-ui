@@ -32,16 +32,19 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return 'lexical-file-node';
   }
 
+  static isFileElement(element: HTMLElement): boolean {
+    return element.getAttribute('type') === FileNode.getHtmlElementType();
+  }
+
   static clone(node: FileNode): FileNode {
     return new FileNode(node.__size, node.__name, node.__fileRecordId, node.__key);
   }
 
   static importDOM(): Record<string, any> {
     return {
-      a: () => ({
-        conversion: convertFileElement,
-        priority: 1
-      }),
+      // Declines anchors that are not file anchors: `LinkNode` registers `a` too and must keep them.
+      // Claiming every `a` would hand Lexical a null conversion for an ordinary link and drop it.
+      a: (node: HTMLElement) => (FileNode.isFileElement(node) ? { conversion: convertFileElement, priority: 2 } : null),
       span: () => ({
         conversion: convertFileElement,
         priority: 4
@@ -61,11 +64,13 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   exportDOM(): { element: HTMLElement } {
     const element = document.createElement('a');
 
+    // `data-*` and lowercase on purpose: the comments backend cleans saved html with jsoup, which
+    // lowercases attribute names, and its safelist names these explicitly (see CommentValidator).
     element.setAttribute('type', FileNode.getHtmlElementType());
     element.setAttribute('href', this.getDownLoadUrl());
-    element.setAttribute('size', this.__size.toString());
-    element.setAttribute('fileRecordId', this.__fileRecordId);
-    element.setAttribute('name', this.__name);
+    element.setAttribute('data-file-size', this.__size.toString());
+    element.setAttribute('data-file-record-id', this.__fileRecordId);
+    element.setAttribute('data-file-name', this.__name);
     element.setAttribute('style', 'margin: 0 6px;');
     element.textContent = this.__name;
 
@@ -98,7 +103,13 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   decorate(editor: LexicalEditor, config: EditorConfig) {
     return (
       <Suspense fallback={null}>
-        <FileComponent size={this.__size} name={this.__name} downLoadUrl={this.getDownLoadUrl()} />
+        <FileComponent
+          size={this.__size}
+          name={this.__name}
+          downLoadUrl={this.getDownLoadUrl()}
+          fileRecordId={this.__fileRecordId}
+          editable={editor.isEditable()}
+        />
       </Suspense>
     );
   }

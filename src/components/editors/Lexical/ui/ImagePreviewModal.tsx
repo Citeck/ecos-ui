@@ -1,20 +1,12 @@
 import './ImagePreviewModal.css';
 
-import { type MouseEvent, type WheelEvent, JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { type MouseEvent, type WheelEvent, JSX, useCallback, useEffect, useRef, useState } from 'react';
 
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 5;
 const SCALE_STEP = 0.25;
 
-export default function ImagePreviewModal({
-  src,
-  altText,
-  onClose
-}: {
-  src: string;
-  altText: string;
-  onClose: () => void;
-}): JSX.Element {
+export default function ImagePreviewModal({ src, altText, onClose }: { src: string; altText: string; onClose: () => void }): JSX.Element {
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -102,14 +94,6 @@ export default function ImagePreviewModal({
     [onClose]
   );
 
-  const imageUrl = useMemo(() => {
-    if (src.includes('/api/ecos/webapp/content')) {
-      const separator = src.includes('?') ? '&' : '?';
-      return `${src}${separator}download=false`;
-    }
-    return src;
-  }, [src]);
-
   const zoomIn = useCallback(() => {
     setScale(prev => Math.min(prev + SCALE_STEP, MAX_SCALE));
   }, []);
@@ -148,7 +132,7 @@ export default function ImagePreviewModal({
     <div className="ImagePreviewModal__overlay" onClick={onOverlayClick} onWheel={onWheel}>
       <img
         className={`ImagePreviewModal__image${isPannable ? ' ImagePreviewModal__image--pannable' : ''}`}
-        src={imageUrl}
+        src={src}
         alt={altText}
         style={{
           transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
@@ -169,12 +153,7 @@ export default function ImagePreviewModal({
           &#x2212;
         </button>
 
-        <button
-          className="ImagePreviewModal__scaleLabel"
-          type="button"
-          onClick={resetZoom}
-          aria-label="Reset zoom"
-        >
+        <button className="ImagePreviewModal__scaleLabel" type="button" onClick={resetZoom} aria-label="Reset zoom">
           {scalePercent}%
         </button>
 
@@ -189,12 +168,7 @@ export default function ImagePreviewModal({
         </button>
       </div>
 
-      <button
-        className="ImagePreviewModal__closeButton"
-        aria-label="Close preview"
-        type="button"
-        onClick={onClose}
-      >
+      <button className="ImagePreviewModal__closeButton" aria-label="Close preview" type="button" onClick={onClose}>
         &#x2715;
       </button>
     </div>

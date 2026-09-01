@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { t } from '@/helpers/export/util';
+import { isEcosContentUrl, setDownloadParam } from '@/helpers/urls';
 import { Loader } from '@/components/common';
 import { Grid } from '@/components/common/grid';
 import { ResultTypes } from '../util/constants';
@@ -70,11 +71,17 @@ const ExecuteInfoAction = React.memo((props = {}) => {
 
               if (cell.indexOf('workspace://SpacesStore/') !== -1) {
                 url = PROXY_URI + cell;
+              } else if (isEcosContentUrl(url)) {
+                // The `download` attribute below is honoured only for a plain click on the link:
+                // opening it in a new tab or copying it has to carry the intent in the url itself.
+                url = setDownloadParam(url, true);
               }
 
-              const html = `<a href="${url}" onclick="event.stopPropagation()">${t(Labels.DOWNLOAD)}</a>`;
-
-              return <span dangerouslySetInnerHTML={{ __html: html }} />;
+              return (
+                <a href={url} download onClick={event => event.stopPropagation()}>
+                  {t(Labels.DOWNLOAD)}
+                </a>
+              );
             }
           }
         }

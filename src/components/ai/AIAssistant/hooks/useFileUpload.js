@@ -9,7 +9,8 @@ import {
   isExtensionBlocked,
   hasValidDraggedFile
 } from '@/components/ai/AIAssistant/constants';
-import ecosXhr from '@/helpers/ecosXhr';
+import { uploadContent } from '@/helpers/chunkedUpload';
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import { t } from '@/helpers/export/util';
 import { NotificationManager } from '@/services/notifications';
 
@@ -58,6 +59,37 @@ import { NotificationManager } from '@/services/notifications';
  * @returns {Function} return.validateFile - `(file) => {valid, error?}` — exported for tests/UI hints
  * @returns {Function} return.validateBatch - `(files, alreadyUploaded?) => {valid, error?}` — exported for tests/UI hints
  */
+
+/**
+ * `uploadContent` (src/helpers/chunkedUpload) always rejects with an `UploadError` — a real
+ * `Error` subclass whose `.message` is already human-readable (the server's own message when
+ * there is one, a specific fallback like "Upload failed: 413" otherwise) — see that module's
+ * "Rejection contract" doc for the full guarantee. The module normalizes every shape —
+ * config-fetch/init HTTP failures, single-shot HTTP/network failures, chunked-upload-rejected,
+ * session-expired, abort — so this function does not need to know any of them individually.
+ * `.aborted` is kept as an explicit fallback in case a bare `{aborted: true}` reaches here some
+ * other way.
+ * When the rejection carries a structured `reason` (storage-not-supported / max-size-exceeded /
+ * too-many-sessions), the localised, limit-substituted text takes precedence over `.message`,
+ * which is English-only and unlocalised — a user must never see e.g. "Upload rejected:
+ * max-size-exceeded".
+ * @param {*} err
+ * @returns {string}
+ */
+function extractUploadErrorMessage(err) {
+  const chunkedUploadMessage = getChunkedUploadErrorMessage(err);
+  if (chunkedUploadMessage) {
+    return chunkedUploadMessage;
+  }
+  if (err && typeof err.message === 'string' && err.message) {
+    return err.message;
+  }
+  if (err && err.aborted) {
+    return 'Upload aborted';
+  }
+  return 'Upload failed';
+}
+
 const useFileUpload = (options = {}) => {
   const {
     whitelistGroups = FILE_UPLOAD_WHITELIST,
@@ -92,22 +124,24 @@ const useFileUpload = (options = {}) => {
   const uploadingFileIdRef = useRef(0);
 
   /**
-   * Upload a single file to the Records API as a `temp-file` entity.
-   * Throws if the response does not contain `entityRef`.
+   * Upload a single file to the Records API as a `temp-file` entity, routed through the
+   * chunked-upload module — small files still go through one POST, large ones are chunked
+   * automatically. Throws if the response does not contain `entityRef`.
    * @param {File} file
    * @returns {Promise<{recordRef:string,name:string,size:number,type:string}>}
    */
   const uploadFileToRecords = useCallback(async file => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', file.name);
+    let response;
+    try {
+      response = await uploadContent(file, { name: file.name });
+    } catch (err) {
+      // uploadContent already rejects with a proper Error (see extractUploadErrorMessage's doc
+      // comment) — re-throw a real Error either way so callers reading `error.message` (as this
+      // hook's own handleFileUpload does) keep working exactly like the old ecosXhr rejection did.
+      throw new Error(extractUploadErrorMessage(err));
+    }
 
-    const response = await ecosXhr('/gateway/emodel/api/ecos/webapp/content', {
-      method: 'POST',
-      body: formData
-    });
-
-    const { entityRef = null } = response;
+    const { entityRef = null } = response || {};
     if (!entityRef) {
       throw new Error('No file entityRef received');
     }

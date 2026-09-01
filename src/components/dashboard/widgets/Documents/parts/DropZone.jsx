@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { default as DZ } from 'react-dropzone';
 import get from 'lodash/get';
 
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import { t } from '@/helpers/util';
 import { FileStatuses } from '@/helpers/ecosXhr';
 
@@ -94,7 +95,12 @@ class DropZone extends Component {
       case FileStatuses.ERROR_UPLOAD:
         const { message, status } = response || {};
         const { description } = status || {};
-        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message || ''} ${description || ''}`;
+        // When `response` carries a structured chunked-upload rejection reason
+        // (storage-not-supported / max-size-exceeded / too-many-sessions — see
+        // src/helpers/chunkedUpload/index.js's "Rejection contract"), show the localised,
+        // limit-substituted text instead of the module's raw English `.message`.
+        const chunkedUploadMessage = getChunkedUploadErrorMessage(response);
+        const clientError = chunkedUploadMessage || `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message || ''} ${description || ''}`;
 
         if (_clientError !== clientError) {
           newState = {
