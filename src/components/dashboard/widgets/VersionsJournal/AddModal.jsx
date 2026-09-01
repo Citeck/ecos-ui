@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import { FileStatuses } from '@/helpers/ecosXhr';
 import { t } from '@/helpers/util';
 import { Loader } from '@/components/common';
@@ -153,7 +154,11 @@ class AddModal extends Component {
       case FileStatuses.ERROR_UPLOAD:
         const { message = '', status = '' } = response || {};
         const { description = '' } = status || {};
-        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message} ${description}`;
+        // See DropZone.jsx's identical guard — a structured chunked-upload rejection reason
+        // (storage-not-supported / max-size-exceeded / too-many-sessions) must show its
+        // localised, limit-substituted text, never the module's raw English `.message`.
+        const chunkedUploadMessage = getChunkedUploadErrorMessage(response);
+        const clientError = chunkedUploadMessage || `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message} ${description}`;
 
         if (_clientError !== clientError) {
           newState = {

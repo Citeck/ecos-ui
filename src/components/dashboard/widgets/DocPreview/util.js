@@ -5,9 +5,16 @@ export const Labels = {
     LOADING_FAILURE: 'doc-preview.error.loading-failure',
     NOT_SPECIFIED: 'doc-preview.error.not-specified',
     NO_DOCS: 'doc-preview.error.no-documents',
-    NO_DOC: 'doc-preview.error.no-document'
+    NO_DOC: 'doc-preview.error.no-document',
+    MEDIA_FAILURE: 'doc-preview.error.media-failure'
+  },
+  Status: {
+    PROCESSING: 'doc-preview.status.processing',
+    FAILED: 'doc-preview.status.failed',
+    UNSUPPORTED: 'doc-preview.status.unsupported'
   },
   DOWNLOAD: 'doc-preview.download',
+  REFRESH: 'doc-preview.refresh',
   OUT_OF: 'doc-preview.out-of',
 
   TEXT_TRUNCATED: 'doc-preview.text.truncated',

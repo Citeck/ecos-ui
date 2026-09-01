@@ -1,4 +1,3 @@
-import { DOC_PREVIEW_TEXT_MAX_BYTES } from '@citeck/constants';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
@@ -7,13 +6,12 @@ import React, { Component } from 'react';
 import { InfoText, Loader } from '@/components/common';
 import Checkbox from '@/components/common/form/Checkbox';
 
+import { loadTextContent } from './textContent';
 import { Labels } from './util';
 
 import { t } from '@/helpers/util';
 
 const BASE_FONT_SIZE_PX = 13;
-const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder('utf-8', { fatal: false });
 
 function scaleToFontSize(scale) {
   const numeric = parseFloat(scale);
@@ -21,17 +19,6 @@ function scaleToFontSize(scale) {
     return BASE_FONT_SIZE_PX;
   }
   return Math.round(BASE_FONT_SIZE_PX * numeric);
-}
-
-function truncateByBytes(text, maxBytes) {
-  const bytes = textEncoder.encode(text);
-  if (bytes.length <= maxBytes) {
-    return { content: text, isTruncated: false };
-  }
-  // TextDecoder with fatal=false may leave a trailing U+FFFD for a partial multibyte sequence
-  const decoded = textDecoder.decode(bytes.subarray(0, maxBytes));
-  const content = decoded.endsWith('\uFFFD') ? decoded.slice(0, -1) : decoded;
-  return { content, isTruncated: true };
 }
 
 class TextViewer extends Component {
@@ -93,19 +80,12 @@ class TextViewer extends Component {
     this.setState({ isLoading: true, error: null });
 
     try {
-      const response = await fetch(src, { signal: controller.signal });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const text = await response.text();
+      const { content, isTruncated } = await loadTextContent(src, { signal: controller.signal });
 
       // Guard against stale response: a cached/fast fetch can resolve before abort propagates.
       if (controller.signal.aborted || !this.exist) {
         return;
       }
-
-      const { content, isTruncated } = truncateByBytes(text, DOC_PREVIEW_TEXT_MAX_BYTES);
 
       this.setState({ content, isTruncated, isLoading: false }, () => {
         isFunction(this.props.onCentered) && this.props.onCentered();

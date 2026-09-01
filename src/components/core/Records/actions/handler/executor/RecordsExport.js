@@ -7,6 +7,7 @@ import { replacePlaceholders } from '@/components/journals/Journals/service/util
 import { ResultTypes } from '../../util/constants';
 import ActionsExecutor from '../ActionsExecutor';
 
+import { isEcosContentUrl, setDownloadParam } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import ConfigService, { ALFRESCO_ENABLED, ALFRESCO_EXPORT_SRC_ID_PATTERN } from '@/services/config/ConfigService';
 
@@ -178,17 +179,15 @@ export default class RecordsExportAction extends ActionsExecutor {
 
           if (hasWorkspace) {
             if (download === false) {
-              url += url.includes('?') ? '&' : '?';
-              url += 'download=false';
+              url = setDownloadParam(url, false);
             }
 
             url = PROXY_URI + url;
           }
-        } else {
-          if (download === false) {
-            url += url.includes('?') ? '&' : '?';
-            url += 'download=false';
-          }
+        } else if (isEcosContentUrl(url)) {
+          // A group action is free to hand out a link to any endpoint, and a presigned object
+          // storage link signs its query string: an extra parameter there breaks the signature.
+          url = setDownloadParam(url, download !== false);
         }
 
         window.open(url);

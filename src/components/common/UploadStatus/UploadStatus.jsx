@@ -15,6 +15,7 @@ import Success from '../icons/Success';
 import File from '../icons/global/File';
 import { Loader } from '../index';
 
+import { getChunkedUploadErrorMessage } from '@/helpers/chunkedUpload/messages';
 import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 import { sendToWorker } from '@/workers/docLib';
@@ -91,6 +92,9 @@ const UploadStatus = () => {
           type,
           status,
           errorStatus,
+          errorReason,
+          errorMaxSingleUploadSize,
+          errorMaxFileSize,
           file: fileData,
           totalCount,
           successFileCount,
@@ -161,7 +165,22 @@ const UploadStatus = () => {
                 }
               }));
 
-              if (errorStatus) {
+              // A chunked-upload-rejected reason (storage-not-supported / max-size-exceeded /
+              // too-many-sessions — see src/helpers/chunkedUpload/index.js's "Rejection
+              // contract") takes precedence: it explains WHY the upload was rejected, which
+              // `errorStatus` alone (often absent for this case — it's a 200-with-body reject,
+              // not an HTTP error) cannot.
+              const chunkedUploadMessage = getChunkedUploadErrorMessage({
+                reason: errorReason,
+                maxSingleUploadSize: errorMaxSingleUploadSize,
+                maxFileSize: errorMaxFileSize
+              });
+
+              if (chunkedUploadMessage) {
+                NotificationManager.error(
+                  t('document-library.uploading-file.message.chunked-error', { fileName, reasonMessage: chunkedUploadMessage })
+                );
+              } else if (errorStatus) {
                 if (errorStatus === 413) {
                   NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
                 } else {

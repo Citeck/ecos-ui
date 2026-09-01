@@ -36,7 +36,7 @@ export default class TransformAction extends ActionsExecutor {
       .then(json => {
         if (!config.output) {
           const a = document.createElement('a');
-          a.setAttribute('href', '/gateway/emodel/api/ecos/webapp/content?ref=' + json.result);
+          a.setAttribute('href', '/gateway/emodel/api/ecos/webapp/content?ref=' + json.result + '&download=true');
           document.body.appendChild(a); // required for firefox
           a.click();
           a.remove();

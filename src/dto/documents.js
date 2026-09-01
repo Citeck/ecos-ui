@@ -250,19 +250,34 @@ export default class DocumentsConverter {
     return target;
   };
 
+  // Feeds the same api.versionsJournal.addNewVersion as
+  // VersionsJournalConverter.getAddVersionFormDataForServer (src/dto/versionsJournal.js), whose
+  // `body` is a structured object rather than a bare FormData. This call site
+  // (src/sagas/documents.js sagaUpdateVersion's isNodeRef branch) is only ever reached for a
+  // legacy Alfresco nodeRef, so `formData` is what actually gets sent; `record`/`file` are
+  // exposed for parity with the other converter and so the api's ref-kind check (`body.record`)
+  // sees the real ref instead of `undefined`.
   static getAddNewVersionFormDataForServer(source = {}) {
-    const target = new FormData();
+    const target = {
+      record: get(source, 'record', ''),
+      file: get(source, 'file', ''),
+      comment: get(source, 'comment', ''),
+      isMajor: !!get(source, 'isMajor', true)
+    };
 
     if (!source || (source && !Object.keys(source))) {
       return target;
     }
 
-    target.append('filedata', get(source, 'file', ''));
-    target.append('filename', get(source, 'file.name', t('documents-widget.untitled')));
-    target.append('updateNodeRef', get(source, 'record', ''));
-    target.append('description', get(source, 'comment', ''));
-    target.append('majorversion', get(source, 'isMajor', true));
-    target.append('overwrite', 'true');
+    const formData = new FormData();
+    formData.append('filedata', get(source, 'file', ''));
+    formData.append('filename', get(source, 'file.name', t('documents-widget.untitled')));
+    formData.append('updateNodeRef', get(source, 'record', ''));
+    formData.append('description', get(source, 'comment', ''));
+    formData.append('majorversion', get(source, 'isMajor', true));
+    formData.append('overwrite', 'true');
+
+    target.formData = formData;
 
     return target;
   }

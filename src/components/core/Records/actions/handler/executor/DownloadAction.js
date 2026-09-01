@@ -1,5 +1,5 @@
 import ActionsExecutor from '../ActionsExecutor';
-import { getDownloadContentUrl } from '@/helpers/urls';
+import { getDownloadContentUrl, isEcosContentUrl, setDownloadParam } from '@/helpers/urls';
 import isString from 'lodash/isString';
 
 export default class DownloadAction extends ActionsExecutor {
@@ -81,6 +81,13 @@ export default class DownloadAction extends ActionsExecutor {
   static _downloadByUrl(url, filename, record) {
     url = url || getDownloadContentUrl(record.id);
     url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+
+    // The anchor carries a `download` attribute, but it is ignored for a cross-origin url given
+    // by an action config, so the intent has to be stated in the url itself.
+    if (isEcosContentUrl(url)) {
+      url = setDownloadParam(url, true);
+    }
+
     DownloadAction._downloadDataStr(url, filename, { target: '_blank' });
   }
 

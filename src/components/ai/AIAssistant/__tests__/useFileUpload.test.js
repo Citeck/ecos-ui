@@ -3,12 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { FILE_UPLOAD_LIMITS } from '@/components/ai/AIAssistant/constants';
 import useFileUpload from '../hooks/useFileUpload';
 
-import ecosXhr from '@/helpers/ecosXhr';
+import { uploadContent } from '@/helpers/chunkedUpload';
 import { NotificationManager } from '@/services/notifications';
 
-jest.mock('@/helpers/ecosXhr', () => ({
+jest.mock('@/helpers/chunkedUpload', () => ({
   __esModule: true,
-  default: jest.fn()
+  uploadContent: jest.fn()
 }));
 
 jest.mock('@/services/notifications', () => ({
@@ -203,7 +203,7 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload(files);
       });
 
-      expect(ecosXhr).not.toHaveBeenCalled();
+      expect(uploadContent).not.toHaveBeenCalled();
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
       expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.too-many');
     });
@@ -226,7 +226,7 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload(files);
       });
 
-      expect(ecosXhr).not.toHaveBeenCalled();
+      expect(uploadContent).not.toHaveBeenCalled();
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
       expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
@@ -239,12 +239,12 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload(files);
       });
 
-      expect(ecosXhr).not.toHaveBeenCalled();
+      expect(uploadContent).not.toHaveBeenCalled();
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
     });
 
     it('calls uploadFileToRecords for valid batch', async () => {
-      ecosXhr.mockResolvedValue({ entityRef: 'emodel/temp-file@uuid-1' });
+      uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@uuid-1' });
       const { result } = renderHook(() => useFileUpload());
       const files = [makeFile('good.pdf', 1024)];
 
@@ -252,16 +252,144 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload(files);
       });
 
-      expect(ecosXhr).toHaveBeenCalledTimes(1);
+      expect(uploadContent).toHaveBeenCalledTimes(1);
       expect(NotificationManager.error).not.toHaveBeenCalled();
+    });
+
+    // The hook routes through `uploadContent` like every other uploadFileV2 caller, so large AI
+    // attachments get chunked too.
+    it('routes the upload through uploadContent with the raw file (no FormData) and its name, and returns {recordRef,name,size,type}', async () => {
+      uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@uuid-1' });
+      const { result } = renderHook(() => useFileUpload());
+      const file = makeFile('good.pdf', 1024);
+
+      await act(async () => {
+        await result.current.handleFileUpload([file]);
+      });
+
+      expect(uploadContent).toHaveBeenCalledTimes(1);
+      const [passedFile, passedOpts] = uploadContent.mock.calls[0];
+      expect(passedFile).toBe(file);
+      expect(passedFile instanceof FormData).toBe(false);
+      expect(passedOpts).toEqual({ name: 'good.pdf' });
+
+      expect(result.current.uploadedFiles).toEqual([
+        expect.objectContaining({ recordRef: 'emodel/temp-file@uuid-1', name: 'good.pdf', size: 1024 })
+      ]);
+    });
+
+    it('normalizes a non-Error uploadContent rejection (e.g. a raw server body) into a usable error message', async () => {
+      // uploadContent can reject with the raw server error body (has .message) rather than a real
+      // Error instance — the hook must still produce a sensible message for the notification/
+      // onUploadError callback instead of crashing on `error.message`.
+      uploadContent.mockRejectedValueOnce({ message: 'File type not allowed by server' });
+      const onUploadError = jest.fn();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderHook(() => useFileUpload({ onUploadError }));
+      const files = [makeFile('bad.pdf', 1024)];
+
+      await act(async () => {
+        await result.current.handleFileUpload(files);
+      });
+
+      expect(onUploadError).toHaveBeenCalledTimes(1);
+      expect(onUploadError.mock.calls[0][0]).toBeInstanceOf(Error);
+      expect(onUploadError.mock.calls[0][0].message).toBe('File type not allowed by server');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('normalizes an aborted/reasonless uploadContent rejection into a fallback message instead of throwing', async () => {
+      uploadContent.mockRejectedValueOnce({ aborted: true });
+      const onUploadError = jest.fn();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderHook(() => useFileUpload({ onUploadError }));
+      const files = [makeFile('bad.pdf', 1024)];
+
+      await act(async () => {
+        await result.current.handleFileUpload(files);
+      });
+
+      expect(onUploadError).toHaveBeenCalledTimes(1);
+      expect(onUploadError.mock.calls[0][0]).toBeInstanceOf(Error);
+      expect(onUploadError.mock.calls[0][0].message).toBe('Upload aborted');
+      consoleErrorSpy.mockRestore();
+    });
+
+    // getUploadConfig/initSession run on every uploadContent call, including this hook's
+    // small-file fast path, so a config/init HTTP failure reaches the hook. uploadContent always
+    // rejects with a real Error whose `.message` is already the server's text, so the hook needs
+    // no special-casing; this pins that end to end.
+    it('surfaces the readable message from an UploadError representing a config/init HTTP failure (status+body)', async () => {
+      const rejection = Object.assign(new Error('Config service unavailable'), {
+        status: 503,
+        body: { message: 'Config service unavailable' }
+      });
+      uploadContent.mockRejectedValueOnce(rejection);
+      const onUploadError = jest.fn();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderHook(() => useFileUpload({ onUploadError }));
+      const files = [makeFile('bad.pdf', 1024)];
+
+      await act(async () => {
+        await result.current.handleFileUpload(files);
+      });
+
+      expect(onUploadError).toHaveBeenCalledTimes(1);
+      expect(onUploadError.mock.calls[0][0]).toBeInstanceOf(Error);
+      expect(onUploadError.mock.calls[0][0].message).toBe('Config service unavailable');
+      consoleErrorSpy.mockRestore();
+    });
+
+    // `.message` is English/unlocalised on a chunked-upload-rejected error (see
+    // chunkedUpload/index.js's "Rejection contract") — the hook must show the localised text
+    // instead, never the raw "Upload rejected: <reason>".
+    it('uses the localised chunked-upload message (not the raw English .message) when the rejection carries a known reason', async () => {
+      const rejection = Object.assign(new Error('Upload rejected: max-size-exceeded'), {
+        reason: 'max-size-exceeded',
+        maxSingleUploadSize: 100,
+        maxFileSize: 209715200
+      });
+      uploadContent.mockRejectedValueOnce(rejection);
+      const onUploadError = jest.fn();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderHook(() => useFileUpload({ onUploadError }));
+      const files = [makeFile('too-big.pdf', 1024)];
+
+      await act(async () => {
+        await result.current.handleFileUpload(files);
+      });
+
+      expect(onUploadError).toHaveBeenCalledTimes(1);
+      const forwardedError = onUploadError.mock.calls[0][0];
+      expect(forwardedError).toBeInstanceOf(Error);
+      expect(forwardedError.message).not.toBe('Upload rejected: max-size-exceeded');
+      expect(forwardedError.message.length).toBeGreaterThan(0);
+      consoleErrorSpy.mockRestore();
+    });
+
+    // Defensive edge case: a bare {status,body} without a `.message` must fall back gracefully,
+    // not throw on a missing property.
+    it('falls back to a generic message for a status/body rejection with no .message, instead of throwing', async () => {
+      uploadContent.mockRejectedValueOnce({ status: 503, body: { code: 'SERVICE_UNAVAILABLE' } });
+      const onUploadError = jest.fn();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderHook(() => useFileUpload({ onUploadError }));
+      const files = [makeFile('bad.pdf', 1024)];
+
+      await act(async () => {
+        await result.current.handleFileUpload(files);
+      });
+
+      expect(onUploadError).toHaveBeenCalledTimes(1);
+      expect(onUploadError.mock.calls[0][0]).toBeInstanceOf(Error);
+      expect(onUploadError.mock.calls[0][0].message).toBe('Upload failed');
+      consoleErrorSpy.mockRestore();
     });
 
     it('continues uploading remaining files when one upload fails (partial failure)', async () => {
       // First call rejects, second resolves — assert both files were attempted
       // and side-effects fire correctly per documented behaviour.
-      ecosXhr
-        .mockRejectedValueOnce(new Error('boom'))
-        .mockResolvedValueOnce({ entityRef: 'emodel/temp-file@ok' });
+      uploadContent.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({ entityRef: 'emodel/temp-file@ok' });
       const onUploadStart = jest.fn();
       const onUploadComplete = jest.fn();
       const onUploadError = jest.fn();
@@ -273,7 +401,7 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload(files);
       });
 
-      expect(ecosXhr).toHaveBeenCalledTimes(2);
+      expect(uploadContent).toHaveBeenCalledTimes(2);
       expect(onUploadStart).toHaveBeenCalledTimes(1);
       expect(onUploadError).toHaveBeenCalledTimes(1);
       expect(onUploadError.mock.calls[0][1]).toMatchObject({ name: 'first.pdf' });
@@ -281,9 +409,7 @@ describe('useFileUpload', () => {
       expect(onUploadComplete.mock.calls[0][0]).toEqual([
         expect.objectContaining({ recordRef: 'emodel/temp-file@ok', name: 'second.pdf' })
       ]);
-      expect(result.current.uploadedFiles).toEqual([
-        expect.objectContaining({ recordRef: 'emodel/temp-file@ok', name: 'second.pdf' })
-      ]);
+      expect(result.current.uploadedFiles).toEqual([expect.objectContaining({ recordRef: 'emodel/temp-file@ok', name: 'second.pdf' })]);
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
       consoleErrorSpy.mockRestore();
     });
@@ -300,19 +426,18 @@ describe('useFileUpload', () => {
       expect(onUploadStart).not.toHaveBeenCalled();
       expect(result.current.isUploadingFile).toBe(false);
       expect(result.current.uploadingFiles).toEqual([]);
-      expect(ecosXhr).not.toHaveBeenCalled();
+      expect(uploadContent).not.toHaveBeenCalled();
     });
 
     it('rejects an overlapping batch whose new size + in-flight (uploadingFiles) size would exceed maxTotalSizeMb', async () => {
-      // Codex finding 1: previously validateBatch only summed `uploadedFiles`,
-      // so a second drop fired before the first batch finished could bypass
-      // the cumulative cap. We pause the first upload mid-flight and trigger
-      // a second batch — it must be rejected without any extra ecosXhr call.
+      // validateBatch must also count in-flight uploads, or a second drop fired before the
+      // first batch finishes bypasses the cumulative cap. The first upload is paused mid-flight
+      // and a second batch triggered — it must be rejected with no extra uploadContent call.
       const oneMb = 1024 * 1024;
       const customLimits = { ...FILE_UPLOAD_LIMITS, maxFileSizeMb: 25, maxTotalSizeMb: 30 };
 
       let resolveFirst;
-      ecosXhr.mockImplementationOnce(
+      uploadContent.mockImplementationOnce(
         () =>
           new Promise(resolve => {
             resolveFirst = resolve;
@@ -330,7 +455,7 @@ describe('useFileUpload', () => {
         await Promise.resolve();
       });
 
-      expect(ecosXhr).toHaveBeenCalledTimes(1);
+      expect(uploadContent).toHaveBeenCalledTimes(1);
       expect(result.current.uploadingFiles).toHaveLength(1);
       expect(result.current.uploadedFiles).toHaveLength(0);
       expect(result.current.isUploadingFile).toBe(true);
@@ -341,7 +466,7 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload([makeFile('second.pdf', 15 * oneMb)]);
       });
 
-      expect(ecosXhr).toHaveBeenCalledTimes(1); // no new request
+      expect(uploadContent).toHaveBeenCalledTimes(1); // no new request
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
       expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
 
@@ -357,15 +482,14 @@ describe('useFileUpload', () => {
     });
 
     it('keeps isUploadingFile true while any overlapping batch is still in-flight', async () => {
-      // Codex finding 1 (second half): the first batch's `finally` must not
-      // flip isUploadingFile back to false while a second batch is still
-      // running. With derived state (uploadingFiles.length > 0), the flag
+      // The first batch's `finally` must not flip isUploadingFile back to false while a
+      // second batch is still running. With derived state (uploadingFiles.length > 0), the flag
       // stays true until the last upload settles.
       const oneMb = 1024 * 1024;
 
       let resolveFirst;
       let resolveSecond;
-      ecosXhr
+      uploadContent
         .mockImplementationOnce(
           () =>
             new Promise(resolve => {
@@ -414,7 +538,7 @@ describe('useFileUpload', () => {
 
     it('rejects a second batch when the cumulative size (already uploaded + new) exceeds maxTotalSizeMb', async () => {
       const oneMb = 1024 * 1024;
-      ecosXhr.mockResolvedValue({ entityRef: 'emodel/temp-file@first' });
+      uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@first' });
       // Bump per-file limit so 20 MB and 15 MB pass validateFile; tightened
       // total cap (30 MB) is what we want to trip on the second batch.
       const customLimits = { ...FILE_UPLOAD_LIMITS, maxFileSizeMb: 25, maxTotalSizeMb: 30 };
@@ -424,7 +548,7 @@ describe('useFileUpload', () => {
       await act(async () => {
         await result.current.handleFileUpload([makeFile('first.pdf', 20 * oneMb)]);
       });
-      expect(ecosXhr).toHaveBeenCalledTimes(1);
+      expect(uploadContent).toHaveBeenCalledTimes(1);
       expect(result.current.uploadedFiles).toHaveLength(1);
 
       // Second batch (15 MB new) would push total to 35 MB > 30 MB cap.
@@ -432,7 +556,7 @@ describe('useFileUpload', () => {
         await result.current.handleFileUpload([makeFile('second.pdf', 15 * oneMb)]);
       });
 
-      expect(ecosXhr).toHaveBeenCalledTimes(1); // unchanged
+      expect(uploadContent).toHaveBeenCalledTimes(1); // unchanged
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
       expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
@@ -580,9 +704,7 @@ describe('useFileUpload', () => {
 
   describe('removeUploadedFile / clearUploadedFiles', () => {
     it('removes only the matching uploaded file by recordRef', async () => {
-      ecosXhr
-        .mockResolvedValueOnce({ entityRef: 'emodel/temp-file@a' })
-        .mockResolvedValueOnce({ entityRef: 'emodel/temp-file@b' });
+      uploadContent.mockResolvedValueOnce({ entityRef: 'emodel/temp-file@a' }).mockResolvedValueOnce({ entityRef: 'emodel/temp-file@b' });
       const { result } = renderHook(() => useFileUpload());
 
       await act(async () => {
@@ -594,13 +716,11 @@ describe('useFileUpload', () => {
         result.current.removeUploadedFile({ recordRef: 'emodel/temp-file@a' });
       });
 
-      expect(result.current.uploadedFiles).toEqual([
-        expect.objectContaining({ recordRef: 'emodel/temp-file@b', name: 'b.pdf' })
-      ]);
+      expect(result.current.uploadedFiles).toEqual([expect.objectContaining({ recordRef: 'emodel/temp-file@b', name: 'b.pdf' })]);
     });
 
     it('clearUploadedFiles empties the uploaded list', async () => {
-      ecosXhr.mockResolvedValue({ entityRef: 'emodel/temp-file@x' });
+      uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@x' });
       const { result } = renderHook(() => useFileUpload());
 
       await act(async () => {

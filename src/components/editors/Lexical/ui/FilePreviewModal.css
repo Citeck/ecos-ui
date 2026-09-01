@@ -1,0 +1,68 @@
+.FilePreviewModal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.FilePreviewModal__media {
+  cursor: default;
+  outline: none;
+}
+
+.FilePreviewModal__media--video {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.FilePreviewModal__media--audio {
+  width: min(600px, 90vw);
+}
+
+/* a document is sized here and scrolls inside: DocPreview takes its height from this box */
+.FilePreviewModal__doc {
+  display: flex;
+  flex-direction: column;
+  width: min(1100px, 92vw);
+  height: 90vh;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: default;
+}
+
+.FilePreviewModal__docPreview {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.FilePreviewModal__closeButton {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 10001;
+  transition: background-color 0.2s;
+}
+
+.FilePreviewModal__closeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

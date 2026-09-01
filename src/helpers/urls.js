@@ -177,11 +177,48 @@ function getValidNodeRef(nodeRef) {
   return nodeRef;
 }
 
+const ECOS_CONTENT_API_PATH = '/api/ecos/webapp/content';
+
+/**
+ * Tells whether the url is served by the ecos content endpoint, the only one which reads the
+ * `download` parameter. Alfresco content urls (`a=true/false`) and the legacy print service have
+ * their own conventions and must not be given a parameter they do not read.
+ */
+export const isEcosContentUrl = url => !!url && url.includes(ECOS_CONTENT_API_PATH);
+
+/**
+ * Sets the `download` parameter of a content url to the given intent, dropping any `download`
+ * parameter the url already carries. The content endpoint answers with `Content-Disposition:
+ * inline` unless `download=true` is asked for explicitly, and it binds the first occurrence of a
+ * repeated parameter — so an intent can only be expressed by replacing, never by appending.
+ *
+ * The url is edited as a string instead of being re-serialized with `query-string`: entity refs
+ * (`ref=emodel/some-type@id`) are passed unencoded and must stay that way.
+ */
+export const setDownloadParam = (url, download) => {
+  if (!url) {
+    return url;
+  }
+
+  const hashIdx = url.indexOf('#');
+  const hash = hashIdx === -1 ? '' : url.substring(hashIdx);
+  const base = hashIdx === -1 ? url : url.substring(0, hashIdx);
+  const queryIdx = base.indexOf('?');
+  const path = queryIdx === -1 ? base : base.substring(0, queryIdx);
+  const params = queryIdx === -1 ? [] : base.substring(queryIdx + 1).split('&');
+
+  const rest = params.filter(param => param && !param.startsWith('download='));
+
+  rest.push(`download=${download ? 'true' : 'false'}`);
+
+  return `${path}?${rest.join('&')}${hash}`;
+};
+
 export const getDownloadContentUrl = entityRef => {
   if (entityRef.indexOf('workspace://SpacesStore/') !== -1) {
     return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(entityRef)}`;
   }
-  return `/gateway/emodel/api/ecos/webapp/content?ref=${entityRef}`;
+  return `/gateway/emodel${ECOS_CONTENT_API_PATH}?ref=${entityRef}&download=true`;
 };
 
 export const getZipUrl = nodeRef => {
