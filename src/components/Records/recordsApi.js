@@ -75,10 +75,13 @@ function checkRespMessages(messages) {
     if (message.level === 'ERROR') {
       let errorMessage = message.msg || 'Server error';
       if (!isString(errorMessage)) {
+        const rawMessage = errorMessage;
         if (message.type === 'records-error') {
-          errorMessage = errorMessage.msg;
-        } else {
-          errorMessage = JSON.stringify(errorMessage);
+          errorMessage = rawMessage.msg;
+        }
+        // COREDEV-466: msg.msg may be missing or itself an object; `new Error(obj)` would read "[object Object]"
+        if (!isString(errorMessage) || !errorMessage) {
+          errorMessage = JSON.stringify(rawMessage);
         }
       }
       if (!errorMessage) {

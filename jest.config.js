@@ -8,7 +8,10 @@ export default {
     "^.+\\.[t|j]sx?$": "babel-jest",
   },
   setupFilesAfterEnv: ["<rootDir>src/setupTests.ts"],
-  testPathIgnorePatterns: ["<rootDir>/cypress/", "<rootDir>/coverage/", "<rootDir>/build/", "<rootDir>/node_modules/"],
+  testPathIgnorePatterns: ["<rootDir>/cypress/", "<rootDir>/coverage/", "<rootDir>/build/", "<rootDir>/node_modules/", "<rootDir>/.claude/"],
+  // Git worktrees under .claude/worktrees are full copies of the repo: without this the haste map
+  // sees every package and manual mock twice and refuses to resolve `@citeck/records-core`.
+  modulePathIgnorePatterns: ["<rootDir>/.claude/"],
   moduleDirectories: ["node_modules", "src"],
   testMatch: ["**/__tests__/**/*.+(ts|tsx|js)", "**/?(*.)+(spec|test).+(ts|tsx|js)"],
   moduleNameMapper: {

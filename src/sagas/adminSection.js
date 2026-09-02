@@ -15,9 +15,10 @@ import {
 import { SectionTypes } from '../constants/adminSection';
 import { wrapArgs } from '../helpers/redux';
 import { equalsQueryUrls } from '../helpers/urls';
-import { getEnabledWorkspaces } from '../helpers/util';
+import { getEnabledWorkspaces, t } from '../helpers/util';
 import AdminSectionService from '../services/AdminSectionService';
 import PageService from '../services/PageService';
+import { NotificationManager } from '@/services/notifications';
 
 function* init({}, action) {
   try {
@@ -42,7 +43,7 @@ function* fetchIsAccessible({ api }, { payload }) {
   }
 }
 
-function* doFetchGroupSectionList({ api }, action) {
+export function* doFetchGroupSectionList({ api }, action) {
   try {
     const { stateId } = action.payload || {};
     const w = wrapArgs(stateId);
@@ -56,6 +57,9 @@ function* doFetchGroupSectionList({ api }, action) {
     }
   } catch (e) {
     console.error('[adminSection doFetchGroupSectionList saga] error', e);
+    // COREDEV-466: the api no longer swallows failures — show the server text, keep the menu empty
+    NotificationManager.error(e.message || t('admin-section.sidebar.list-empty'), t('error'));
+    yield put(setGroupSectionList([]));
   }
 }
 

@@ -1291,6 +1291,7 @@
   "journal.presets.error.get-one": "Settings template not received",
 
   "journal.footer-sum.error": "Error in getting the column amount",
+  "journal.inline-edit.save-error": "The value was not saved",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 
