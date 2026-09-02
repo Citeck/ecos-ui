@@ -1,6 +1,4 @@
 /**
- * @jest-environment node
- *
  * COREDEV-466: the doc-lib worker talks to the Records gateway with raw fetch, so it has to read
  * the `messages` array the same way `@citeck/records-core`'s (unexported) `checkRespMessages`
  * does on the main thread. These pin the extraction rules so the two never drift.

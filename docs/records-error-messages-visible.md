@@ -71,3 +71,11 @@
 `jest.config.js`: `modulePathIgnorePatterns: ['<rootDir>/.claude/']` (+ в `testPathIgnorePatterns`).
 Git worktree другой сессии под `.claude/worktrees/` — полная копия репозитория, и haste-карта видела
 каждый пакет и мок дважды: `@citeck/records-core` не резолвился, падал весь jest.
+
+## Бэкпорт в hotfix/2.26.11
+
+Перенесено всё, кроме части про `SelectJournal`: на 2.26.11 состояния `valueError` ещё нет (оно
+появилось с COREDEV-429), значит и показывать нечего. `worker.test.js` на этой ветке отсутствует и
+тестирует функции 2.29 (`createChildController`), поэтому не переносился; воркер покрыт
+`recordsResponse.test.js` и сагой. Тест records-core лежит в `src/components/Records/__tests__/`,
+там модуль ещё не вынесен в пакет.
