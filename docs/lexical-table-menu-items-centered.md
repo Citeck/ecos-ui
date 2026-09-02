@@ -77,9 +77,16 @@ COREDEV-95, а заметили при проверке по подсказке 
 
 ### Исправление
 
-`src/components/editors/Lexical/index.scss`, блок `&__dropdown`: `max-width: none !important` для
-`.ecos-dropdown__menu_new` и его `ul` — меню тулбара подстраивается под свои пункты (`!important`
-нужен, потому что капающее правило само с `!important`; у нашего селектора специфичность выше).
+`DropdownPreview` (`components/common/form/Dropdown/DropdownPreview.tsx`) переопределяет геттер
+`cssDropdownMenu` и не выдаёт класс `ecos-dropdown__menu_new`: этот класс — типографика текстовых `li`
+и кап ширины, а превью-меню рендерит собственные пункты (только Lexical им и пользуется). Меню
+подстраивается под свои пункты; вместо `min-width: 154px` из `_new` действует бутстраповский
+`min-width: 10rem` у `.dropdown-menu`, все меню редактора шире 240px, разницы нет.
+
+Первый вариант правки (override `max-width: none !important` в `Lexical/index.scss`, коммит
+d79f79213) заменён на этот: он воевал с `!important` капа вместо того, чтобы не надевать класс, который
+меню не подходит. Сам кап в `Dropdown.scss` (с `!important`, и такой же обход в
+`DashboardSettings/style.scss`) оставлен — это общий дропдаун, не тема хотфикса.
 
 Заодно `src/testUtils/cssCascade.js` теперь подмешивает `@use "@/styles/breakpoints" as *` так же, как
 Vite (`additionalData`), иначе любой scss с `media-down(...)` (в том числе `Dropdown.scss`) не
@@ -87,9 +94,9 @@ Vite (`additionalData`), иначе любой scss с `media-down(...)` (в т�
 
 ### Проверка
 
-- Тест `src/components/editors/Lexical/__tests__/dropdownMenuWidth.test.js` (каскад через sass CLI):
-  голый `_new` капается 200px; внутри `.citeck-lexical-editor__dropdown` у меню и `ul` — `none`;
-  `.item.wide` по-прежнему 248px.
+- Тест `src/components/editors/Lexical/__tests__/dropdownMenuWidth.test.js`: рендер `DropdownPreview`
+  с кнопочным пунктом — у меню нет `_new`, по каскаду (sass CLI) `max-width` не задан ни меню, ни `ul`,
+  `.item.wide` по-прежнему 248px; голый `_new` при этом всё так же капается 200px.
 - Браузер, локальный стенд, комментарий к `TEST-1`: все четыре меню тулбара — правый край пунктов
   на 8px левее края контейнера (это `margin` пункта); ширины 264 / 264 / 244 / 264px. Меню языка
   кода (17 `li`) — 212px, ничего не расползлось. Русский интерфейс: все шорткаты внутри контейнера,
