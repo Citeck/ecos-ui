@@ -176,6 +176,16 @@ $rt-editor-content-line-height: 23px;
       top: 0 !important;
     }
 
+    // DropdownPreview inherits the generic `ecos-dropdown__menu_new` classes, and those cap the menu
+    // and its list at 200px (`$max-width-dropdown-menu`, sized for one-line text rows). The toolbar
+    // menus here hold fixed-width buttons instead (`.item.wide` is 248px, `.item .text` at least
+    // 180px), so the cap left every row — and its shortcut column — hanging outside the white
+    // container (COREDEV-455). Let the menu size to its items.
+    & .ecos-dropdown__menu_new,
+    & .ecos-dropdown__menu_new ul {
+      max-width: none !important;
+    }
+
     & .table {
       margin-bottom: 0;
     }
