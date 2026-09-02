@@ -81,9 +81,10 @@ class ViewMode extends Component {
       return <PointsLoader className="select-journal-view-mode__loader" color="light-blue" />;
     }
 
-    // A failed resolution: the record does hold a value, claiming «None» would be a lie.
+    // A failed resolution: the record does hold a value, claiming «None» would be a lie. The server
+    // text says what actually went wrong — a bare «Error» would throw it away (COREDEV-466).
     if (valueError) {
-      return <p className="select-journal-view-mode__error">{t('error')}</p>;
+      return <p className="select-journal-view-mode__error">{valueError.message || t('error')}</p>;
     }
 
     return <p>{placeholder || t(Labels.PLACEHOLDER)}</p>;

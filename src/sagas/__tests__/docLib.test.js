@@ -14,8 +14,11 @@ import {
 import DocLibService from '@/components/journals/Journals/DocLib/DocLibService';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
 import { wrapArgs } from '../../helpers/redux';
+import { t } from '../../helpers/util';
+import { NotificationManager } from '@/services/notifications';
 import {
   loadDocumentLibrarySettings,
+  sagaCreateNode,
   sagaExecGroupAction,
   sagaGetTypeRef,
   sagaInitDocumentLibrary,
@@ -357,4 +360,75 @@ describe('docLib sagas tests', () => {
   });
 
   // @todo add tests for other docLib sagas
+
+  describe('sagaCreateNode saga', () => {
+    const createState = {
+      documentLibrary: {
+        [stateId]: {
+          rootId,
+          folderId: rootId,
+          folderTitle: 'Root',
+          fileViewer: { items: [] }
+        }
+      }
+    };
+    const createVariant = { nodeType: 'DIR', typeRef: dirType };
+    const submission = { name: 'New folder' };
+    const genericText = t('document-library.error.create.other', { message: t('document-library.child-name.folder2') });
+
+    // COREDEV-466: Records throws the gateway's records-error text; it must reach the user
+    it('shows the server text under the generic title when createChild rejects', async () => {
+      const serverText = 'Folder name must be unique';
+      jest.spyOn(DocLibService, 'createChild').mockRejectedValue(new Error(serverText));
+      const errorSpy = jest.spyOn(NotificationManager, 'error').mockImplementation(() => {});
+
+      await runSaga(
+        { dispatch: () => {}, getState: () => createState },
+        sagaCreateNode,
+        { api: {}, stateId, w },
+        {
+          payload: { createVariant, submission }
+        }
+      ).done;
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(serverText, genericText);
+    });
+
+    it('keeps the bare generic text when the rejection carries no message', async () => {
+      jest.spyOn(DocLibService, 'createChild').mockRejectedValue(new Error(''));
+      const errorSpy = jest.spyOn(NotificationManager, 'error').mockImplementation(() => {});
+
+      await runSaga(
+        { dispatch: () => {}, getState: () => createState },
+        sagaCreateNode,
+        { api: {}, stateId, w },
+        {
+          payload: { createVariant, submission }
+        }
+      ).done;
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(genericText);
+    });
+
+    it('keeps the dedicated permissions text for "Permission Denied"', async () => {
+      jest.spyOn(DocLibService, 'createChild').mockRejectedValue(new Error('Permission Denied: doclib'));
+      const errorSpy = jest.spyOn(NotificationManager, 'error').mockImplementation(() => {});
+
+      await runSaga(
+        { dispatch: () => {}, getState: () => createState },
+        sagaCreateNode,
+        { api: {}, stateId, w },
+        {
+          payload: { createVariant, submission }
+        }
+      ).done;
+
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        t('document-library.error.create.permissions-dined', { message: t('document-library.child-name.folder') })
+      );
+    });
+  });
 });

@@ -540,18 +540,27 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
     try {
       createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
     } catch (error) {
-      if (error?.message?.includes('Permission Denied')) {
+      const serverText = get(error, 'message', '');
+
+      if (serverText.includes('Permission Denied')) {
         NotificationManager.error(
           t('document-library.error.create.permissions-dined', {
             message: t(`document-library.child-name.${isFileNode ? 'file' : 'folder'}`)
           })
         );
       } else {
-        NotificationManager.error(
-          t('document-library.error.create.other', {
-            message: t(`document-library.child-name.${isFileNode ? 'file2' : 'folder2'}`)
-          })
-        );
+        // COREDEV-466: `Records` throws the gateway's records-error text (e.g. a validation
+        // failure) — the only explanation the user can act on. Generic key as the title, text as
+        // the body; the bare generic text stays for errors without a message.
+        const genericText = t('document-library.error.create.other', {
+          message: t(`document-library.child-name.${isFileNode ? 'file2' : 'folder2'}`)
+        });
+
+        if (serverText) {
+          NotificationManager.error(serverText, genericText);
+        } else {
+          NotificationManager.error(genericText);
+        }
       }
       throw new Error(error);
     }
@@ -864,8 +873,33 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
           errorMaxSingleUploadSize,
           errorMaxFileSize,
           typeCurrentItem,
-          targetDirTitle
+          targetDirTitle,
+          errorMessage,
+          isFatal
         } = event.data;
+
+        if (status === WORKER_STATUSES.UPLOAD_ERROR) {
+          // COREDEV-466: the worker reads the gateway's records-error text (HTTP 200 + ERROR
+          // message) itself and sends only the string. Shown here rather than in UploadStatus.jsx
+          // because it must appear even without an active service worker.
+          if (errorMessage) {
+            const isDir = typeCurrentItem === NODE_TYPES.DIR;
+            const title = isFatal
+              ? t('document-library.uploading-file.message.abort')
+              : t('document-library.uploading-file.message.error', {
+                  fileName: isDir ? targetDirTitle : get(file, 'file.name', ''),
+                  message: t(`document-library.child-name.${isDir ? 'folder' : 'file'}`)
+                });
+
+            NotificationManager.error(errorMessage, title);
+          }
+
+          // Nothing else will come from the worker after a fatal error (no UPLOAD_SUCCESS):
+          // release the saga so the loader is dropped and the views reload.
+          if (isFatal) {
+            resolve();
+          }
+        }
 
         if (navigator.serviceWorker.controller) {
           switch (status) {
