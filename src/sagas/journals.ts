@@ -1405,12 +1405,21 @@ function* sagaExecRecordsAction({ api, w }: IJournalsExtraArgumentsStore, action
   }
 }
 
-function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof saveRecords>>) {
+export function* sagaSaveRecords(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof saveRecords>>
+) {
+  const { id, attributes } = action.payload;
+  const attribute = getFirst(Object.keys(attributes));
+  // The row as the grid showed it before the optimistic put, and whether the server accepted the
+  // value: a failed save puts the old row back, a failed re-read after a successful save must not.
+  let rowBeforeEdit: IJournalState['grid']['data'][number] | undefined;
+  let editingRules: IJournalState['grid']['editingRules'] | undefined;
+  let saved = false;
+
   try {
     const { grid }: IJournalState = yield select(selectJournalData, stateId);
-    const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, grid);
-    const { id, attributes } = action.payload;
-    const attribute = getFirst(Object.keys(attributes));
+    editingRules = yield getGridEditingRules(api, grid);
     if (!isString(attribute)) {
       return;
     }
@@ -1426,6 +1435,8 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
       yield put(setGrid(w({ ...grid, data: dataWithError, editingRules })));
       return;
     }
+
+    rowBeforeEdit = grid.data.find(record => record.id === id);
 
     const optimisticData = grid.data.map(record => {
       if (record.id === id) {
@@ -1447,6 +1458,8 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
       record.att(buildSaveAttKey(attribute, currentColumn?.type), valueToSave);
       yield record.save();
     }
+
+    saved = true;
 
     grid.columns.forEach(c => {
       tempAttributes[c.attribute] = c.attSchema;
@@ -1473,6 +1486,19 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
     yield put(setGrid(w({ ...currentGrid, data: updatedData, editingRules })));
   } catch (e) {
     console.error('[journals sagaSaveRecords saga error', e);
+
+    // The server's refusal used to end in the console only, with the optimistic value left in the
+    // cell as if it had been saved (COREDEV-466). Records' `checkRespMessages` already turns the
+    // response message into `Error.message`; show it, and put the old row back with the cell marked.
+    NotificationManager.error(get(e, 'message') || t('journal.inline-edit.save-error'), t('journal.inline-edit.save-error'));
+
+    if (rowBeforeEdit && !saved && isString(attribute)) {
+      const { grid: currentGrid }: IJournalState = yield select(selectJournalData, stateId);
+      const restoredRow = { ...rowBeforeEdit, error: attribute };
+      const data = currentGrid.data.map(record => (record.id === id ? restoredRow : record));
+
+      yield put(setGrid(w({ ...currentGrid, data, editingRules: editingRules || currentGrid.editingRules })));
+    }
   }
 }
 

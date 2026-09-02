@@ -3,6 +3,7 @@ import { NODE_TYPES } from '@citeck/constants/docLib';
 import get from 'lodash/get';
 
 import { WORKER_STATUSES, ACTION_CANCEL_REQUEST, Endpoints } from './constants';
+import { readRecordsResponse } from './recordsResponse';
 
 import { DocLibServiceApi } from '@/components/journals/Journals/DocLib/DocLibServiceApi';
 import { uploadContent } from '@/helpers/chunkedUpload';
@@ -27,7 +28,6 @@ self.onmessage = async event => {
   let isAllReplace = false;
 
   const items = [];
-  const childrenRootDir = await getFolderItems(folderId, ws);
 
   const isFoundItem = (item, children) =>
     children &&
@@ -38,6 +38,10 @@ self.onmessage = async event => {
     children.attributes.nodeType === item.nodeType;
 
   try {
+    // Inside the try: a records-error here (COREDEV-466) must reach the main thread as a fatal
+    // UPLOAD_ERROR, not die as an unhandled rejection that leaves the saga waiting forever.
+    const childrenRootDir = await getFolderItems(folderId, ws);
+
     for (const item of _items) {
       const foundItem = childrenRootDir.find(children => isFoundItem(item, children));
 
@@ -46,7 +50,7 @@ self.onmessage = async event => {
           const fileId = foundItem.id.split('$').pop();
 
           if (isAllReplace) {
-            await deleteChild(fileId).then(res => res && items.push(item));
+            await deleteChild(fileId, item.file).then(res => res && items.push(item));
             break;
           }
 
@@ -57,7 +61,7 @@ self.onmessage = async event => {
           }
 
           if (isConfirmReplaceFile) {
-            await deleteChild(fileId).then(res => res && items.push(item));
+            await deleteChild(fileId, item.file).then(res => res && items.push(item));
           } else {
             totalCount--;
           }
@@ -81,7 +85,7 @@ self.onmessage = async event => {
                 const fileId = foundDuplicateFile.id.split('$').pop();
 
                 if (isAllReplace) {
-                  await deleteChild(fileId).then(res => res && dirFiles.push(file));
+                  await deleteChild(fileId, file.file).then(res => res && dirFiles.push(file));
                   continue;
                 }
 
@@ -92,7 +96,7 @@ self.onmessage = async event => {
                 }
 
                 if (isConfirmReplaceFile) {
-                  await deleteChild(fileId).then(res => res && dirFiles.push(file));
+                  await deleteChild(fileId, file.file).then(res => res && dirFiles.push(file));
                 } else {
                   totalCount--;
                 }
@@ -120,9 +124,17 @@ self.onmessage = async event => {
 
     await handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount, ws });
   } catch (e) {
-    self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR, error: e.message });
+    postFatalError(e);
   }
 };
+
+// The whole batch is over and UPLOAD_SUCCESS will never follow: `isFatal` lets the saga release
+// its upload promise. Only the text crosses the boundary — an Error instance does not reliably
+// survive structured cloning.
+function postFatalError(error) {
+  const errorMessage = error && error.message ? error.message : String(error || '');
+  self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR, errorMessage, isFatal: true });
+}
 
 async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
   const uniqueFolders = new Set();
@@ -306,7 +318,7 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
 
     self.postMessage({ status: WORKER_STATUSES.UPLOAD_SUCCESS, result });
   } catch (error) {
-    self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR, error: error.message });
+    postFatalError(error);
   }
 }
 
@@ -348,16 +360,19 @@ async function getFolderItems(parentRef, ws) {
     method: 'POST'
   });
 
-  const responseData = await response.json();
+  const { ok, errorMessage, errorStatus, body } = await readRecordsResponse(response);
 
-  if (responseData && responseData.records) {
-    return responseData.records;
+  if (!ok) {
+    // Returning [] here would hide existing children and let the upload create duplicates.
+    throw new Error(errorMessage || `Failed to load folder children (HTTP ${errorStatus})`);
   }
 
-  return [];
+  return (body && body.records) || [];
 }
 
-async function deleteChild(record) {
+// Replacing an existing file starts with deleting it. A failure is reported for that file
+// (COREDEV-466: including a records-error text on HTTP 200), and the caller skips the re-upload.
+async function deleteChild(record, file) {
   const response = await citeckFetch(Endpoints.DELETE_CHILDREN, {
     body: {
       records: [record],
@@ -366,7 +381,18 @@ async function deleteChild(record) {
     method: 'POST'
   });
 
-  return response.ok;
+  const { ok, errorStatus, errorMessage } = await readRecordsResponse(response);
+
+  if (!ok) {
+    self.postMessage({
+      status: WORKER_STATUSES.UPLOAD_ERROR,
+      errorStatus,
+      errorMessage,
+      file: { file, isLoading: false, isError: true }
+    });
+  }
+
+  return ok;
 }
 
 async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId, ws }) {
@@ -385,24 +411,24 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
     return foundFolder;
   }
 
-  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => {
-    if (res.ok) {
-      return await res.json();
-    } else {
-      self.postMessage({
-        status: WORKER_STATUSES.UPLOAD_ERROR,
-        typeCurrentItem: NODE_TYPES.DIR,
-        targetDirTitle: get(convertDir, '_name'),
-        errorStatus: res.status
-      });
-    }
-  });
+  const { ok, errorStatus, errorMessage, body } = await createChild(rootId, parentId, destinationDir, convertDir, ws);
 
-  if (result && result.records && result.records.length) {
-    return result.records[0];
+  if (!ok) {
+    self.postMessage({
+      status: WORKER_STATUSES.UPLOAD_ERROR,
+      typeCurrentItem: NODE_TYPES.DIR,
+      targetDirTitle: get(convertDir, '_name'),
+      errorStatus,
+      errorMessage
+    });
+    return undefined;
   }
 
-  return result;
+  if (body && body.records && body.records.length) {
+    return body.records[0];
+  }
+
+  return body;
 }
 
 async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount, ws }) {
@@ -490,37 +516,36 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     return Promise.reject('Error: Error when converting a file');
   }
 
-  return await createChild(rootId, dirId, destinationFile, convertFile, ws, createChildController.signal)
-    .then(async res => {
-      if (res.ok) {
-        self.postMessage({
-          status: WORKER_STATUSES.PROGRESS_UPDATE,
-          totalCount,
-          successFileCount: successFileCount + 1,
-          file: { file, isLoading: false, isError: false },
-          requestId
-        });
-        return await res.json();
-      } else {
-        self.postMessage({
-          status: WORKER_STATUSES.UPLOAD_ERROR,
-          errorStatus: res.status,
-          totalCount,
-          successFileCount,
-          isCancelled: cancelledRequests.includes(requestId),
-          file: { file, isLoading: false, isError: true }
-        });
-      }
-    })
-    .catch(() => {
-      self.postMessage({
-        status: WORKER_STATUSES.UPLOAD_ERROR,
-        totalCount,
-        successFileCount,
-        isCancelled: cancelledRequests.includes(requestId),
-        file: { file, isLoading: false, isError: true }
-      });
+  let created;
+  try {
+    created = await createChild(rootId, dirId, destinationFile, convertFile, ws, createChildController.signal);
+  } catch (e) {
+    // Network failure or abort — no status and no server text to show.
+    created = { ok: false };
+  }
+
+  if (!created.ok) {
+    self.postMessage({
+      status: WORKER_STATUSES.UPLOAD_ERROR,
+      errorStatus: created.errorStatus,
+      errorMessage: created.errorMessage,
+      totalCount,
+      successFileCount,
+      isCancelled: cancelledRequests.includes(requestId),
+      file: { file, isLoading: false, isError: true }
     });
+    return undefined;
+  }
+
+  self.postMessage({
+    status: WORKER_STATUSES.PROGRESS_UPDATE,
+    totalCount,
+    successFileCount: successFileCount + 1,
+    file: { file, isLoading: false, isError: false },
+    requestId
+  });
+
+  return created.body;
 }
 
 function prepareUploadedDirDataForSaving(dir = {}) {
@@ -579,11 +604,14 @@ async function createChild(rootId, parentId, typeRef, attributes = {}, ws = '', 
     id: rootId
   };
 
-  return citeckFetch('/gateway/api/records/mutate', {
+  // Resolves to readRecordsResponse's shape: `ok` is false on HTTP 200 + ERROR message too.
+  const response = await citeckFetch('/gateway/api/records/mutate', {
     body: { records: [record] },
     method: 'POST',
     signal
   });
+
+  return readRecordsResponse(response);
 }
 
 async function citeckFetch(path = '', options = {}) {

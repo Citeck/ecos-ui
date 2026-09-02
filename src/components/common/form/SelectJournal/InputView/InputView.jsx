@@ -36,6 +36,9 @@ class InputView extends Component {
     if (nextProps.multiple !== this.props.multiple) return true;
     if (nextProps.isCompact !== this.props.isCompact) return true;
     if (nextProps.gridData !== this.props.gridData) return true;
+    // The value error lands after the fetch, with nothing else changing (COREDEV-466).
+    if (nextProps.error !== this.props.error) return true;
+    if (nextProps.valueError !== this.props.valueError) return true;
     if (nextState.aditionalButtons !== this.state.aditionalButtons) return true;
     if (nextState.createVariants !== this.state.createVariants) return true;
     if (nextState.isOpenMenuActions !== this.state.isOpenMenuActions) return true;
@@ -525,7 +528,7 @@ class InputView extends Component {
   }
 
   render() {
-    const { error, className, isCompact, viewMode, multiple, disabled } = this.props;
+    const { error, valueError, className, isCompact, viewMode, multiple, disabled } = this.props;
     const wrapperClasses = classNames(
       'select-journal__input-view',
       {
@@ -536,11 +539,14 @@ class InputView extends Component {
 
     const isTable = viewMode === 'table';
     const hasActionButton = multiple || (isTable && !disabled);
+    // The configuration error disables the whole field, so it outranks a failed value resolution;
+    // either way the user gets the actual text, not a silent not-selected state (COREDEV-466).
+    const shownError = error || valueError;
 
     return (
       <div className={wrapperClasses}>
         {this.renderList()}
-        {error && <p className="select-journal__error">{error.message}</p>}
+        {shownError && <p className="select-journal__error">{shownError.message || t('error')}</p>}
         {(isCompact || isTable) && (
           <div className="select-journal__actions">
             {(isCompact || (isTable && hasActionButton)) && this.renderActionButton()}
@@ -562,6 +568,7 @@ InputView.propTypes = {
   placeholder: PropTypes.string,
   viewMode: PropTypes.string,
   error: PropTypes.instanceOf(Error),
+  valueError: PropTypes.instanceOf(Error),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,

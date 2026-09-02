@@ -8,6 +8,17 @@ import { wrapArgs } from '../../helpers/redux';
 import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';
 import * as journals from '../journals';
+import { setGrid } from '../../actions/journals';
+import { NotificationManager } from '@/services/notifications';
+
+jest.mock('@/services/notifications', () => ({
+  NotificationManager: {
+    error: jest.fn(),
+    success: jest.fn(),
+    warning: jest.fn(),
+    info: jest.fn()
+  }
+}));
 
 const stateId = 'stateId',
   boardId = 'boardId',
@@ -165,5 +176,50 @@ describe('getGridData > page size of the records query', () => {
 
     expect(getJournalData).toHaveBeenCalledTimes(1);
     expect(getJournalData.mock.calls[0][1].page).toEqual(pagination);
+  });
+});
+
+describe('sagaSaveRecords: a failed inline save is visible (COREDEV-466)', () => {
+  const rowId = 'workspace://SpacesStore/row-1';
+  const column = { attribute: 'summary', dataField: 'summary', type: 'text', attSchema: 'summary' };
+  const state = { journals: { [stateId]: { grid: { columns: [column], data: [{ id: rowId, summary: 'old' }], editingRules: {} } } } };
+
+  const run = async journalsApi => {
+    const dispatched = [];
+
+    await runSaga(
+      { dispatch: action => dispatched.push(action), getState: () => state },
+      journals.sagaSaveRecords,
+      { api: { journals: { checkRowEditRules: async () => false, ...journalsApi } }, stateId, w: wrapArgs(stateId) },
+      { payload: { id: rowId, attributes: { summary: 'new' } } }
+    ).done;
+
+    return dispatched.filter(action => action.type === setGrid.toString()).map(action => action.payload._args.data[0]);
+  };
+
+  it('shows the server text and puts the old value back when the save fails', async () => {
+    const text = 'Изменения строки не прошли внешнюю проверку: Нельзя изменить строку Е';
+    const rows = await run({
+      saveRecords: async () => {
+        throw new Error(text);
+      }
+    });
+
+    expect(NotificationManager.error).toHaveBeenCalledTimes(1);
+    expect(NotificationManager.error.mock.calls[0][0]).toBe(text);
+    expect(rows[0]).toEqual({ id: rowId, summary: 'new' }); // the optimistic put
+    expect(rows[rows.length - 1]).toEqual({ id: rowId, summary: 'old', error: 'summary' }); // rolled back and marked
+  });
+
+  it('keeps the saved value when only the re-read after a successful save fails', async () => {
+    const rows = await run({
+      saveRecords: async () => ({}),
+      getRecord: async () => {
+        throw new Error('re-read failed');
+      }
+    });
+
+    expect(NotificationManager.error).toHaveBeenCalledTimes(1);
+    expect(rows[rows.length - 1]).toEqual({ id: rowId, summary: 'new' });
   });
 });
