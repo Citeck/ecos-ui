@@ -71,6 +71,7 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import ContentEditable from './ui/ContentEditable';
 
 import { t } from '@/helpers/export/util';
+import { $isEditorContentEmpty } from '@/helpers/lexical';
 import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 export type LexicalEditorProps = {
@@ -80,7 +81,7 @@ export type LexicalEditorProps = {
   autoFocus?: boolean;
   hideToolbar?: boolean;
   className?: string;
-  onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
+  onChange?: (editorState: EditorState, editor: LexicalEditor, isEmpty: boolean) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
   onUpload?: OnImageUpload;
   withoutTimeout?: boolean;
@@ -215,13 +216,17 @@ export default function Editor({
         {onChange && (
           <OnChangePlugin
             onChange={(state, editor) => {
-              const textContentSize = state.read(() => $getRoot().getTextContentSize());
+              const { textContentSize, isEmpty } = state.read(() => ({
+                textContentSize: $getRoot().getTextContentSize(),
+                // asked of the document itself: the rendered markup lags a decorator behind, since
+                // React paints a picture or an attached file a commit later than this fires
+                isEmpty: $isEditorContentEmpty()
+              }));
               setTextLength(textContentSize);
               setOption('isMaxLength', textContentSize >= maxLength);
 
               if (isFunction(onChange)) {
-                const { innerHTML = '' } = editor.getRootElement() || {};
-                onChange(state, editor, textContentSize === 0 && !innerHTML.includes('img') && !innerHTML.includes('hr'));
+                onChange(state, editor, isEmpty);
               }
             }}
           />

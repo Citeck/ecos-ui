@@ -93,8 +93,13 @@
       max-height: 32px;
       color: $color-gray-5;
       // Citeck font glyphs are painted ~1px below the middle of the line box, which makes the
-      // gaps above and below the icon row uneven — lift the row so they match
-      transform: translateY(-1px);
+      // gaps above and below the icon row uneven — lift the row so they match. As margins, not
+      // a transform: a transform would make the row a stacking context and trap a dropdown a
+      // widget renders among its actions (the Associations "+" menu) under the neighbouring
+      // widgets. The pair keeps the margin box height, so the flex centring is unchanged and the
+      // whole 1px goes into the lift (a lone negative margin-top would move the row by only 0.5px)
+      margin-top: -1px;
+      margin-bottom: 1px;
 
       & > :nth-child(n) {
         margin-left: 5px;

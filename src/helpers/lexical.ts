@@ -1,12 +1,17 @@
 import { $generateNodesFromDOM } from '@lexical/html';
+import { $isHeadingNode } from '@lexical/rich-text';
 import {
   $createParagraphNode,
   $createTextNode,
   $getRoot,
   $getSelection,
   $isDecoratorNode,
+  $isElementNode,
+  $isLineBreakNode,
   $isParagraphNode,
   $isRangeSelection,
+  $isTextNode,
+  ElementNode,
   LexicalEditor,
   TextNode
 } from 'lexical';
@@ -131,6 +136,131 @@ export function getStylesOfClasses(styles: string, classList?: DOMTokenList) {
   return styles;
 }
 
+const hasDecorator = (node: LexicalNode): boolean => {
+  if ($isDecoratorNode(node)) {
+    return true;
+  }
+
+  return $isElementNode(node) && node.getChildren().some(hasDecorator);
+};
+
+/**
+ * The editor holds nothing worth keeping: no text of its own, and no decorator — a picture, an
+ * attached file, a divider — which is content without a single character to show for it. Blank
+ * paragraphs do not count: the root joins its blocks with a double line break, so two empty ones
+ * already have a "text" of two newlines. Must run inside `editorState.read` or `editor.update`.
+ */
+export function $isEditorContentEmpty(): boolean {
+  const root = $getRoot();
+
+  return root.getTextContent().trim() === '' && !hasDecorator(root);
+}
+
+/**
+ * The only blocks the trim may look into: a paragraph or a heading straight under the root. A table,
+ * a list, a code block, a quote — anything else — is opaque: its blank cells and its leading spaces
+ * are what the author put on the screen, and an empty table is still a table the reader sees.
+ */
+const isTextBlock = (node: LexicalNode | null): node is ElementNode => $isParagraphNode(node) || $isHeadingNode(node);
+
+const isBlankBlock = (node: LexicalNode): boolean => isTextBlock(node) && node.getTextContent().trim() === '' && !hasDecorator(node);
+
+/**
+ * Blank text blocks at the very top and the very bottom of the document, in one pass each way. An
+ * opaque block at the edge ends the pass: it is never dropped, not even an empty table.
+ */
+const dropBlankEdgeBlocks = (root: ElementNode): boolean => {
+  let dropped = false;
+
+  for (const edge of ['getFirstChild', 'getLastChild'] as const) {
+    // the last block always stays: a document has to keep a paragraph to put the caret in
+    while (root.getChildrenSize() > 1) {
+      const block = root[edge]();
+
+      if (!block || !isBlankBlock(block)) {
+        break;
+      }
+
+      block.remove();
+      dropped = true;
+    }
+  }
+
+  return dropped;
+};
+
+/**
+ * Whitespace and line breaks at one end of the document, down to the first thing worth keeping —
+ * but only inside the edge text block. Descending from the root itself would land in a table cell,
+ * a list item or a code line, where the same spaces are the author's layout and indentation. Inline
+ * wrappers such as a link are fine to enter: Lexical removes one that cannot be empty together with
+ * its last text node, so nothing is left dangling.
+ */
+const trimEdge = (root: ElementNode, side: 'first' | 'last'): boolean => {
+  let trimmedAnything = false;
+
+  for (;;) {
+    const block = side === 'first' ? root.getFirstChild() : root.getLastChild();
+
+    if (!isTextBlock(block)) {
+      return trimmedAnything;
+    }
+
+    const leaf = side === 'first' ? block.getFirstDescendant() : block.getLastDescendant();
+
+    if ($isLineBreakNode(leaf)) {
+      leaf.remove();
+      trimmedAnything = true;
+      continue;
+    }
+
+    if (!$isTextNode(leaf)) {
+      return trimmedAnything;
+    }
+
+    const text = leaf.getTextContent();
+    const trimmed = side === 'first' ? text.replace(/^\s+/, '') : text.replace(/\s+$/, '');
+
+    if (trimmed === text) {
+      return trimmedAnything;
+    }
+
+    trimmedAnything = true;
+
+    if (trimmed === '') {
+      leaf.remove();
+      continue;
+    }
+
+    leaf.setTextContent(trimmed);
+
+    return true;
+  }
+};
+
+/**
+ * Cuts the empty lines and spaces off both ends of the document — the ones pressed before or after
+ * the text, which say nothing and only push the comment around in the feed. Nothing the reader can
+ * see may change: blank lines inside the text are the author's own spacing, a picture or an attached
+ * file is content even though it has no text, and a table, a list or a code block at the edge is
+ * left exactly as it is, empty or not. Must run inside `editor.update`.
+ */
+export function $trimEditorContent(): void {
+  const root = $getRoot();
+  let trimmedAnything = false;
+
+  // each pass only ever removes something, and trimming an edge can uncover the next blank block
+  while (dropBlankEdgeBlocks(root) || trimEdge(root, 'first') || trimEdge(root, 'last')) {
+    trimmedAnything = true;
+  }
+
+  // the caret stays where it was pointing, which is now past the end of the text it was in, and
+  // Lexical throws over that stale offset the moment it reconciles the selection
+  if (trimmedAnything) {
+    root.selectEnd();
+  }
+}
+
 export function updateEditorContent(editor: LexicalEditor, value?: string | null) {
   $getRoot().clear();
   const phNode = $createParagraphNode();
@@ -144,23 +274,7 @@ export function updateEditorContent(editor: LexicalEditor, value?: string | null
 
   if ($isRangeSelection(selection)) {
     selection.insertNodes(nodes);
-
-    const root = $getRoot();
-    const children = root.getChildren();
-
-    if (children.length > 1) {
-      const first = children[0];
-      // A decorator carries no text of its own, so a paragraph holding only one - a picture, an
-      // attached file - reads as empty here and would be dropped with the real empty ones.
-      if ($isParagraphNode(first) && first.getTextContent() === '' && !first.getChildren().some(child => $isDecoratorNode(child))) {
-        first.remove();
-      }
-
-      const updatedChildren = root.getChildren();
-      const last = updatedChildren[updatedChildren.length - 1];
-      if ($isParagraphNode(last) && last.getTextContent() === '' && !last.getChildren().some(child => $isDecoratorNode(child))) {
-        last.remove();
-      }
-    }
+    // the placeholder paragraph above, and whatever blank line the stored html ends with
+    dropBlankEdgeBlocks($getRoot());
   }
 }

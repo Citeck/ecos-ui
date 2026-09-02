@@ -11,11 +11,15 @@ export const ROOT = path.resolve(__dirname, '../..');
  *
  * dart-sass takes jsdom's `window` for a browser and drops its file system, so the stylesheet is
  * compiled by the CLI in a child process instead of in the jest worker. The source is fed through
- * stdin with the Vite `@/` alias rewritten to `src/`, which the CLI does not know; relative imports
- * resolve through the file's own directory added as a load path.
+ * stdin with the Vite `@/` alias rewritten to `src/`, which the CLI does not know, and with the
+ * breakpoint mixins injected the way Vite does; relative imports resolve through the file's own
+ * directory added as a load path.
  */
 export const compileScss = file => {
-  const source = readFileSync(file, 'utf8').replace(/(['"])@\//g, `$1${path.join(ROOT, 'src')}/`);
+  // Vite prepends this to every stylesheet (`css.preprocessorOptions.scss.additionalData` in
+  // vite.config.js), so files use the breakpoint mixins with no @import of their own.
+  const additionalData = `@use "${path.join(ROOT, 'src/styles/breakpoints')}" as *;\n`;
+  const source = additionalData + readFileSync(file, 'utf8').replace(/(['"])@\//g, `$1${path.join(ROOT, 'src')}/`);
 
   return execFileSync(
     process.execPath,

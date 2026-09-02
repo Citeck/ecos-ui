@@ -27,11 +27,10 @@ const FileGridCard = ({ item, isSelected, isLastClicked, isMobile, onClick, onDo
       onDoubleClick={() => onDoubleClick(item)}
       {...handlers}
     >
-      <div className="citeck-doclib-files__card-actions" onClick={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()}>
-        {(item.actions || []).map((action, idx) => renderAction(action, idx))}
-      </div>
-
       <div className="citeck-doclib-files__card-preview">
+        <div className="citeck-doclib-files__card-actions" onClick={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()}>
+          {(item.actions || []).map((action, idx) => renderAction(action, idx))}
+        </div>
         <FileItemIcon item={item} className="citeck-doclib-files__card-icon" />
       </div>
 

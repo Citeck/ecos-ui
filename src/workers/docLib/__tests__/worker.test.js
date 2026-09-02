@@ -39,6 +39,18 @@ jest.spyOn(self, 'addEventListener').mockImplementation((type, handler, options)
 
 require('../worker.js');
 
+// worker.js reassigns `self.onmessage` to a one-shot confirmation resolver while it waits for a
+// replace-file answer (getConfirmationFromMainThread) and never restores it — in production every
+// upload gets a fresh Worker. Pin the orchestrator here so every test starts the real flow.
+const uploadHandler = self.onmessage;
+
+const RECORDS_ERROR_TEXT = 'Document with name "a.txt" already exists';
+const recordsErrorBody = (msg = RECORDS_ERROR_TEXT) =>
+  JSON.stringify({
+    messages: [{ level: 'ERROR', type: 'records-error', msg: { type: 'EcosWebException', msg, stackTrace: [], data: {} } }],
+    records: []
+  });
+
 function makeFile(name, size = 10) {
   return new File([new Uint8Array(size)], name, { type: 'text/plain' });
 }
@@ -60,12 +72,12 @@ describe('docLib worker.js handleUploadFile via uploadContent', () => {
     postMessageSpy.mockRestore();
   });
 
-  function runUpload(file, { folderId = 'folder', rootId = 'root', ws } = {}) {
+  function runUpload(file, { folderId = 'folder', rootId = 'root', ws, folderItemsBody } = {}) {
     // getFolderItems(folderId) queries existing children first; respond with none so the new
     // file takes the plain `items.push(item)` branch in self.onmessage.
-    fetchMock.mockResponseOnce(JSON.stringify({ records: [] }));
+    fetchMock.mockResponseOnce(folderItemsBody || JSON.stringify({ records: [] }));
 
-    return self.onmessage({
+    return uploadHandler({
       data: {
         items: [{ file, name: file.name, nodeType: 'FILE', path: `/${file.name}` }],
         rootId,
@@ -223,5 +235,103 @@ describe('docLib worker.js handleUploadFile via uploadContent', () => {
     resolveUpload();
     fetchMock.mockResponseOnce(JSON.stringify({ records: [] }));
     await uploadPromise;
+  });
+
+  // COREDEV-466: the gateway answers a failed Records request with HTTP 200 + an ERROR-level
+  // `messages` entry. The worker uses raw fetch (records-core's checkRespMessages never runs
+  // here), so it has to read `messages` itself, or the failure is counted as success.
+  describe('records-error messages on HTTP 200 (COREDEV-466)', () => {
+    const uploadOk = () =>
+      uploadContent.mockImplementation(async (_file, opts) => {
+        opts.handleProgress({ status: 'preparing', percent: 0 }, { abort: jest.fn(), onerror: jest.fn() });
+        return { entityRef: 'emodel/temp-file@abc' };
+      });
+
+    it('createChild 200 + ERROR message is an UPLOAD_ERROR carrying the server text, not a created record', async () => {
+      const file = makeFile('rec-err.txt');
+      uploadOk();
+
+      // Queued after runUpload's own (synchronously issued) children query — see the delete case.
+      const uploadPromise = runUpload(file);
+      fetchMock.mockResponseOnce(recordsErrorBody()); // createChild (mutate)
+      await uploadPromise;
+
+      expect(fetchMock.mock.calls[1][0]).toContain('/gateway/api/records/mutate');
+
+      const messages = postMessageSpy.mock.calls.map(([msg]) => msg);
+      const errorCall = messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_ERROR);
+      expect(errorCall).toBeDefined();
+      expect(errorCall.errorMessage).toBe(RECORDS_ERROR_TEXT);
+      // HTTP status was 200 — must not be forwarded, or UploadStatus.jsx would add its own
+      // generic "error while uploading" notification on top of the server text.
+      expect(errorCall.errorStatus).toBeUndefined();
+      expect(errorCall.file.isError).toBe(true);
+      expect(errorCall.file.isLoading).toBe(false);
+      expect(errorCall.isFatal).toBeFalsy();
+
+      // The file is not reported as uploaded ...
+      const progressAfterCreate = messages.find(msg => msg.status === WORKER_STATUSES.PROGRESS_UPDATE && msg.successFileCount === 1);
+      expect(progressAfterCreate).toBeUndefined();
+      // ... but the batch itself still finishes (per-file error, like an HTTP error).
+      const success = messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_SUCCESS);
+      expect(success).toBeDefined();
+      expect(success.result).toEqual([]);
+    });
+
+    it('a children query answering 200 + ERROR aborts the upload with a fatal UPLOAD_ERROR carrying the text', async () => {
+      const file = makeFile('query-err.txt');
+      uploadOk();
+
+      await runUpload(file, { folderItemsBody: recordsErrorBody('Folder is not accessible') });
+
+      expect(uploadContent).not.toHaveBeenCalled();
+      const messages = postMessageSpy.mock.calls.map(([msg]) => msg);
+      const errorCall = messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_ERROR);
+      expect(errorCall).toBeDefined();
+      expect(errorCall.errorMessage).toBe('Folder is not accessible');
+      // Nothing else will follow (no UPLOAD_SUCCESS) — the saga needs this flag to release its
+      // upload promise and drop the loader instead of waiting forever.
+      expect(errorCall.isFatal).toBe(true);
+      expect(messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_SUCCESS)).toBeUndefined();
+    });
+
+    it('deleteChild (replace confirmed) answering 200 + ERROR reports the text and skips the re-upload', async () => {
+      const file = makeFile('replace-err.txt');
+      uploadOk();
+
+      // Answer the replace confirmation as soon as the worker asks for it. Deferred by a
+      // microtask: worker.js posts CONFIRM_FILE_REPLACE *before* installing its one-shot
+      // `self.onmessage` resolver, so a synchronous reply would hit the wrong handler.
+      postMessageSpy.mockImplementation(msg => {
+        if (msg && msg.status === WORKER_STATUSES.CONFIRM_FILE_REPLACE) {
+          Promise.resolve().then(() =>
+            self.onmessage({ data: { status: WORKER_STATUSES.CONFIRM_FILE_RESPONSE, confirmed: true, isReplaceAllFiles: false } })
+          );
+        }
+      });
+
+      const existing = { id: 'emodel/doclib@root$existing-1', attributes: { name: file.name, nodeType: 'FILE' } };
+
+      // fetch-mock's once-queue is FIFO: the children query is issued synchronously inside
+      // runUpload, so the deleteChild answer is queued right after it.
+      const uploadPromise = runUpload(file, { folderItemsBody: JSON.stringify({ records: [existing] }) });
+      fetchMock.mockResponseOnce(recordsErrorBody('Delete is forbidden')); // deleteChild
+      await uploadPromise;
+
+      expect(fetchMock.mock.calls[1][0]).toContain('/gateway/api/records/delete');
+      expect(uploadContent).not.toHaveBeenCalled();
+      const messages = postMessageSpy.mock.calls.map(([msg]) => msg);
+      const errorCall = messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_ERROR);
+      expect(errorCall).toBeDefined();
+      expect(errorCall.errorMessage).toBe('Delete is forbidden');
+      expect(errorCall.errorStatus).toBeUndefined();
+      expect(errorCall.file.file).toBe(file);
+      expect(errorCall.file.isError).toBe(true);
+      expect(errorCall.isFatal).toBeFalsy();
+      // Batch still completes: the skipped file is simply not in the result.
+      const success = messages.find(msg => msg.status === WORKER_STATUSES.UPLOAD_SUCCESS);
+      expect(success).toBeDefined();
+      expect(success.result).toEqual([]);
+    });
   });
 });

@@ -57,7 +57,16 @@ const DocLibToolbar = ({ stateId, isMobile, displayMode, setDisplayMode, onToggl
     }
 
     return (
-      <Dropdown hasEmpty isButton source={createVariants} keyFields="key" valueField="key" titleField="name" onChange={openCreateForm}>
+      <Dropdown
+        hasEmpty
+        isButton
+        source={createVariants}
+        keyFields="key"
+        valueField="key"
+        titleField="name"
+        menuClassName="citeck-doclib-toolbar__create-menu"
+        onChange={openCreateForm}
+      >
         {createBtn()}
       </Dropdown>
     );

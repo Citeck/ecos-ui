@@ -18,6 +18,7 @@ import { CommentInterface } from './propsInterfaces';
 
 import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '@/actions/comments';
 import { t } from '@/helpers/export/util';
+import { $trimEditorContent } from '@/helpers/lexical';
 import { num2str } from '@/helpers/util';
 import { selectStateByRecordRef } from '@/selectors/comments';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
@@ -38,7 +39,7 @@ export class Comment extends Component {
     isEdit: false,
     isMaxLength: false,
     isInternal: false,
-    noChanges: true
+    isEditorEmpty: true
   };
 
   get canSendComment() {
@@ -226,10 +227,10 @@ export class Comment extends Component {
     });
   }
 
-  handleEditorStateChange = (editorState, editor, noChanges) => {
+  handleEditorStateChange = (editorState, editor, isEditorEmpty) => {
     editor.update(() => {
       const { textContent = '' } = editor.getRootElement();
-      this.setState({ isMaxLength: textContent.length >= LENGTH_LIMIT, noChanges });
+      this.setState({ isMaxLength: textContent.length >= LENGTH_LIMIT, isEditorEmpty });
 
       const htmlComment = $generateHtmlFromNodes(editor, null);
       if (!isNil(htmlComment)) {
@@ -241,9 +242,36 @@ export class Comment extends Component {
     });
   };
 
+  handleEditorReady = editor => {
+    this._editor = editor;
+  };
+
+  /**
+   * The empty lines and spaces pressed before or after the text are not part of what the author
+   * wrote — they only push the comment around in the feed. Cut them off the document itself, so
+   * both stored formats come out of the same trimmed content.
+   */
+  getContentToSave = () => {
+    const { htmlComment, rawComment } = this.state;
+    const editor = this._editor;
+
+    if (!editor) {
+      return { htmlComment, rawComment };
+    }
+
+    // merged into the current history entry: the trim is housekeeping, not an edit of the author's,
+    // so if the save fails their next Ctrl+Z must still undo their last real change, not this
+    editor.update(() => $trimEditorContent(), { discrete: true, tag: 'history-merge' });
+
+    return editor.read(() => ({
+      htmlComment: $generateHtmlFromNodes(editor, null),
+      rawComment: JSON.stringify(editor.getEditorState())
+    }));
+  };
+
   handleTextBeforeSave = () => {
     const { dataStorageFormat } = this.props;
-    const { htmlComment, rawComment } = this.state;
+    const { htmlComment, rawComment } = this.getContentToSave();
     let text;
     switch (dataStorageFormat) {
       case 'raw':
@@ -296,7 +324,7 @@ export class Comment extends Component {
 
   renderEditor() {
     const { saveIsLoading, comment } = this.props;
-    const { isLoading, noChanges } = this.state;
+    const { isLoading, isEditorEmpty } = this.state;
 
     return (
       <div className="ecos-comments__editor">
@@ -304,6 +332,7 @@ export class Comment extends Component {
         <LexicalEditor
           htmlString={comment ? comment.text : null}
           onChange={this.handleEditorStateChange}
+          onEditorReady={this.handleEditorReady}
           UploadDocsService={this._uploadDocsRefService}
           recordRef={comment ? comment.id : 'emodel/comment@'}
           attribute="text"
@@ -335,7 +364,7 @@ export class Comment extends Component {
             <Btn
               className="ecos-btn_blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
-              disabled={!this.canSendComment || noChanges}
+              disabled={!this.canSendComment || isEditorEmpty}
               loading={saveIsLoading}
             >
               {t('comments-widget.editor.save')}

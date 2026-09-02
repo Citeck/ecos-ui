@@ -113,8 +113,12 @@
     user-select: none;
     transition: background-color 0.12s ease-in-out;
 
+    // highlights match the journal table: a hovered row gets a line above and below and keeps its
+    // fill (.ecos-grid__row_new:hover td), a selected row fills yellow (.ecos-grid__tr_selected)
     &:hover {
-      background: $color-blue-light4;
+      box-shadow:
+        0 1px 0 0 $color-brown-2 inset,
+        0 -1px 0 0 $color-brown-2 inset;
 
       #{$files}__row-actions {
         opacity: 1;
@@ -122,10 +126,10 @@
     }
 
     &_selected {
-      background: var(--light-primary-color, $color-blue-light2);
+      background: $color-yellow-1;
 
-      &:hover {
-        background: var(--light-primary-color, $color-blue-light2);
+      #{$files}__row-actions {
+        background: linear-gradient(to right, rgba($color-yellow-1, 0), $color-yellow-1 15%);
       }
     }
 
@@ -204,11 +208,13 @@
   }
 
   // ------- grid -------
+  // the horizontal inset is the list row's, so the first tile sits off the area border like a row;
+  // the narrowest tile still holds a strip of eight inline actions (see &__card-actions)
   &_grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
-    padding: 8px 0;
+    padding: 8px 12px;
   }
 
   &__card {
@@ -227,6 +233,7 @@
       box-shadow 0.12s ease-in-out;
 
     &:hover {
+      border-color: $color-brown-2;
       box-shadow: $box-shadow-default;
 
       #{$files}__card-actions {
@@ -234,9 +241,10 @@
       }
     }
 
+    // the journal selection colors, as for a list row
     &_selected {
-      border-color: var(--primary-color, $color-blue-dark);
-      background: var(--light-primary-color, $color-blue-light2);
+      border-color: $color-brown-2;
+      background: $color-yellow-1;
 
       #{$files}__card-preview {
         background: transparent;
@@ -249,16 +257,17 @@
       }
     }
 
+    // a strip at the top of the preview, in flow: it never covers the file icon, needs no backing of
+    // its own, keeps the tile edge inset and, with the 180px tile, holds eight 16px actions on one
+    // line (an even longer set wraps and grows the preview instead of running past the tile)
     &-actions {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      z-index: 2;
       display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 2px;
-      padding: 2px;
-      border-radius: $border-radius-standard;
-      background: rgba($color-white, 0.9);
+      min-height: 28px;
+      padding: 0 6px;
       opacity: 0;
       transition: opacity 0.12s ease-in-out;
 
@@ -266,23 +275,20 @@
 
       .ecos-inline-tools-btn.ecos-btn {
         height: 26px;
-
-        &.ecos-btn_i {
-          font-size: 14px;
-        }
+        margin-right: 0;
       }
     }
 
     &-preview {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 96px;
+      flex-direction: column;
+      min-height: 112px;
       background: $color-blue-light4;
       transition: background-color 0.12s ease-in-out;
     }
 
     &-icon {
+      margin: auto;
       font-size: 44px;
 
       &.ecos-file-icon {

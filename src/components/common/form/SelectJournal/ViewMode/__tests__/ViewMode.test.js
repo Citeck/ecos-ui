@@ -47,6 +47,23 @@ describe('SelectJournal ViewMode', () => {
     expect(container.textContent).not.toContain('Nothing here');
   });
 
+  // COREDEV-466: the server already explains what went wrong («Изменения строки не прошли внешнюю
+  // проверку: …»); a bare «Error» throws that explanation away.
+  it('shows the server text of the failed resolution', () => {
+    const message = 'Изменения строки не прошли внешнюю проверку: сумма превышает лимит';
+    const { container } = render(<ViewMode {...baseProps} valueError={new Error(message)} />);
+
+    expect(container.querySelector('.select-journal-view-mode__error').textContent).toBe(message);
+  });
+
+  it('falls back to the generic error text when the failure carries no message', () => {
+    const { container } = render(<ViewMode {...baseProps} valueError={new Error('')} />);
+
+    const error = container.querySelector('.select-journal-view-mode__error');
+    expect(error).not.toBeNull();
+    expect(error.textContent).not.toBe('');
+  });
+
   it('keeps a loading indication on the TABLE branch too', () => {
     const { container } = render(<ViewMode {...baseProps} viewMode="table" isLoading />);
 
