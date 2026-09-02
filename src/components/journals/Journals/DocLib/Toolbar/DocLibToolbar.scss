@@ -40,6 +40,12 @@
     padding: 0 10px;
   }
 
+  // Dropdown sets every menu item to $font-size-extra-small (10px) system-wide; the library reads at
+  // $font-size-standard everywhere else (tree, list, tiles, the button itself), so its create menu does too
+  &__create-menu.ecos-dropdown__menu_new li {
+    font-size: $font-size-standard;
+  }
+
   &__search {
     max-width: 300px;
     height: 34px;

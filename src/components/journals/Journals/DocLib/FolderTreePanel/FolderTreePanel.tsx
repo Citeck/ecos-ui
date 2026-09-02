@@ -95,7 +95,6 @@ const FolderTreePanel = ({ stateId, isMobile, isCollapsed, onToggleCollapsed, on
         <span className="citeck-doclib-panel__collapse-btn">
           <ChevronRight width={14} height={14} color="currentColor" />
         </span>
-        <span className="citeck-doclib-panel__collapsed-title">{t(DocLibLabels.FOLDERS_TITLE)}</span>
       </div>
     );
   }

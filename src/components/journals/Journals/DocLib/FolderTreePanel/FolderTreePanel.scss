@@ -52,24 +52,13 @@
     padding: 8px 8px 12px;
   }
 
+  // a plain strip with the expand control: no vertical title, no hover fill of its own
+  // (the control has one); the strip stays clickable and explains itself via its title
   &_collapsed {
     flex: 0 0 36px;
     align-items: center;
     padding-top: 10px;
     cursor: pointer;
-    gap: 10px;
-
-    &:hover {
-      background: $color-blue-light3;
-    }
-  }
-
-  &__collapsed-title {
-    writing-mode: vertical-rl;
-    font-size: $font-size-small;
-    font-weight: $font-weight-semi-bold;
-    color: $text-color-gray;
-    user-select: none;
   }
 
   &_mobile {
