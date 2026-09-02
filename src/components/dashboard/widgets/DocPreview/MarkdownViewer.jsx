@@ -12,7 +12,7 @@ import { Labels } from './util';
 
 import { t } from '@/helpers/util';
 
-const BASE_FONT_SIZE_PX = 13;
+const BASE_FONT_SIZE_PX = 14;
 
 /**
  * The plugins the source is rendered with, named once so that a test can state what is not among
