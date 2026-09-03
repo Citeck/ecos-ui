@@ -109,12 +109,19 @@ export class DocPreviewApi {
 /** Every `kind` this ui knows how to render. Anything else is degraded, see {@link statedKind}. */
 const PREVIEW_KINDS = ['image', 'pdf', 'text', 'markdown', 'video', 'audio', 'none'];
 
-const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tif', 'tiff'];
+// These name what a browser decodes on its own, not what the format family is: nothing here is
+// converted before it is shown, so an extension the browser cannot decode has to stay out or the ui
+// opens an empty player over a file it will never render. Deliberately absent, verified on Chrome
+// 146: `tif`/`tiff` (only Safari draws TIFF), `avi` (never demuxed by Chromium), and `ogv` (the Ogg
+// container lives on for audio, but the Theora decoder was removed in Chrome 123).
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg', 'ico'];
 const MARKDOWN_EXTENSIONS = ['md', 'markdown'];
 // `x-web-markdown` is what a mime database answers for a `.md` file it recognized by its bytes
 const MARKDOWN_MIME_TYPES = ['text/markdown', 'text/x-markdown', 'text/x-web-markdown'];
 const TEXT_EXTENSIONS = ['txt', 'log', 'har', 'csv', 'xml', 'html', 'json', 'yaml', 'yml'];
-const VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogv', 'mov', 'm4v', 'avi', 'mkv'];
+// `mkv` and `mov` are containers: they play when what is inside them is a codec the browser has
+// (h264/aac does, hevc and ac-3 do not), which is why neither can be promised, only offered.
+const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov', 'm4v', 'mkv'];
 const AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'oga', 'm4a', 'aac', 'flac', 'opus'];
 
 /**

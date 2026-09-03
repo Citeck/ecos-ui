@@ -379,6 +379,16 @@ describe('previewKindByFileName', () => {
     { name: 'report.pdf', kind: 'pdf' },
     { name: 'notes.md', kind: 'markdown' },
     { name: 'app.log', kind: 'text' },
+    // containers a browser does decode, kept apart from the ones below on purpose
+    { name: 'clip.mkv', kind: 'video' },
+    { name: 'clip.mov', kind: 'video' },
+    { name: 'song.flac', kind: 'audio' },
+    { name: 'icon.svg', kind: 'image' },
+    // no browser decodes these, so there is nothing to open a preview with
+    { name: 'clip.avi', kind: 'none' },
+    { name: 'clip.ogv', kind: 'none' },
+    { name: 'scan.tif', kind: 'none' },
+    { name: 'scan.tiff', kind: 'none' },
     { name: 'report.docx', kind: 'none' },
     { name: 'archive', kind: 'none' },
     { name: '', kind: 'none' }
