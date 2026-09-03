@@ -23,14 +23,13 @@ import { getDownloadContentUrl } from '@/helpers/urls';
  *
  * `url` itself: the backend (`EcosContentController.postMultipartContent`/`postStreamContent`,
  * ecos-webapp-commons) returns a bare `{"entityRef": "..."}` body and never a `url` field, so the
- * stock provider falls back to `` `${xhr.responseURL}/${name}` ``, an inert string. One `File.js`
- * call site reads `file.url` functionally — the `FILE_CLICK_ACTION_DOWNLOAD` link
- * (`linkAttributes.href = file.url || getDownloadContentUrl(recordRef)`) — so this provider stores
- * `getDownloadContentUrl(entityRef)` instead, the same `.../content?ref=...` URL `File.js` already
- * uses to fetch this content. `getFileUrl`'s pre-submit delete handler (`File.js`'s
- * `fileService.makeRequest('', url, 'delete')`) also reads `file.url`, but `EcosContentController`
- * has no DELETE mapping on this endpoint — only on `/upload-session/{id}` — so that handler is a
- * no-op whatever is stored here.
+ * stock provider falls back to `` `${xhr.responseURL}/${name}` ``. `File.js`'s
+ * `FILE_CLICK_ACTION_DOWNLOAD` link and formio's own `downloadjs`/`window.open` read `file.url`, so
+ * this provider stores the content's real download URL — absolute, see `absoluteContentUrl`.
+ * `getFileUrl`'s pre-submit delete handler (`File.js`'s
+ * `fileService.makeRequest('', url, 'delete')`) also reads it, but `EcosContentController` has no
+ * DELETE mapping on this endpoint — only on `/upload-session/{id}` — so that handler is a no-op
+ * whatever is stored here.
  */
 
 /**
@@ -73,6 +72,29 @@ function extractUrlBase(url) {
   }
   const normalized = path.endsWith('/') ? path.slice(0, -1) : path;
   return normalized || undefined;
+}
+
+/**
+ * The download URL of the just-uploaded content, absolute against the page origin.
+ *
+ * COREDEV-470: for a file field bound to an association, ecos-data reads a *relative*
+ * `/gateway/…?ref=…` url (`RecMutAssocHandler.preProcessContentAssocBeforeMutate` →
+ * `DbRecContentHandler.getRefFromContentUrl`) as a reference to an already existing record and puts
+ * it into the association as is, instead of creating a child record of `fileType` from the content.
+ * The ref of a just-uploaded file is a temp file — the wrong record to attach, and one an ordinary
+ * user may not modify. The stock provider avoided this because `xhr.responseURL` is absolute; this
+ * restores that property while leaving `file.url` a working download href.
+ * @param {string} url
+ * @returns {string}
+ */
+function absoluteContentUrl(url) {
+  if (!url || !url.startsWith('/')) {
+    return url;
+  }
+
+  const origin = typeof window !== 'undefined' && window.location ? window.location.origin : '';
+
+  return origin ? `${origin}${url}` : url;
 }
 
 /**
@@ -133,7 +155,7 @@ const ecosUrlStorage = function ecosUrlStorage() {
             // `entityRef` is falsy here only if `uploadContent` ever violated its own documented
             // contract (it always resolves with an entityRef) — defensive, not reachable in
             // practice; kept so a future contract regression degrades instead of throwing.
-            url: entityRef ? getDownloadContentUrl(entityRef) : url,
+            url: entityRef ? absoluteContentUrl(getDownloadContentUrl(entityRef)) : url,
             size: file.size,
             type: file.type,
             data: { entityRef }

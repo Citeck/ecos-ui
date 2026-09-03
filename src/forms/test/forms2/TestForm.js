@@ -2,6 +2,7 @@ import { COOKIE_KEY_LOCALE } from '@citeck/constants/alfresco';
 import FormioUtils from 'formiojs/utils';
 import _ from 'lodash';
 
+import EventEmitter from '../../EventEmitter';
 import Webform from '../../Webform';
 
 import '../harness';
@@ -16,6 +17,11 @@ export const TestForm = {
     const formElement = document.createElement('div');
     const form = new Webform(formElement, {
       language: 'en',
+      // The app's forms get this emitter budget (EcosForm: loadLimit 200). formio's default of 50
+      // counts a whole multi-step test as one burst — the guard only resets after 300 ms of silence
+      // and harness steps are ~200 ms apart — then drops every event for 500 ms, including the
+      // `change` a step awaits: allowCalculateOverride part4 timed out in CI that way.
+      events: new EventEmitter({ wildcard: false, maxListeners: 0, loadLimit: 200 }),
       ...options
     });
     return form.setForm(definition).then(() => {
