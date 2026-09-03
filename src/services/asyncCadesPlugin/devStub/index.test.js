@@ -101,6 +101,58 @@ describe('esign dev stub', () => {
       expect(certificates[0].friendlySubjectInfo()[0].text).toContain('Иван Петров');
     });
 
+    it('reports the whole certificate subject, not just the common name', async () => {
+      // Debug signing has no crypto provider to ask: a caller that branches on the subject —
+      // ОГРН for "is this an organization's certificate", ФИО and ИНН for a доверенность check —
+      // sees only what this list carries.
+      mockFetch([
+        {
+          id: 'cert-1',
+          subjectCN: 'Петров Иван Иванович',
+          algorithm: 'rsa2048',
+          serialHex: 'AB',
+          notBefore: '2026-01-01T00:00:00Z',
+          notAfter: '2027-01-01T00:00:00Z',
+          subject: {
+            commonName: 'Петров Иван Иванович',
+            surname: 'Петров',
+            givenName: 'Иван Иванович',
+            inn: '770987654321',
+            organization: 'ООО Поставщик'
+          }
+        }
+      ]);
+
+      const [certificate] = await createDevStubApi(config).getValidCertificates();
+      const byCode = code => (certificate.friendlySubjectInfo().find(item => item.code === code) || {}).text;
+
+      expect(byCode('SN')).toBe('Петров');
+      expect(byCode('G')).toBe('Иван Иванович');
+      expect(byCode('ИНН')).toBe('770987654321');
+      expect(byCode('O')).toBe('ООО Поставщик');
+      // Absent attributes are omitted rather than reported empty.
+      expect(certificate.friendlySubjectInfo().some(item => item.code === 'ОГРН')).toBe(false);
+    });
+
+    it('falls back to the common name for an oracle that reports no subject', async () => {
+      mockFetch([
+        {
+          id: 'cert-1',
+          subjectCN: 'Иван Петров',
+          algorithm: 'rsa2048',
+          serialHex: 'AB',
+          notBefore: '2026-01-01T00:00:00Z',
+          notAfter: '2027-01-01T00:00:00Z'
+        }
+      ]);
+
+      const [certificate] = await createDevStubApi(config).getValidCertificates();
+
+      expect(certificate.friendlySubjectInfo()).toEqual([
+        expect.objectContaining({ code: 'CN', text: 'Иван Петров' })
+      ]);
+    });
+
     it('passes the document through to the oracle and returns its signature', async () => {
       mockFetch({ signature: 'Q01TLWJ5dGVz' });
 

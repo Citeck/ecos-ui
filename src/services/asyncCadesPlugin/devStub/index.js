@@ -55,15 +55,40 @@ export function isDevModeEnabled(config) {
  * reads: the two friendly-info getters are functions there, and the provider name is
  * awaited off the private key.
  */
-function toCertificate({ thumbprint, serialNumber, subject, issuer, from, to, provider }) {
+function toCertificate({ thumbprint, serialNumber, subject, subjectInfo, issuer, from, to, provider }) {
   return {
     thumbprint,
     serialNumber,
     validPeriod: { from, to },
     privateKey: { ProviderName: provider || STUB_PROVIDER },
-    friendlySubjectInfo: () => [{ code: 'CN', text: subject }],
+    friendlySubjectInfo: () => subjectInfo || [{ code: 'CN', text: subject }],
     friendlyIssuerInfo: () => [{ code: 'CN', text: issuer || STUB_ISSUER }]
   };
+}
+
+/**
+ * The subject the way the real plugin reports it: one entry per distinguished-name attribute,
+ * keyed by the same codes CryptoPro prints (SN, G, ИНН, ОГРН, СНИЛС, E).
+ *
+ * Debug signing has no crypto provider to ask, so this is the only place a caller can learn whom
+ * a certificate was issued to. Reducing it to CN — as this stub used to — silently breaks every
+ * check that branches on the subject: an ОГРН tells an organization's certificate from a person's,
+ * and ФИО plus ИНН are what a доверенность is verified against.
+ */
+function subjectInfoOf(cert) {
+  const subject = get(cert, 'subject') || {};
+  const entries = [
+    ['CN', subject.commonName || cert.subjectCN],
+    ['O', subject.organization],
+    ['SN', subject.surname],
+    ['G', subject.givenName],
+    ['ИНН', subject.inn],
+    ['ОГРН', subject.ogrn],
+    ['СНИЛС', subject.snils],
+    ['E', subject.email]
+  ];
+
+  return entries.filter(([, text]) => !!text).map(([code, text]) => ({ code, text, value: '' }));
 }
 
 /**
@@ -160,6 +185,7 @@ async function remoteCertificates(config) {
         thumbprint: cert.id,
         serialNumber: cert.serialHex,
         subject: `${cert.subjectCN} (отладка)`,
+        subjectInfo: subjectInfoOf(cert),
         issuer: `${STUB_ISSUER} · ${cert.algorithm}`,
         from: cert.notBefore,
         to: cert.notAfter,
