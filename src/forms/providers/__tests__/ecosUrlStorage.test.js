@@ -96,12 +96,29 @@ describe('ecosUrlStorage', () => {
     expect(result).toEqual({
       storage: 'url',
       name: 'report-abc.pdf',
-      url: `${CONTENT_ENDPOINT}?ref=emodel/temp-file@abc&download=true`,
+      url: `${window.location.origin}${CONTENT_ENDPOINT}?ref=emodel/temp-file@abc&download=true`,
       size: 999,
       type: 'application/pdf',
       data: { entityRef: 'emodel/temp-file@abc' }
     });
     expect(Object.keys(result).sort()).toEqual(['data', 'name', 'size', 'storage', 'type', 'url'].sort());
+  });
+
+  // COREDEV-470. A *relative* content url makes ecos-data attach the temp-file itself instead of
+  // creating a child record — see absoluteContentUrl. Its predicate is
+  // DbRecContentHandler.getRefFromContentUrl, reproduced here so the property cannot be lost again
+  // to an innocuous-looking url change.
+  it('stores an absolute url, so the backend does not read a freshly uploaded temp-file as an already attached record', async () => {
+    uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@abc' });
+
+    const { url } = await provider.uploadFile(makeFile(), 'report-abc.pdf', '', () => {}, UPLOAD_URL, undefined);
+
+    // getRefFromContentUrl (ecos-data) — both conditions must hold for it to resolve a ref
+    const looksLikeAContentRefToTheBackend = url.startsWith('/gateway/') && url.includes('?ref=');
+    expect(looksLikeAContentRefToTheBackend).toBe(false);
+
+    // ...while still being a usable download href for File.js and formio's base component
+    expect(url).toBe(`${window.location.origin}${CONTENT_ENDPOINT}?ref=emodel/temp-file@abc&download=true`);
   });
 
   it('adapts handleProgress(state, facade) calls into formio progressCallback({loaded, total}) calls', async () => {
