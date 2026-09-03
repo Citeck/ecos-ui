@@ -21,6 +21,11 @@ import { getDownloadContentUrl } from '@/helpers/urls';
  * off — `uploadContent` always resolves with (or wraps) an `entityRef` (see its own doc header),
  * so it is always present here, never falls back to the legacy query-string-on-`url` path.
  *
+ * That holds for the new backend. There is a second one: a form whose file field targets the
+ * legacy Alfresco endpoint gets a different body back and needs a different value — see
+ * `legacyAlfrescoValue`. Which of the two a field talks to is decided per component by its `url`,
+ * so both shapes have to be produced from the same provider.
+ *
  * `url` itself: the backend (`EcosContentController.postMultipartContent`/`postStreamContent`,
  * ecos-webapp-commons) returns a bare `{"entityRef": "..."}` body and never a `url` field, so the
  * stock provider falls back to `` `${xhr.responseURL}/${name}` ``. `File.js`'s
@@ -98,6 +103,57 @@ function absoluteContentUrl(url) {
 }
 
 /**
+ * How the legacy Alfresco backend addresses an uploaded file, mirroring
+ * `FileRepresentation.URL_PATTERN` (ecos-community-core) — the very url Alfresco itself puts on
+ * every file value it returns when a form is loaded, so a freshly uploaded file and a stored one
+ * are shaped alike.
+ */
+const ALFRESCO_NODE_URL_PATTERN = '/share/page/card-details?nodeRef=';
+
+/**
+ * The value shape the legacy Alfresco backend produces and consumes, for a file field whose `url`
+ * points at the Alfresco eform endpoint (`/share/proxy/alfresco/eform/file`).
+ *
+ * Alfresco is not the new content API and knows nothing about it: `FileEformPost` stores the upload
+ * as an `ef:tempFile` node and answers `{"nodeRef": "workspace://SpacesStore/…"}` — never an
+ * `entityRef`. Reading only `entityRef`, as the new-backend branch does, therefore throws the one
+ * reference the upload produced away, and everything downstream fails silently rather than loudly:
+ *
+ * - `AlfNodeContentFileHelper.isFileFromEformFormat` requires `data.nodeRef`, so without it a value
+ *   is not recognised as a file at all. For a content property (`processPropFileContent`) neither
+ *   branch matches and nothing is written — the record is created with empty content, no error.
+ * - For a child association the value falls through to the association branch of
+ *   `AlfNodesRecordsDAO.mutate`, where every element fails `NodeRef::isNodeRef`, the target set
+ *   comes out empty and `NodeUtils.setAssocs(..., primaryChildren = true)` removes **every**
+ *   existing child of that association. `parseAttachments` returns an empty list on the same
+ *   condition, to the same effect.
+ *
+ * This is what the stock provider did by construction: it resolved with the parsed response body as
+ * `data`, so an Alfresco upload carried `data.nodeRef` without the provider knowing what Alfresco
+ * was. The whole body is passed through here for the same reason.
+ *
+ * Chunking never enters into it: `getUploadConfig` asks `<urlBase>/upload-config`, which Alfresco
+ * does not serve, and the `FALLBACK_CONFIG` that failure degrades to has `chunkingThreshold:
+ * Infinity` — every file to this endpoint takes `uploadSingleShot`, whose FormData fields (`file`,
+ * `name`) are the ones `FileEformPost` reads. So the transport already worked; only the answer was
+ * being read with the wrong key.
+ * @param {File} file
+ * @param {string} name
+ * @param {Object} response the raw response body, carrying `nodeRef`
+ * @returns {Object} formio file value
+ */
+function legacyAlfrescoValue(file, name, response) {
+  return {
+    storage: 'url',
+    name,
+    url: absoluteContentUrl(`${ALFRESCO_NODE_URL_PATTERN}${response.nodeRef}`),
+    size: file.size,
+    type: file.type,
+    data: { ...response }
+  };
+}
+
+/**
  * formio calls `progressCallback(evt)` with an XHR-ProgressEvent-shaped `{loaded, total}` (see
  * the stock provider's `xhr.upload.onprogress = onprogress`) and formio's own File component does
  * `parseInt(100 * evt.loaded / evt.total)` to get a percent. Feeding `loaded: percent, total: 100`
@@ -147,6 +203,13 @@ const ecosUrlStorage = function ecosUrlStorage() {
         handleProgress: adaptProgress(progressCallback)
       }).then(
         response => {
+          // Alfresco answers with a nodeRef and no entityRef; the new backend the other way round.
+          // Checked first because only this branch can tell the two apart at all — see
+          // `legacyAlfrescoValue` for what reading `entityRef` off an Alfresco body destroys.
+          if (response && response.nodeRef) {
+            return legacyAlfrescoValue(file, name, response);
+          }
+
           const entityRef = response && response.entityRef;
 
           return {
