@@ -73,6 +73,17 @@ const genClassName = (theme: EditorThemeClasses) => {
   return joinClasses(theme.image, 'editor-image');
 };
 
+/**
+ * The display cap of the picture goes on the wrapper span, not on the <img>: a percentage max-width
+ * on the image is ignored while the inline-block span works out its own width, so the span (and the
+ * resize handles positioned against it) would stay as wide as the natural picture. On the span the
+ * percentage resolves against the paragraph. A picture nobody has sized is capped at the node's
+ * maxWidth; once it carries an explicit width only the paragraph limits it (COREDEV-475).
+ */
+export const applyWidthCap = (span: HTMLElement, width: 'inherit' | number, maxWidth: number): void => {
+  span.style.maxWidth = width === 'inherit' ? `min(${maxWidth}px, 100%)` : '100%';
+};
+
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
@@ -210,10 +221,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       span.className = className;
     }
+    applyWidthCap(span, this.__width, this.__maxWidth);
     return span;
   }
 
-  updateDOM(): false {
+  updateDOM(prevNode: ImageNode, dom: HTMLElement): false {
+    if (prevNode.__width !== this.__width || prevNode.__maxWidth !== this.__maxWidth) {
+      applyWidthCap(dom, this.__width, this.__maxWidth);
+    }
     return false;
   }
 

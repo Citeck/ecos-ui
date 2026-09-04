@@ -28,7 +28,6 @@ export default function ImageResizer({
   onResizeEnd,
   buttonRef,
   imageRef,
-  maxWidth,
   editor,
   showCaption,
   setShowCaption,
@@ -37,7 +36,6 @@ export default function ImageResizer({
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
-  maxWidth?: number;
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
   onResizeStart: () => void;
   setShowCaption: (show: boolean) => void;
@@ -54,6 +52,7 @@ export default function ImageResizer({
     currentWidth: 'inherit' | number;
     direction: number;
     isResizing: boolean;
+    maxWidth: number;
     ratio: number;
     startHeight: number;
     startWidth: number;
@@ -64,6 +63,7 @@ export default function ImageResizer({
     currentWidth: 0,
     direction: 0,
     isResizing: false,
+    maxWidth: 0,
     ratio: 0,
     startHeight: 0,
     startWidth: 0,
@@ -71,12 +71,17 @@ export default function ImageResizer({
     startY: 0
   });
   const editorRootElement = editor.getRootElement();
-  // Find max width, accounting for editor padding.
-  const maxWidthContainer = maxWidth ? maxWidth : editorRootElement !== null ? editorRootElement.getBoundingClientRect().width - 20 : 100;
-  const maxHeightContainer = editorRootElement !== null ? editorRootElement.getBoundingClientRect().height - 20 : 100;
+  // The node's own maxWidth only caps the initial display (see LazyImage); a resize may take the
+  // picture up to the full content box of the editor, measured when the drag starts (COREDEV-475).
+  const availableWidth = (): number => {
+    if (editorRootElement === null) {
+      return 100;
+    }
+    const { paddingLeft, paddingRight } = getComputedStyle(editorRootElement);
+    return editorRootElement.clientWidth - (parseFloat(paddingLeft) || 0) - (parseFloat(paddingRight) || 0);
+  };
 
   const minWidth = 100;
-  const minHeight = 100;
 
   const setStartCursor = (direction: number) => {
     const ew = direction === Direction.east || direction === Direction.west;
@@ -121,19 +126,24 @@ export default function ImageResizer({
       const positioning = positioningRef.current;
       positioning.startWidth = width;
       positioning.startHeight = height;
-      positioning.ratio = width / height;
+      // Every handle scales the picture proportionally, and the proportion is the picture's own so a
+      // picture distorted earlier is straightened by the next resize (COREDEV-475).
+      const natural = image as Partial<HTMLImageElement>;
+      positioning.ratio = natural.naturalWidth && natural.naturalHeight ? natural.naturalWidth / natural.naturalHeight : width / height;
       positioning.currentWidth = width;
       positioning.currentHeight = height;
       positioning.startX = event.clientX / zoom;
       positioning.startY = event.clientY / zoom;
       positioning.isResizing = true;
       positioning.direction = direction;
+      positioning.maxWidth = availableWidth();
 
       setStartCursor(direction);
       onResizeStart();
 
       controlWrapper.classList.add('image-control-wrapper--resizing');
-      image.style.height = `${height}px`;
+      // Only the width is written to the picture: its height follows through the natural proportion
+      // (unsized node) or the `aspect-ratio` LazyImage renders (sized node), and stays responsive.
       image.style.width = `${width}px`;
 
       document.addEventListener('pointermove', handlePointerMove);
@@ -149,35 +159,24 @@ export default function ImageResizer({
 
     if (image !== null && positioning.isResizing) {
       const zoom = calculateZoomLevel(image);
-      // Corner cursor
-      if (isHorizontal && isVertical) {
-        let diff = Math.floor(positioning.startX - event.clientX / zoom);
-        diff = positioning.direction & Direction.east ? -diff : diff;
+      let requestedWidth: number;
 
-        const width = clamp(positioning.startWidth + diff, minWidth, maxWidthContainer);
-
-        const height = width / positioning.ratio;
-        image.style.width = `${width}px`;
-        image.style.height = `${height}px`;
-        positioning.currentHeight = height;
-        positioning.currentWidth = width;
-      } else if (isVertical) {
+      if (isVertical && !isHorizontal) {
+        // North / south handles follow the pointer's vertical travel and derive the width from it.
         let diff = Math.floor(positioning.startY - event.clientY / zoom);
         diff = positioning.direction & Direction.south ? -diff : diff;
-
-        const height = clamp(positioning.startHeight + diff, minHeight, maxHeightContainer);
-
-        image.style.height = `${height}px`;
-        positioning.currentHeight = height;
+        requestedWidth = (positioning.startHeight + diff) * positioning.ratio;
       } else {
         let diff = Math.floor(positioning.startX - event.clientX / zoom);
         diff = positioning.direction & Direction.east ? -diff : diff;
-
-        const width = clamp(positioning.startWidth + diff, minWidth, maxWidthContainer);
-
-        image.style.width = `${width}px`;
-        positioning.currentWidth = width;
+        requestedWidth = positioning.startWidth + diff;
       }
+
+      const width = clamp(requestedWidth, minWidth, positioning.maxWidth);
+      const height = width / positioning.ratio;
+      image.style.width = `${width}px`;
+      positioning.currentHeight = height;
+      positioning.currentWidth = width;
     }
   };
   const handlePointerUp = () => {
