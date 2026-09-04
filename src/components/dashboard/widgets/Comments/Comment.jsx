@@ -1,9 +1,9 @@
 import Records from '@citeck/records-core';
 import { $generateHtmlFromNodes } from '@lexical/html';
+import { $getRoot } from 'lexical';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -111,10 +111,9 @@ export class Comment extends Component {
   handleCloseEditor = () => {
     const { onClose } = this.props;
 
-    this.setState({
-      isEdit: false,
-      htmlString: ''
-    });
+    this.setState({ isEdit: false });
+    // the closed editor is gone with its document; a later save must not read its last state
+    this._editor = null;
 
     isFunction(onClose) && onClose();
     this._uploadDocsRefService.clearUploadedEntityRefs();
@@ -227,19 +226,21 @@ export class Comment extends Component {
     });
   }
 
+  /**
+   * Only the two flags the footer needs. The document itself is not serialised here: an html export
+   * (and a JSON dump of the state) of the whole comment on every keystroke is wasted work — the text
+   * to send is generated from the live editor right before the save — and exporting an image node
+   * builds an <img> the browser starts downloading (COREDEV-380).
+   *
+   * The editor is remembered here as well as in `handleEditorReady`: a subclass may wire only
+   * `onChange` (the activities widget does), and the save must still read the live document. The
+   * length is measured the way the editor's own limit is (`Editor.tsx`), on the document.
+   */
   handleEditorStateChange = (editorState, editor, isEditorEmpty) => {
-    editor.update(() => {
-      const { textContent = '' } = editor.getRootElement();
-      this.setState({ isMaxLength: textContent.length >= LENGTH_LIMIT, isEditorEmpty });
+    const textLength = editorState.read(() => $getRoot().getTextContentSize());
 
-      const htmlComment = $generateHtmlFromNodes(editor, null);
-      if (!isNil(htmlComment)) {
-        this.setState({
-          htmlComment,
-          rawComment: JSON.stringify(editorState)
-        });
-      }
-    });
+    this._editor = editor;
+    this.setState({ isMaxLength: textLength >= LENGTH_LIMIT, isEditorEmpty });
   };
 
   handleEditorReady = editor => {
@@ -252,11 +253,16 @@ export class Comment extends Component {
    * both stored formats come out of the same trimmed content.
    */
   getContentToSave = () => {
-    const { htmlComment, rawComment } = this.state;
     const editor = this._editor;
 
+    // No editor has announced itself, so the author never touched the document: what is stored
+    // stays as it is. Sending anything else here would wipe the text of an existing record whose
+    // other fields alone were edited (the activities widget lets that through).
     if (!editor) {
-      return { htmlComment, rawComment };
+      // a record with no text loads it as null, not undefined
+      const stored = get(this.props, 'comment.text') || '';
+
+      return { htmlComment: stored, rawComment: stored };
     }
 
     // merged into the current history entry: the trim is housekeeping, not an edit of the author's,
