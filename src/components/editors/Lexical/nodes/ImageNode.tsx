@@ -138,6 +138,13 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const element = document.createElement('img');
     element.className = className;
 
+    // A browser downloads a picture the moment `src` lands on an <img>, attached to the page or not,
+    // and the content service forbids caching it. This element exists to be serialised — the formio
+    // textarea, MLLexicalEditor, useSyncWithInputHtml and the gantt description export the document
+    // on every change — so it must not load: a lazy image only does once it is in a document and
+    // near the viewport. `loading` has to be set before `src`; the other way round the download has
+    // already started (COREDEV-380).
+    element.setAttribute('loading', 'lazy');
     element.setAttribute('src', this.__src?.replace(window.location.origin, ''));
     element.setAttribute('alt', this.__altText);
     element.setAttribute('width', this.__width.toString());

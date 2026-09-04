@@ -84,8 +84,6 @@ class Comments extends BaseWidget {
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
       recordRef: props.record,
-      htmlComment: '',
-      rawComment: '',
       isOpenLinkDialog: false,
       linkUrl: '',
       linkText: ''
@@ -192,6 +190,7 @@ class Comments extends BaseWidget {
           saveIsLoading={saveIsLoading}
           actionFailed={actionFailed}
           recordRef={recordRef}
+          dataStorageFormat={this.props.dataStorageFormat}
           onClose={this.handleCloseEditor}
         />
       </div>
@@ -244,6 +243,7 @@ class Comments extends BaseWidget {
             userName={userName}
             saveIsLoading={saveIsLoading}
             actionFailed={actionFailed}
+            dataStorageFormat={this.props.dataStorageFormat}
             recordRef={recordRef}
             onClose={this.handleCloseEditor}
           />
