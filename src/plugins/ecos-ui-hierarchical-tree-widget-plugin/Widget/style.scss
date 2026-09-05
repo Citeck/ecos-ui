@@ -243,6 +243,15 @@
   }
 }
 
+// A long page name can be much longer than bootstrap's `.tooltip-inner` default (200px) allows;
+// the compound selector is what outranks it — a single class only ties and loses by source order.
+.tooltip-inner.ecos-hierarchical-tree-widget__label-tooltip {
+  max-width: 420px;
+  white-space: normal;
+  word-break: break-word;
+  text-align: left;
+}
+
 .tree-summary {
   &.hoverDragging {
     background-color: var(--light-primary-color);
@@ -290,6 +299,13 @@
     margin: 0;
     cursor: pointer;
     font-weight: 400;
+    // The label — not the summary — is the clipped box, so a long page name ends with an ellipsis
+    // and the Tooltip's `showAsNeeded` measures against the element that actually overflows.
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &_ul {
