@@ -1,10 +1,14 @@
+import { VIRTUAL_ATT_ID } from '@citeck/constants/journal';
 import moment from 'moment';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, isExistValue, t } from '../helpers/util';
 import { DATE_FORMAT, documentFields, fieldFormatters, NULL_FORM } from '@/helpers/documents';
+
+const CUSTOM_ATT_PREFIX = '_custom_';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -91,12 +95,18 @@ export default class DocumentsConverter {
     return documents.map(document => {
       const target = { ...document };
 
-      if (!document || !Object.keys(document)) {
+      if (!document || !Object.keys(document).length) {
         return target;
       }
 
       target.type = type;
       target.id = target.id || get(target, documentFields.id, '');
+      // FormatterService resolves `${att}` placeholders of a formatter config from `row.rawAttributes`,
+      // so without it a configured `${recordRef}` stays literal. Keys here are the widget's column aliases
+      // plus recordRef/?id; a journal row keys them by attribute schema and additionally loads the
+      // attributes its placeholders name (configData.attributesToLoad), which the widget does not —
+      // a placeholder resolves here only when it names recordRef, ?id or one of the widget's columns.
+      target.rawAttributes = { recordRef: target.id, '?id': target.id, ...document };
 
       return target;
     });
@@ -293,9 +303,32 @@ export default class DocumentsConverter {
 
     const result = {};
     for (let column of source) {
-      let { name, schema, attribute, dataField } = column;
+      let { name, schema, attribute, dataField, attSchema } = column;
       const alias = dataField || attribute || name;
 
+      // Computed columns are resolved client-side by the journal (journalsDataLoader skips them too).
+      if (isString(attribute) && attribute.startsWith(CUSTOM_ATT_PREFIX)) {
+        continue;
+      }
+
+      // Journal parity: a regular journal queries `column.attSchema` (journalsDataLoader._getAttributes),
+      // the schema journalColumnsResolver derives from the very same schema/attribute —
+      // `<schema||attribute||name>[]{disp:?disp,value:?assoc}` for assoc-like columns, `?num`/`?bool`/`?disp`
+      // otherwise, the column's own `attSchema` from the config when it has one. A plain attribute instead
+      // makes the Records API answer with a display string: an assoc link is then built from the display
+      // name (COREDEV-473), a multiple attribute loses every value but the first, and a hand-written
+      // attSchema never reaches the formatter. The only exception is a source that is already an
+      // expression of its own — a dot-attribute such as `.disp` (the associations widget's base column) or
+      // one carrying `?scalar`/`{...}`: the resolver appends an inner schema to it and the result is a
+      // malformed key (`.disp?disp` answers null), so such columns keep the pre-existing branches.
+      const sourceExpression = schema || attribute || '';
+      const hasOwnExpression = sourceExpression.charAt(0) === '.' || /[?{]/.test(sourceExpression);
+
+      if (attSchema && !hasOwnExpression) {
+        // The resolver hides an `id` column behind VIRTUAL_ATT_ID; the journal queries the real `id`.
+        result[alias] = attSchema.replace(VIRTUAL_ATT_ID, 'id');
+        continue;
+      }
       if (attribute && schema) {
         result[alias] = schema;
         continue;
