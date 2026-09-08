@@ -63,7 +63,7 @@ export default class EcosFormBuilderModal extends React.Component {
           isModalOpen: !state.isModalOpen
         }));
 
-        clearFormFromCache(this.props.formId);
+        clearFormFromCache(this.state.formId);
       }
     });
   };
