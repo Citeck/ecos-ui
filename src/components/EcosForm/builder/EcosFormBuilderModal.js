@@ -3,12 +3,13 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import EcosFormBuilder from './EcosFormBuilder';
 import EcosModal from '../../common/EcosModal';
+import EcosFormBuilder from './EcosFormBuilder';
 import DialogManager from '../../common/dialogs/Manager';
 import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import DebugModal from './DebugModal';
+import { clearFormFromCache } from '../../../forms/utils';
 
 import './style.scss';
 
@@ -26,15 +27,25 @@ export default class EcosFormBuilderModal extends React.Component {
       isModalOpen: false,
       isDebugModalOpen: false,
       isOpenDependencies: true,
-      isOpenInfluence: true
+      isOpenInfluence: true,
+      formId: props.formId || null,
+      options: {}
     };
   }
 
-  show(formDefinition, onSubmit) {
+  /**
+   *
+   * @param formDefinition {String|Object} - The src of the form, or a form object.
+   * @param onSubmit {Function}
+   * @param options {FormOptions}
+   */
+  show(formDefinition, onSubmit, options = {}) {
     this.setState({
       isModalOpen: true,
       formDefinition: cloneDeep(formDefinition),
-      onSubmit
+      options,
+      onSubmit,
+      formId: get(formDefinition, 'formId')
     });
   }
 
@@ -51,6 +62,8 @@ export default class EcosFormBuilderModal extends React.Component {
         this.setState(state => ({
           isModalOpen: !state.isModalOpen
         }));
+
+        clearFormFromCache(this.state.formId);
       }
     });
   };
@@ -100,6 +113,7 @@ export default class EcosFormBuilderModal extends React.Component {
   render() {
     let onSubmit = this.onSubmit.bind(this);
     let toggleVisibility = this.toggleVisibility.bind(this);
+    const { isModalOpen, formDefinition, options } = this.state;
 
     return (
       <>
@@ -109,12 +123,12 @@ export default class EcosFormBuilderModal extends React.Component {
           }}
           className="ecos-modal_width-extra-lg"
           title="Form Builder"
-          isOpen={this.state.isModalOpen}
+          isOpen={isModalOpen}
           zIndex={9000}
           hideModal={toggleVisibility}
           customButtons={this.renderCustomButtons()}
         >
-          <EcosFormBuilder formDefinition={this.state.formDefinition} onSubmit={onSubmit} onCancel={toggleVisibility} />
+          <EcosFormBuilder options={options} formDefinition={formDefinition} onSubmit={onSubmit} onCancel={toggleVisibility} />
         </EcosModal>
 
         {this.renderDebugModal()}

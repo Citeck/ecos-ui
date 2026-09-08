@@ -1,5 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import Formio from './Formio';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
@@ -33,4 +34,8 @@ export const checkIsEmptyMlField = field => {
   }
 
   return false;
+};
+
+export const clearFormFromCache = formId => {
+  delete Formio.forms[formId];
 };
