@@ -21,9 +21,24 @@
     &-actions {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      // Same optical spacing as `.dashlet__header-actions > :nth-child(n) { margin-left: 5px }`
+      gap: 5px;
+      // Citeck font glyphs are painted ~1px below the middle of the line box — the shared header
+      // lifts its icon row by the same 1px. As a margin pair, not a transform: a transform makes
+      // the row a stacking context and traps any dropdown rendered inside it under the
+      // neighbouring widgets (COREDEV-468). The pair keeps the margin box height, so the flex
+      // centring is unchanged and the whole 1px goes into the lift.
+      margin-top: -1px;
+      margin-bottom: 1px;
 
       &_btn {
+        // The shared header wraps each glyph in a centred flex button, so the icon box is the
+        // glyph's own 20px line and nothing else. As a plain block the inline-block glyph would
+        // sit on the baseline and drag ~2px of descender space under it, pushing the icon 1px
+        // above its neighbours in the shared header.
+        display: inline-flex;
+        align-items: center;
+
         // Match the shared dashlet header action icon size (16px)
         i.icon {
           font-size: 16px;
@@ -39,7 +54,9 @@
   i.icon {
     color: $color-gray-5;
     cursor: pointer;
-    transition: color 0.2s, visibility 0s ease 0.2s;
+    transition:
+      color 0.2s,
+      visibility 0s ease 0.2s;
 
     &:hover {
       color: var(--dark-primary-color);
@@ -59,9 +76,21 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px 11px;
+    // This is the only widget in the product that draws its own header instead of reusing the
+    // shared `Dashlet` one, so it has to repeat that header's geometry by hand or the two look
+    // like different widgets side by side on a wiki dashboard (COREDEV-482). Numbers come from
+    // styles/constants.scss; see docs/widget-header-geometry.md.
+    // `border-box` keeps the 1px bottom border inside the 36px, exactly like the shared header;
+    // the height also feeds `dashlet__same-scrollbar`, which subtracts a hard-coded 36px.
+    // Left inset = header padding + the inset a caption with no collapse chevron gets, so the
+    // title starts on the same vertical as the body content of every other widget.
+    height: $dashlet-header-height;
+    box-sizing: border-box;
+    padding: 0 $dashlet-header-padding-right 0 ($dashlet-header-padding-left + $dashlet-caption-no-collapser-padding);
     border-bottom: 1px solid $color-gray-4;
-    transition: background-color 0.15s, box-shadow 0.15s;
+    transition:
+      background-color 0.15s,
+      box-shadow 0.15s;
 
     &--root-drop-available {
       cursor: copy;
@@ -81,7 +110,12 @@
 
     h4 {
       margin: 0;
-      // Match the shared dashlet caption (Dashlet.scss .dashlet__caption)
+      // Match the shared dashlet caption (Dashlet.scss .dashlet__caption): same font, and the same
+      // line box — the caption inherits the body line-height (1.5 → 20px) and carries a 1px
+      // transparent border, while a bare <h4> gets bootstrap's 1.2, which lands the text 1px lower
+      // than the caption of the widget next to it.
+      line-height: inherit;
+      border: 1px solid transparent;
       font-size: $font-size-standard;
       font-weight: 700;
       color: $text-color-gray;
@@ -210,7 +244,9 @@
           font-size: 11pt;
           color: var(--dark-primary-color);
           cursor: pointer;
-          transition: opacity 0.2s, visibility 0s ease 0.2s;
+          transition:
+            opacity 0.2s,
+            visibility 0s ease 0.2s;
 
           &:hover {
             opacity: 0.5;
@@ -234,7 +270,9 @@
     font-size: 12px;
     text-align: center;
     opacity: 0.7;
-    transition: background-color 0.15s, opacity 0.15s;
+    transition:
+      background-color 0.15s,
+      opacity 0.15s;
 
     &--active {
       background-color: var(--light-primary-color);

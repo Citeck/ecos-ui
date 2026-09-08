@@ -15,7 +15,7 @@ exports[`  should render InfoPanel component 1`] = `
           class="dashlet__header"
         >
           <span
-            class="dashlet__caption"
+            class="dashlet__caption dashlet__caption_no-collapser"
           >
             <span
               class="dashlet__caption-title"
