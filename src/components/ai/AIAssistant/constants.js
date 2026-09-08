@@ -176,16 +176,19 @@ export const EDITOR_CONTEXT_HANDLERS = {
 // the chat panels), so that the numbers below are the only place these decisions live.
 
 // How long citeck-ai itself allows a universal-assistant request before killing it:
-// `citeck.ai.agent-execution.request-timeout` (`AgentExecutionProperties.DEFAULT_REQUEST_TIMEOUT`,
-// thirty minutes). Past it the status endpoint answers with the backend's own verdict
-// ("Request timed out after N minutes") and keeps the finished result for another hour
-// (`COMPLETED_RETENTION_MINUTES`). This is the backend's number, restated — nothing on the client
-// is allowed to be shorter than it (D-G-FE-TIMEOUT, D-X-CHATPOLLGAP / COREDEV-485).
+// `citeck.ai.agent-execution.request-timeout` — thirty minutes by default
+// (`AgentExecutionProperties.DEFAULT_REQUEST_TIMEOUT`) and FORTY-FIVE on the DeepSeek launch
+// profile (`application-ai-deepseek.yml`, owner decision 2026-09-08: a specification of 12–15
+// artifacts needs up to 30 minutes of execution there). Past it the status endpoint answers with
+// the backend's own verdict ("Request timed out after N minutes") and keeps the finished result
+// for another hour (`COMPLETED_RETENTION_MINUTES`). This is the LARGEST backend number, restated —
+// nothing on the client is allowed to be shorter than it (D-G-FE-TIMEOUT, D-X-CHATPOLLGAP /
+// COREDEV-485).
 //
 // ⚠ It is a configuration value on the server, not a contract: a stand may raise it, and the
 // response carries no deadline the client could read instead. Until it does (see the open question
 // in COREDEV-485), a stand with a longer request-timeout needs this constant raised with it.
-export const AI_REQUEST_TIMEOUT_MS = 30 * 60 * 1000;
+export const AI_REQUEST_TIMEOUT_MS = 45 * 60 * 1000;
 
 // The same for the BPMN assistant, which has a limit of its own:
 // `BpmnAssistantController.REQUEST_TIMEOUT_MINUTES` (ten minutes).

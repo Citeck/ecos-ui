@@ -66,7 +66,8 @@ describe('AI polling budget', () => {
     it('restate the limits that actually decide the outcome', () => {
       // `citeck.ai.agent-execution.request-timeout` (`AgentExecutionProperties.DEFAULT_REQUEST_TIMEOUT`)
       // and `BpmnAssistantController.REQUEST_TIMEOUT_MINUTES` in citeck-ai.
-      expect(AI_REQUEST_TIMEOUT_MS).toBe(30 * 60 * 1000);
+      // The largest configured backend request-timeout: 45m on the DeepSeek launch profile (2026-09-08).
+      expect(AI_REQUEST_TIMEOUT_MS).toBe(45 * 60 * 1000);
       expect(BPMN_AI_REQUEST_TIMEOUT_MS).toBe(10 * 60 * 1000);
     });
 
