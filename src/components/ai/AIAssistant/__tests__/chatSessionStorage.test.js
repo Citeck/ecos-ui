@@ -183,8 +183,9 @@ describe('chatSessionStorage', () => {
     });
 
     it('resumes a request that outlives the client polling watchdog', () => {
-      // The regression this guards: the TTL used to equal the ~10 min polling window, so exactly the
-      // long generations the persistence exists to rescue were the ones it threw away (D-B-14).
+      // The regression this guards: the TTL used to equal the client polling window (ten minutes at
+      // the time), so exactly the long generations the persistence exists to rescue were the ones
+      // it threw away (D-B-14).
       saveSession(CONVERSATION_ID, REQUEST_ID);
       Date.now.mockReturnValue(NOW + 20 * 60 * 1000);
 

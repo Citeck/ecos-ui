@@ -8,15 +8,8 @@ import uuidV4 from 'uuidv4';
 
 import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
-import {
-  AI_INTENTS,
-  MESSAGE_TYPES,
-  API_ENDPOINTS,
-  FIELD_AI_TIMEOUT_MS,
-  getFieldAiPollDelay,
-  CONTENT_TYPES,
-  PLATFORM_CONFIG_AGENT_REF
-} from './constants';
+import { pollAiRequest, stopAiRequestPolling } from './aiRequestPolling';
+import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, CONTENT_TYPES, PLATFORM_CONFIG_AGENT_REF } from './constants';
 
 import { t } from '@/helpers/export/util';
 import { getWorkspaceId } from '@/helpers/urls';
@@ -221,101 +214,58 @@ const buildCodeRequest = ({ prompt, quickAction, currentContent, contextType, re
  * @param {Function} [onProgress] - Progress callback
  * @returns {Promise<ContentGenerationResult>}
  */
-const pollForResult = (requestId, originalContent, contentType, onProgress) => {
-  return new Promise((resolve, reject) => {
-    let waitedMs = 0;
+const pollForResult = async (requestId, originalContent, contentType, onProgress) => {
+  const errorTitle = t('ai-content-service.error-title', 'AI Assistant Error');
+  const fail = message => {
+    NotificationManager.error(message, errorTitle);
+    return new Error(message);
+  };
 
-    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
-    // page was doing between two polls, and the tests can step through it with fake timers.
-    const scheduleDelay = () => {
-      const delay = getFieldAiPollDelay(waitedMs);
-      waitedMs += delay;
-      return delay;
-    };
+  let data;
+  try {
+    data = await pollAiRequest({
+      requestId,
+      statusUrl: API_ENDPOINTS.UNIVERSAL_STATUS,
+      onProgress: progress =>
+        onProgress?.({
+          stage: progress.stage,
+          progress: progress.progress,
+          message: progress.message
+        }),
+      // The request is still running server-side, and nobody is going to collect its answer now —
+      // so it is called off rather than left to burn tokens on a result no one will read.
+      onGiveUp: () => cancelRequest(requestId)
+    });
+  } catch (error) {
+    if (error.isTimeout) {
+      NotificationManager.error(t('ai-content-service.timeout', 'Request timed out. Please try again.'), errorTitle);
+      throw error;
+    }
+    if (error.networkError) {
+      throw fail(t('ai-content-service.network-error', 'Network error. Please check your connection and try again.'));
+    }
+    if (error.httpStatus) {
+      NotificationManager.error(t('ai-content-service.polling-failed', { status: error.httpStatus }), errorTitle);
+      throw new Error(`Polling failed: ${error.httpStatus}`);
+    }
+    NotificationManager.error(error.message || t('ai-content-service.unknown-error', 'Unknown error occurred'), errorTitle);
+    throw error;
+  }
 
-    const poll = async () => {
-      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
-      // describing any particular span. The budget is the backend's own limit — see
-      // FIELD_AI_TIMEOUT_MS.
-      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
-        // The request is still running server-side, and nobody is going to collect its answer now —
-        // so it is called off rather than left to burn tokens on a result no one will read.
-        cancelRequest(requestId);
-        const errorMessage = t('ai-content-service.timeout', 'Request timed out. Please try again.');
-        NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-        const timedOut = new Error('Request timed out');
-        timedOut.isTimeout = true;
-        reject(timedOut);
-        return;
-      }
+  if (data.result) {
+    const result = parseResult(data.result, originalContent, contentType);
+    if (result.error) {
+      throw fail(result.error);
+    }
+    return result;
+  }
 
-      try {
-        let response;
-        try {
-          response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
-        } catch (networkError) {
-          const errorMessage = t('ai-content-service.network-error', 'Network error. Please check your connection and try again.');
-          NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-          reject(new Error(errorMessage));
-          return;
-        }
+  if (data.error) {
+    throw fail(data.error || t('ai-content-service.unknown-error', 'Unknown error occurred'));
+  }
 
-        if (!response.ok) {
-          const errorMessage = t('ai-content-service.polling-failed', { status: response.status });
-          NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-          reject(new Error(`Polling failed: ${response.status}`));
-          return;
-        }
-
-        const data = await response.json();
-
-        if (data.result) {
-          const result = parseResult(data.result, originalContent, contentType);
-          if (result.error) {
-            NotificationManager.error(result.error, t('ai-content-service.error-title', 'AI Assistant Error'));
-            reject(new Error(result.error));
-          } else {
-            resolve(result);
-          }
-          return;
-        }
-
-        if (data.error) {
-          const errorMessage = data.error || t('ai-content-service.unknown-error', 'Unknown error occurred');
-          NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-          reject(new Error(errorMessage));
-          return;
-        }
-
-        if (data.status === 'cancelled') {
-          reject(new Error('Request was cancelled'));
-          return;
-        }
-
-        if (data.status === 'processing' || data.status === 'pending') {
-          if (onProgress && data.progress) {
-            onProgress({
-              stage: data.progress.stage,
-              progress: data.progress.progress,
-              message: data.progress.message
-            });
-          }
-          setTimeout(poll, scheduleDelay());
-          return;
-        }
-
-        // Unknown status - log warning and continue polling
-        console.warn('AI Content Service: Unknown polling status:', data.status, 'Attempt:', attempts);
-        setTimeout(poll, scheduleDelay());
-      } catch (error) {
-        const errorMessage = error.message || t('ai-content-service.unknown-error', 'Unknown error occurred');
-        NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-        reject(error);
-      }
-    };
-
-    poll();
-  });
+  // The only terminal body left is a cancellation.
+  throw new Error('Request was cancelled');
 };
 
 /**
@@ -397,6 +347,8 @@ const parseResult = (responseData, originalContent, contentType) => {
  */
 export const cancelRequest = async requestId => {
   try {
+    // Stop the poll of this request before telling the server, so no further status GET goes out
+    stopAiRequestPolling(requestId);
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`, {
       method: 'DELETE'
     });

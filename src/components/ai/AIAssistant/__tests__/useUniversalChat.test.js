@@ -1506,9 +1506,9 @@ describe('useUniversalChat - chat session persistence (D-B-14)', () => {
     const { result } = renderHook(() => useUniversalChat());
 
     act(() => {
-      // The client watchdog (10 min) and every transport failure raise this: the backend allows the
-      // request 30 min and keeps its result an hour longer, so the id has to survive for a reload
-      // to pick the answer up (D-B-14)
+      // The client watchdog and every transport failure raise this: the backend never said the
+      // request was over, and it keeps a result for an hour after it kills a request, so the id
+      // has to survive for a reload to pick the answer up (D-B-14)
       lastPollingCallbacks().onError(t('ai-assistant.chat.polling-timeout'), { requestAlive: true });
     });
 

@@ -1,3 +1,5 @@
+import { StrictMode, useEffect, useRef } from 'react';
+
 import { renderHook, act } from '@testing-library/react';
 
 import usePolling from '../hooks/usePolling';
@@ -31,7 +33,7 @@ describe('usePolling', () => {
         onError,
         onCancelled,
         onProgress,
-        pollingInterval: 1000,
+        pollDelay: 1000,
         ...overrides
       })
     );
@@ -367,52 +369,37 @@ describe('usePolling', () => {
     expect(result.current.isPolling).toBe(false);
   });
 
-  it('keeps a single poll chain when a poll outlives the timer that armed it', async () => {
-    // The mount effect puts back a timer its own cleanup cleared, and it does so from
-    // `pendingPollRef` — which is still set while a poll is waiting for `fetchStatus`. Before the
-    // chain id, the restored timer and the returning poll each scheduled a successor, so one
-    // request came to be polled by two chains at once; every repetition doubled the load, and on
-    // the stand the panel reached 13 066 requests to the gateway in a single session.
-    let resolveFetch;
-    fetchStatus.mockImplementation(
-      () =>
-        new Promise(resolve => {
-          resolveFetch = resolve;
-        })
+  it('keeps a single poll chain when StrictMode re-runs the mount effect', async () => {
+    // React StrictMode runs mount effects setup → cleanup → setup, and the cleanup of the hook's
+    // mount effect clears the scheduled poll. A caller that starts polling during the first setup
+    // — the D-B-14 restore does exactly that — must end up with exactly one chain: not none (the
+    // cleared timer never put back, the card spinning over a request nobody collects) and not two
+    // (the restored timer beside a surviving one; every duplication doubled the load, and on the
+    // stand the panel reached 13 066 requests to the gateway in a single session).
+    fetchStatus.mockResolvedValue({ status: 'processing' });
+
+    const { result } = renderHook(
+      () => {
+        const polling = usePolling({ fetchStatus, onResult, onError, onCancelled, onProgress, pollDelay: 1000 });
+        const started = useRef(false);
+        useEffect(() => {
+          if (!started.current) {
+            started.current = true;
+            polling.startPolling('req-1');
+          }
+        }, [polling]);
+        return polling;
+      },
+      { wrapper: StrictMode }
     );
 
-    const { result, rerender } = renderHook(
-      ({ interval }) => usePolling({ fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval: interval }),
-      {
-        initialProps: { interval: 1000 }
-      }
-    );
-
-    act(() => {
-      result.current.startPolling('req-1');
-    });
-
-    // The first poll fires and hangs on the server
     await act(async () => {
-      jest.advanceTimersByTime(1000);
-    });
-    expect(fetchStatus).toHaveBeenCalledTimes(1);
-
-    // The mount effect re-runs while that poll is in the air and re-arms the timer
-    rerender({ interval: 1001 });
-
-    // The hung poll now answers: it must not schedule a successor of its own
-    await act(async () => {
-      resolveFetch({ status: 'processing' });
+      await jest.advanceTimersByTimeAsync(3000);
     });
 
-    fetchStatus.mockClear();
-    await act(async () => {
-      jest.advanceTimersByTime(1001);
-    });
-
-    // Exactly one chain is walking the request — not two
-    expect(fetchStatus).toHaveBeenCalledTimes(1);
+    expect(fetchStatus).toHaveBeenCalledTimes(3);
+    expect(fetchStatus).toHaveBeenCalledWith('req-1');
+    expect(result.current.isPolling).toBe(true);
   });
 
   it('cleans up timer on unmount', () => {
@@ -454,5 +441,87 @@ describe('usePolling', () => {
     });
 
     expect(fetchStatus).toHaveBeenCalledWith('req-2');
+  });
+
+  describe('poll delay ramp (D-X-CHATPOLLGAP)', () => {
+    // The default delay is the shared ramp: a quick answer is still noticed within a second, and a
+    // long wait is checked every five, so the budget does not cost two thousand polls. (How many
+    // it does cost is pinned in `aiPollingBudget.test.js`.) Driven with the async timers: the
+    // successor timer is armed only after `fetchStatus` resolves, so a synchronous advance fires
+    // one poll per call whatever the delay and would prove nothing about the ramp.
+    const processing = { status: 'processing' };
+    const advance = ms =>
+      act(async () => {
+        await jest.advanceTimersByTimeAsync(ms);
+      });
+    const renderRamped = () => renderHook(() => usePolling({ fetchStatus, onResult, onError, onCancelled, onProgress }));
+    const recordPollTimes = () => {
+      const times = [];
+      fetchStatus.mockImplementation(() => {
+        times.push(Date.now());
+        return Promise.resolve(processing);
+      });
+      return times;
+    };
+
+    it('polls after one second at first', async () => {
+      fetchStatus.mockResolvedValue(processing);
+      const { result } = renderRamped();
+
+      act(() => {
+        result.current.startPolling('req-1');
+      });
+
+      await advance(999);
+      expect(fetchStatus).not.toHaveBeenCalled();
+
+      await advance(1);
+      expect(fetchStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it('stretches the wait from one second to five over the ramp, and holds it there', async () => {
+      const times = recordPollTimes();
+      const { result } = renderRamped();
+
+      act(() => {
+        result.current.startPolling('req-1');
+      });
+      const startedAt = Date.now();
+
+      await advance(90 * 1000);
+
+      const gaps = times.map((time, index) => time - (index === 0 ? startedAt : times[index - 1]));
+      expect(gaps[0]).toBe(1000);
+      expect(gaps[gaps.length - 1]).toBe(5000);
+      gaps.forEach((gap, index) => {
+        if (index > 0) expect(gap).toBeGreaterThanOrEqual(gaps[index - 1]);
+      });
+      // A minute and a half at a flat second would be ninety polls; the ramp makes it about thirty
+      expect(times.length).toBeLessThan(40);
+      expect(times.length).toBeGreaterThan(20);
+    });
+
+    it('starts the ramp over for every fresh request', async () => {
+      const times = recordPollTimes();
+      const { result } = renderRamped();
+
+      act(() => {
+        result.current.startPolling('req-1');
+      });
+      await advance(60 * 1000);
+      expect(times[times.length - 1] - times[times.length - 2]).toBe(5000);
+
+      // The second question is a new wait — it must not inherit the first one's five-second gaps
+      act(() => {
+        result.current.startPolling('req-2');
+      });
+      fetchStatus.mockClear();
+      const restartedAt = Date.now();
+
+      await advance(1000);
+      expect(fetchStatus).toHaveBeenCalledTimes(1);
+      expect(fetchStatus).toHaveBeenCalledWith('req-2');
+      expect(times[times.length - 1] - restartedAt).toBe(1000);
+    });
   });
 });

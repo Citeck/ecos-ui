@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { StrictMode } from 'react';
 
 import { CHAT_SESSION_STORAGE_KEY } from '../chatSessionStorage';
-import { CHAT_SESSION_TTL_MS, POLLING_INTERVAL } from '../constants';
+import { AI_POLL_INTERVAL_MIN_MS, CHAT_SESSION_TTL_MS, getAiPollDelay } from '../constants';
 import useUniversalChat from '../hooks/useUniversalChat';
 import { isGateStale } from '../utils';
 
@@ -147,14 +147,15 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     // restore latched by the first setup and turned away by the second would leave the card spinning
     // over a request nobody collects.
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch.mock.calls[0][0]).toContain('req-restored');
-    // And exactly one poll loop is alive — a re-armed poll must replace the dead one, not add to it
+    // And exactly one poll loop is alive — a re-armed poll must replace the dead one, not add to it.
+    // The second poll comes a little later than the first: the interval ramps up with the wait.
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(getAiPollDelay(AI_POLL_INTERVAL_MIN_MS));
     });
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -185,7 +186,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -197,7 +198,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
 
     // No endless loop: the poll is not rescheduled after the failure
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL * 5);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS * 5);
     });
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -215,7 +216,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result, unmount } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -231,7 +232,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result: reloaded } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(mockStartPollingCalls).toEqual(['req-alive']);
@@ -256,7 +257,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result, rerender } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(mockStartPollingCalls).toEqual(['req-alive']);
@@ -268,7 +269,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     act(() => rerender({ isOpen: true }));
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(mockStartPollingCalls).toEqual(['req-alive', 'req-alive']);
@@ -322,7 +323,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     // id and the tracked tempRef are both kept and the restore latch comes back down
     global.fetch = jest.fn().mockRejectedValue(new Error('Failed to fetch'));
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(storedSession()).toMatchObject({ requestId: 'req-file' });
@@ -358,7 +359,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result } = renderChat(false);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL * 30);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS * 30);
     });
 
     expect(mockStartPollingCalls).toEqual([]);
@@ -385,7 +386,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result, rerender } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(mockStartPollingCalls).toEqual(['req-1']);
@@ -425,7 +426,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     // restarted or killed
     const pollsBefore = statusPolls().length;
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
     expect(statusPolls().length).toBe(pollsBefore + 1);
 
@@ -446,7 +447,7 @@ describe('useUniversalChat - resuming an active request (D-B-14)', () => {
     const { result, rerender } = renderChat(true);
 
     await act(async () => {
-      jest.advanceTimersByTime(POLLING_INTERVAL);
+      jest.advanceTimersByTime(AI_POLL_INTERVAL_MIN_MS);
     });
 
     expect(mockStartPollingCalls).toEqual(['req-1']);
