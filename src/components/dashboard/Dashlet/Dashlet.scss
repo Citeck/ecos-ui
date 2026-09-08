@@ -3,7 +3,6 @@
 .dashlet {
   $root: &;
   $same-height: calc((100vh - 181px) / 2.5);
-  $header-wrapper-height: 36px;
   $content-top-padding: 20px;
 
   min-height: auto !important;
@@ -11,7 +10,7 @@
   position: relative;
 
   &__same-scrollbar {
-    height: calc($same-height - $header-wrapper-height - $content-top-padding) !important;
+    height: calc($same-height - $dashlet-header-height - $content-top-padding) !important;
 
     &_track {
       position: absolute;
@@ -37,7 +36,7 @@
     }
 
     & .ecos-panel__body {
-      height: calc($same-height - $header-wrapper-height - $content-top-padding);
+      height: calc($same-height - $dashlet-header-height - $content-top-padding);
     }
   }
 
@@ -49,12 +48,13 @@
     align-items: center;
 
     &-wrapper {
-      height: $header-wrapper-height;
+      // Shared widget header geometry, see styles/constants.scss and docs/widget-header-geometry.md
+      height: $dashlet-header-height;
       // Right padding puts the centre of the last action icon where the corner's 45° bisector
       // (x-from-right = y-from-top, through the 12px arc centre) crosses the header's vertical
       // middle (y = 18px): 18px - 1px panel border - 1px button side inset - half of the 15.33px
       // glyph box
-      padding: 0 8.33px 0 6px;
+      padding: 0 $dashlet-header-padding-right 0 $dashlet-header-padding-left;
       border-bottom: 1px solid $color-gray-4;
       background-color: $color-white;
       border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
@@ -178,6 +178,12 @@
     box-sizing: border-box;
     padding-right: 10px;
     @extend %ellipsis;
+
+    // Without a collapse chevron in front of it the title would sit flush against the header's own
+    // 6px padding; this inset lines it up with the body content of the widget instead.
+    &_no-collapser {
+      padding-left: $dashlet-caption-no-collapser-padding;
+    }
 
     &-collapser {
       display: inline-flex;
