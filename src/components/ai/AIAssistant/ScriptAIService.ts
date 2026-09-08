@@ -9,7 +9,8 @@ import uuidV4 from 'uuidv4';
 import { getWorkspaceId } from '@/helpers/urls';
 import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
-import { MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, PLATFORM_CONFIG_AGENT_REF } from './constants';
+import { pollAiRequest, stopAiRequestPolling } from './aiRequestPolling';
+import { MESSAGE_TYPES, API_ENDPOINTS, PLATFORM_CONFIG_AGENT_REF } from './constants';
 import {
   ATTRIBUTE_TYPES,
   SCRIPT_CONTEXT_TYPES,
@@ -21,8 +22,6 @@ import {
 
 export { ATTRIBUTE_TYPES, SCRIPT_CONTEXT_TYPES };
 export type { AttributeType, ScriptContextType, FieldInfo, ProgressInfo };
-
-const activePollingTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 /**
  * Parameters for generateScript function
@@ -162,129 +161,76 @@ export const generateScript = async ({
 };
 
 /**
- * Poll for script generation result
+ * Poll for script generation result. The clock, ramp, budget and cancel-on-give-up live in
+ * `pollAiRequest`; only the reading of the answer is this service's own.
  */
-const pollForResult = (requestId: string, trackingId: string, onProgress?: (info: ProgressInfo) => void): Promise<GenerateScriptResult> => {
-  return new Promise((resolve, reject) => {
-    let waitedMs = 0;
+const pollForResult = async (
+  requestId: string,
+  trackingId: string,
+  onProgress?: (info: ProgressInfo) => void
+): Promise<GenerateScriptResult> => {
+  let data: PollResponse;
+  try {
+    data = await pollAiRequest({
+      requestId,
+      trackingId,
+      statusUrl: API_ENDPOINTS.UNIVERSAL_STATUS,
+      onProgress: (progress: ProgressInfo) =>
+        onProgress?.({
+          stage: progress.stage,
+          progress: progress.progress,
+          message: progress.message
+        }),
+      // The request is still running server-side, and nobody is going to collect its answer now —
+      // so it is called off rather than left to burn tokens on a result no one will read.
+      onGiveUp: () => void cancelRequest(requestId)
+    });
+  } catch (error) {
+    const httpStatus = (error as Error & { httpStatus?: number }).httpStatus;
+    throw httpStatus ? new Error(`Polling failed: ${httpStatus}`) : error;
+  }
 
-    const cleanup = () => {
-      activePollingTimeouts.delete(trackingId);
-    };
+  if (data.result) {
+    // Check if result is a script writing response
+    const responseData = data.result;
+    const isScriptDiffMessage = typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.SCRIPT_WRITING;
 
-    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
-    // page was doing between two polls, and the tests can step through it with fake timers.
-    const scheduleDelay = () => {
-      const delay = getFieldAiPollDelay(waitedMs);
-      waitedMs += delay;
-      return delay;
-    };
+    if (isScriptDiffMessage) {
+      const msg = responseData.message as ScriptWritingMessage;
+      return {
+        originalScript: msg.originalScript || '',
+        modifiedScript: msg.modifiedScript || '',
+        explanation: msg.explanation || '',
+        contextType: msg.contextType || ''
+      };
+    }
 
-    const poll = async () => {
-      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
-      // describing any particular span. The budget is the backend's own limit — see
-      // FIELD_AI_TIMEOUT_MS.
-      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
-        cleanup();
-        // The request is still running server-side, and nobody is going to collect its answer now —
-        // so it is called off rather than left to burn tokens on a result no one will read.
-        void cancelRequest(requestId);
-        const timedOut = new Error('Request timed out');
-        (timedOut as Error & { isTimeout?: boolean }).isTimeout = true;
-        reject(timedOut);
-        return;
-      }
+    // Not a diff, but not a failure either: a question about the script («что делает этот
+    // скрипт?») is answered with prose, and prose is a perfectly good answer — it just
+    // proposes no edit. Rejecting it threw the answer away and closed the panel with a
+    // technical error, so the user saw nothing at all (D-G-QA-DROP, case G14). An empty
+    // `modifiedScript` is what says "nothing to apply"; `ScriptEditorAIButton` then shows the
+    // script unchanged and puts the answer above it as the explanation.
+    const answerText = extractAnswerText(responseData);
+    if (answerText) {
+      return {
+        originalScript: '',
+        modifiedScript: '',
+        explanation: answerText,
+        contextType: ''
+      };
+    }
 
-      try {
-        const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
+    // Nothing text-like anywhere in the payload — there is genuinely nothing to show.
+    throw new Error('Unexpected response type from AI');
+  }
 
-        if (!response.ok) {
-          cleanup();
-          throw new Error(`Polling failed: ${response.status}`);
-        }
+  if (data.error) {
+    throw new Error(data.error || 'Unknown error occurred');
+  }
 
-        const data: PollResponse = await response.json();
-
-        if (data.result) {
-          cleanup();
-          // Check if result is a script writing response
-          const responseData = data.result;
-          const isScriptDiffMessage =
-            typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.SCRIPT_WRITING;
-
-          if (isScriptDiffMessage) {
-            const msg = responseData.message as ScriptWritingMessage;
-            resolve({
-              originalScript: msg.originalScript || '',
-              modifiedScript: msg.modifiedScript || '',
-              explanation: msg.explanation || '',
-              contextType: msg.contextType || ''
-            });
-            return;
-          }
-
-          // Not a diff, but not a failure either: a question about the script («что делает этот
-          // скрипт?») is answered with prose, and prose is a perfectly good answer — it just
-          // proposes no edit. Rejecting it threw the answer away and closed the panel with a
-          // technical error, so the user saw nothing at all (D-G-QA-DROP, case G14). An empty
-          // `modifiedScript` is what says "nothing to apply"; `ScriptEditorAIButton` then shows the
-          // script unchanged and puts the answer above it as the explanation.
-          const answerText = extractAnswerText(responseData);
-          if (answerText) {
-            resolve({
-              originalScript: '',
-              modifiedScript: '',
-              explanation: answerText,
-              contextType: ''
-            });
-            return;
-          }
-
-          // Nothing text-like anywhere in the payload — there is genuinely nothing to show.
-          reject(new Error('Unexpected response type from AI'));
-          return;
-        }
-
-        if (data.error) {
-          cleanup();
-          reject(new Error(data.error || 'Unknown error occurred'));
-          return;
-        }
-
-        if (data.status === 'cancelled') {
-          cleanup();
-          reject(new Error('Request was cancelled'));
-          return;
-        }
-
-        if (data.status === 'processing') {
-          // Report progress if callback provided
-          if (onProgress && data.progress) {
-            onProgress({
-              stage: data.progress.stage,
-              progress: data.progress.progress,
-              message: data.progress.message
-            });
-          }
-
-          // Continue polling - track timeout for cleanup
-          const timeoutId = setTimeout(poll, scheduleDelay());
-          activePollingTimeouts.set(trackingId, timeoutId);
-          return;
-        }
-
-        // Unknown status, continue polling - track timeout for cleanup
-        const timeoutId = setTimeout(poll, scheduleDelay());
-        activePollingTimeouts.set(trackingId, timeoutId);
-      } catch (error) {
-        cleanup();
-        reject(error);
-      }
-    };
-
-    // Start polling
-    poll();
-  });
+  // The only terminal body left is a cancellation.
+  throw new Error('Request was cancelled');
 };
 
 /**
@@ -292,12 +238,8 @@ const pollForResult = (requestId: string, trackingId: string, onProgress?: (info
  */
 export const cancelRequest = async (requestId: string): Promise<boolean> => {
   try {
-    // Clear any active polling timeout for this request
-    const timeoutId = activePollingTimeouts.get(requestId);
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      activePollingTimeouts.delete(requestId);
-    }
+    // Stop the poll of this request before telling the server, so no further status GET goes out
+    stopAiRequestPolling(requestId);
 
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`, {
       method: 'DELETE'

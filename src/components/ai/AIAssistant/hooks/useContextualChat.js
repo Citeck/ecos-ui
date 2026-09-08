@@ -4,9 +4,10 @@ import aiAssistantService from '../AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from '../EditorContextService';
 import { generateUUID } from '../utils';
 
+import { fetchAiStatus } from '../aiRequestPolling';
 import usePolling from './usePolling';
 
-import { API_ENDPOINTS } from '@/components/ai/AIAssistant/constants';
+import { API_ENDPOINTS, BPMN_AI_REQUEST_WAIT_MS } from '@/components/ai/AIAssistant/constants';
 import { t } from '@/helpers/export/util';
 
 /**
@@ -23,14 +24,10 @@ const useContextualChat = (options = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState(() => generateUUID());
 
-  // Fetch status function for polling
-  const fetchStatus = useCallback(async requestId => {
-    const response = await fetch(`${API_ENDPOINTS.BPMN_STATUS}/${requestId}`);
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    return response.json();
-  }, []);
+  // Fetch status function for polling. The BPMN assistant answers a failed or timed-out request
+  // with a 500 whose body carries the reason; `fetchAiStatus` hands that reason over as the
+  // request's verdict instead of the "Error: 500" this used to show, and cuts off a hung GET.
+  const fetchStatus = useCallback(requestId => fetchAiStatus(`${API_ENDPOINTS.BPMN_STATUS}/${encodeURIComponent(requestId)}`), []);
 
   // Handle polling result
   const handlePollingResult = useCallback(
@@ -128,9 +125,11 @@ const useContextualChat = (options = {}) => {
     );
   }, []);
 
-  // Use polling hook
+  // Use polling hook. The BPMN assistant has a request timeout of its own, a third of the
+  // universal one — the wait is matched to it, not to the default.
   const { startPolling, stopPolling, activeRequestId } = usePolling({
     fetchStatus,
+    timeoutMs: BPMN_AI_REQUEST_WAIT_MS,
     onResult: handlePollingResult,
     onError: handlePollingError,
     onCancelled: handlePollingCancelled

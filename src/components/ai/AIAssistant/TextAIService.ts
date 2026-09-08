@@ -8,7 +8,8 @@ import uuidV4 from 'uuidv4';
 
 import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, CONTENT_TYPES } from './constants';
+import { pollAiRequest, stopAiRequestPolling } from './aiRequestPolling';
+import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, CONTENT_TYPES } from './constants';
 import { ATTRIBUTE_TYPES, FIELD_TYPE_VALUES, type AttributeType, type FieldTypeValue, type FieldInfo, type ProgressInfo } from './types';
 
 import { getWorkspaceId } from '@/helpers/urls';
@@ -25,7 +26,6 @@ export interface SelectionRecord {
 }
 
 // Track active polling timeouts for cleanup
-const activePollingTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 /**
  * Quick action definitions for text fields
@@ -197,148 +197,95 @@ export const generateText = async ({
 };
 
 /**
- * Poll for text generation result
+ * Poll for text generation result. The clock, ramp, budget and cancel-on-give-up live in
+ * `pollAiRequest`; only the reading of the answer is this service's own.
  */
-const pollForResult = (
+const pollForResult = async (
   requestId: string,
   trackingId: string,
   originalText: string,
   onProgress?: (info: ProgressInfo) => void
 ): Promise<GenerateTextResult> => {
-  return new Promise((resolve, reject) => {
-    let waitedMs = 0;
+  let data: PollResponse;
+  try {
+    data = await pollAiRequest({
+      requestId,
+      trackingId,
+      statusUrl: API_ENDPOINTS.UNIVERSAL_STATUS,
+      onProgress: (progress: ProgressInfo) =>
+        onProgress?.({
+          stage: progress.stage,
+          progress: progress.progress,
+          message: progress.message
+        }),
+      // The request is still running server-side, and nobody is going to collect its answer now —
+      // so it is called off rather than left to burn tokens on a result no one will read.
+      onGiveUp: () => void cancelRequest(requestId)
+    });
+  } catch (error) {
+    const httpStatus = (error as Error & { httpStatus?: number }).httpStatus;
+    throw httpStatus ? new Error(`Polling failed: ${httpStatus}`) : error;
+  }
 
-    const cleanup = () => {
-      activePollingTimeouts.delete(trackingId);
-    };
+  if (data.result) {
+    const responseData = data.result;
 
-    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
-    // page was doing between two polls, and the tests can step through it with fake timers.
-    const scheduleDelay = () => {
-      const delay = getFieldAiPollDelay(waitedMs);
-      waitedMs += delay;
-      return delay;
-    };
+    // Check if result is a text editing response
+    const isTextEditingMessage = typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.TEXT_EDITING;
 
-    const poll = async () => {
-      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
-      // describing any particular span. The budget is the backend's own limit — see
-      // FIELD_AI_TIMEOUT_MS.
-      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
-        cleanup();
-        // The request is still running server-side, and nobody is going to collect its answer now —
-        // so it is called off rather than left to burn tokens on a result no one will read.
-        void cancelRequest(requestId);
-        const timedOut = new Error('Request timed out');
-        (timedOut as Error & { isTimeout?: boolean }).isTimeout = true;
-        reject(timedOut);
-        return;
+    if (isTextEditingMessage) {
+      const msg = responseData.message as TextEditingMessage;
+      const generatedText = msg.generatedText || msg.modifiedText || msg.text || '';
+
+      // If no text was generated but there's a description - it's an informational message
+      if (!generatedText && msg.description) {
+        throw new Error(msg.description);
       }
 
-      try {
-        const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
+      return {
+        originalText: originalText || '',
+        generatedText: generatedText,
+        explanation: msg.explanation || msg.description || ''
+      };
+    }
 
-        if (!response.ok) {
-          cleanup();
-          throw new Error(`Polling failed: ${response.status}`);
-        }
+    if (typeof responseData.message === 'string') {
+      // Plain text response
+      return {
+        originalText: originalText || '',
+        generatedText: responseData.message,
+        explanation: ''
+      };
+    }
 
-        const data: PollResponse = await response.json();
+    if ((responseData.message as TextEditingMessage)?.text) {
+      // Generic text response
+      const msg = responseData.message as TextEditingMessage;
+      return {
+        originalText: originalText || '',
+        generatedText: msg.text || '',
+        explanation: msg.explanation || ''
+      };
+    }
 
-        if (data.result) {
-          cleanup();
-          const responseData = data.result;
+    // Try to extract text from response
+    const text = extractAnswerText(responseData);
+    if (text) {
+      return {
+        originalText: originalText || '',
+        generatedText: text,
+        explanation: ''
+      };
+    }
+    throw new Error('Unexpected response type from AI');
+  }
 
-          // Check if result is a text editing response
-          const isTextEditingMessage =
-            typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.TEXT_EDITING;
+  if (data.error) {
+    throw new Error(data.error || 'Unknown error occurred');
+  }
 
-          if (isTextEditingMessage) {
-            const msg = responseData.message as TextEditingMessage;
-            const generatedText = msg.generatedText || msg.modifiedText || msg.text || '';
-
-            // If no text was generated but there's a description - it's an informational message
-            if (!generatedText && msg.description) {
-              reject(new Error(msg.description));
-              return;
-            }
-
-            resolve({
-              originalText: originalText || '',
-              generatedText: generatedText,
-              explanation: msg.explanation || msg.description || ''
-            });
-          } else if (typeof responseData.message === 'string') {
-            // Plain text response
-            resolve({
-              originalText: originalText || '',
-              generatedText: responseData.message,
-              explanation: ''
-            });
-          } else if ((responseData.message as TextEditingMessage)?.text) {
-            // Generic text response
-            const msg = responseData.message as TextEditingMessage;
-            resolve({
-              originalText: originalText || '',
-              generatedText: msg.text || '',
-              explanation: msg.explanation || ''
-            });
-          } else {
-            // Try to extract text from response
-            const text = extractAnswerText(responseData);
-            if (text) {
-              resolve({
-                originalText: originalText || '',
-                generatedText: text,
-                explanation: ''
-              });
-            } else {
-              reject(new Error('Unexpected response type from AI'));
-            }
-          }
-          return;
-        }
-
-        if (data.error) {
-          cleanup();
-          reject(new Error(data.error || 'Unknown error occurred'));
-          return;
-        }
-
-        if (data.status === 'cancelled') {
-          cleanup();
-          reject(new Error('Request was cancelled'));
-          return;
-        }
-
-        if (data.status === 'processing') {
-          // Report progress if callback provided
-          if (onProgress && data.progress) {
-            onProgress({
-              stage: data.progress.stage,
-              progress: data.progress.progress,
-              message: data.progress.message
-            });
-          }
-
-          // Continue polling - track timeout for cleanup
-          const timeoutId = setTimeout(poll, scheduleDelay());
-          activePollingTimeouts.set(trackingId, timeoutId);
-          return;
-        }
-
-        // Unknown status, continue polling - track timeout for cleanup
-        const timeoutId = setTimeout(poll, scheduleDelay());
-        activePollingTimeouts.set(trackingId, timeoutId);
-      } catch (error) {
-        cleanup();
-        reject(error);
-      }
-    };
-
-    // Start polling
-    poll();
-  });
+  // The only terminal body left is a cancellation.
+  throw new Error('Request was cancelled');
 };
 
 /**
@@ -346,12 +293,8 @@ const pollForResult = (
  */
 export const cancelRequest = async (requestId: string): Promise<boolean> => {
   try {
-    // Clear any active polling timeout for this request
-    const timeoutId = activePollingTimeouts.get(requestId);
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      activePollingTimeouts.delete(requestId);
-    }
+    // Stop the poll of this request before telling the server, so no further status GET goes out
+    stopAiRequestPolling(requestId);
 
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`, {
       method: 'DELETE'

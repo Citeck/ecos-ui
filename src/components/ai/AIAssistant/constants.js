@@ -169,47 +169,60 @@ export const EDITOR_CONTEXT_HANDLERS = {
   UPDATE_SCRIPT_CONTENT: 'updateScriptContent'
 };
 
-// Polling configuration
-export const POLLING_INTERVAL = 1000;
-// Client-side watchdog: how long the chat waits on one request before giving up and surfacing a
-// timeout error instead of spinning forever. Guards against a request that never leaves the
-// "processing" state (e.g. after a transient backend 500), which otherwise hangs the typing
-// indicator with no way to recover. Ten minutes is well above any normal agent run.
+// ---- AI request polling: what the backend allows, what the client waits, how often it asks ----
 //
-// Stated in time and not in polls (it used to be `POLLING_MAX_ATTEMPTS = 600`, meant to be read as
-// 600 × 1s). A budget counted in polls is only worth ten minutes while exactly one poll per second
-// happens, and every extra poll — a duplicated chain, a retry, a shorter interval — spends the
-// user's patience without a second of it passing. Measured on the stand at regr-20260816-r1: 600
-// polls of one request burned in two minutes, then in eight to fifteen seconds, so the config agent
-// (which thinks for one to ten minutes) never once reached its answer in the panel
-// (D-B2d-CHAT-POLL-BUDGET). Wall-clock time cannot be spent faster than it passes.
-export const POLLING_TIMEOUT_MS = 10 * 60 * 1000;
+// Every AI answer is collected by polling a status endpoint, and every poller here shares one
+// clock, one ramp and one budget (`aiRequestPolling.js` for the field services, `usePolling` for
+// the chat panels), so that the numbers below are the only place these decisions live.
 
-// How long the field services (text, script, content) wait for their own request. They poll it
-// themselves rather than through `usePolling`, and each used to hold a private
-// `MAX_POLLING_ATTEMPTS = 120` — two minutes against the backend's thirty
-// (`REQUEST_TIMEOUT_MINUTES` in citeck-ai: up to nine provider calls with a ten-minute read timeout
-// each, cut off by the controller). Fifteen times too early, and the answer that arrived after the
-// client had given up was held by the server for another hour with nobody left to collect it
-// (D-G-FE-TIMEOUT). One constant for the three, matched to the limit that actually decides the
-// outcome.
-export const FIELD_AI_TIMEOUT_MS = 30 * 60 * 1000;
+// How long citeck-ai itself allows a universal-assistant request before killing it:
+// `citeck.ai.agent-execution.request-timeout` (`AgentExecutionProperties.DEFAULT_REQUEST_TIMEOUT`,
+// thirty minutes). Past it the status endpoint answers with the backend's own verdict
+// ("Request timed out after N minutes") and keeps the finished result for another hour
+// (`COMPLETED_RETENTION_MINUTES`). This is the backend's number, restated — nothing on the client
+// is allowed to be shorter than it (D-G-FE-TIMEOUT, D-X-CHATPOLLGAP / COREDEV-485).
+//
+// ⚠ It is a configuration value on the server, not a contract: a stand may raise it, and the
+// response carries no deadline the client could read instead. Until it does (see the open question
+// in COREDEV-485), a stand with a longer request-timeout needs this constant raised with it.
+export const AI_REQUEST_TIMEOUT_MS = 30 * 60 * 1000;
 
-// The wait between polls grows, so that thirty minutes do not become eighteen hundred requests: a
+// The same for the BPMN assistant, which has a limit of its own:
+// `BpmnAssistantController.REQUEST_TIMEOUT_MINUTES` (ten minutes).
+export const BPMN_AI_REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+
+// How much longer than the backend the client keeps collecting. The client's watchdog is a
+// liveness guard for a status endpoint that has gone quiet, not a second deadline: the backend's
+// timer is armed before the 202 comes back and the client's after, so a budget exactly equal to
+// the backend's would give up on the very poll that carries the backend's verdict — and call a
+// request the server has already judged "still running". With the margin the backend always speaks
+// first, and the client only ever gives up on a request the backend stopped reporting on at all.
+export const AI_REQUEST_TIMEOUT_SLACK_MS = 5 * 60 * 1000;
+
+// The client's budgets: what a poller actually waits before giving up on its own.
+export const AI_REQUEST_WAIT_MS = AI_REQUEST_TIMEOUT_MS + AI_REQUEST_TIMEOUT_SLACK_MS;
+export const BPMN_AI_REQUEST_WAIT_MS = BPMN_AI_REQUEST_TIMEOUT_MS + AI_REQUEST_TIMEOUT_SLACK_MS;
+
+// One status request must not hang for longer than this. The watchdog above runs between polls,
+// so a single GET that never settles — a gateway holding the connection, a laptop resuming a
+// half-open socket — would otherwise keep the spinner alive with no guard ever consulted.
+export const AI_STATUS_FETCH_TIMEOUT_MS = 30 * 1000;
+
+// The wait between polls grows, so that half an hour does not become two thousand requests: a
 // quick answer is still noticed within a second, a long one is checked every five. The ramp is over
 // the first half-minute — past that the request is plainly not a quick one.
-export const FIELD_AI_POLL_INTERVAL_MIN_MS = POLLING_INTERVAL;
-export const FIELD_AI_POLL_INTERVAL_MAX_MS = 5000;
-export const FIELD_AI_POLL_RAMP_MS = 30 * 1000;
+export const AI_POLL_INTERVAL_MIN_MS = 1000;
+export const AI_POLL_INTERVAL_MAX_MS = 5000;
+export const AI_POLL_RAMP_MS = 30 * 1000;
 
 /**
  * How long to wait before the next poll, given how long this request has been waited on already.
  * @param {number} waitedMs - Total wait scheduled so far
  * @returns {number} Delay in ms, between the minimum and the maximum interval
  */
-export const getFieldAiPollDelay = waitedMs => {
-  const progress = Math.min(1, Math.max(0, waitedMs) / FIELD_AI_POLL_RAMP_MS);
-  return Math.round(FIELD_AI_POLL_INTERVAL_MIN_MS + progress * (FIELD_AI_POLL_INTERVAL_MAX_MS - FIELD_AI_POLL_INTERVAL_MIN_MS));
+export const getAiPollDelay = waitedMs => {
+  const progress = Math.min(1, Math.max(0, waitedMs) / AI_POLL_RAMP_MS);
+  return Math.round(AI_POLL_INTERVAL_MIN_MS + progress * (AI_POLL_INTERVAL_MAX_MS - AI_POLL_INTERVAL_MIN_MS));
 };
 
 // Lifetime of the persisted chat session record (sessionStorage), matched to what the backend
@@ -220,11 +233,11 @@ export const getFieldAiPollDelay = waitedMs => {
 export const CHAT_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 // Separate, much shorter horizon for resuming the request itself: citeck-ai kills a request after
-// `REQUEST_TIMEOUT_MINUTES` (30) and drops the finished result `COMPLETED_RETENTION_MINUTES` (60)
-// later, so 90 min is the longest a stored `requestId` can still answer anything. Past it the id is
-// dropped while the conversation is kept — resuming would only fetch a 404 and show "request lost"
-// for a chat the user can otherwise carry on using.
-export const CHAT_REQUEST_RESUME_TTL_MS = 90 * 60 * 1000;
+// `request-timeout` (30 min, `AI_REQUEST_TIMEOUT_MS`) and drops the finished result
+// `COMPLETED_RETENTION_MINUTES` (60) later, so 90 min is the longest a stored `requestId` can still
+// answer anything. Past it the id is dropped while the conversation is kept — resuming would only
+// fetch a 404 and show "request lost" for a chat the user can otherwise carry on using.
+export const CHAT_REQUEST_RESUME_TTL_MS = AI_REQUEST_TIMEOUT_MS + 60 * 60 * 1000;
 
 // Chat dimensions
 export const CHAT_DIMENSIONS = {

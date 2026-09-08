@@ -18,6 +18,7 @@ import { AGENT_STATUSES } from '../types';
 // re-exported from this module for backward compatibility with existing importers.
 import { generateUUID, fileSaveActionTempRef, isSameRecordRef } from '../utils';
 
+import { fetchAiStatus } from '../aiRequestPolling';
 import usePolling from './usePolling';
 
 import { t } from '@/helpers/export/util';
@@ -486,30 +487,13 @@ const useUniversalChat = (options = {}) => {
   // single cycle; same remedy as `isSendingRef` in `useEmailSend` (D-B-17).
   const isActionInFlightRef = useRef(false);
 
-  // Fetch status function for polling
-  const fetchStatus = useCallback(async requestId => {
-    const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${encodeURIComponent(requestId)}`);
-    if (!response.ok) {
-      // The request list lives in the service's memory, so a restart loses it and every later poll
-      // answers 404 with an empty body (same answer as for another user's or an expired request).
-      // Say the request is lost — "Ошибка: Error: 404" told the user nothing actionable (D-B-7).
-      if (response.status === 404) {
-        const err = new Error(t('ai-assistant.chat.request-lost'));
-        err.requestLost = true;
-        throw err;
-      }
-      // Surface the backend's friendly error body (e.g. overload: { error, retryAfterSeconds })
-      // instead of a raw status, so the chat shows the human message, not "Error: 500".
-      const body = await response.json().catch(() => null);
-      if (body?.error) {
-        const err = new Error(body.error);
-        if (body.retryAfterSeconds != null) err.retryAfterSeconds = body.retryAfterSeconds;
-        throw err;
-      }
-      throw new Error(t('ai-assistant.chat.http-error', { status: response.status }));
-    }
-    return response.json();
-  }, []);
+  // Fetch status function for polling. `fetchAiStatus` reads the endpoint the way the backend means
+  // it: a 404 is a lost request (`requestLost`, D-B-7), a 4xx/5xx with an `{ error }` body is the
+  // backend's verdict on the request and comes back as that body — so a request the server has
+  // failed or timed out ends here as a terminal error, not as a transport failure that would keep
+  // its id alive and resumable for another hour — and a hung GET is cut off after
+  // `AI_STATUS_FETCH_TIMEOUT_MS`.
+  const fetchStatus = useCallback(requestId => fetchAiStatus(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${encodeURIComponent(requestId)}`), []);
 
   // Handle polling result
   const handlePollingResult = useCallback(
@@ -862,7 +846,7 @@ const useUniversalChat = (options = {}) => {
   // could collect its result is gone. The pair saved in sessionStorage is the only way back to it.
   //
   // The trigger is the panel being opened, not the hook mounting: `AIAssistantContainer` renders on
-  // every page of the application, so a mount-bound effect would poll for up to ten minutes on
+  // every page of the application, so a mount-bound effect would poll for up to half an hour on
   // pages where the user never opened the chat, and would drop the answer into a chat whose form
   // context belongs to a different record by then. After a reload the panel is always closed
   // (`AIAssistantService`), so the user opens it themselves — that is the natural moment to resume.
