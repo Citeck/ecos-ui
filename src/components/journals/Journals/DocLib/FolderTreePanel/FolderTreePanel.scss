@@ -1,4 +1,5 @@
 @import '@/styles/constants';
+@import '../mixins';
 
 .citeck-doclib-panel {
   display: flex;
@@ -10,17 +11,25 @@
   border-radius: $border-radius-large;
   overflow: hidden;
 
+  // the shared widget header geometry (docs/widget-header-geometry.md, COREDEV-482): 36px including
+  // the bottom border, title text 17px from the panel's outer edge (1px panel border + 16px). The
+  // right inset stays the library's own 12px — the 8.33px of a widget is a calibration of the
+  // dashlet action button against the corner arc, and this 24px chevron is a different box
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 12px 10px 16px;
+    height: $dashlet-header-height;
+    box-sizing: border-box;
+    padding: 0 12px 0 16px;
     border-bottom: 1px solid $color-gray-4;
   }
 
   &__title {
     font-size: $font-size-standard;
     font-weight: $font-weight-bold;
+    // like .dashlet__caption: the line box comes from the body, it must not drive the header height
+    line-height: inherit;
     color: $text-color-dark;
   }
 
@@ -33,10 +42,11 @@
     border-radius: $border-radius-small;
     color: $text-color-gray;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    transition: color 0.15s ease-in-out;
 
+    // color only, like &__toggle:hover — a filled square here reads as a control of its own next to
+    // the tree rows, which now answer a hover with lines instead of a fill
     &:hover {
-      background: $color-gray-4;
       color: $text-color-dark;
     }
 
@@ -57,7 +67,8 @@
   &_collapsed {
     flex: 0 0 36px;
     align-items: center;
-    padding-top: 10px;
+    // the chevron stays where the expanded header keeps it: centred in a 36px header above the 1px border
+    padding-top: ($dashlet-header-height - 1px - 24px) / 2;
     cursor: pointer;
   }
 
@@ -74,8 +85,6 @@
 }
 
 .citeck-doclib-tree {
-  $tree: &;
-
   &__row {
     display: flex;
     align-items: center;
@@ -90,21 +99,15 @@
     user-select: none;
     transition: background-color 0.15s ease-in-out;
 
+    // the journal highlights, the same the file list uses: a hover draws lines and keeps the fill,
+    // a selection fills yellow. Text and folder icon keep their plain colors — they read on yellow,
+    // and the blue icon on a blue selection was itself one of the remarks
     &:hover {
-      background: $color-gray-4;
+      @include doclib-journal-row-hover-lines;
     }
 
     &_selected {
-      background: var(--light-primary-color, $color-blue-light2);
-      color: var(--primary-color, $color-blue-dark);
-
-      &:hover {
-        background: var(--light-primary-color, $color-blue-light2);
-      }
-
-      #{$tree}__folder-icon {
-        color: var(--primary-color, $color-blue-dark);
-      }
+      background: $color-yellow-1;
     }
   }
 

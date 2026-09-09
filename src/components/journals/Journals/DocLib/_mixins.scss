@@ -1,0 +1,13 @@
+// Relative, not '@/styles/constants': this file is pulled in by its consumers, and the alias is
+// rewritten by the build (and by the test compiler) only in the file it starts from.
+@import '../../../../styles/constants';
+
+// The journal highlights a hovered row with a line above and below and no fill of its own
+// (`.ecos-grid__row_new:hover td` in `Grid.scss`, `$color-brown-2`). Both halves of the library —
+// the file list and the folder tree — repeat it from here, so they cannot drift apart again
+// (COREDEV-355, QA p. 9 and p. 10).
+@mixin doclib-journal-row-hover-lines {
+  box-shadow:
+    0 1px 0 0 $color-brown-2 inset,
+    0 -1px 0 0 $color-brown-2 inset;
+}

@@ -44,7 +44,7 @@
 ## Константы
 
 Живут в `src/styles/constants.scss` — не рядом с одним из потребителей, потому что потребителей
-двое и раньше они разъехались именно из-за локальных чисел:
+несколько и раньше они разъезжались именно из-за локальных чисел:
 
 | Константа                               | Значение | Смысл                                          |
 | --------------------------------------- | -------- | ---------------------------------------------- |
@@ -53,7 +53,7 @@
 | `$dashlet-header-padding-right`         | `8.33px` | правый отступ (калибровка иконок по дуге угла) |
 | `$dashlet-caption-no-collapser-padding` | `9px`    | добавка заголовку, когда шеврона нет           |
 
-Оба файла подключают их обычным `@import '@/styles/constants'` (не `@use`), поэтому переменные
+Все потребители подключают их обычным `@import '@/styles/constants'` (не `@use`), поэтому переменные
 видны напрямую.
 
 ## Кто их использует
@@ -74,6 +74,16 @@
   `margin-left: 5px` у детей `.dashlet__header-actions`) и тот же подъём на 1px парой полей; каждая
   кнопка `…_btn` — `inline-flex; align-items: center`, чтобы у inline-block глифа не оставалось
   места под descender (иначе иконка на 1px выше соседей).
+- `src/components/journals/Journals/DocLib/FolderTreePanel/FolderTreePanel.scss` —
+  `.citeck-doclib-panel__header` (шапка дерева папок библиотеки документов): `height`,
+  `box-sizing: border-box` и `padding: 0 12px 0 16px`. Левый отступ даёт те же 17px от внешнего края
+  панели (1px рамки + 16px), заголовок — `line-height: inherit`, как `.dashlet__caption`. Правый
+  отступ здесь **не** `$dashlet-header-padding-right`: 8.33px — калибровка кнопки действия дашлета
+  (глиф 15.33px) под биссектрису `$border-radius-extra-large`, а тут другой блок (шеврон 24×24) и
+  другой радиус панели; 12px — общий горизонтальный отступ библиотеки (COREDEV-355, п. 12).
+- `src/components/journals/Journals/DocLib/Files/FilesArea.scss` — `.citeck-doclib-files__head`
+  (шапка колонок списка файлов): `height` и `box-sizing: border-box`; горизонтальный отступ свой
+  (12px), чтобы текст колонок стоял на одной вертикали с содержимым строк (COREDEV-355, п. 12).
 
 ## Почему у дерева своя шапка
 
@@ -85,15 +95,20 @@
 
 ## Как держать паритет
 
-`src/components/dashboard/Dashlet/__tests__/headerGeometry.test.js` — компилирует оба SCSS через
-sass CLI (`src/testUtils/cssCascade.js`) и по честному каскаду сверяет: высоты шапок равны,
-у шапки дерева `box-sizing: border-box`, правые отступы равны, левый отступ шапки дерева равен
-левому отступу шапки `Dashlet` плюс отступ `.dashlet__caption_no-collapser`, у ряда иконок дерева
-`gap: 5px`, нет `transform` и есть пара margin. Числа в тесте не захардкожены — он сравнивает
-скомпилированные значения между собой, поэтому переживёт смену константы, но не разъезд файлов.
+`src/components/dashboard/Dashlet/__tests__/headerGeometry.test.js` — компилирует SCSS всех
+потребителей через sass CLI (`src/testUtils/cssCascade.js`) и по честному каскаду сверяет: высоты
+шапок равны, у шапки дерева `box-sizing: border-box`, правые отступы равны, левый отступ шапки
+дерева равен левому отступу шапки `Dashlet` плюс отступ `.dashlet__caption_no-collapser`, у ряда
+иконок дерева `gap: 5px`, нет `transform` и есть пара margin. Числа в тесте не захардкожены — он
+сравнивает скомпилированные значения между собой, поэтому переживёт смену константы, но не разъезд
+файлов.
+
+Тот же тест держит обе шапки библиотеки документов (блок `the document library headers`): высота
+сверяется с `.dashlet__header-wrapper`, проверяется `box-sizing: border-box`, а левый отступ шапки
+дерева папок — с суммой отступов общей шапки, её caption и его прозрачной рамки.
 
 `src/components/dashboard/Dashlet/__tests__/Header.test.js` — модификатор рендерится при
 `disableCollapse` и не рендерится без него, `titleClassName` при этом сохраняется.
 
-Если появится ещё один виджет со своей шапкой — добавить его в `headerGeometry.test.js` рядом с
-деревом; общий `Dashlet` остаётся эталоном.
+Если появится ещё один виджет или панель со своей шапкой — добавить их в `headerGeometry.test.js`
+рядом с деревом; общий `Dashlet` остаётся эталоном.
