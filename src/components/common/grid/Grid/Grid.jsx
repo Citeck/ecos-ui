@@ -1090,9 +1090,9 @@ class Grid extends Component {
         dbValue[this.userName] = {
           ...dbValue[this.userName],
           settings: {
-            ...get(dbValue, `${this.userName}.settings`, {}),
+            ...get(dbValue, [this.userName, 'settings'], {}),
             [journalSetting.id]: {
-              ...get(dbValue, `${this.userName}.settings.${journalSetting.id}`),
+              ...get(dbValue, [this.userName, 'settings', journalSetting.id]),
               [name]: {
                 ...currentColumn,
                 width
