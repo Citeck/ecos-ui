@@ -5,6 +5,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
+import FolderTreeNode from '@/components/journals/Journals/DocLib/FolderTreePanel/FolderTreeNode';
 import FolderTreePanel from '@/components/journals/Journals/DocLib/FolderTreePanel/FolderTreePanel';
 import DocLibToolbar from '@/components/journals/Journals/DocLib/Toolbar/DocLibToolbar';
 import { DISPLAY_MODES } from '@/components/journals/Journals/DocLib/constants';
@@ -286,6 +287,47 @@ describe('doclib review remarks (COREDEV-355)', () => {
 
       expect(cascade(selected.row, [treeCss], 'color')).toBe(cascade(plain.row, [treeCss], 'color'));
       expect(cascade(selected.icon, [treeCss], 'color')).toBe(cascade(plain.icon, [treeCss], 'color'));
+    });
+  });
+
+  // QA return of 2026-09-09: the colors were right, but the highlight was a rounded box stopping
+  // 8px short of the panel border on both sides — the 8px horizontal padding of the panel body plus
+  // the row's own radius. A list row and a journal row light up from border to border, square.
+  describe('9 (return of 2026-09-09). the tree highlight runs from border to border', () => {
+    const treeItem = (id, extra) => ({ id, title: id, hasChildren: false, isUnfolded: false, isChildrenLoading: false, ...extra });
+
+    const renderNode = level =>
+      render(
+        <FolderTreeNode
+          item={treeItem(`folder-${level}`)}
+          level={level}
+          isSelected={false}
+          onSelect={() => {}}
+          onUnfold={() => {}}
+          onFold={() => {}}
+        />
+      ).container.querySelector('.citeck-doclib-tree__row');
+
+    it('the tree row is square, like a list row', () => {
+      const row = element('citeck-doclib-tree__row');
+      const listRow = element('citeck-doclib-files__row');
+
+      expect(cascade(listRow, [filesCss], 'border-radius')).toBeNull();
+      expect(cascade(row, [treeCss], 'border-radius')).toBeNull();
+      expect(declarationsOf(treeCss, '.citeck-doclib-tree__row')['border-radius']).toBeUndefined();
+    });
+
+    it('the panel body has no horizontal padding, the same as the file area', () => {
+      const bodyPadding = declarationsOf(treeCss, '.citeck-doclib-panel__body').padding;
+      const areaPadding = declarationsOf(filesCss, '.citeck-doclib-files-area').padding;
+
+      expect(horizontalPadding(areaPadding)).toBe('0');
+      expect(horizontalPadding(bodyPadding)).toBe(horizontalPadding(areaPadding));
+    });
+
+    it('the row itself carries the inset, at every level', () => {
+      expect(renderNode(0).style.paddingLeft).toBe('16px');
+      expect(renderNode(1).style.paddingLeft).toBe('32px');
     });
   });
 
