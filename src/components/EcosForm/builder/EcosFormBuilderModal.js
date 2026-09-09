@@ -9,7 +9,6 @@ import DialogManager from '../../common/dialogs/Manager';
 import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import DebugModal from './DebugModal';
-import { clearFormFromCache } from '../../../forms/utils';
 
 import './style.scss';
 
@@ -28,7 +27,6 @@ export default class EcosFormBuilderModal extends React.Component {
       isDebugModalOpen: false,
       isOpenDependencies: true,
       isOpenInfluence: true,
-      formId: props.formId || null,
       options: {}
     };
   }
@@ -44,8 +42,7 @@ export default class EcosFormBuilderModal extends React.Component {
       isModalOpen: true,
       formDefinition: cloneDeep(formDefinition),
       options,
-      onSubmit,
-      formId: get(formDefinition, 'formId')
+      onSubmit
     });
   }
 
@@ -62,8 +59,6 @@ export default class EcosFormBuilderModal extends React.Component {
         this.setState(state => ({
           isModalOpen: !state.isModalOpen
         }));
-
-        clearFormFromCache(this.state.formId);
       }
     });
   };
