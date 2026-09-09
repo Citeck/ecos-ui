@@ -18,6 +18,9 @@ interface FolderTreeNodeProps {
 }
 
 const LEVEL_INDENT = 16;
+// the inset that used to be split 8px on the panel body + 8px on the row now lives in the row alone,
+// so its highlight spans the panel from border to border (COREDEV-355, QA return of 2026-09-09)
+const ROW_INSET = 16;
 
 const FolderTreeNode = ({ item, level, isSelected, children, onSelect, onUnfold, onFold }: FolderTreeNodeProps) => {
   const { id, title, hasChildren, isUnfolded, isChildrenLoading } = item;
@@ -31,7 +34,7 @@ const FolderTreeNode = ({ item, level, isSelected, children, onSelect, onUnfold,
     <div className="citeck-doclib-tree__node">
       <div
         className={classNames('citeck-doclib-tree__row', { 'citeck-doclib-tree__row_selected': isSelected })}
-        style={{ paddingLeft: level * LEVEL_INDENT + 8 }}
+        style={{ paddingLeft: level * LEVEL_INDENT + ROW_INSET }}
         title={title}
         onClick={() => onSelect(id)}
       >

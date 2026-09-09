@@ -55,11 +55,13 @@
     }
   }
 
+  // no horizontal padding, like `.citeck-doclib-files-area`: the rows must reach the panel border,
+  // the inset of their content lives in the row itself (COREDEV-355, QA return of 2026-09-09, p. 9)
   &__body {
     flex: 1;
     min-height: 0;
     overflow: auto;
-    padding: 8px 8px 12px;
+    padding: 8px 0 12px;
   }
 
   // a plain strip with the expand control: no vertical title, no hover fill of its own
@@ -85,13 +87,18 @@
 }
 
 .citeck-doclib-tree {
+  // the highlight of a row runs from panel border to panel border, like a row of the file list
+  // (`.citeck-doclib-files__row`) and a row of the journal table: no radius here and no horizontal
+  // padding on the body, or the hover lines and the yellow selection bend around the corners and
+  // read as a clipped frame stopping short of the border (COREDEV-355, QA return of 2026-09-09,
+  // p. 9). The 16px inset of the content is the row's own: `padding-right` here, `padding-left`
+  // from `FolderTreeNode` (it also carries the level indent)
   &__row {
     display: flex;
     align-items: center;
     gap: 4px;
     height: 32px;
-    padding-right: 8px;
-    border-radius: $border-radius-standard;
+    padding-right: 16px;
     color: $text-color-dark;
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
@@ -151,8 +158,9 @@
     margin-left: 4px;
   }
 
+  // the body no longer insets its content, so the text keeps its own 16px from the panel border
   &__message {
-    padding: 8px;
+    padding: 8px 16px;
     font-size: $font-size-standard;
     color: $text-color-gray;
   }
