@@ -4,6 +4,8 @@ import { ROOT, cascade, compileScss, element } from '@/testUtils/cssCascade';
 
 const DASHLET_SCSS = path.join(ROOT, 'src/components/dashboard/Dashlet/Dashlet.scss');
 const TREE_SCSS = path.join(ROOT, 'src/plugins/ecos-ui-hierarchical-tree-widget-plugin/Widget/style.scss');
+const DOCLIB_PANEL_SCSS = path.join(ROOT, 'src/components/journals/Journals/DocLib/FolderTreePanel/FolderTreePanel.scss');
+const DOCLIB_FILES_SCSS = path.join(ROOT, 'src/components/journals/Journals/DocLib/Files/FilesArea.scss');
 
 /** `<div.dashlet> <div.dashlet__header-wrapper> <div.dashlet__header> <span.dashlet__caption>` */
 const dashletHeader = ({ noCollapser = false } = {}) => {
@@ -143,5 +145,82 @@ describe('widget header geometry is shared between the dashlet header and the tr
 
     expect(cascade(btn, [treeCss], 'display')).toBe('inline-flex');
     expect(cascade(btn, [treeCss], 'align-items')).toBe('center');
+  });
+
+  /**
+   * The document library draws two more headers of its own — the folder panel caption and the file
+   * list column head — inside panels that stand next to widgets on the same page. They were 47px and
+   * 40px against the shared 36px (COREDEV-355, QA p. 12), so they join the rule here.
+   */
+  describe('the document library headers', () => {
+    let panelCss;
+    let filesCss;
+
+    beforeAll(() => {
+      panelCss = compileScss(DOCLIB_PANEL_SCSS);
+      filesCss = compileScss(DOCLIB_FILES_SCSS);
+    });
+
+    /** `<div.citeck-doclib-panel> <div.citeck-doclib-panel__header>` */
+    const folderPanelHeader = () => {
+      const panel = element('citeck-doclib-panel');
+      const header = element('citeck-doclib-panel__header');
+
+      panel.appendChild(header);
+
+      return header;
+    };
+
+    /** `<div.citeck-doclib-files.citeck-doclib-files_list> <div.citeck-doclib-files__head>` */
+    const fileListHead = () => {
+      const files = element('citeck-doclib-files citeck-doclib-files_list');
+      const head = element('citeck-doclib-files__head');
+
+      files.appendChild(head);
+
+      return head;
+    };
+
+    it.each([
+      ['the folder panel header', () => [folderPanelHeader(), panelCss]],
+      ['the file list column head', () => [fileListHead(), filesCss]]
+    ])('%s is as high as a widget header', (_name, subject) => {
+      const [header, css] = subject();
+      const { wrapper } = dashletHeader();
+      const dashletHeight = cascade(wrapper, [dashletCss], 'height');
+
+      expect(dashletHeight).toMatch(/^\d+(\.\d+)?px$/);
+      expect(cascade(header, [css], 'height')).toBe(dashletHeight);
+    });
+
+    it.each([
+      ['the folder panel header', () => [folderPanelHeader(), panelCss]],
+      ['the file list column head', () => [fileListHead(), filesCss]]
+    ])('%s counts its bottom border inside that height', (_name, subject) => {
+      const [header, css] = subject();
+
+      expect(cascade(header, [css], 'box-sizing')).toBe('border-box');
+    });
+
+    // Both headers sit inside a 1px panel border, so that border cancels out: the title must land on
+    // the same 17px from the outer edge. What the shared header spends on the caption's own padding
+    // and transparent border, the doclib header spends on the padding of the header itself.
+    it('the folder panel title starts where a widget caption starts', () => {
+      const { wrapper, caption } = dashletHeader({ noCollapser: true });
+      const px = value => parseFloat(value);
+      const captionBorder = px(cascade(caption, [dashletCss], 'border'));
+
+      const expected = px(paddingSide(wrapper, [dashletCss], 'left')) + px(cascade(caption, [dashletCss], 'padding-left')) + captionBorder;
+
+      expect(expected).toBeGreaterThan(0);
+      expect(px(paddingSide(folderPanelHeader(), [panelCss], 'left'))).toBe(expected);
+    });
+
+    it('the folder panel title has no line-height of its own to push the header', () => {
+      const title = element('citeck-doclib-panel__title', {}, 'span');
+      const lineHeight = cascade(title, [panelCss], 'line-height');
+
+      expect(lineHeight === null || lineHeight === 'inherit').toBe(true);
+    });
   });
 });

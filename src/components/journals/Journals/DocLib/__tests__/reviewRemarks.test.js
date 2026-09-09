@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
 import FolderTreePanel from '@/components/journals/Journals/DocLib/FolderTreePanel/FolderTreePanel';
+import DocLibToolbar from '@/components/journals/Journals/DocLib/Toolbar/DocLibToolbar';
+import { DISPLAY_MODES } from '@/components/journals/Journals/DocLib/constants';
 import { ROOT, cascade, compileScss, element } from '@/testUtils/cssCascade';
 
 const DOCLIB = 'src/components/journals/Journals/DocLib';
@@ -15,6 +17,19 @@ const TOOLBAR_SCSS = path.join(ROOT, DOCLIB, 'Toolbar/DocLibToolbar.scss');
 const DROPDOWN_SCSS = path.join(ROOT, 'src/components/common/form/Dropdown/Dropdown.scss');
 const BTN_SCSS = path.join(ROOT, 'src/components/common/btns/Btn/Btn.scss');
 const GRID_SCSS = path.join(ROOT, 'src/components/common/grid/Grid/Grid.scss');
+const HEADER_FORMATTER_SCSS = path.join(ROOT, 'src/components/common/grid/formatters/header/HeaderFormatter/HeaderFormatter.scss');
+
+// The toolbar only needs its own markup here: the search field and the tooltips carry no styles of
+// this test's concern, and ViewTabs / the create dialog drag in the journals store and the records
+// API. The create button itself (IcoBtn) stays real — it is what is under test.
+jest.mock('@/components/common', () => ({
+  Search: () => null,
+  Tooltip: ({ children }) => children
+}));
+jest.mock('@/components/journals/Journals/ViewTabs', () => () => null);
+jest.mock('@/components/journals/Journals/DocLib/hooks/useCreateDialog', () => ({
+  useCreateDialog: () => ({ openCreateForm: () => {} })
+}));
 
 /** Declarations of every rule with a selector ending in `selector` (nesting prefixes ignored). */
 const declarationsOf = (css, selector) => {
@@ -61,6 +76,7 @@ describe('doclib review remarks (COREDEV-355)', () => {
   let dropdownCss;
   let btnCss;
   let gridCss;
+  let headerFormatterCss;
 
   beforeAll(() => {
     treeCss = compileScss(TREE_SCSS);
@@ -69,6 +85,7 @@ describe('doclib review remarks (COREDEV-355)', () => {
     dropdownCss = compileScss(DROPDOWN_SCSS);
     btnCss = compileScss(BTN_SCSS);
     gridCss = compileScss(GRID_SCSS);
+    headerFormatterCss = compileScss(HEADER_FORMATTER_SCSS);
   });
 
   describe('1. the create menu reads at the library type size', () => {
@@ -97,6 +114,49 @@ describe('doclib review remarks (COREDEV-355)', () => {
       const row = element('citeck-doclib-tree__row');
 
       expect(cascade(li, [dropdownCss, toolbarCss], 'font-size')).toBe(cascade(row, [treeCss], 'font-size'));
+    });
+  });
+
+  describe('p. 1 (re-check): the toolbar create button is a plain plus', () => {
+    const STATE_ID = '[page-tab-1]-[news-journal]-[ws]';
+    const toolbar = () => {
+      const store = createStore(state => state, {
+        documentLibrary: { [STATE_ID]: { createVariants: [{ key: 'file', name: 'File' }], searchText: '' } }
+      });
+
+      return render(
+        <Provider store={store}>
+          <DocLibToolbar stateId={STATE_ID} isMobile={false} displayMode={DISPLAY_MODES.LIST} setDisplayMode={() => {}} />
+        </Provider>
+      ).container;
+    };
+
+    it('carries the glyph alone and keeps the caption as its label', () => {
+      const btn = toolbar().querySelector('.citeck-doclib-toolbar__create-btn');
+
+      expect(btn).not.toBeNull();
+      expect(btn.querySelector('.ecos-btn__i')).not.toBeNull();
+      expect(btn.querySelector('.ecos-btn__text')).toBeNull();
+      expect(btn.textContent).toBe('');
+      expect(btn.getAttribute('title')).toBeTruthy();
+      expect(btn.getAttribute('aria-label')).toBe(btn.getAttribute('title'));
+    });
+
+    it('is a square of the toolbar button height, on desktop as on mobile', () => {
+      const btn = element('ecos-btn citeck-doclib-toolbar__create-btn', {}, 'button');
+      const mobile = element('ecos-btn citeck-doclib-toolbar__create-btn citeck-doclib-toolbar__create-btn_mobile', {}, 'button');
+      const sheets = [btnCss, toolbarCss];
+
+      expect(cascade(btn, sheets, 'width')).toBe(cascade(btn, sheets, 'height'));
+      expect(cascade(btn, sheets, 'padding')).toBe('0');
+      expect(cascade(mobile, sheets, 'padding')).toBe(cascade(btn, sheets, 'padding'));
+    });
+
+    it('the empty folder keeps its call to action captioned', () => {
+      const cta = element('ecos-btn citeck-doclib-empty__create-btn', {}, 'button');
+
+      expect(cascade(cta, [filesCss], 'width')).toBeNull();
+      expect(horizontalPadding(cascade(cta, [filesCss], 'padding'))).not.toBe('0');
     });
   });
 
@@ -170,6 +230,63 @@ describe('doclib review remarks (COREDEV-355)', () => {
     it('does not light up on hover', () => {
       expect(declarationsOf(treeCss, '.citeck-doclib-panel_collapsed:hover')).toEqual({});
     });
+
+    // re-check: the chevron used to answer the hover with a 24x24 grey square, which reads as a
+    // second control next to the tree rows; it answers with its color only, like the tree toggle
+    it('the collapse chevron answers a hover with its color, not with a grey square', () => {
+      const btnHover = declarationsOf(treeCss, '.citeck-doclib-panel__collapse-btn:hover');
+      const toggleHover = declarationsOf(treeCss, '.citeck-doclib-tree__toggle:hover');
+
+      expect(btnHover.background).toBeUndefined();
+      expect(btnHover['background-color']).toBeUndefined();
+      expect(btnHover.color).toBe(toggleHover.color);
+    });
+  });
+
+  describe('9 (re-check). the folder tree highlights like the file list', () => {
+    /** `<div.citeck-doclib-tree__row[.…_selected]> <i.citeck-doclib-tree__folder-icon>` */
+    const treeRow = ({ selected = false } = {}) => {
+      const row = element(`citeck-doclib-tree__row${selected ? ' citeck-doclib-tree__row_selected' : ''}`);
+      const icon = element('citeck-doclib-tree__folder-icon', {}, 'i');
+
+      row.appendChild(icon);
+
+      return { row, icon };
+    };
+
+    it('a hovered folder draws the file list lines and no fill', () => {
+      const treeHover = declarationsOf(treeCss, '.citeck-doclib-tree__row:hover');
+      const listHover = declarationsOf(filesCss, '.citeck-doclib-files__row:hover');
+
+      expect(listHover['box-shadow']).toBeTruthy();
+      expect(treeHover['box-shadow']).toBe(listHover['box-shadow']);
+      expect(treeHover.background).toBeUndefined();
+      expect(treeHover['background-color']).toBeUndefined();
+    });
+
+    it('a selected folder fills with the journal selection color, like a list row', () => {
+      const { row } = treeRow({ selected: true });
+      const listRow = element('citeck-doclib-files__row citeck-doclib-files__row_selected');
+      const journalRow = journalSelectedRow();
+
+      expect(cascade(row, [treeCss], 'background')).toBe(cascade(journalRow, [gridCss], 'background'));
+      expect(cascade(row, [treeCss], 'background')).toBe(cascade(listRow, [filesCss], 'background'));
+    });
+
+    // the hover no longer declares a background, so the yellow of a selected row survives a hover
+    // and only the lines are added on top of it
+    it('the selection survives a hover', () => {
+      expect(declarationsOf(treeCss, '.citeck-doclib-tree__row:hover').background).toBeUndefined();
+      expect(declarationsOf(treeCss, '.citeck-doclib-tree__row_selected:hover').background).toBeUndefined();
+    });
+
+    it('a selected folder keeps the plain text and folder icon colors', () => {
+      const selected = treeRow({ selected: true });
+      const plain = treeRow();
+
+      expect(cascade(selected.row, [treeCss], 'color')).toBe(cascade(plain.row, [treeCss], 'color'));
+      expect(cascade(selected.icon, [treeCss], 'color')).toBe(cascade(plain.icon, [treeCss], 'color'));
+    });
   });
 
   describe('10. rows and tiles highlight like journal rows', () => {
@@ -212,6 +329,35 @@ describe('doclib review remarks (COREDEV-355)', () => {
       const journalRow = journalSelectedRow();
 
       expect(cascade(card, [filesCss], 'background')).toBe(cascade(journalRow, [gridCss], 'background'));
+    });
+
+    // re-check: the opaque backing used to span the full row height and paint over the 1px hover
+    // lines at its right end — the journal insets its own inline tools by the same 1px
+    // (`.ecos-inline-tools-actions`: `margin-top: 2px; height: calc(40px - 2px)`)
+    it('the row action backing stays inside the hover lines', () => {
+      const actions = element('citeck-doclib-files__row-actions');
+
+      expect(cascade(actions, [filesCss], 'top')).toBe('1px');
+      expect(cascade(actions, [filesCss], 'height')).toBe('calc(100% - 2px)');
+      expect(cascade(actions, [filesCss], 'right')).toBe('0');
+    });
+
+    it('the tile action strip is untouched by that inset — it is in flow', () => {
+      const cardActions = element('citeck-doclib-files__card-actions');
+
+      expect(cascade(cardActions, [filesCss], 'top')).toBeNull();
+      expect(cascade(cardActions, [filesCss], 'height')).toBeNull();
+    });
+  });
+
+  describe('11. the list column head reads like a journal column head', () => {
+    it('the head has the size of .ecos-th, not a hardcoded one of its own', () => {
+      const head = element('citeck-doclib-files__head');
+      const th = element('ecos-th');
+
+      expect(cascade(th, [headerFormatterCss], 'font-size')).toBeTruthy();
+      expect(cascade(head, [filesCss], 'font-size')).toBe(cascade(th, [headerFormatterCss], 'font-size'));
+      expect(cascade(head, [filesCss], 'font-weight')).toBe(cascade(th, [headerFormatterCss], 'font-weight'));
     });
   });
 });

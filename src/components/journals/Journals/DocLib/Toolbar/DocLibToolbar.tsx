@@ -40,16 +40,16 @@ const DocLibToolbar = ({ stateId, isMobile, displayMode, setDisplayMode, onToggl
       return null;
     }
 
+    // the plus alone, on desktop as on mobile (QA): the caption is carried by `title`/`aria-label`,
+    // and by the menu itself in the dropdown variant. The empty folder keeps its captioned CTA.
     const createBtn = (onClick?: () => void) => (
       <IcoBtn
         icon="icon-small-plus"
-        className={classNames('citeck-doclib-toolbar__create-btn', {
-          'citeck-doclib-toolbar__create-btn_mobile': isMobile
-        })}
+        className="citeck-doclib-toolbar__create-btn"
+        title={t(DocLibLabels.CREATE)}
+        aria-label={t(DocLibLabels.CREATE)}
         onClick={onClick}
-      >
-        {!isMobile && t(DocLibLabels.CREATE)}
-      </IcoBtn>
+      />
     );
 
     if (createVariants.length === 1) {
