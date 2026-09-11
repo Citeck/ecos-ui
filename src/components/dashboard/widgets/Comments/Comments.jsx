@@ -83,7 +83,6 @@ class Comments extends BaseWidget {
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
-      recordRef: props.record,
       isOpenLinkDialog: false,
       linkUrl: '',
       linkText: ''
@@ -92,7 +91,7 @@ class Comments extends BaseWidget {
     this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
     this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
     this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink.bind(this));
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink);
   }
 
   componentDidMount() {
@@ -107,7 +106,7 @@ class Comments extends BaseWidget {
     this.instanceRecord.events.off(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
     this.instanceRecord.events.off(EVENTS.UPDATE_COMMENTS, this.fetchData);
     this.instanceRecord.events.off(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
-    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink.bind(this));
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink);
   }
 
   fetchDataAfterAction = () => {
@@ -118,19 +117,14 @@ class Comments extends BaseWidget {
 
   fetchData = () => {
     const { getComments, record } = this.props;
-    const newRecordRef = getRecordRef() || record;
-
-    getComments(newRecordRef);
+    getComments(record);
   };
 
   handleChangeTabLink = () => {
     const { updateComments, record } = this.props;
-    const newRecordRef = getRecordRef() || record;
-
-    if (newRecordRef) {
-      this.setState({ recordRef: newRecordRef }, () => {
-        updateComments([], newRecordRef);
-      });
+    // Cached tabs stay mounted. Only refresh this widget's own record when it becomes active.
+    if (getRecordRef() === record) {
+      updateComments(this.props.comments || [], record);
     }
   };
 
@@ -175,7 +169,8 @@ class Comments extends BaseWidget {
   };
 
   renderEditor() {
-    const { isEdit, recordRef } = this.state;
+    const { isEdit } = this.state;
+    const { record: recordRef } = this.props;
     const { saveIsLoading, userName, actionFailed } = this.props;
 
     if (!isEdit) {
@@ -218,7 +213,8 @@ class Comments extends BaseWidget {
 
   renderComments() {
     const { comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
-    const { recordRef, isEdit } = this.state;
+    const { isEdit } = this.state;
+    const { record: recordRef } = this.props;
 
     if (!comments.length) {
       // While the editor is open, don't render the empty-state under it (it would push the layout).
@@ -293,14 +289,8 @@ class Comments extends BaseWidget {
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={this.isCollapsed}
         >
-          {isFirstLoading ? (
-            this.renderSkeleton()
-          ) : (
-            <>
-              {this.renderEditor()}
-              {this.renderComments()}
-            </>
-          )}
+          {this.renderEditor()}
+          {isFirstLoading ? this.renderSkeleton() : this.renderComments()}
         </Dashlet>
       </div>
     );
@@ -308,7 +298,7 @@ class Comments extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const recordRef = getRecordRef() || ownProps.record;
+  const recordRef = ownProps.record;
 
   return {
     ...selectStateByRecordRef(state, recordRef),
