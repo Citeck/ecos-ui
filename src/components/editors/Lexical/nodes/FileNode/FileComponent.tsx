@@ -5,6 +5,7 @@ import FilePreviewModal from '../../ui/FilePreviewModal';
 
 import { previewKindByFileName } from '@/api/docPreview';
 import { getDownloadContentUrl, setDownloadParam } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 import PageService from '@/services/PageService';
 import './style.scss';
 
@@ -30,7 +31,15 @@ const FileComponent = ({
 
   const onClose = useCallback(() => setShowPreview(false), []);
 
-  const onClick = () => {
+  const onClick = (event: React.MouseEvent) => {
+    if (editable) {
+      // A plain click is for editing. An intentional open keeps the draft mounted in this tab.
+      if (event.ctrlKey || event.metaKey) {
+        window.open(downLoadUrl, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
     if (isPreviewable) {
       setShowPreview(true);
       return;
@@ -45,7 +54,7 @@ const FileComponent = ({
 
   return (
     <>
-      <span onClick={onClick} className="file-node__link">
+      <span onClick={onClick} className="file-node__link" title={editable ? t('lexical.file.open-hint') : undefined}>
         {name}
       </span>
       {showPreview &&

@@ -1,4 +1,5 @@
 {
+  "lexical.file.open-hint": "Ctrl/Cmd + click to open attachment",
   "me": "Me",
   "error": "Error",
   "success": "Success",

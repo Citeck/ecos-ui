@@ -105,20 +105,26 @@ describe('FileComponent', () => {
 });
 
 describe('FileComponent while the comment is being edited', () => {
-  it('navigates instead of opening a preview', () => {
-    render(
-      <FileComponent
-        size={1}
-        name="clip.mp4"
-        downLoadUrl="/v2/dashboard?recordRef=emodel/attachment@1"
-        fileRecordId="emodel/attachment@1"
-        editable
-      />
-    );
+  beforeEach(() => jest.clearAllMocks());
 
-    fireEvent.click(screen.getByText('clip.mp4'));
+  it.each(['clip.mp4', 'photo.png', 'notes.md', 'report.docx'])('keeps a plain click on %s in the editor', name => {
+    render(<FileComponent size={1} name={name} downLoadUrl={CARD_URL} fileRecordId={RECORD} editable />);
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    fireEvent.click(screen.getByText(name));
+    expect(document.querySelector('.FilePreviewModal__overlay, .ImagePreviewModal__overlay')).toBeNull();
+    expect(PageService.changeUrlLink).not.toHaveBeenCalled();
+    expect(openSpy).not.toHaveBeenCalled();
+    openSpy.mockRestore();
+  });
 
+  it.each(['ctrlKey', 'metaKey'])('opens an attachment explicitly with %s without leaving the draft', modifier => {
+    render(<FileComponent size={1} name="clip.mp4" downLoadUrl={CARD_URL} fileRecordId={RECORD} editable />);
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    fireEvent.click(screen.getByText('clip.mp4'), { [modifier]: true });
+    expect(openSpy).toHaveBeenCalledWith(CARD_URL, '_blank', 'noopener,noreferrer');
+    expect(PageService.changeUrlLink).not.toHaveBeenCalled();
     expect(document.querySelector('.FilePreviewModal__overlay')).toBeNull();
-    expect(PageService.changeUrlLink).toHaveBeenCalled();
+    expect(screen.getByText('clip.mp4')).toBeInTheDocument();
+    openSpy.mockRestore();
   });
 });
