@@ -1,5 +1,6 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import React from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 
 import Formio from 'formiojs/Formio';
 
@@ -15,7 +16,7 @@ jest.mock('@/components/core/Records/actions/handler/executor/ViewAction', () =>
 }));
 
 jest.mock('react-beautiful-dnd', () => ({
-  Draggable: ({ children }) => children({ innerRef: () => {}, draggableProps: {}, dragHandleProps: {} }, { isDragging: false })
+  Draggable: jest.fn(({ children }) => children({ innerRef: () => {}, draggableProps: {}, dragHandleProps: {} }, { isDragging: false }))
 }));
 
 jest.mock('react-resize-detector', () => ({
@@ -222,5 +223,14 @@ describe('<Card /> height detection debounce', () => {
     jest.runAllTimers();
 
     expect(instance.setState).not.toHaveBeenCalled();
+  });
+});
+
+describe('<Card /> drag lock', () => {
+  it('passes the temporary move lock to Draggable independently of readOnly', () => {
+    const { rerender } = render(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled />);
+    expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(true);
+    rerender(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled={false} />);
+    expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(false);
   });
 });

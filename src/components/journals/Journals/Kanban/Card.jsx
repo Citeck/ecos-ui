@@ -216,11 +216,11 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, cardIndex, readOnly, swimlaneColor } = this.props;
+    const { data, cardIndex, readOnly, swimlaneColor, isDragDisabled = false } = this.props;
     const { noForm } = this.state;
 
     return (
-      <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
+      <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly || isDragDisabled}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} {...provided.draggableProps}>
             <div

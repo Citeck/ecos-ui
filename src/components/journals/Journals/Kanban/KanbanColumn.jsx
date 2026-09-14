@@ -28,6 +28,7 @@ const KanbanColumn = ({
   swimlaneColor,
   readOnly,
   isLoadingCol,
+  isBusy = false,
   isLoading,
   isFirstLoading,
   isFiltered,
@@ -70,6 +71,7 @@ const KanbanColumn = ({
   }
 
   const dropDisabled =
+    isBusy ||
     checkDropDisabled({ readOnly, isLoadingCol, columnInfo }) ||
     (isSwimlaneMode && isDragging && !!draggingSwimlaneId && draggingSwimlaneId !== swimlaneId);
 
@@ -126,6 +128,7 @@ const KanbanColumn = ({
         data={record}
         formProps={formProps}
         readOnly={readOnly}
+        isDragDisabled={isBusy}
         actions={actions[record.cardId]}
         boardConfig={boardConfig}
         swimlaneColor={cardColor}
@@ -179,7 +182,7 @@ const KanbanColumn = ({
             {(isLoadingCol || isFlatLoading || (isSwimlaneMode && isLoading)) && !isEmpty(records) && (
               <Loader className="ecos-kanban__column-loader" blur />
             )}
-            {remaining > 0 && !isLoading && (
+            {remaining > 0 && !isLoading && !isBusy && (
               <button className="ecos-kanban__cell-show-more" onClick={() => onLoadMore && onLoadMore(swimlaneId, statusId)}>
                 {t('kanban.swimlane.show-more')}
               </button>
@@ -204,6 +207,7 @@ KanbanColumn.propTypes = {
   swimlaneColor: PropTypes.string,
   readOnly: PropTypes.bool,
   isLoadingCol: PropTypes.bool,
+  isBusy: PropTypes.bool,
   isLoading: PropTypes.bool,
   isFirstLoading: PropTypes.bool,
   isFiltered: PropTypes.bool,
