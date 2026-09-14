@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 import ToolStepProgress from '../components/messages/ToolStepProgress';
 
@@ -100,6 +100,30 @@ describe('ToolStepProgress', () => {
     expect(screen.queryByText('ai-assistant.agent-progress.tool-loop')).toBeNull();
     expect(screen.getByText('ai-assistant.chat.request-failed')).toBeTruthy();
     expect(container.querySelector('.ai-assistant-chat__tool-loop--failed')).toBeTruthy();
+
+    const icons = screen.getAllByTestId('icon');
+    expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);
+  });
+
+  // A cancelled turn is flagged on the message (`isCancelled`), not on `messageData`; the ribbon
+  // has to honour that flag too, or the cogs keep turning for a request the user stopped.
+  it('stops the ribbon and its running step when the turn was cancelled', () => {
+    const message = {
+      isCancelled: true,
+      messageData: {
+        type: 'agent_tool_step',
+        domain: 'CONFIGURATION',
+        toolSteps: [{ tool: 'deploy', label: 'Развёртывание', status: 'RUNNING', stepIndex: 1 }]
+      }
+    };
+
+    const { container } = render(<ToolStepProgress message={message} />);
+
+    expect(screen.queryByText('ai-assistant.agent-progress.tool-loop')).toBeNull();
+    expect(screen.queryByText('ai-assistant.chat.request-failed')).toBeNull();
+    expect(screen.getByText('ai-assistant.chat.cancelled-title')).toBeTruthy();
+    expect(container.querySelector('.ai-assistant-chat__tool-loop--cancelled')).toBeTruthy();
+    expect(container.querySelector('.ai-assistant-chat__tool-loop--failed')).toBeNull();
 
     const icons = screen.getAllByTestId('icon');
     expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);

@@ -2,6 +2,7 @@ import Records from '@citeck/records-core';
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 import editorContextService from '../EditorContextService';
+import { fetchAiStatus } from '../aiRequestPolling';
 import { loadSession, saveSession, clearActiveRequestId, clearSession, markRequestCompleted } from '../chatSessionStorage';
 import {
   AI_INTENTS,
@@ -16,9 +17,8 @@ import {
 import { AGENT_STATUSES } from '../types';
 // `fileSaveActionTempRef` lives in utils.js next to the staleness rule that shares it; it stays
 // re-exported from this module for backward compatibility with existing importers.
-import { generateUUID, fileSaveActionTempRef, isSameRecordRef } from '../utils';
+import { generateUUID, fileSaveActionTempRef, isSameRecordRef, latestStages } from '../utils';
 
-import { fetchAiStatus } from '../aiRequestPolling';
 import usePolling from './usePolling';
 
 import { t } from '@/helpers/export/util';
@@ -111,6 +111,47 @@ const buildToolStepMessageData = (progress, prevToolSteps = []) => ({
 });
 
 /**
+ * Planner-feedback fields of an `agent_*` progress emission (COREDEV-484 contract, section 2 of the plan).
+ * `currentAttempt`/`maxAttempts`/`retryReason` live on the top level of `GenerationProgress`;
+ * `planning` (specRead, requirementCount, requestedKinds) lives under `businessApp` and is present
+ * only for business-app generation. An old backend sends none of them — every field is then
+ * `undefined`, exactly like the other optional agent fields, and the UI renders only the title.
+ * @param {Object} progress - Progress data (polling emission or initialProgress)
+ * @returns {Object} Planning fields to spread into messageData
+ */
+const PLANNING_FIELDS = ['currentAttempt', 'maxAttempts', 'retryReason', 'planning'];
+
+const pickPlanningFields = progress => ({
+  currentAttempt: progress.currentAttempt,
+  maxAttempts: progress.maxAttempts,
+  retryReason: progress.retryReason,
+  planning: progress.businessApp?.planning
+});
+
+/**
+ * Keeps the planner-feedback group alive across an emission of the same phase that says nothing
+ * about it. `handlePollingProgress` rebuilds `messageData` from the incoming emission alone, so a
+ * single `agent_planning` heartbeat without `planning`/attempt counters blanked the facts and the
+ * attempt line mid-planning and the next emission brought them back — a flicker under the
+ * «Составляю план...» header (the same class of loss `domain` is preserved against on the
+ * tool-step path). The group moves as a whole: an emission that carries ANY of its fields replaces
+ * all four, so a `retryReason` can never outlive the attempt it explains.
+ * @param {Object|undefined} prevData - `messageData` already on the processing message
+ * @param {Object|undefined} nextData - `messageData` built from the incoming emission
+ * @returns {Object|undefined} `nextData`, with the previous planner-feedback group carried over
+ */
+const carryPlanningFields = (prevData, nextData) => {
+  if (!nextData || !prevData || prevData.type !== nextData.type) return nextData;
+  if (PLANNING_FIELDS.some(field => nextData[field] !== undefined)) return nextData;
+
+  const carried = {};
+  PLANNING_FIELDS.forEach(field => {
+    if (prevData[field] !== undefined) carried[field] = prevData[field];
+  });
+  return { ...nextData, ...carried };
+};
+
+/**
  * Builds message data fields for a processing message based on progress type.
  * Returns the fields to merge onto the processing message, or null if no update.
  * @param {Object} progress - Progress data from polling
@@ -144,7 +185,8 @@ const buildProgressMessageData = progress => {
           completedSteps: progress.completedSteps,
           totalSteps: progress.totalSteps,
           overallProgress: progress.progress,
-          steps: progress.steps
+          steps: progress.steps,
+          ...pickPlanningFields(progress)
         }
       }
     };
@@ -207,7 +249,8 @@ const buildInitialProcessingMessage = data => {
         completedSteps: initialProgress.completedSteps,
         totalSteps: initialProgress.totalSteps,
         overallProgress: initialProgress.overallProgress ?? initialProgress.progress,
-        message: initialProgress.message
+        message: initialProgress.message,
+        ...pickPlanningFields(initialProgress)
       }
     };
   }
@@ -247,7 +290,7 @@ const AGENT_PLAN_STATUSES = [
 ];
 
 const createAIMessage = (responseData, options = {}) => {
-  const { setGenerationStages, generationStages } = options;
+  const { setGenerationStages } = options;
   const messageData = responseData.message;
 
   // Agent mode messages (determined by agentStatus in response)
@@ -329,8 +372,18 @@ const createAIMessage = (responseData, options = {}) => {
   }
 
   if (isBusinessAppMessage) {
-    if (messageData.availableStages && !generationStages) {
-      setGenerationStages?.(messageData.availableStages);
+    // Same stage-list rule as in `handlePollingProgress` (COREDEV-484) — except for the terminal
+    // COMPLETED result: the backend derives its list from the plan (`buildBusinessAppSuccessMessage`),
+    // which is NARROWER than the full basis every progress emission carried, so taking it would
+    // shrink the ribbon for the 5 s it stays after completion. The terminal list only seeds a
+    // stepper that has none: a generation whose progress emissions never carried `availableStages`
+    // still has a ribbon (the emissions set `activeBusinessAppProgress`), and without this it would
+    // show no stages at all. It cannot seed the ribbon of a reload that lands straight on a finished
+    // result — that path never sets `activeBusinessAppProgress`, and `ChatTabs` hides the timeline
+    // without it.
+    if (messageData.availableStages) {
+      const isTerminal = messageData.stage === 'COMPLETED';
+      setGenerationStages?.(prev => (isTerminal && prev ? prev : latestStages(messageData.availableStages)(prev)));
     }
     return {
       id: generateUUID(),
@@ -465,6 +518,106 @@ const useUniversalChat = (options = {}) => {
     pendingFileActionTempRef.current = null;
   }, []);
 
+  // Undoes the optimistic retirement `handleActionClick` performs on a file-save/cancel click: it
+  // writes the clicked tempRef into `resolvedFileTempRefs` before the answer is known, and
+  // `MessageActions` disables the Save/Cancel pair of a listed tempRef. A turn that ended without
+  // deciding the file — the POST never left, the poll failed, the user cancelled it — leaves that
+  // mark standing, and both buttons of a file that is still pending server-side stay dead for the
+  // rest of the conversation, so the file can be neither saved nor dismissed.
+  //
+  // Same rule the position-based staleness already follows for ordinary gates (`isGateStale`): a
+  // failed or aborted turn reports that the dialog did not move, so what it offered stays live.
+  // Only the paths that know the turn is over call this — a result, even an unrelated one, is left
+  // alone, and so is the retirement of a tempRef the backend itself reported dead.
+  const unresolveFileTempRef = useCallback(tempRef => {
+    if (!tempRef) return;
+    setMessages(prevMessages =>
+      prevMessages.map(msg => {
+        const resolved = msg.messageData?.resolvedFileTempRefs;
+        if (!resolved || !resolved.includes(tempRef)) {
+          return msg;
+        }
+        return { ...msg, messageData: { ...msg.messageData, resolvedFileTempRefs: resolved.filter(ref => ref !== tempRef) } };
+      })
+    );
+  }, []);
+
+  // Id of the deferred stepper cleanup armed by a COMPLETED result (`handleResult`): the stage
+  // ribbon and the stage list stay 5 s after completion, then go. A generation started inside that
+  // window used to have its own ribbon and list wiped at T+5 s and blink out until its next
+  // emission, so every path that gives the ribbon a new owner disarms the timer first (COREDEV-484).
+  const stepperCleanupTimerRef = useRef(null);
+  const clearStepperCleanupTimer = useCallback(() => {
+    if (stepperCleanupTimerRef.current) {
+      clearTimeout(stepperCleanupTimerRef.current);
+      stepperCleanupTimerRef.current = null;
+    }
+  }, []);
+  useEffect(() => clearStepperCleanupTimer, [clearStepperCleanupTimer]);
+
+  // Nothing is running after a failed or cancelled turn, so the stage indicator and the agent status
+  // have to go or they keep announcing progress for a dead request (D-B-7). `generationStages` goes
+  // with them: the next request replaces the list as soon as it emits its own, but until that first
+  // emission the timeline of the dead generation would keep hanging over an unrelated request. The
+  // pending 5 s cleanup goes too — it has nothing left to clear, and a cancelled generation that had
+  // disarmed it on submit would otherwise leave the ribbon with nobody to take it down.
+  //
+  // A file-save/cancel turn is the one exception, and every caller checks `pendingFileActionTempRef`
+  // before calling this: such a click is scoped to one temp file and is answered before the request
+  // reaches the agent, so however its turn ends the dialog — and the gate the agent is parked on —
+  // is exactly where it was. `handlePollingResult` keeps `agentStatus` for that reason
+  // (`consumedTempRef`); the dead-turn paths have to keep the whole stepper for the same one, or a
+  // cancelled file save would take down the badge and the stage ribbon of a generation that is
+  // merely waiting for an answer, and nothing would bring them back until the next turn.
+  const clearStepperAfterDeadTurn = useCallback(() => {
+    clearStepperCleanupTimer();
+    setActiveBusinessAppProgress(null);
+    setAgentStatus(null);
+    setGenerationStages(null);
+  }, [clearStepperCleanupTimer]);
+
+  // Hands the stepper to the turn that just started, from the `initialProgress` snapshot the
+  // controller answers a new request with. Shared by `handleSubmit` and `handleActionClick`: both
+  // start generations and both must do the identical thing, and while the two call sites carried
+  // their own copy of it a fix landed on one of them and not on the other twice over.
+  //
+  // Two jobs, both belonging to the previous generation's pending 5 s cleanup timer:
+  //   - disarm the timer, so it cannot wipe the ribbon and the stage list of THIS turn at T+5 s;
+  //   - do the work it is still owed — drop the previous generation's ribbon AND its stage list,
+  //     the same pair the timer would have nulled. The ribbon still holds that generation's last
+  //     snapshot and would otherwise stay on screen as a finished timeline if this turn resolved
+  //     before its first progress poll (a fast clarification gate); the list has to go with it,
+  //     because taking over the timer is the moment nothing is scheduled to remove it any more.
+  //     Keeping it would let a turn whose emissions never carry `availableStages` — which
+  //     `latestStages` treats as legal, since nothing in the contract promises the field — render
+  //     the previous generation's stage labels and ranges against THIS turn's percentage.
+  // Both are conditional on a timer actually pending: with none, nothing is owed and the ribbon
+  // belongs to a generation that is still running.
+  //
+  // A list this turn brings of its own wins over that reset and follows the key rule of the polled
+  // emissions. Wherever it travels — top level on a forced business-app snapshot, nested for the
+  // agent flows — an absent one leaves the stepper empty until the first polled emission fills it.
+  // That is why the caller's gate is the snapshot and never the list: the controller attaches
+  // `availableStages` only to the snapshot it builds from `forceIntent`, so a question asked while
+  // a plan is already active — and every plan approval, which never sends `forceIntent` at all —
+  // arrives as an `agent_planning`/`agent_execution` snapshot with no list, and gating on the list
+  // left those turns showing the previous generation's finished ribbon until T+5 s.
+  const takeOverStepper = useCallback(
+    initialProgress => {
+      const stages = initialProgress.availableStages || initialProgress.businessApp?.availableStages;
+      if (stepperCleanupTimerRef.current) {
+        clearStepperCleanupTimer();
+        setActiveBusinessAppProgress(null);
+        setGenerationStages(stages ? latestStages(stages) : null);
+        return;
+      }
+      if (stages) {
+        setGenerationStages(latestStages(stages));
+      }
+    },
+    [clearStepperCleanupTimer]
+  );
+
   // Guards the request restoration (the effect further down) against every repeat: React StrictMode
   // runs mount effects twice in development, and reopening the panel while the restored request is
   // still being polled would resume it a second time. A ref, not state — it must be readable
@@ -513,12 +666,33 @@ const useUniversalChat = (options = {}) => {
       const consumedTempRef = pendingFileActionTempRef.current;
       clearPendingFileAction();
 
+      // A business-app answer is the one kind that speaks for the generation itself: `COMPLETED`
+      // arms the 5 s cleanup below, and every other stage is a gate whose generation is still
+      // waiting to be told what to do. Any other answer is a turn of the dialog that ended.
+      const isBusinessAppResult = typeof result.message === 'object' && result.message?.type === MESSAGE_TYPES.BUSINESS_APP_GENERATION;
+
       if (result.agentStatus) {
         setAgentStatus(result.agentStatus);
       } else if (!consumedTempRef) {
         // A file answer carries no `agentStatus` because it never asked the agent anything;
         // clearing the indicator would claim the agent stopped waiting when it still is.
         setAgentStatus(null);
+        // The ribbon goes with the badge, for the same reason and by the same evidence: an answer
+        // that carries neither `agentStatus` nor a business-app card is one the backend routed past
+        // the agent, so nothing is generating any more and the snapshot on screen is the last poll
+        // of a run that is over. It cannot correct itself either — a finished run emits nothing.
+        // Without this the two could part ways and stay parted: a cancelled file-save turn keeps
+        // the whole stepper on purpose (`clearStepperAfterDeadTurn`), and once the generation behind
+        // it answered an ordinary question the badge went while the frozen ribbon stayed over every
+        // later unrelated turn, with nothing left that could ever remove it.
+        //
+        // Only the snapshot — `generationStages` stays. A generation parked on a clarifying gate
+        // answers exactly like this and then resumes, and the list is what its next emission is
+        // compared against (`latestStages`); the ribbon is hidden meanwhile because `ChatTabs`
+        // draws it only alongside the snapshot. The list itself is replaced by the next generation.
+        if (!isBusinessAppResult) {
+          setActiveBusinessAppProgress(null);
+        }
       }
 
       if (result.forceIntent) {
@@ -532,13 +706,12 @@ const useUniversalChat = (options = {}) => {
         setAutoContextArtifacts(result.contextArtifacts);
       }
 
-      const isBusinessAppCompleted =
-        typeof result.message === 'object' &&
-        result.message?.type === MESSAGE_TYPES.BUSINESS_APP_GENERATION &&
-        result.message?.stage === 'COMPLETED';
+      const isBusinessAppCompleted = isBusinessAppResult && result.message?.stage === 'COMPLETED';
 
       if (isBusinessAppCompleted) {
-        setTimeout(() => {
+        clearStepperCleanupTimer();
+        stepperCleanupTimerRef.current = setTimeout(() => {
+          stepperCleanupTimerRef.current = null;
           setActiveBusinessAppProgress(null);
           setGenerationStages(null);
         }, 5000);
@@ -563,13 +736,20 @@ const useUniversalChat = (options = {}) => {
       );
       const hasLiveSnapshot = Array.isArray(result.pendingFiles);
 
+      // Built outside the updater below on purpose: `createAIMessage` mints an id and a timestamp
+      // and dispatches `setGenerationStages` for a business-app result, and a `setMessages` updater
+      // has to be pure — React may run it more than once for one dispatch (StrictMode runs it twice
+      // in development, and a concurrent render may replay it), which would mint a second id and
+      // queue the stage update twice. Nothing here reads `prevMessages`, so there is no reason for
+      // it to live inside.
+      const resultMessage = createAIMessage(result, { setGenerationStages });
+      // Mark the answer to a file click as a notice about that file rather than a step of the
+      // dialog, so `isGateStale` does not count it as having moved the conversation past the
+      // gate the same message may have offered next to the Save/Cancel pair.
+      const aiMessage = consumedTempRef ? { ...resultMessage, isFileActionNotice: true } : resultMessage;
+
       setMessages(prevMessages => {
         const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
-        const resultMessage = createAIMessage(result, { setGenerationStages, generationStages });
-        // Mark the answer to a file click as a notice about that file rather than a step of the
-        // dialog, so `isGateStale` does not count it as having moved the conversation past the
-        // gate the same message may have offered next to the Save/Cancel pair.
-        const aiMessage = consumedTempRef ? { ...resultMessage, isFileActionNotice: true } : resultMessage;
         const nextMessages = [...filteredMessages, aiMessage];
 
         // A Save/Cancel pair the new message carries is the authoritative offer for that file: a
@@ -657,7 +837,7 @@ const useUniversalChat = (options = {}) => {
         });
       });
     },
-    [generationStages, clearPendingFileAction]
+    [clearPendingFileAction, clearStepperCleanupTimer, clearStepperAfterDeadTurn]
   );
 
   // Handle polling error
@@ -671,6 +851,12 @@ const useUniversalChat = (options = {}) => {
       // terminal cases clear it: a backend-reported failure, and `meta.requestLost` (the 404 from
       // `fetchStatus` — an id that would only fetch another 404). The conversation survives either
       // way, so the next question continues it.
+      //
+      // Read before the branches below clear it: a file-save turn keeps the stepper (see
+      // `clearStepperAfterDeadTurn`) and gets its buttons back (see `unresolveFileTempRef`).
+      const failedTempRef = pendingFileActionTempRef.current;
+      const wasFileAction = !!failedTempRef;
+
       if (meta.requestAlive) {
         // The restore below is latched for the whole life of the page, so without lowering it the
         // only way back to the answer was a full reload: closing and reopening the panel, the
@@ -688,13 +874,10 @@ const useUniversalChat = (options = {}) => {
         // tempRef — forget it, or it would strip a still-live preview out of some later result.
         clearPendingFileAction();
       }
-      // Nothing is running after a failed turn, so the stage indicator and the agent status have to
-      // go or they keep announcing progress for a dead request (D-B-7). `generationStages` goes with
-      // them: while it is set the three `!generationStages` guards refuse the stage list of the NEXT
-      // request, and a failed generation would leave its timeline on top of an unrelated one.
-      setActiveBusinessAppProgress(null);
-      setAgentStatus(null);
-      setGenerationStages(null);
+      if (!wasFileAction) {
+        clearStepperAfterDeadTurn();
+      }
+      unresolveFileTempRef(failedTempRef);
       setMessages(prevMessages =>
         prevMessages.map(msg => {
           if (msg.isProcessing) {
@@ -739,14 +922,23 @@ const useUniversalChat = (options = {}) => {
         })
       );
     },
-    [clearPendingFileAction]
+    [clearPendingFileAction, clearStepperAfterDeadTurn, unresolveFileTempRef]
   );
 
   // Handle polling cancelled
   const handlePollingCancelled = useCallback(() => {
+    // Same rule as in `handlePollingError`: only this ref says the cancelled turn was a file save,
+    // and such a turn leaves the agent state alone (see `clearStepperAfterDeadTurn`) while its
+    // buttons come back (see `unresolveFileTempRef`).
+    const cancelledTempRef = pendingFileActionTempRef.current;
+
     clearPendingFileAction();
     setIsLoading(false);
     clearActiveRequestId();
+    if (!cancelledTempRef) {
+      clearStepperAfterDeadTurn();
+    }
+    unresolveFileTempRef(cancelledTempRef);
     setMessages(prevMessages =>
       prevMessages.map(msg => {
         if (msg.isProcessing) {
@@ -760,7 +952,7 @@ const useUniversalChat = (options = {}) => {
         return msg;
       })
     );
-  }, [clearPendingFileAction]);
+  }, [clearPendingFileAction, clearStepperAfterDeadTurn, unresolveFileTempRef]);
 
   // Handle polling progress
   const handlePollingProgress = useCallback(
@@ -779,19 +971,25 @@ const useUniversalChat = (options = {}) => {
         // `business_app_generation` snapshots stop, so the top stepper advances by riding on the
         // `businessApp` field the backend attaches to `agent_planning`/`agent_execution` emissions.
         // The agent checklist card (built from `messageFields`) is untouched.
+        // The stage list is taken from the LATEST emission that carries one and differs by stage
+        // keys (`latestStages`): the backend can only append the stages of the artifact kinds the
+        // plan asked for after the plan is built, so the first list is not the final one. An
+        // identical list leaves the state untouched (COREDEV-484).
         const businessApp = progress.businessApp;
         if (businessApp) {
+          clearStepperCleanupTimer();
           setActiveBusinessAppProgress({
             stage: businessApp.stage,
             progress: businessApp.progress
           });
-          if (businessApp.availableStages && !generationStages) {
-            setGenerationStages(businessApp.availableStages);
+          if (businessApp.availableStages) {
+            setGenerationStages(latestStages(businessApp.availableStages));
           }
         }
       }
 
       if (!isAgent) {
+        clearStepperCleanupTimer();
         setActiveBusinessAppProgress({
           stage: progress.stage,
           progress: progress.progress,
@@ -802,8 +1000,9 @@ const useUniversalChat = (options = {}) => {
           maxAttempts: progress.maxAttempts
         });
 
-        if (progress.availableStages && !generationStages) {
-          setGenerationStages(progress.availableStages);
+        // Same rule as the agent branch above: latest list that differs by stage keys wins.
+        if (progress.availableStages) {
+          setGenerationStages(latestStages(progress.availableStages));
         }
       }
 
@@ -824,13 +1023,16 @@ const useUniversalChat = (options = {}) => {
                 }
               };
             }
+            if (isAgent) {
+              return { ...msg, ...messageFields, messageData: carryPlanningFields(msg.messageData, messageFields.messageData) };
+            }
             return { ...msg, ...messageFields };
           }
           return msg;
         })
       );
     },
-    [generationStages]
+    [clearStepperCleanupTimer]
   );
 
   // Use polling hook
@@ -1123,8 +1325,10 @@ const useUniversalChat = (options = {}) => {
           return;
         }
 
-        if (data.initialProgress?.availableStages) {
-          setGenerationStages(data.initialProgress.availableStages);
+        // This turn owns the stepper from now on (`takeOverStepper`). A turn that brings no snapshot
+        // starts nothing and leaves the previous generation's cleanup timer to finish its job.
+        if (data.initialProgress) {
+          takeOverStepper(data.initialProgress);
         }
 
         // From here on the request lives on the server and the only thing tying the page to it is
@@ -1181,7 +1385,8 @@ const useUniversalChat = (options = {}) => {
       visibleAutoContextArtifacts,
       selectedAgent,
       startPolling,
-      clearPendingFileAction
+      clearPendingFileAction,
+      takeOverStepper
     ]
   );
 
@@ -1217,6 +1422,12 @@ const useUniversalChat = (options = {}) => {
       // altogether. On a refused cancellation it is still running and its result still has to be
       // recognised as the answer to the file-save click that started it, or `handlePollingResult`
       // would strip a live preview and clear an `agentStatus` that answer never spoke about.
+      //
+      // What kind of turn is being cancelled is read off the same ref, before it goes: a file save
+      // keeps the badge and the stage ribbon (see `clearStepperAfterDeadTurn`) and gets its
+      // Save/Cancel pair back (see `unresolveFileTempRef`) — `stopPolling` below means
+      // `handlePollingCancelled` never runs for this path, so both have to be done here.
+      const cancelledTempRef = pendingFileActionTempRef.current;
       clearPendingFileAction();
 
       stopPolling();
@@ -1224,6 +1435,11 @@ const useUniversalChat = (options = {}) => {
       // Same condition: on a refused DELETE the request is still running there, and dropping the id
       // would strand it for good. A 404 has nothing to strand.
       clearActiveRequestId();
+
+      if (!cancelledTempRef) {
+        clearStepperAfterDeadTurn();
+      }
+      unresolveFileTempRef(cancelledTempRef);
 
       setMessages(prevMessages =>
         prevMessages.map(msg => {
@@ -1247,7 +1463,7 @@ const useUniversalChat = (options = {}) => {
         t('ai-assistant.notification.cancel-request-error-title')
       );
     }
-  }, [activeRequestId, stopPolling, clearPendingFileAction]);
+  }, [activeRequestId, stopPolling, clearPendingFileAction, clearStepperAfterDeadTurn, unresolveFileTempRef]);
 
   // Handle action button click (plan approval, error recovery)
   const handleActionClick = useCallback(
@@ -1308,6 +1524,21 @@ const useUniversalChat = (options = {}) => {
           // `isFileActionNotice` and keeping an `agentStatus` that answer never spoke about.
           clearPendingFileAction();
           return;
+        }
+
+        // An action that starts a generation takes the stepper over exactly like a free-text turn
+        // does (`takeOverStepper`). A plan approval IS the click that starts a business-app
+        // generation, and one made inside the 5 s cleanup window of a previous COMPLETED result had
+        // its own ribbon and stage list wiped at T+5 s by that pending timer — the defect the timer
+        // was made disarmable for, on the one request-starting path that had been left out.
+        //
+        // A file save is excluded by the same rule as every other dead-turn path (`clickedTempRef`):
+        // it is not a turn that starts a generation, but the controller seeds `initialProgress` for
+        // ANY request sent while an agent state is active, so it arrives carrying one all the same.
+        // Letting it through disarmed the timer and nulled the ribbon on a click that owns neither,
+        // leaving the previous generation's stage list in state with nothing left to take it down.
+        if (!clickedTempRef && data.initialProgress) {
+          takeOverStepper(data.initialProgress);
         }
 
         // An action starts a request exactly like a free-text turn does, so it is persisted the
@@ -1378,8 +1609,10 @@ const useUniversalChat = (options = {}) => {
         console.error('Error sending action:', error);
 
         // The request never reached the backend, so the temp file is untouched and polling never
-        // started — forget the tracked tempRef so a later unrelated result can't strip a live preview.
+        // started — forget the tracked tempRef so a later unrelated result can't strip a live preview,
+        // and give the file its Save/Cancel pair back: nothing decided it.
         clearPendingFileAction();
+        unresolveFileTempRef(clickedTempRef);
 
         // The chat was cleared meanwhile: the card this action belonged to is gone, so its error
         // notice would surface alone in an emptied chat.
@@ -1407,7 +1640,7 @@ const useUniversalChat = (options = {}) => {
         isActionInFlightRef.current = false;
       }
     },
-    [conversationId, selectedAgent, startPolling, clearPendingFileAction]
+    [conversationId, selectedAgent, startPolling, clearPendingFileAction, takeOverStepper, unresolveFileTempRef]
   );
 
   // The scope a deploy card is currently set to send, recorded on the message as soon as the user
@@ -1461,6 +1694,7 @@ const useUniversalChat = (options = {}) => {
     setHasRestoredConversation(false);
     clearSession();
     setConversationForceIntent(null);
+    clearStepperCleanupTimer();
     setActiveBusinessAppProgress(null);
     setGenerationStages(null);
     setAgentStatus(null);
@@ -1470,7 +1704,7 @@ const useUniversalChat = (options = {}) => {
     clearUploadedFiles?.();
 
     editorContextService.clearContext();
-  }, [stopPolling, clearAllContext, clearUploadedFiles, clearPendingFileAction]);
+  }, [stopPolling, clearAllContext, clearUploadedFiles, clearPendingFileAction, clearStepperCleanupTimer]);
 
   // The clear that is currently in flight, if any. Nothing disables the button while its DELETE
   // travels, so a double click used to send two of them: the second one answers 404 — the

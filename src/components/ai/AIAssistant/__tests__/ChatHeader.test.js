@@ -39,34 +39,42 @@ describe('ChatHeader', () => {
 
   it('shows agent badge when agentStatus is PLANNING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.PLANNING} />);
-    expect(screen.getByText('Agent')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-badge')).toBeTruthy();
   });
 
   it('shows agent badge when agentStatus is EXECUTING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.EXECUTING} />);
-    expect(screen.getByText('Agent')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-badge')).toBeTruthy();
   });
 
   it('shows agent badge when agentStatus is WAITING_PLAN_APPROVAL', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.WAITING_PLAN_APPROVAL} />);
-    expect(screen.getByText('Agent')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-badge')).toBeTruthy();
   });
 
   it('shows agent badge when agentStatus is WAITING_STEP_APPROVAL', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.WAITING_STEP_APPROVAL} />);
-    expect(screen.getByText('Agent')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-badge')).toBeTruthy();
   });
 
   it('badge has correct title attribute for PLANNING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.PLANNING} />);
-    const badge = screen.getByText('Agent').closest('.ai-assistant-chat__agent-badge');
+    const badge = screen.getByText('ai-assistant.agent-badge').closest('.ai-assistant-chat__agent-badge');
     expect(badge.getAttribute('title')).toBe('ai-assistant.agent-status.planning');
   });
 
   it('badge has correct title attribute for EXECUTING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.EXECUTING} />);
-    const badge = screen.getByText('Agent').closest('.ai-assistant-chat__agent-badge');
+    const badge = screen.getByText('ai-assistant.agent-badge').closest('.ai-assistant-chat__agent-badge');
     expect(badge.getAttribute('title')).toBe('ai-assistant.agent-status.executing');
+  });
+
+  it('badge icon is a glyph Font Awesome 4.7 actually has', () => {
+    // `fa-robot` is FA5 and renders as an empty box in the 4.7 bundle this project ships
+    const { container } = render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.PLANNING} />);
+    const icon = container.querySelector('.ai-assistant-chat__agent-badge-icon');
+    expect(icon.className).toContain('fa-cogs');
+    expect(icon.className).not.toContain('fa-robot');
   });
 
   it('renders custom title', () => {

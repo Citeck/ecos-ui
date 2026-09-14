@@ -65,9 +65,13 @@ const ChatHeader = ({
       <div className="ai-assistant-chat__header-left">
         <h3 className="ai-assistant-chat__title">{selectedAgent ? selectedAgent.name : title}</h3>
         {isAgentActive && (
+          // `fa-cogs`, not `fa-robot`: the latter is Font Awesome 5 and renders blank in the 4.7
+          // bundle this project ships — the same trap `ToolStepProgress` documents. The label is
+          // localized like the rest of the panel; the precise status stays in `title`, because the
+          // longest of them («Ожидание подтверждения шага») would not fit a pill next to the title.
           <span className="ai-assistant-chat__agent-badge" title={t(AGENT_STATUS_LABELS[agentStatus])}>
-            <Icon className="ai-assistant-chat__agent-badge-icon fa fa-robot" />
-            <span className="ai-assistant-chat__agent-badge-text">Agent</span>
+            <Icon className="ai-assistant-chat__agent-badge-icon fa fa-cogs" />
+            <span className="ai-assistant-chat__agent-badge-text">{t('ai-assistant.agent-badge')}</span>
           </span>
         )}
       </div>

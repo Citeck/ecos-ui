@@ -253,11 +253,30 @@ export const CHAT_DIMENSIONS = {
 // Autocomplete
 export const AUTOCOMPLETE_QUERY_THRESHOLD = 2;
 
-// Context artifact type icons
+/**
+ * Context artifact chip icons keyed by the backend artifact kind (`contextArtifacts[].type`,
+ * i.e. `ArtifactKind.displayTypeName`). Source of truth: `ArtifactKindRegistry.kt` in citeck-ai —
+ * keep the keys and icons in sync with that registry. Font Awesome 4.7 classes.
+ * Kinds missing from the map fall back to `UNKNOWN`.
+ */
 export const CONTEXT_ARTIFACT_ICONS = {
   DATA_TYPE: 'fa-database',
-  FORM: 'fa-file-text-o',
+  FORM: 'fa-wpforms',
   BPMN_PROCESS: 'fa-sitemap',
+  JOURNAL: 'fa-list-alt',
+  NOTIFICATION_TEMPLATE: 'fa-envelope-o',
+  ACTION: 'fa-bolt',
+  TYPE_PERMS: 'fa-shield',
+  PERMISSION_SETTINGS: 'fa-key',
+  BOARD: 'fa-columns',
+  DASHBOARD: 'fa-tachometer',
+  JOURNAL_SETTINGS: 'fa-sliders',
+  ARTIFACT_PATCH: 'fa-code-fork',
+  DMN: 'fa-table',
+  MENU: 'fa-bars',
+  DOC_TEMPLATE: 'fa-file-word-o',
+  WORKING_SCHEDULE: 'fa-calendar',
+  ECOS_APP: 'fa-cubes',
   UNKNOWN: 'fa-cube'
 };
 
@@ -318,6 +337,54 @@ export const AGENT_ENGINE_LABEL_KEYS = {
 export const getAgentEngineLabelKey = engine => AGENT_ENGINE_LABEL_KEYS[engine] || AGENT_ENGINE_LABEL_KEYS[AGENT_ENGINE.TOOL_LOOP];
 
 /**
+ * Records `sourceId` -> artifact kind, mirroring `ArtifactKind.sourceId`/`altSourceIds` of
+ * `ArtifactKindRegistry.kt` in citeck-ai. Keeps a manually referenced record (@ mention, or the
+ * record the assistant was opened over) on the same icon the backend-delivered chip of that kind
+ * gets: without the full table a journal, a board or an action arrived as `fa-database` on one path
+ * and as its own icon on the other, for one and the same artifact (COREDEV-484, A5).
+ */
+const RECORD_REF_KIND_BY_SOURCE_ID = {
+  'emodel/type': 'DATA_TYPE',
+  'emodel/types-repo': 'DATA_TYPE',
+  'uiserv/form': 'FORM',
+  'eproc/bpmn-def': 'BPMN_PROCESS',
+  'uiserv/journal': 'JOURNAL',
+  'notifications/template': 'NOTIFICATION_TEMPLATE',
+  'uiserv/action': 'ACTION',
+  'emodel/perms': 'TYPE_PERMS',
+  'emodel/permission-settings': 'PERMISSION_SETTINGS',
+  'uiserv/board': 'BOARD',
+  'uiserv/dashboard': 'DASHBOARD',
+  'uiserv/journal-settings': 'JOURNAL_SETTINGS',
+  'eapps/artifact-patch': 'ARTIFACT_PATCH',
+  'eproc/dmn-def': 'DMN',
+  'uiserv/menu': 'MENU',
+  'transformations/template': 'DOC_TEMPLATE',
+  'emodel/working-schedule': 'WORKING_SCHEDULE',
+  'eapps/ecosapp': 'ECOS_APP'
+};
+
+/**
+ * The same table keyed by the bare sourceId, without its app prefix: refs reach the assistant from
+ * several places and not all of them carry the app (`form@x` next to `uiserv/form@x`), and a custom
+ * app may serve the same kind from its own prefix. A bare name claimed by two kinds (`template` —
+ * `notifications/template` and `transformations/template`) resolves to nothing rather than to an
+ * arbitrary one of them, and falls through to the default below.
+ */
+const RECORD_REF_KIND_BY_BARE_SOURCE_ID = Object.entries(RECORD_REF_KIND_BY_SOURCE_ID).reduce(
+  (acc, [sourceId, kind]) => {
+    const bare = sourceId.slice(sourceId.indexOf('/') + 1);
+    acc[bare] = bare in acc && acc[bare] !== kind ? null : kind;
+    return acc;
+  },
+  {
+    // Legacy spelling accepted before the registry table: BPMN refs were matched on `bpmn-process`,
+    // while the registry sourceId is `eproc/bpmn-def`. Both still reach this helper.
+    'bpmn-process': 'BPMN_PROCESS'
+  }
+);
+
+/**
  * Derive artifact type icon from a record ref string.
  * Useful when records are added via @ mention and don't carry an explicit artifact type.
  * @param {string} recordRef - e.g. 'uiserv/form@my-form', 'emodel/type@my-type'
@@ -325,10 +392,12 @@ export const getAgentEngineLabelKey = engine => AGENT_ENGINE_LABEL_KEYS[engine] 
  */
 export const getRecordRefIcon = recordRef => {
   if (!recordRef) return CONTEXT_ARTIFACT_ICONS.UNKNOWN;
-  if (recordRef.startsWith('uiserv/form@') || recordRef.includes('/form@')) return CONTEXT_ARTIFACT_ICONS.FORM;
-  if (recordRef.startsWith('emodel/type@') || recordRef.includes('/type@')) return CONTEXT_ARTIFACT_ICONS.DATA_TYPE;
-  if (recordRef.startsWith('emodel/bpmn-process@') || recordRef.includes('/bpmn-process@')) return CONTEXT_ARTIFACT_ICONS.BPMN_PROCESS;
-  return CONTEXT_ARTIFACT_ICONS.DATA_TYPE; // default for records
+  const atIndex = recordRef.indexOf('@');
+  const sourceId = atIndex === -1 ? recordRef : recordRef.slice(0, atIndex);
+  const kind = RECORD_REF_KIND_BY_SOURCE_ID[sourceId] || RECORD_REF_KIND_BY_BARE_SOURCE_ID[sourceId.slice(sourceId.indexOf('/') + 1)];
+  // A ref of no known artifact kind is an ordinary business record (a deal, a task, a person), and
+  // `fa-database` is its icon — not `UNKNOWN`, which marks an artifact whose kind was not recognised.
+  return (kind && CONTEXT_ARTIFACT_ICONS[kind]) || CONTEXT_ARTIFACT_ICONS.DATA_TYPE;
 };
 
 /**

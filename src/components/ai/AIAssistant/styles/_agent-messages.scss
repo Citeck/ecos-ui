@@ -110,6 +110,28 @@
     color: var(--danger-color, #f44336);
   }
 
+  // Cancelled turn: dead as well, but by the user's hand — muted, not alarming
+  &__agent-progress--cancelled &__agent-progress-header {
+    color: var(--text-secondary, #666);
+  }
+
+  // Planning facts / attempt lines under the "Drafting a plan..." header (COREDEV-484)
+  &__agent-planning-facts,
+  &__agent-planning-attempt {
+    font-size: $font-size-sm;
+    color: var(--text-secondary, #666);
+    margin: -$spacing-sm 0 $spacing-sm;
+    line-height: 1.4;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__agent-planning-facts + &__agent-planning-attempt {
+    margin-top: 0;
+  }
+
   &__agent-progress-header {
     display: flex;
     align-items: center;
@@ -147,6 +169,11 @@
     // a blue bar at 60 % reads as "still working" (D-B-7)
     &--failed {
       background: var(--danger-color, #f44336);
+    }
+
+    // Cancelled by the user, not broken: muted like the header of the same card
+    &--cancelled {
+      background: var(--text-secondary, #666);
     }
   }
 
@@ -292,7 +319,9 @@
     border: 1px solid var(--primary-color);
     border-radius: $border-radius-sm;
     cursor: pointer;
-    transition: background-color $transition-fast, color $transition-fast;
+    transition:
+      background-color $transition-fast,
+      color $transition-fast;
 
     &:hover {
       background-color: var(--primary-bg-light, rgba(52, 152, 219, 0.08));

@@ -36,6 +36,38 @@ export const getStageStatus = (stageName, currentProgress, progressRange) => {
 };
 
 /**
+ * Tells whether two stage lists describe the same stepper: same stage `key`s in the same order.
+ * A missing list (`null`/`undefined`) counts as an empty one. Stage objects are compared by `key`
+ * only — labels, icons and progress ranges travel with the key and are not compared on their own.
+ * @param {Array|null|undefined} prev - Current stage list
+ * @param {Array|null|undefined} next - Incoming stage list
+ * @returns {boolean} true when the lists carry the same keys in the same order
+ */
+export const sameStageKeys = (prev, next) => {
+  const a = Array.isArray(prev) ? prev : [];
+  const b = Array.isArray(next) ? next : [];
+  if (a.length !== b.length) return false;
+  return a.every((stage, i) => (stage && stage.key) === (b[i] && b[i].key));
+};
+
+/**
+ * Functional `setGenerationStages` updater implementing the stage-list rule of COREDEV-484: the
+ * latest list that differs by stage keys wins, an identical list keeps the previous array (the state
+ * is left untouched, so consumers keyed on the list see no change).
+ *
+ * An empty or missing incoming list is not a stepper of its own and never wins: `ChatTabs` hides the
+ * ribbon on an empty list, so taking one would blank the timeline in the middle of a running
+ * generation — something the «first list wins» lock this rule replaced made impossible. The backend
+ * sends the full stage set with every emission today, but nothing in the contract promises it.
+ * @param {Array} next - Incoming stage list
+ * @returns {Function} Updater `prev => prev | next` for the functional form of a state setter
+ */
+export const latestStages = next => prev => {
+  if (!Array.isArray(next) || next.length === 0) return prev;
+  return sameStageKeys(prev, next) ? prev : next;
+};
+
+/**
  * Formats timestamp to HH:MM format
  * @param {Date} timestamp - Date object
  * @returns {string} Formatted time string

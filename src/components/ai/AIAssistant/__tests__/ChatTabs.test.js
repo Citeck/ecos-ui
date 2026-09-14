@@ -38,16 +38,12 @@ describe('ChatTabs', () => {
   });
 
   it('does not render the stage timeline without generationStages', () => {
-    const { container } = render(
-      <ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={null} />
-    );
+    const { container } = render(<ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={null} />);
     expect(container.querySelector('.ai-assistant-chat__stage-timeline')).toBeNull();
   });
 
   it('renders the stage timeline when business-app progress and stages are present on the universal tab', () => {
-    const { container } = render(
-      <ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={STAGES} />
-    );
+    const { container } = render(<ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={STAGES} />);
     expect(container.querySelector('.ai-assistant-chat__stage-timeline')).not.toBeNull();
     STAGES.forEach(stage => expect(screen.getByText(stage.label)).toBeTruthy());
   });
@@ -66,9 +62,7 @@ describe('ChatTabs', () => {
   });
 
   it('gates stage marker status by progress (completed / active / pending)', () => {
-    const { container } = render(
-      <ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={STAGES} />
-    );
+    const { container } = render(<ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={STAGES} />);
     const items = container.querySelectorAll('.ai-assistant-chat__stage-timeline-item');
     expect(items).toHaveLength(STAGES.length);
     // progress 40: range 0-25 done, 25-55 active, 55-75 & 75-100 pending
@@ -76,6 +70,28 @@ describe('ChatTabs', () => {
     expect(items[1].className).toContain('active');
     expect(items[2].className).toContain('pending');
     expect(items[3].className).toContain('pending');
+  });
+
+  // COREDEV-484 (A1): a stage appended by a later emission joins the ribbon as pending while the
+  // statuses of the stages already shown are untouched.
+  it('appends a new stage as pending without resetting the statuses of the existing ones', () => {
+    const { container, rerender } = render(<ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={STAGES} />);
+
+    const withAction = [
+      ...STAGES.slice(0, 3),
+      { key: 'GENERATING_ACTIONS', label: 'Действие', progressRange: { min: 75, max: 90 } },
+      { ...STAGES[3], progressRange: { min: 90, max: 100 } }
+    ];
+    rerender(<ChatTabs {...baseProps} businessAppProgress={{ progress: 40 }} generationStages={withAction} />);
+
+    const items = container.querySelectorAll('.ai-assistant-chat__stage-timeline-item');
+    expect(items).toHaveLength(5);
+    expect(items[0].className).toContain('completed');
+    expect(items[1].className).toContain('active');
+    expect(items[2].className).toContain('pending');
+    expect(items[3].className).toContain('pending');
+    expect(screen.getByText('Действие')).toBeTruthy();
+    expect(items[4].className).toContain('pending');
   });
 
   it('fires onTabChange when the universal tab is clicked', () => {
