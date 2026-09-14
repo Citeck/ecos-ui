@@ -226,9 +226,11 @@ describe('<Card /> height detection debounce', () => {
   });
 });
 
-it('passes the temporary move lock to Draggable independently of readOnly', () => {
-  const { rerender } = render(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled />);
-  expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(true);
-  rerender(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled={false} />);
-  expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(false);
+describe('<Card /> drag lock', () => {
+  it('passes the temporary move lock to Draggable independently of readOnly', () => {
+    const { rerender } = render(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled />);
+    expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(true);
+    rerender(<Card data={{ cardId: 'moving-card' }} cardIndex={0} boardConfig={{}} isDragDisabled={false} />);
+    expect(Draggable.mock.calls[Draggable.mock.calls.length - 1][0].isDragDisabled).toBe(false);
+  });
 });

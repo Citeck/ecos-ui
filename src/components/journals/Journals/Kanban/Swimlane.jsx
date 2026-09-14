@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import SwimlaneHeader from './SwimlaneHeader';
 import KanbanColumn from './KanbanColumn';
+import { isSwimlaneBusy } from './utils';
 
 const Swimlane = ({
   swimlane,
@@ -27,7 +28,7 @@ const Swimlane = ({
   onClickAction
 }) => {
   const swimlaneId = swimlane.id;
-  const isBusy = !!swimlane.isMoving || Object.values(swimlane.cells).some(cell => cell.isLoading);
+  const isBusy = isSwimlaneBusy(swimlane);
   const groupingAttribute = swimlaneGrouping ? swimlaneGrouping.attribute : null;
 
   // Same cell scope the sagas query cards with (buildSwimlaneCellQueryParams).

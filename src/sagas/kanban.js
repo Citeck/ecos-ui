@@ -56,6 +56,7 @@ import {
 } from '../actions/kanban';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '@/components/journals/Journals/constants';
+import { isSwimlaneBusy } from '@/components/journals/Journals/Kanban/utils';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
 import {
   buildOnlyLinkedPredicate,
@@ -854,65 +855,93 @@ export function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGroupi
   for (let chunkStart = 0; chunkStart < rowEntries.length; chunkStart += SWIMLANE_ROWS_CHUNK) {
     yield all(
       rowEntries.slice(chunkStart, chunkStart + SWIMLANE_ROWS_CHUNK).map(function* ([swimlaneId, statusIds]) {
-        const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
-          api,
-          stateId,
-          boardConfig,
-          formProps,
-          swimlaneGrouping,
-          swimlaneId,
-          journalConfig,
-          journalSetting
-        });
+        try {
+          const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
+            api,
+            stateId,
+            boardConfig,
+            formProps,
+            swimlaneGrouping,
+            swimlaneId,
+            journalConfig,
+            journalSetting
+          });
 
-        // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
-        // per-column below.
-        const filter = buildBoardCardsFilter([
-          queryParams.predicates,
-          queryParams.swimlaneAttrPredicate,
-          queryParams.searchPredicate,
-          queryParams.relatedFilter
-        ]);
+          // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
+          // per-column below.
+          const filter = buildBoardCardsFilter([
+            queryParams.predicates,
+            queryParams.swimlaneAttrPredicate,
+            queryParams.searchPredicate,
+            queryParams.relatedFilter
+          ]);
 
-        // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
-        // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
-        const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
-        const columnsArg = statusIds.map(statusId => ({
-          id: statusId,
-          skipCount: 0,
-          maxItems: swimlaneCellWindow(get(swimlane, ['cells', statusId])),
-          additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
-        }));
-        const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
-        const windowByStatus = new Map(columnsArg.map(col => [col.id, col.maxItems]));
+          // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
+          // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
+          const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
+          const columnsArg = statusIds.map(statusId => ({
+            id: statusId,
+            skipCount: 0,
+            maxItems: swimlaneCellWindow(get(swimlane, ['cells', statusId])),
+            additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
+          }));
+          const maxItemsPerColumn = columnsArg.reduce((max, col) => Math.max(max, col.maxItems), DEFAULT_PAGINATION.maxItems);
+          const windowByStatus = new Map(columnsArg.map(col => [col.id, col.maxItems]));
 
-        const boardCards = yield call(api.kanban.getBoardCards, {
-          boardRef: boardConfig.id,
-          columns: columnsArg,
-          filter,
-          maxItemsPerColumn,
-          grouping: swimlaneGrouping.attribute,
-          attributes: queryParams.attrMap
-        });
+          const boardCards = yield call(api.kanban.getBoardCards, {
+            boardRef: boardConfig.id,
+            columns: columnsArg,
+            filter,
+            maxItemsPerColumn,
+            grouping: swimlaneGrouping.attribute,
+            attributes: queryParams.attrMap
+          });
 
-        const byColumn = new Map((boardCards || []).map(entry => [entry.columnId, entry]));
+          const byColumn = new Map((boardCards || []).map(entry => [entry.columnId, entry]));
 
-        yield all(
-          statusIds.map(function* (statusId) {
-            const entry = byColumn.get(statusId);
-            const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
-            yield put(
-              setSwimlaneCellData({
-                stateId,
-                swimlaneId,
-                statusId,
-                records,
-                totalCount: cellTotalCount(entry, records),
-                pagination: { skipCount: 0, maxItems: windowByStatus.get(statusId) }
-              })
-            );
-          })
-        );
+          yield all(
+            statusIds.map(function* (statusId) {
+              const entry = byColumn.get(statusId);
+              const records = processCardRecords(get(entry, 'records', []), inputByKey, boardConfig);
+              yield put(
+                setSwimlaneCellData({
+                  stateId,
+                  swimlaneId,
+                  statusId,
+                  records,
+                  totalCount: cellTotalCount(entry, records),
+                  pagination: { skipCount: 0, maxItems: windowByStatus.get(statusId) }
+                })
+              );
+            })
+          );
+        } catch (e) {
+          // Keep what the row already showed, but never leave its cells on isLoading: a row created
+          // by the refresh merge starts on skeleton cells, and a stuck flag now also means the row
+          // rejects every drop and hides «Ещё» for good (COREDEV-426).
+          yield all(
+            statusIds.map(function* (statusId) {
+              const prevCell =
+                get(
+                  swimlanes.find(sl => sl.id === swimlaneId),
+                  ['cells', statusId]
+                ) || {};
+
+              yield put(
+                setSwimlaneCellData({
+                  stateId,
+                  swimlaneId,
+                  statusId,
+                  records: prevCell.records || [],
+                  totalCount: typeof prevCell.totalCount === 'number' ? prevCell.totalCount : 0,
+                  pagination: prevCell.pagination,
+                  error: e.message
+                })
+              );
+            })
+          );
+          console.error('[kanban/reloadSwimlaneCells] row error', e);
+        }
       })
     );
   }
@@ -1489,7 +1518,7 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     const swimlane = swimlanes.find(sl => sl.id === fromSwimlaneId);
     // Moving reloads the whole row. It must not overlap another move or a pending page,
     // whose stale response could put the same draggable back in the source cell (COREDEV-426).
-    if (!swimlane || swimlane.isMoving || Object.values(swimlane.cells).some(cell => cell.isLoading)) {
+    if (!swimlane || isSwimlaneBusy(swimlane)) {
       return;
     }
 
@@ -1716,7 +1745,7 @@ function* refreshFlatCard({ stateId, recordRef, newCardData, newStatus, dataCard
 export function* sagaRefreshCard({ api }, { payload }) {
   try {
     const { stateId, recordRef, actionType } = payload;
-    const { boardConfig, formProps, dataCards, swimlaneGrouping, swimlanes } = yield select(selectKanban, stateId);
+    const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
     const columns = get(boardConfig, 'columns', []);
 
     if (!boardConfig || isEmpty(columns)) {
@@ -1736,6 +1765,20 @@ export function* sagaRefreshCard({ api }, { payload }) {
 
     if (!recordData) {
       yield put(reloadBoardData({ stateId }));
+      return;
+    }
+
+    // The load above is async, so rows selected before it are a stale snapshot: a move or a page
+    // that committed meanwhile has already rewritten these cells. Re-read them, and leave a row
+    // that is still moving alone — it reloads itself from the server when the move settles, while
+    // writing the pre-move snapshot back would put the card into the cell it just left, i.e. the
+    // same cardId in two Droppables (COREDEV-426).
+    const { dataCards, swimlanes } = yield select(selectKanban, stateId);
+
+    const cardLocation = findCardInSwimlanes(swimlanes || [], recordRef);
+    const cardRow = cardLocation && (swimlanes || []).find(sl => sl.id === cardLocation.swimlaneId);
+
+    if (get(cardRow, 'isMoving')) {
       return;
     }
 
@@ -1769,7 +1812,13 @@ export function* sagaRefreshCard({ api }, { payload }) {
     }
 
     if (!success) {
-      yield put(reloadBoardData({ stateId }));
+      // A full reload rebuilds every row through buildSwimlaneRow, which carries no isMoving: it
+      // would re-enable «Ещё» and DnD on a row whose move-card is still pending. The move reloads
+      // its own row when it settles, and the next refresh picks the rest up (COREDEV-426).
+      if (!(swimlanes || []).some(sl => sl.isMoving)) {
+        yield put(reloadBoardData({ stateId }));
+      }
+
       return;
     }
 
@@ -1801,8 +1850,18 @@ export function* sagaRefreshCard({ api }, { payload }) {
             }
           }
 
-          if (cellsToReload.length > 0) {
-            yield call(reloadSwimlaneCells, { api, stateId, boardConfig, swimlaneGrouping, cells: cellsToReload });
+          // Same rule as the silent refresh: a response issued before the server applied move-card
+          // would put the moved card back into the cell it just left (COREDEV-426).
+          const idleCells = cellsToReload.filter(
+            ({ swimlaneId }) =>
+              !get(
+                swimlanes.find(sl => sl.id === swimlaneId),
+                'isMoving'
+              )
+          );
+
+          if (idleCells.length > 0) {
+            yield call(reloadSwimlaneCells, { api, stateId, boardConfig, swimlaneGrouping, cells: idleCells });
           }
         } else {
           const oldLocation = findCardInDataCards(dataCards, recordRef);
@@ -1882,7 +1941,13 @@ export function* sagaRefreshBoardData({ api }, { payload }) {
       // Re-derive the row set from the server and merge it with what is on screen.
       const { sortedValues, colorMap, columns: swimlaneColumns } = yield call(querySwimlaneValues, { api, stateId });
 
-      const prevById = new Map(swimlanes.map(sl => [sl.id, sl]));
+      // querySwimlaneValues is a round trip, and setSwimlaneValues replaces the row array wholesale:
+      // rebuild from the rows as they are NOW. A move that started meanwhile would otherwise have its
+      // optimistic cells dropped and its isMoving lock erased, re-enabling «Ещё» and DnD on a row
+      // whose move-card is still pending (COREDEV-426).
+      const { swimlanes: loadedSwimlanes = [] } = yield select(selectKanban, stateId);
+
+      const prevById = new Map(loadedSwimlanes.map(sl => [sl.id, sl]));
       const merged = sortedValues.map(val => {
         const prev = prevById.get(val.id);
 
@@ -1899,6 +1964,13 @@ export function* sagaRefreshBoardData({ api }, { payload }) {
 
       const cells = [];
       merged.forEach(swimlane => {
+        // A row mid-move reloads itself when the move settles. Refreshing it here would write a
+        // response issued before the server applied the move over the optimistic state and put the
+        // card back into the cell it just left (COREDEV-426).
+        if (swimlane.isMoving) {
+          return;
+        }
+
         Object.keys(get(swimlane, 'cells') || {}).forEach(statusId => cells.push({ swimlaneId: swimlane.id, statusId }));
       });
 

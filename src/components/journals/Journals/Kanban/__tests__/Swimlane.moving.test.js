@@ -28,7 +28,8 @@ const props = {
     cells: {
       // The optimistic move has emptied todo, but its badge still has the server's count.
       todo: { records: [], totalCount: 1, isLoading: false },
-      done: { records: [{ cardId: 'card-1' }], totalCount: 0, isLoading: false }
+      // An idle cell with a real next page: only the row-wide busy flag can hide its More.
+      done: { records: [{ cardId: 'card-1' }], totalCount: 5, isLoading: false }
     }
   }
 };
@@ -57,7 +58,7 @@ it('keeps the moved card but hides the false More and disables DnD until the row
 
 it('keeps legitimate paging available on an idle row and blocks dragging while a page is pending', () => {
   const { rerender } = render(<Swimlane {...props} />);
-  expect(screen.getByRole('button', { name: 'kanban.swimlane.show-more' })).toBeTruthy();
+  expect(screen.getAllByRole('button', { name: 'kanban.swimlane.show-more' })).toHaveLength(2);
   rerender(
     <Swimlane
       {...props}
