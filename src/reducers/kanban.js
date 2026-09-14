@@ -27,7 +27,8 @@ import {
   setSwimlaneValues,
   setSwimlaneCellData,
   toggleSwimlaneCollapse,
-  setSwimlaneCellLoading
+  setSwimlaneCellLoading,
+  setSwimlaneMoving
 } from '../actions/kanban';
 import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 import { t } from '../helpers/export/util';
@@ -220,6 +221,11 @@ export default handleActions(
         }
         return { ...sl, isCollapsed: !sl.isCollapsed };
       });
+      return updateState(state, stateId, { swimlanes }, initialState);
+    },
+    [setSwimlaneMoving]: (state, { payload }) => {
+      const { stateId, swimlaneId, isMoving } = payload;
+      const swimlanes = ((state[stateId] || {}).swimlanes || []).map(sl => (sl.id === swimlaneId ? { ...sl, isMoving } : sl));
       return updateState(state, stateId, { swimlanes }, initialState);
     },
     [setSwimlaneCellLoading]: (state, { payload }) => {

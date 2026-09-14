@@ -1529,6 +1529,150 @@ describe('kanban sagas tests', () => {
     });
   });
 
+  describe('COREDEV-426: moving and paging a swimlane must not race', () => {
+    function createRunner() {
+      let state = {
+        kanban: { [stateId]: { boardConfig: data.boardConfig, ...JSON.parse(JSON.stringify(swimlaneData)) } },
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+      };
+      return {
+        row: () => state.kanban[stateId].swimlanes[0],
+        run: (saga, payload) =>
+          runSaga(
+            {
+              getState: () => state,
+              dispatch: action => {
+                state = { ...state, kanban: reducer(state.kanban, action) };
+              }
+            },
+            saga,
+            { api },
+            { payload: { stateId, ...payload } }
+          )
+      };
+    }
+    const move = { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' };
+    const more = { swimlaneId: 'priority-high', statusId: 'some-id-1' };
+
+    it('blocks the false More action and another move until the server row reload completes', async () => {
+      const runner = createRunner();
+      let finishMove, finishReload, reportReload;
+      const pendingMove = new Promise(resolve => {
+        finishMove = resolve;
+      });
+      const pendingReload = new Promise(resolve => {
+        finishReload = resolve;
+      });
+      const reloadStarted = new Promise(resolve => {
+        reportReload = resolve;
+      });
+      const originalMove = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn(() => pendingMove);
+      spyGetBoardCards.mockImplementationOnce(() => {
+        reportReload();
+        return pendingReload;
+      });
+      let task;
+      try {
+        task = runner.run(kanban.sagaMoveSwimlaneCard, move);
+        expect(runner.row().isMoving).toBe(true);
+        // The badge deliberately keeps its server value, but the moved card is already in the target.
+        const source = runner.row().cells['some-id-1'];
+        expect(source.records).toHaveLength(1);
+        expect(source.totalCount).toBe(2);
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        await runner.run(kanban.sagaMoveSwimlaneCard, move).done;
+        expect(spyGetBoardCards).not.toHaveBeenCalled();
+        expect(api.kanban.moveCard).toHaveBeenCalledTimes(1);
+        expect(runner.row().isMoving).toBe(true); // a rejected second move must not unlock the first
+
+        finishMove();
+        await reloadStarted;
+        expect(runner.row().isMoving).toBe(true);
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+        finishReload([
+          { columnId: 'some-id-1', records: [{ id: 'rec-2', cardId: 'rec-2' }], totalCount: 1 },
+          {
+            columnId: 'some-id-2',
+            records: [
+              { id: 'rec-1', cardId: 'rec-1' },
+              { id: 'rec-3', cardId: 'rec-3' }
+            ],
+            totalCount: 2
+          }
+        ]);
+        await task.done;
+        expect(runner.row().isMoving).toBe(false);
+        const refs = Object.values(runner.row().cells).flatMap(c => c.records.map(r => r.cardId));
+        expect(new Set(refs).size).toBe(refs.length);
+        expect(console.error).not.toHaveBeenCalled();
+      } finally {
+        if (task) task.cancel();
+        finishMove();
+        finishReload([]);
+        api.kanban.moveCard = originalMove;
+      }
+    });
+
+    it.each(['failure', 'cancellation'])('releases the row on %s', async outcome => {
+      const runner = createRunner();
+      const originalMove = api.kanban.moveCard;
+      let rejectMove;
+      api.kanban.moveCard = jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            rejectMove = reject;
+          })
+      );
+      try {
+        const task = runner.run(kanban.sagaMoveSwimlaneCard, move);
+        expect(runner.row().isMoving).toBe(true);
+        if (outcome === 'failure') rejectMove(new Error('move failed'));
+        else task.cancel();
+        await task.done;
+        expect(runner.row().isMoving).toBe(false);
+        if (outcome === 'failure') expect(runner.row().cells).toEqual(swimlaneData.swimlanes[0].cells);
+      } finally {
+        api.kanban.moveCard = originalMove;
+      }
+    });
+
+    it('does not start a move or a second page while a page is loading', async () => {
+      const runner = createRunner();
+      // Make the first page request possible, then pause it in the network.
+      const cell = runner.row().cells['some-id-1'];
+      cell.totalCount = 20;
+      let finishPage, reportPage;
+      const pageStarted = new Promise(resolve => {
+        reportPage = resolve;
+      });
+      spyGetBoardCards.mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            finishPage = resolve;
+            reportPage();
+          })
+      );
+      const originalMove = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn();
+      const task = runner.run(kanban.sagaLoadMoreSwimlaneCell, more);
+      try {
+        expect(runner.row().cells['some-id-1'].isLoading).toBe(true);
+        await pageStarted;
+        await runner.run(kanban.sagaMoveSwimlaneCard, move).done;
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        expect(api.kanban.moveCard).not.toHaveBeenCalled();
+        expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+      } finally {
+        task.cancel();
+        if (finishPage) finishPage([]);
+        api.kanban.moveCard = originalMove;
+        cell.totalCount = 2;
+      }
+    });
+  });
+
   describe('sagaSetSwimlaneGrouping', () => {
     it('enable grouping dispatches setSwimlaneGrouping', async () => {
       const dispatched = await wrapRunSaga(

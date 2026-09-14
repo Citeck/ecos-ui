@@ -16,6 +16,7 @@ export type SwimlaneData = {
   id: string;
   label: string;
   isCollapsed: boolean;
+  isMoving?: boolean;
   cells: { [statusId: string]: SwimlaneCellData };
 };
 

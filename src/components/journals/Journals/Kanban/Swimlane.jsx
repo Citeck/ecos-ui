@@ -27,6 +27,7 @@ const Swimlane = ({
   onClickAction
 }) => {
   const swimlaneId = swimlane.id;
+  const isBusy = !!swimlane.isMoving || Object.values(swimlane.cells).some(cell => cell.isLoading);
   const groupingAttribute = swimlaneGrouping ? swimlaneGrouping.attribute : null;
 
   // Same cell scope the sagas query cards with (buildSwimlaneCellQueryParams).
@@ -72,6 +73,7 @@ const Swimlane = ({
                 records={cell.records}
                 totalCount={cell.totalCount}
                 isLoading={cell.isLoading}
+                isBusy={isBusy}
                 swimlaneColor={swimlane.color}
                 formProps={formProps}
                 readOnly={readOnly}

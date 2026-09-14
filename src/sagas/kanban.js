@@ -50,6 +50,7 @@ import {
   setSwimlaneCellData,
   loadMoreSwimlaneCell,
   setSwimlaneCellLoading,
+  setSwimlaneMoving,
   moveSwimlaneCard,
   refreshCardData
 } from '../actions/kanban';
@@ -1371,7 +1372,7 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
     const cell = get(swimlane, ['cells', statusId]);
 
-    if (!cell) {
+    if (!cell || cell.isLoading || swimlane.isMoving) {
       return;
     }
 
@@ -1479,12 +1480,16 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
   let rollbackFromCell = null;
   let rollbackToCell = null;
 
+  let movingStarted = false;
+
   try {
     const { stateId, cardIndex, toIndex, fromSwimlaneId, fromStatusId, toStatusId } = payload;
     const { swimlanes, boardConfig, swimlaneGrouping, pagination = {} } = yield select(selectKanban, stateId);
 
     const swimlane = swimlanes.find(sl => sl.id === fromSwimlaneId);
-    if (!swimlane) {
+    // Moving reloads the whole row. It must not overlap another move or a pending page,
+    // whose stale response could put the same draggable back in the source cell (COREDEV-426).
+    if (!swimlane || swimlane.isMoving || Object.values(swimlane.cells).some(cell => cell.isLoading)) {
       return;
     }
 
@@ -1494,6 +1499,9 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     if (!fromCell || !fromCell.records[cardIndex]) {
       return;
     }
+
+    movingStarted = true;
+    yield put(setSwimlaneMoving({ stateId, swimlaneId: fromSwimlaneId, isMoving: true }));
 
     rollbackFromCell = { records: [...fromCell.records], totalCount: fromCell.totalCount };
     rollbackToCell = toCell ? { records: [...toCell.records], totalCount: toCell.totalCount } : { records: [], totalCount: 0 };
@@ -1588,6 +1596,10 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
 
     NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
     console.error('[kanban/sagaMoveSwimlaneCard saga] error', e);
+  } finally {
+    if (movingStarted) {
+      yield put(setSwimlaneMoving({ stateId: payload.stateId, swimlaneId: payload.fromSwimlaneId, isMoving: false }));
+    }
   }
 }
 
