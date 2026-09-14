@@ -58,21 +58,36 @@ const ToolStepProgress = ({ message }) => {
   // `handlePollingError` stamps the failure here; the ribbon renders only from `messageData`, so
   // without honouring it the cogs keep turning for a request that is already dead (D-B-7)
   const failed = !!messageData.error;
+  // A cancelled turn is flagged on the message itself (`cancelRequest` / `handlePollingCancelled`),
+  // and is just as dead: the cogs must stop for it too.
+  const cancelled = !failed && !!message.isCancelled;
+  const dead = failed || cancelled;
 
   return (
-    <div className={classNames('ai-assistant-chat__tool-loop', { 'ai-assistant-chat__tool-loop--failed': failed })}>
+    <div
+      className={classNames('ai-assistant-chat__tool-loop', {
+        'ai-assistant-chat__tool-loop--failed': failed,
+        'ai-assistant-chat__tool-loop--cancelled': cancelled
+      })}
+    >
       <div className="ai-assistant-chat__tool-loop-header">
         {/* Original spinning "in progress" indicator (fa-cogs); the engine is conveyed by the title.
             Do NOT swap in an engine-specific glyph like fa-robot — it doesn't exist in Font Awesome 4.7
             and renders blank. */}
-        <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-cogs fa-spin'} />
-        <span>{failed ? t('ai-assistant.chat.request-failed') : t(AGENT_PROGRESS_TITLE_KEYS[engine])}</span>
+        <Icon className={failed ? 'fa fa-exclamation-triangle' : cancelled ? 'fa fa-ban' : 'fa fa-cogs fa-spin'} />
+        <span>
+          {failed
+            ? t('ai-assistant.chat.request-failed')
+            : cancelled
+              ? t('ai-assistant.chat.cancelled-title')
+              : t(AGENT_PROGRESS_TITLE_KEYS[engine])}
+        </span>
       </div>
 
       {steps.length > 0 && (
         <div className="ai-assistant-chat__tool-steps-list">
           {steps.map(step => (
-            <ToolStepItem key={step.stepIndex} step={step} failed={failed} />
+            <ToolStepItem key={step.stepIndex} step={step} failed={dead} />
           ))}
         </div>
       )}

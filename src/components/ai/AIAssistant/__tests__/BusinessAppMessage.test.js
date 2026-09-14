@@ -42,6 +42,106 @@ describe('BusinessAppMessage', () => {
     expect(container.querySelector('.ai-assistant-chat__progress-fill').style.width).toBe('10%');
   });
 
+  // COREDEV-484 (A6): «Отменить» flags the MESSAGE (`isCancelled`), never `messageData`, and this
+  // card renders from `messageData` alone — it used to keep the stage label, the percentage, the
+  // filled bar and the spinning cog of a generation the user had already stopped.
+  it('reports a cancelled turn instead of progress when the message carries the cancel flag', () => {
+    const message = {
+      id: 'm-cancelled',
+      isCancelled: true,
+      messageData: {
+        type: 'business_app_generation',
+        stage: 'GENERATING_FORMS',
+        progress: 45,
+        currentAttempt: 2,
+        maxAttempts: 3,
+        stageMetadata: { label: 'Генерация форм', icon: 'fa-cog', animated: true, description: 'Осталось три формы' },
+        detailedStatus: 'Создаю формы'
+      },
+      text: 'ai-assistant.chat.cancelled'
+    };
+
+    const { container } = render(<BusinessAppMessage message={message} markdownComponents={markdownComponents} />);
+
+    expect(screen.getByText('ai-assistant.chat.cancelled-title')).toBeTruthy();
+    expect(screen.queryByText('Генерация форм')).toBeNull();
+    expect(screen.queryByText('45%')).toBeNull();
+    expect(container.querySelector('.ai-assistant-chat__progress-bar-thin')).toBeNull();
+    expect(container.querySelector('.ai-assistant-chat__progress-attempts')).toBeNull();
+    // Both narration fields of the last poll are gone, and so is the body altogether: the only
+    // thing left for it to show is the generic cancellation notice the header already carries.
+    expect(screen.queryByText('Осталось три формы')).toBeNull();
+    expect(screen.queryByText('Создаю формы')).toBeNull();
+    expect(screen.queryByText('ai-assistant.chat.cancelled')).toBeNull();
+    expect(container.querySelector('.ai-assistant-chat__progress-content')).toBeNull();
+
+    const icons = screen.getAllByTestId('icon');
+    expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);
+    expect(icons.some(icon => icon.className.includes('fa-ban'))).toBe(true);
+  });
+
+  // A failed card is just as dead as a cancelled one: it must not go on announcing which planner
+  // attempt is running under a header that already says the request did not go through.
+  it('drops the attempt line on a failed card', () => {
+    const message = {
+      id: 'm-error',
+      messageData: {
+        type: 'business_app_generation',
+        stage: 'GENERATING_FORMS',
+        progress: 45,
+        error: true,
+        currentAttempt: 2,
+        maxAttempts: 3
+      },
+      text: 'ai-assistant.chat.result-error'
+    };
+
+    const { container } = render(<BusinessAppMessage message={message} markdownComponents={markdownComponents} />);
+
+    expect(container.querySelector('.ai-assistant-chat__progress-attempts')).toBeNull();
+  });
+
+  it('shows the attempt line while the generation is still running', () => {
+    const message = {
+      id: 'm-live',
+      messageData: {
+        type: 'business_app_generation',
+        stage: 'GENERATING_FORMS',
+        progress: 45,
+        currentAttempt: 2,
+        maxAttempts: 3
+      },
+      text: ''
+    };
+
+    const { container } = render(<BusinessAppMessage message={message} markdownComponents={markdownComponents} />);
+
+    expect(container.querySelector('.ai-assistant-chat__progress-attempts')).toBeTruthy();
+  });
+
+  // A failed turn stamps `messageData.error` and is already reported as such; the stamp keeps
+  // precedence, exactly as on the agent cards.
+  it('reports a failure, not a cancellation, when a cancelled message also carries the error stamp', () => {
+    const message = {
+      id: 'm-failed',
+      isCancelled: true,
+      messageData: {
+        type: 'business_app_generation',
+        stage: 'GENERATING_FORMS',
+        progress: 45,
+        error: 'boom',
+        stageMetadata: { label: 'Генерация форм', severity: 'ERROR', icon: 'fa-exclamation-triangle' }
+      },
+      text: ''
+    };
+
+    const { container } = render(<BusinessAppMessage message={message} markdownComponents={markdownComponents} />);
+
+    expect(screen.queryByText('ai-assistant.chat.cancelled-title')).toBeNull();
+    expect(screen.getByText('Генерация форм')).toBeTruthy();
+    expect(container.querySelector('.ai-assistant-chat__progress-bar-thin')).toBeNull();
+  });
+
   it('renders detailedStatus markdown (clarifying questions body)', () => {
     const message = {
       id: 'm2',

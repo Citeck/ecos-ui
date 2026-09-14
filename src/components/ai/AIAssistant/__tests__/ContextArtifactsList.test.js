@@ -45,13 +45,13 @@ describe('ContextArtifactsList', () => {
     expect(itemIcon).toBeTruthy();
   });
 
-  it('renders FORM artifact with file-alt icon', () => {
+  it('renders FORM artifact with wpforms icon', () => {
     const artifacts = [{ ref: 'uiserv/form@employee', displayName: 'Форма сотрудника', type: 'FORM' }];
 
     const { container } = render(<ContextArtifactsList contextArtifacts={artifacts} />);
 
     expect(screen.getByText('Форма сотрудника')).toBeTruthy();
-    const itemIcon = container.querySelector('.ai-assistant-chat__context-artifact-item .fa-file-text-o');
+    const itemIcon = container.querySelector('.ai-assistant-chat__context-artifact-item .fa-wpforms');
     expect(itemIcon).toBeTruthy();
   });
 

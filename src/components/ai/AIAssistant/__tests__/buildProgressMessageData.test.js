@@ -1,4 +1,5 @@
 import { buildProgressMessageData, mergeToolSteps } from '../hooks/useUniversalChat';
+
 import { MESSAGE_TYPES, AGENT_TOOL_STEP_PROGRESS_TYPE } from '@/components/ai/AIAssistant/constants';
 
 describe('buildProgressMessageData', () => {
@@ -59,6 +60,72 @@ describe('buildProgressMessageData', () => {
       expect(result.messageFields.messageData.type).toBe('agent_execution');
       expect(result.messageFields.messageData.currentStepId).toBeUndefined();
       expect(result.messageFields.messageData.steps).toBeUndefined();
+    });
+  });
+
+  describe('planner feedback fields (COREDEV-484 contract)', () => {
+    it('copies attempt fields and businessApp.planning onto agent_planning messageData', () => {
+      const planning = {
+        specRead: true,
+        requirementCount: 4,
+        requestedKinds: ['тип данных', 'форма', 'процесс', 'шаблон уведомления']
+      };
+      const progress = {
+        type: 'agent_planning',
+        progress: 0,
+        currentAttempt: 2,
+        maxAttempts: 3,
+        retryReason: 'план не покрыл требование «уведомления»',
+        businessApp: {
+          stage: 'ANALYZING_REQUIREMENTS',
+          progress: 0,
+          planning
+        }
+      };
+
+      const md = buildProgressMessageData(progress).messageFields.messageData;
+
+      expect(md.type).toBe('agent_planning');
+      expect(md.currentAttempt).toBe(2);
+      expect(md.maxAttempts).toBe(3);
+      expect(md.retryReason).toBe('план не покрыл требование «уведомления»');
+      expect(md.planning).toBe(planning);
+    });
+
+    it('leaves the planning fields undefined when an old backend does not send them', () => {
+      const progress = {
+        type: 'agent_planning',
+        progress: 0,
+        businessApp: { stage: 'ANALYZING_REQUIREMENTS', progress: 0 }
+      };
+
+      const md = buildProgressMessageData(progress).messageFields.messageData;
+
+      expect(md.type).toBe('agent_planning');
+      expect(md.overallProgress).toBe(0);
+      expect(md.currentAttempt).toBeUndefined();
+      expect(md.maxAttempts).toBeUndefined();
+      expect(md.retryReason).toBeUndefined();
+      expect(md.planning).toBeUndefined();
+    });
+
+    it('does not invent planning fields for agent_execution when they are absent', () => {
+      const progress = {
+        type: 'agent_execution',
+        currentStepId: 'step-1',
+        completedSteps: 0,
+        totalSteps: 2,
+        progress: 10
+      };
+
+      const md = buildProgressMessageData(progress).messageFields.messageData;
+
+      expect(md.type).toBe('agent_execution');
+      expect(md.currentStepId).toBe('step-1');
+      expect(md.currentAttempt).toBeUndefined();
+      expect(md.maxAttempts).toBeUndefined();
+      expect(md.retryReason).toBeUndefined();
+      expect(md.planning).toBeUndefined();
     });
   });
 
@@ -163,7 +230,13 @@ describe('buildProgressMessageData', () => {
     });
 
     it('ignores steps without a numeric stepIndex', () => {
-      const merged = mergeToolSteps([], [{ tool: 'a', status: 'RUNNING' }, { tool: 'b', status: 'RUNNING', stepIndex: 1 }]);
+      const merged = mergeToolSteps(
+        [],
+        [
+          { tool: 'a', status: 'RUNNING' },
+          { tool: 'b', status: 'RUNNING', stepIndex: 1 }
+        ]
+      );
       expect(merged).toHaveLength(1);
       expect(merged[0].tool).toBe('b');
     });

@@ -11,6 +11,8 @@ import {
   isGateStale,
   isSameRecordRef,
   resolveAiRecordRef,
+  sameStageKeys,
+  latestStages,
   stripRecordRefAlias
 } from '../utils';
 
@@ -49,6 +51,83 @@ describe('utils', () => {
       expect(getStageStatus('stage1', 20, range)).toBe('active');
       expect(getStageStatus('stage1', 40, range)).toBe('active');
       expect(getStageStatus('stage1', 60, range)).toBe('active');
+    });
+  });
+
+  describe('sameStageKeys', () => {
+    it('returns true for the same keys in the same order', () => {
+      expect(
+        sameStageKeys(
+          [{ key: 'A' }, { key: 'B' }],
+          [
+            { key: 'A', label: 'x' },
+            { key: 'B', label: 'y' }
+          ]
+        )
+      ).toBe(true);
+    });
+
+    it('returns false for the same keys in another order', () => {
+      expect(sameStageKeys([{ key: 'A' }, { key: 'B' }], [{ key: 'B' }, { key: 'A' }])).toBe(false);
+    });
+
+    it('returns false for lists of different length', () => {
+      expect(sameStageKeys([{ key: 'A' }], [{ key: 'A' }, { key: 'B' }])).toBe(false);
+      expect(sameStageKeys([{ key: 'A' }, { key: 'B' }], [{ key: 'A' }])).toBe(false);
+    });
+
+    it('treats null and undefined as an empty list', () => {
+      expect(sameStageKeys(null, undefined)).toBe(true);
+      expect(sameStageKeys(undefined, undefined)).toBe(true);
+      expect(sameStageKeys(null, [])).toBe(true);
+      expect(sameStageKeys([], undefined)).toBe(true);
+    });
+
+    it('returns false when only one side is missing', () => {
+      expect(sameStageKeys(null, [{ key: 'A' }])).toBe(false);
+      expect(sameStageKeys([{ key: 'A' }], undefined)).toBe(false);
+    });
+
+    it('returns false when a single key differs at one position', () => {
+      expect(sameStageKeys([{ key: 'A' }, { key: 'B' }, { key: 'C' }], [{ key: 'A' }, { key: 'X' }, { key: 'C' }])).toBe(false);
+      expect(sameStageKeys([{ key: 'A' }, { key: 'B' }], [{ key: 'A' }, { key: 'C' }])).toBe(false);
+    });
+
+    it('tolerates null entries and compares them by (missing) key', () => {
+      expect(sameStageKeys([null], [{ key: 'A' }])).toBe(false);
+      expect(sameStageKeys([null], [null])).toBe(true);
+    });
+  });
+
+  describe('latestStages', () => {
+    it('keeps the previous list when the incoming one carries the same keys', () => {
+      const prev = [{ key: 'A' }, { key: 'B' }];
+      expect(
+        latestStages([
+          { key: 'A', label: 'x' },
+          { key: 'B', label: 'y' }
+        ])(prev)
+      ).toBe(prev);
+    });
+
+    it('returns the incoming list when the keys differ', () => {
+      const next = [{ key: 'A' }, { key: 'B' }, { key: 'C' }];
+      expect(latestStages(next)([{ key: 'A' }, { key: 'B' }])).toBe(next);
+    });
+
+    it('returns the incoming list when there is no previous one', () => {
+      const next = [{ key: 'A' }];
+      expect(latestStages(next)(null)).toBe(next);
+    });
+
+    // An empty list is not a stepper of its own: `ChatTabs` hides the ribbon on one, so taking it
+    // would blank the timeline in the middle of a running generation.
+    it('keeps the previous list when the incoming one is empty or missing', () => {
+      const prev = [{ key: 'A' }, { key: 'B' }];
+      expect(latestStages([])(prev)).toBe(prev);
+      expect(latestStages(null)(prev)).toBe(prev);
+      expect(latestStages(undefined)(prev)).toBe(prev);
+      expect(latestStages([])(null)).toBeNull();
     });
   });
 

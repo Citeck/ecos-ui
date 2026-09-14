@@ -114,4 +114,18 @@ describe('AI assistant locale keys', () => {
       expect(String(ru[key] || '').trim()).not.toBe('');
     }
   );
+
+  // COREDEV-484: the placeholders of the planner feedback lines must match the params
+  // `AgentProgressMessage.jsx` passes to `t()`, otherwise the UI shows a raw `{{...}}` fragment.
+  it.each([
+    ['ai-assistant.agent-progress.planning-requirements', ['{{count}}']],
+    ['ai-assistant.agent-progress.planning-kinds', ['{{kinds}}']],
+    ['ai-assistant.agent-progress.planning-attempt', ['{{current}}', '{{total}}']]
+  ])('interpolates exactly the params of %s in both locales', (key, placeholders) => {
+    [en, ru].forEach(dictionary => {
+      const value = String(dictionary[key]);
+      placeholders.forEach(placeholder => expect(value).toContain(placeholder));
+      expect(value.match(/\{\{[^}]+\}\}/g)).toHaveLength(placeholders.length);
+    });
+  });
 });

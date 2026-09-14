@@ -1,4 +1,5 @@
 import { buildInitialProcessingMessage } from '../hooks/useUniversalChat';
+
 import { AGENT_TOOL_STEP_PROGRESS_TYPE, MESSAGE_TYPES } from '@/components/ai/AIAssistant/constants';
 
 jest.mock('../utils', () => ({
@@ -67,6 +68,50 @@ describe('buildInitialProcessingMessage', () => {
       expect(result.isAgentProgressContent).toBe(true);
       expect(result.messageData.type).toBe('agent_planning');
       expect(result.messageData.message).toBeUndefined();
+      expect(result.messageData.currentAttempt).toBeUndefined();
+      expect(result.messageData.planning).toBeUndefined();
+    });
+
+    it('keeps planner feedback fields from an agent_planning initialProgress (COREDEV-484)', () => {
+      const planning = { specRead: true, requirementCount: 2, requestedKinds: ['тип данных', 'форма'] };
+      const data = {
+        initialProgress: {
+          type: 'agent_planning',
+          currentAttempt: 1,
+          maxAttempts: 3,
+          businessApp: { stage: 'ANALYZING_REQUIREMENTS', progress: 0, planning }
+        }
+      };
+
+      const result = buildInitialProcessingMessage(data);
+
+      expect(result.messageData.type).toBe('agent_planning');
+      expect(result.messageData.currentAttempt).toBe(1);
+      expect(result.messageData.maxAttempts).toBe(3);
+      expect(result.messageData.retryReason).toBeUndefined();
+      expect(result.messageData.planning).toBe(planning);
+    });
+
+    it('keeps planner feedback fields from an agent_execution initialProgress as well (same block)', () => {
+      const data = {
+        initialProgress: {
+          type: 'agent_execution',
+          currentStepId: 'step-1',
+          currentAttempt: 2,
+          maxAttempts: 3,
+          retryReason: 'план не покрыл требование',
+          businessApp: { stage: 'GENERATING_FORMS', progress: 55 }
+        }
+      };
+
+      const result = buildInitialProcessingMessage(data);
+
+      expect(result.messageData.type).toBe('agent_execution');
+      expect(result.messageData.currentStepId).toBe('step-1');
+      expect(result.messageData.currentAttempt).toBe(2);
+      expect(result.messageData.maxAttempts).toBe(3);
+      expect(result.messageData.retryReason).toBe('план не покрыл требование');
+      expect(result.messageData.planning).toBeUndefined();
     });
   });
 

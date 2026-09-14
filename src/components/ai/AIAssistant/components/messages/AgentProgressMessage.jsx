@@ -46,6 +46,39 @@ const StepItem = ({ step, failed = false }) => {
 };
 
 /**
+ * Fragments of the planning facts line (contract section 2 of COREDEV-484): each fragment is
+ * rendered only when the backend actually sent the fact, so an old backend without
+ * `businessApp.planning` yields an empty list and the line is not drawn at all.
+ */
+const planningFacts = planning => {
+  if (!planning) return [];
+
+  const facts = [];
+  if (planning.specRead) {
+    facts.push(t('ai-assistant.agent-progress.planning-spec-read'));
+  }
+  // `0` is a fact too ("spec read, nothing extracted"); only an absent count is skipped
+  if (planning.requirementCount != null) {
+    facts.push(t('ai-assistant.agent-progress.planning-requirements', { count: planning.requirementCount }));
+  }
+  if (Array.isArray(planning.requestedKinds) && planning.requestedKinds.length > 0) {
+    facts.push(t('ai-assistant.agent-progress.planning-kinds', { kinds: planning.requestedKinds.join(', ') }));
+  }
+  return facts;
+};
+
+/**
+ * "Attempt N of M[: reason]" — only from the second planner attempt on; the first attempt is the
+ * normal case and gets no line.
+ */
+const planningAttempt = (currentAttempt, maxAttempts, retryReason) => {
+  if (!(currentAttempt > 1 && maxAttempts)) return null;
+
+  const attempt = t('ai-assistant.agent-progress.planning-attempt', { current: currentAttempt, total: maxAttempts });
+  return retryReason ? `${attempt}: ${retryReason}` : attempt;
+};
+
+/**
  * Agent progress message component
  * Displays planning spinner or execution progress with step checklist.
  *
@@ -63,20 +96,39 @@ const AgentProgressMessage = ({ message }) => {
   // `messageData`, so without honouring the stamp it keeps spinning and showing a filled bar for a
   // request that already failed — the very symptom of D-B-7, on the most common (agent) path.
   const failed = !!messageData.error;
+  // A cancelled turn is just as dead, but `cancelRequest` / `handlePollingCancelled` flag the
+  // message, not `messageData`, so the card has to look at both. Otherwise «Отменить» left the
+  // spinner turning and the planner facts and attempt line on screen for a request the user had
+  // stopped (COREDEV-484, A6).
+  const cancelled = !failed && !!message.isCancelled;
+  const dead = failed || cancelled;
+  const deadIcon = failed ? 'fa fa-exclamation-triangle' : 'fa fa-ban';
+  const deadTitle = failed ? t('ai-assistant.chat.request-failed') : t('ai-assistant.chat.cancelled-title');
+  const deadModifiers = {
+    'ai-assistant-chat__agent-progress--failed': failed,
+    'ai-assistant-chat__agent-progress--cancelled': cancelled
+  };
 
   // Config-agent tool-loop feed (contract #2) — cumulative tool-step ribbon
   if (progressType === AGENT_TOOL_STEP_PROGRESS_TYPE) {
     return <ToolStepProgress message={message} />;
   }
 
-  // Planning state - show spinner
+  // Planning state - show spinner plus what the planner already knows (COREDEV-484)
   if (progressType === 'agent_planning') {
+    const { planning, currentAttempt, maxAttempts, retryReason } = messageData;
+    // A dead card must not keep advertising facts/attempts of a request that already ended
+    const facts = dead ? [] : planningFacts(planning);
+    const attempt = dead ? null : planningAttempt(currentAttempt, maxAttempts, retryReason);
+
     return (
-      <div className={classNames('ai-assistant-chat__agent-progress', { 'ai-assistant-chat__agent-progress--failed': failed })}>
+      <div className={classNames('ai-assistant-chat__agent-progress', deadModifiers)}>
         <div className="ai-assistant-chat__agent-progress-header">
-          <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-spinner fa-spin'} />
-          <span>{failed ? t('ai-assistant.chat.request-failed') : t('ai-assistant.agent-progress.planning')}</span>
+          <Icon className={dead ? deadIcon : 'fa fa-spinner fa-spin'} />
+          <span>{dead ? deadTitle : t('ai-assistant.agent-progress.planning')}</span>
         </div>
+        {facts.length > 0 && <div className="ai-assistant-chat__agent-planning-facts">{facts.join(' \u00b7 ')}</div>}
+        {attempt && <div className="ai-assistant-chat__agent-planning-attempt">{attempt}</div>}
       </div>
     );
   }
@@ -86,10 +138,10 @@ const AgentProgressMessage = ({ message }) => {
     const { completedSteps = 0, totalSteps = 0, overallProgress = 0, currentStepDescription, steps } = messageData;
 
     return (
-      <div className={classNames('ai-assistant-chat__agent-progress', { 'ai-assistant-chat__agent-progress--failed': failed })}>
+      <div className={classNames('ai-assistant-chat__agent-progress', deadModifiers)}>
         <div className="ai-assistant-chat__agent-progress-header">
-          <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-cog fa-spin'} />
-          <span>{failed ? t('ai-assistant.chat.request-failed') : t('ai-assistant.agent-progress.executing')}</span>
+          <Icon className={dead ? deadIcon : 'fa fa-cog fa-spin'} />
+          <span>{dead ? deadTitle : t('ai-assistant.agent-progress.executing')}</span>
         </div>
 
         {/* Step counter */}
@@ -101,7 +153,12 @@ const AgentProgressMessage = ({ message }) => {
         <div className="ai-assistant-chat__agent-progress-bar">
           <div
             className={classNames('ai-assistant-chat__agent-progress-fill', {
-              'ai-assistant-chat__agent-progress-fill--failed': failed
+              // A live colour on a dead card would be the one part still reporting progress, so both
+              // dead states darken the bar — but with the colour their headers already use. Painting
+              // a cancellation in the danger colour read as a failure, and left one card showing a
+              // muted «Запрос отменён» over a red bar.
+              'ai-assistant-chat__agent-progress-fill--failed': failed,
+              'ai-assistant-chat__agent-progress-fill--cancelled': cancelled
             })}
             style={{
               width: `${overallProgress}%`,
@@ -110,14 +167,16 @@ const AgentProgressMessage = ({ message }) => {
           />
         </div>
 
-        {/* Current step description */}
-        {currentStepDescription && <div className="ai-assistant-chat__agent-current-step">{currentStepDescription}</div>}
+        {/* Current step description — the last poll's narration, muted on a dead card for the same
+            reason as the planner facts above: «Создаю форму заявки…» under a «Запрос отменён» header
+            is the one line still reporting live progress for a request the user stopped (A6). */}
+        {!dead && currentStepDescription && <div className="ai-assistant-chat__agent-current-step">{currentStepDescription}</div>}
 
         {/* Step checklist */}
         {steps && steps.length > 0 && (
           <div className="ai-assistant-chat__agent-steps-list">
             {steps.map(step => (
-              <StepItem key={step.id} step={step} failed={failed} />
+              <StepItem key={step.id} step={step} failed={dead} />
             ))}
           </div>
         )}

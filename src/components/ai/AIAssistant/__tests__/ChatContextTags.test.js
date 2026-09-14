@@ -222,12 +222,7 @@ describe('ChatContextTags', () => {
     });
 
     it('renders quote-left icon for selected text tag', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          selectedTextContext={{ text: 'Some text', reference: 'ref1' }}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} selectedTextContext={{ text: 'Some text', reference: 'ref1' }} />);
 
       const tag = container.querySelector('.ai-assistant-chat__context-tag--selected-text');
       expect(tag.querySelector('.fa-quote-left')).toBeTruthy();
@@ -255,12 +250,7 @@ describe('ChatContextTags', () => {
     ];
 
     it('renders auto context artifact tags', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={autoArtifacts}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={autoArtifacts} />);
 
       expect(screen.getByText('Сотрудник')).toBeTruthy();
       expect(screen.getByText('Форма сотрудника')).toBeTruthy();
@@ -271,12 +261,7 @@ describe('ChatContextTags', () => {
     });
 
     it('renders magic icon prefix and type-specific icon for each auto artifact', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[autoArtifacts[0]]}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={[autoArtifacts[0]]} />);
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
       expect(autoTag.querySelector('.fa-magic')).toBeTruthy();
@@ -284,24 +269,14 @@ describe('ChatContextTags', () => {
     });
 
     it('renders form icon for FORM type', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[autoArtifacts[1]]}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={[autoArtifacts[1]]} />);
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
-      expect(autoTag.querySelector('.fa-file-text-o')).toBeTruthy();
+      expect(autoTag.querySelector('.fa-wpforms')).toBeTruthy();
     });
 
     it('renders project-diagram icon for BPMN_PROCESS type', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[autoArtifacts[2]]}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={[autoArtifacts[2]]} />);
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
       expect(autoTag.querySelector('.fa-sitemap')).toBeTruthy();
@@ -309,10 +284,7 @@ describe('ChatContextTags', () => {
 
     it('renders cube icon for unknown type', () => {
       const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[{ ref: 'test/ref', displayName: 'Unknown', type: 'SOMETHING_ELSE' }]}
-        />
+        <ChatContextTags {...defaultProps} autoContextArtifacts={[{ ref: 'test/ref', displayName: 'Unknown', type: 'SOMETHING_ELSE' }]} />
       );
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
@@ -320,12 +292,7 @@ describe('ChatContextTags', () => {
     });
 
     it('has tooltip "Найдено автоматически"', () => {
-      const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[autoArtifacts[0]]}
-        />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={[autoArtifacts[0]]} />);
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
       expect(autoTag.getAttribute('title')).toBe('ai-assistant.context-tag.auto-found');
@@ -334,11 +301,7 @@ describe('ChatContextTags', () => {
     it('calls onRemoveAutoContextArtifact when remove button is clicked', () => {
       const onRemove = jest.fn();
       const { container } = render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[autoArtifacts[0]]}
-          onRemoveAutoContextArtifact={onRemove}
-        />
+        <ChatContextTags {...defaultProps} autoContextArtifacts={[autoArtifacts[0]]} onRemoveAutoContextArtifact={onRemove} />
       );
 
       const removeBtn = container.querySelector('.ai-assistant-chat__context-tag--auto .ai-assistant-chat__context-tag-remove');
@@ -347,20 +310,13 @@ describe('ChatContextTags', () => {
     });
 
     it('falls back to ref when displayName is missing', () => {
-      render(
-        <ChatContextTags
-          {...defaultProps}
-          autoContextArtifacts={[{ ref: 'emodel/type@test', type: 'DATA_TYPE' }]}
-        />
-      );
+      render(<ChatContextTags {...defaultProps} autoContextArtifacts={[{ ref: 'emodel/type@test', type: 'DATA_TYPE' }]} />);
 
       expect(screen.getByText('emodel/type@test')).toBeTruthy();
     });
 
     it('renders only agent selector when autoContextArtifacts is empty', () => {
-      const { container } = render(
-        <ChatContextTags {...defaultProps} autoContextArtifacts={[]} />
-      );
+      const { container } = render(<ChatContextTags {...defaultProps} autoContextArtifacts={[]} />);
       expect(container.querySelector('.ai-assistant-chat__agent-selector-inline')).toBeTruthy();
       expect(container.querySelector('.ai-assistant-chat__context-tag--auto')).toBeNull();
     });

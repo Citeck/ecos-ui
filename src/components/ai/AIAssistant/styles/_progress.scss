@@ -171,7 +171,12 @@
     line-height: 1.4;
     font-style: italic;
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       margin: 0 0 $spacing-md 0;
       color: var(--text-primary, #333);
 
@@ -180,9 +185,18 @@
       }
     }
 
-    h1 { font-size: 20px; font-weight: 700; }
-    h2 { font-size: 18px; font-weight: 600; }
-    h3 { font-size: $font-size-lg; font-weight: 600; }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: 600;
+    }
 
     p {
       margin: $spacing-sm 0;
@@ -190,7 +204,8 @@
       color: var(--text-primary, #333);
     }
 
-    ul, ol {
+    ul,
+    ol {
       margin: $spacing-sm 0;
       padding-left: $spacing-xl;
 
@@ -382,6 +397,11 @@
   // Dead turn: the ribbon stops spinning and says so, instead of announcing work that ended (D-B-7)
   &__tool-loop--failed &__tool-loop-header {
     color: var(--danger-color, #f44336);
+  }
+
+  // Cancelled turn: dead as well, but by the user's hand — muted, not alarming
+  &__tool-loop--cancelled &__tool-loop-header {
+    color: var(--text-secondary, #666);
   }
 
   &__tool-steps-list {
