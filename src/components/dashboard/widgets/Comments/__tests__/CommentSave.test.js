@@ -101,6 +101,26 @@ describe('Comment — what is sent on save', () => {
     expect(comment.handleTextBeforeSave()).toBe('<p>stored</p>');
   });
 
+  it.each([
+    ['a new comment', null],
+    ['an existing comment', { id: 'emodel/comment@1' }]
+  ])('%s carries the refs of the files uploaded in the editor', (_name, comment) => {
+    // Without them the backend never links the attachments to the record and they stay
+    // orphaned, out of the record documents — COREDEV-528, which happened on edit only.
+    const editor = newEditor();
+    fill(editor, () => [paragraph($createTextNode('see emodel/attachment@a'))]);
+    const saved = commentWith('html', editor);
+    saved.props = { ...saved.props, comment, recordRef: 'emodel/doc@1', createComment: jest.fn(), updateComment: jest.fn() };
+    saved.toggleLoading = () => {};
+    saved._uploadDocsRefService.setUploadedEntityRefs(['emodel/attachment@a', 'emodel/attachment@not-in-the-text']);
+
+    saved.handleSaveComment();
+
+    const sent = comment === null ? saved.props.createComment.mock.calls[0][0] : saved.props.updateComment.mock.calls[0][1];
+
+    expect(sent.docsRefs).toEqual(['emodel/attachment@a']);
+  });
+
   it('the trim does not become an undo step of its own', () => {
     const editor = newEditor();
     const historyState = createEmptyHistoryState();
