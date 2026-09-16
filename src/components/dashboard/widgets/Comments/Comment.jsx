@@ -322,7 +322,11 @@ export class Comment extends Component {
           recordRef,
           {
             id: comment.id,
-            text
+            text,
+            // Files attached while editing are uploaded as standalone attachments; without
+            // passing them here they never reach `att_add_docs:documents` and stay orphaned,
+            // out of the record documents.
+            docsRefs
           },
           callback
         );
