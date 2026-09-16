@@ -143,14 +143,6 @@ const useAdditionalContext = (options = {}) => {
     setScriptContext(null);
   }, []);
 
-  // Clear all context
-  const clearAllContext = useCallback(() => {
-    setAdditionalContext({ records: [], documents: [], attributes: [] });
-    setSelectedAdditionalContext([]);
-    setSelectedTextContext(null);
-    setScriptContext(null);
-  }, []);
-
   // Add record to context
   const addRecordToContext = useCallback(recordData => {
     setAdditionalContext(prev => {
@@ -185,6 +177,11 @@ const useAdditionalContext = (options = {}) => {
   const autoRecordRef = useRef(null);
   // Guards against stale async loads when the URL changes quickly
   const syncSeqRef = useRef(0);
+  // `isOpen` as seen by `clearAllContext`, which is handed to `useUniversalChat` and must keep the
+  // same identity when the panel opens or closes — reading the prop directly would rebuild that
+  // callback, and `resetConversationState` with it, on every open.
+  const isOpenRef = useRef(isOpen);
+  isOpenRef.current = isOpen;
 
   // Sync the record opened on the current page (dashboard) into the chat context
   const syncCurrentRecord = useCallback(async () => {
@@ -219,6 +216,30 @@ const useAdditionalContext = (options = {}) => {
       console.error('Error auto-adding current record to AI context:', error);
     }
   }, [addRecordToContext]);
+
+  // Clear all context. The only caller is `useUniversalChat.resetConversationState`, which both the
+  // «clear chat» button and an agent switch go through.
+  const clearAllContext = useCallback(() => {
+    setAdditionalContext({ records: [], documents: [], attributes: [] });
+    setSelectedAdditionalContext([]);
+    setSelectedTextContext(null);
+    setScriptContext(null);
+
+    // The record auto-added from the address belongs to the page, not to the conversation: the card
+    // is still open, so the fresh conversation has to carry its tag exactly as a chat opened from
+    // scratch does (COREDEV-345). Forgetting the ref is only half of the restoration — while the
+    // chat stays open and the address does not change, nothing runs the sync again (the effect
+    // below hangs on `isOpen` and on a callback whose identity never changes), so the record would
+    // return no earlier than the next navigation, and every question until then would be answered
+    // as if no card were open at all.
+    autoRecordRef.current = null;
+
+    // A closed chat has no auto-context to restore: the effect below already dropped the ref on
+    // close and syncs by itself on the next open.
+    if (isOpenRef.current) {
+      syncCurrentRecord();
+    }
+  }, [syncCurrentRecord]);
 
   // Auto-add the record from the opened dashboard when the chat is open; follow URL changes
   useEffect(() => {

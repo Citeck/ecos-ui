@@ -413,6 +413,140 @@ describe('useAdditionalContext', () => {
       expect(result.current.additionalContext.records).toHaveLength(1);
       additionalContextService.isRecordInContext.mockReturnValue(false);
     });
+
+    // Replacing the conversation — «clear chat» and an agent switch alike — wipes the context
+    // through `useUniversalChat.resetConversationState`, while the card the record came from stays
+    // open on screen. The tag belongs to the page, so the fresh conversation has to carry it again;
+    // without this the assistant answered «no card is open» for the rest of the dialog.
+    it('restores the current record after the context is cleared', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+      expect(result.current.additionalContext.records).toHaveLength(1);
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(additionalContextService.loadRecordData).toHaveBeenCalledTimes(2);
+      expect(result.current.additionalContext.records).toEqual([{ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' }]);
+      expect(result.current.selectedAdditionalContext).toContain(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
+    });
+
+    // Switching agent twice, or clearing the chat after a switch, goes through the same reset again:
+    // the restoration has to survive every repetition, not only the first one.
+    it('restores the current record on every clear in a row', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(additionalContextService.loadRecordData).toHaveBeenCalledTimes(3);
+      expect(result.current.additionalContext.records).toHaveLength(1);
+    });
+
+    // Only the record added from the address comes back. Documents and a script picked by hand
+    // belonged to the conversation that was just discarded, and restoring them would re-attach a
+    // script to a dialog the user deliberately emptied.
+    it('restores only the auto-added record, leaving hand-picked context cleared', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      act(() => {
+        result.current.addDocumentToContext({ recordRef: 'doc-1', displayName: 'File 1' });
+        result.current.setScriptContext({ scriptContextType: 'dev_console' });
+      });
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(result.current.additionalContext.records).toEqual([{ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' }]);
+      expect(result.current.additionalContext.documents).toEqual([]);
+      expect(result.current.scriptContext).toBeNull();
+      expect(result.current.selectedAdditionalContext).not.toContain(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS);
+    });
+
+    it('does not restore the current record when the chat is closed', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: false }));
+
+      await act(async () => {});
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(additionalContextService.loadRecordData).not.toHaveBeenCalled();
+      expect(result.current.additionalContext.records).toEqual([]);
+    });
+
+    it('clears the context and restores nothing on a page without a record', async () => {
+      getRecordRef.mockReturnValue('');
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      act(() => {
+        result.current.setScriptContext({ scriptContextType: 'dev_console' });
+      });
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(additionalContextService.loadRecordData).not.toHaveBeenCalled();
+      expect(result.current.additionalContext.records).toEqual([]);
+      expect(result.current.scriptContext).toBeNull();
+    });
+
+    // A failed reload must not wedge the auto-context the way the defect did: the remembered
+    // reference stays empty, so the next navigation picks the record up again.
+    it('recovers on the next navigation when the reload after a clear fails', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      additionalContextService.loadRecordData.mockRejectedValueOnce(new Error('load failed'));
+
+      await act(async () => {
+        result.current.clearAllContext();
+      });
+
+      expect(result.current.additionalContext.records).toEqual([]);
+
+      await act(async () => {
+        document.dispatchEvent(new Event(CHANGE_URL_EVENT));
+      });
+
+      expect(result.current.additionalContext.records).toEqual([{ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' }]);
+
+      consoleError.mockRestore();
+    });
   });
 
   // The documents branch of the same duplicate-chip defect the records branch is guarded against:
