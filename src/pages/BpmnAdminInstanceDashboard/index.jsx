@@ -3,9 +3,9 @@ import React from 'react';
 import { InstanceContextProvider } from './InstanceContext';
 import BpmnAdminInstanceDashboard from './BpmnAdminInstanceDashboard';
 
-export default () => {
+export default ({ tabLink }) => {
   return (
-    <InstanceContextProvider>
+    <InstanceContextProvider tabLink={tabLink}>
       <BpmnAdminInstanceDashboard />
     </InstanceContextProvider>
   );

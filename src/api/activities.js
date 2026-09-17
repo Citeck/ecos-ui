@@ -117,13 +117,19 @@ export class ActivitiesApi {
     return comment.save();
   };
 
-  update = ({ id, text, record, selectedType, ...rest } = {}) => {
+  update = ({ id, text, record, selectedType, docsRefs = [], ...rest } = {}) => {
     const comment = Records.getRecordToEdit(id);
 
     comment.att('text', text);
     comment.att('_type', selectedType.id);
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
+
+    // As in `create`: files attached in the editor are uploaded parentless, and this is what
+    // makes them children of the activity. Editing must send them too, or they stay orphaned.
+    if (isArray(docsRefs) && docsRefs.length > 0) {
+      comment.att('att_add_docs:documents', docsRefs);
+    }
 
     switch (selectedType.type) {
       case PLANNED_ACTIVITY_TYPE:

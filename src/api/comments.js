@@ -97,10 +97,16 @@ export class CommentsApi {
     }
   };
 
-  update = ({ id, text } = {}) => {
+  update = ({ id, text, docsRefs = [] } = {}) => {
     const comment = Records.getRecordToEdit(id);
 
     comment.att('text', text);
+
+    // Same condition as in `create`: the assoc lives on emodel records only, alfresco comments
+    // have no `docs:documents`.
+    if (!isNodeRef(id) && isArray(docsRefs) && docsRefs.length > 0) {
+      comment.att('att_add_docs:documents', docsRefs);
+    }
 
     return comment.save();
   };

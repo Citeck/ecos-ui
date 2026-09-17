@@ -386,7 +386,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-shell .editor-image img.focused {
-    outline: 2px solid var(--primary-color) 3;
+    outline: 2px solid var(--primary-color);
     user-select: none;
   }
 
@@ -466,7 +466,7 @@ $rt-editor-content-line-height: 23px;
     width: 7px;
     height: 7px;
     position: absolute;
-    background-color: var(--primary-color) 3;
+    background-color: var(--primary-color);
     border: 1px solid $color-white;
   }
 
@@ -531,7 +531,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-shell .inline-editor-image img.focused {
-    outline: 2px solid var(--primary-color) 3;
+    outline: 2px solid var(--primary-color);
   }
 
   .editor-shell .inline-editor-image img.focused.draggable {
@@ -970,7 +970,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .excalidraw-button.selected {
-    outline: 2px solid var(--primary-color) 3;
+    outline: 2px solid var(--primary-color);
     user-select: none;
   }
 
@@ -999,7 +999,7 @@ $rt-editor-content-line-height: 23px;
   }
 
   .editor-equation.focused {
-    outline: 2px solid var(--primary-color) 3;
+    outline: 2px solid var(--primary-color);
   }
 
   button.item i {

@@ -121,6 +121,67 @@ describe('ecosUrlStorage', () => {
     expect(url).toBe(`${window.location.origin}${CONTENT_ENDPOINT}?ref=emodel/temp-file@abc&download=true`);
   });
 
+  // The legacy Alfresco backend. A form whose file field targets `/share/proxy/alfresco/eform/file`
+  // (fin requests, contracts, letters — every Alfresco-backed type) gets `{"nodeRef": …}` back from
+  // `FileEformPost` and never an `entityRef`. Reading only `entityRef` there loses the upload's one
+  // reference, and the Alfresco backend then silently writes no content and wipes the children of
+  // the association it was saving into — see `legacyAlfrescoValue`.
+  describe('legacy Alfresco endpoint', () => {
+    const ALFRESCO_UPLOAD_URL = '/share/proxy/alfresco/eform/file';
+    const NODE_REF = 'workspace://SpacesStore/6a1c9de7-3b40-4a52-9f0e-2c7b1d5e8f00';
+
+    // AlfNodeContentFileHelper.isFileFromEformFormat (ecos-community-core), over the array a file
+    // field submits: every element must carry a `data.nodeRef` that parses as a NodeRef
+    // (`protocol://identifier/id`). False means the value is not recognised as a file at all.
+    const isFileFromEformFormat = value =>
+      Array.isArray(value) &&
+      value.every(node => {
+        const nodeRef = node && node.data && node.data.nodeRef;
+        return typeof nodeRef === 'string' && /^[^:/]+:\/\/[^/]+\/.+$/.test(nodeRef);
+      });
+
+    it('keeps the nodeRef Alfresco answered with, so the backend recognises the value as a file', async () => {
+      uploadContent.mockResolvedValue({ nodeRef: NODE_REF });
+
+      const file = makeFile({ size: 4096, type: 'application/pdf' });
+      const result = await provider.uploadFile(file, 'invoice-126.pdf', '', () => {}, ALFRESCO_UPLOAD_URL, undefined);
+
+      expect(result.data).toEqual({ nodeRef: NODE_REF });
+      expect(result).toEqual({
+        storage: 'url',
+        name: 'invoice-126.pdf',
+        url: `${window.location.origin}/share/page/card-details?nodeRef=${NODE_REF}`,
+        size: 4096,
+        type: 'application/pdf',
+        data: { nodeRef: NODE_REF }
+      });
+
+      // The predicate the whole failure hinges on: without it processPropFileContent writes no
+      // content, and a child association is emptied by NodeUtils.setAssocs(primaryChildren = true).
+      expect(isFileFromEformFormat([result])).toBe(true);
+    });
+
+    it('is what the backend also sends back: a stored Alfresco file value has the same data.nodeRef', async () => {
+      uploadContent.mockResolvedValue({ nodeRef: NODE_REF });
+
+      const { url, data } = await provider.uploadFile(makeFile(), 'invoice-126.pdf', '', () => {}, ALFRESCO_UPLOAD_URL, undefined);
+
+      // FileRepresentation.fromAlfNode (ecos-community-core) puts exactly this pair on every file
+      // value a form loads, so a fresh upload and a stored one round-trip alike.
+      expect(url.endsWith(`/share/page/card-details?nodeRef=${NODE_REF}`)).toBe(true);
+      expect(data.nodeRef).toBe(NODE_REF);
+    });
+
+    it('leaves the new backend alone: an entityRef body still produces the entityRef shape', async () => {
+      uploadContent.mockResolvedValue({ entityRef: 'emodel/temp-file@abc' });
+
+      const result = await provider.uploadFile(makeFile(), 'report-abc.pdf', '', () => {}, UPLOAD_URL, undefined);
+
+      expect(result.data).toEqual({ entityRef: 'emodel/temp-file@abc' });
+      expect(result.data.nodeRef).toBeUndefined();
+    });
+  });
+
   it('adapts handleProgress(state, facade) calls into formio progressCallback({loaded, total}) calls', async () => {
     let capturedHandleProgress;
     uploadContent.mockImplementation((file, opts) => {

@@ -12,8 +12,10 @@ import { getSearchParams, isNewVersionPage, SearchKeys } from '@/helpers/urls';
 import { extractLabel } from '@/helpers/util';
 import pageTabList from '@/services/pageTabs/PageTabList';
 
-const mapStateToProps = state => ({
-  dashboardId: get(state, `dashboard[${pageTabList.activeTabId}].identification.id`, '')
+// The tab id is external data, so the lodash path has to be an ARRAY: a string path would be split
+// on any dot or bracket inside the id (COREDEV-492).
+export const mapStateToProps = state => ({
+  dashboardId: get(state, ['dashboard', pageTabList.activeTabId, 'identification', 'id'], '')
 });
 
 class DropdownMenuItem extends React.Component {

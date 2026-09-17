@@ -117,6 +117,19 @@ $form-button-height: 32px;
 
 $select-option-line-height: 22px;
 
+// Widget header geometry. Every widget header on a dashboard must read as the same header, so the
+// numbers live here and not next to one of its users: the shared `Dashlet` (Dashlet.scss) and the
+// hierarchical tree widget, which draws its own header instead of reusing `Dashlet`
+// (plugins/ecos-ui-hierarchical-tree-widget-plugin/Widget/style.scss). See docs/widget-header-geometry.md.
+// `$dashlet-header-height` includes the 1px bottom border (border-box).
+// `$dashlet-caption-no-collapser-padding` is the inset a caption needs when no collapse chevron is
+// rendered in front of it, so that the title text starts on the same vertical as the body content:
+// 1px panel border + 6px header padding + 1px caption border + 9px = 17px = 16px body padding + 1px border.
+$dashlet-header-height: 36px;
+$dashlet-header-padding-left: 6px;
+$dashlet-header-padding-right: 8.33px;
+$dashlet-caption-no-collapser-padding: 9px;
+
 /* override bootstrap constants */
 $primary: $color-blue-dark;
 $success: $color-green-10;

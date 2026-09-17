@@ -5,6 +5,7 @@ import {
   EQUAL_PREDICATES_MAP,
   filterPredicates,
   getPredicates,
+  NUMBERS,
   PREDICATE_AND,
   PREDICATE_EQ,
   PREDICATE_NOT,
@@ -26,19 +27,30 @@ import FilterPredicate from './FilterPredicate';
 import GroupPredicate from './GroupPredicate';
 import Predicate from './Predicate';
 import { buildGroupedRowPredicate, buildRowPredicates } from './groupedRowPredicate';
-import { getAttFromPredicate, isIgnoredByQuery } from './utils';
+import { getAttFromPredicate, hasLeadingZeros, isIgnoredByQuery } from './utils';
 
 export default class ParserPredicate {
   static get predicatesWithoutValue(): any[] {
     return PREDICATES_WITHOUT_VALUE;
   }
 
-  static getSearchPredicates({ text, columns, groupBy }: { text: any; columns: any[]; groupBy: any }): any {
+  /**
+   * The journal header search: an OR over every column the text could match.
+   *
+   * A text padded with a leading zero can only have been typed as an identifier, so the numeric
+   * columns — which would match it by its numeric value alone, `000012` finding the record holding
+   * `12` — stay out of that OR. See `hasLeadingZeros`.
+   */
+  static getSearchPredicates({ text, columns, groupBy }: { text: any; columns: any[]; groupBy?: any }): any {
     const val: any[] = [];
 
     if (groupBy && groupBy.length) {
       groupBy = groupBy[0].split('&');
       columns = columns.filter((c: any) => groupBy.filter((g: any) => g === c.attribute)[0]);
+    }
+
+    if (columns && hasLeadingZeros(text)) {
+      columns = columns.filter((c: any) => !NUMBERS.includes(c.type));
     }
 
     columns &&

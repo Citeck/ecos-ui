@@ -27,7 +27,8 @@ import {
   setSwimlaneGrouping,
   setSwimlaneValues,
   setSwimlaneCellData,
-  setSwimlaneCellLoading
+  setSwimlaneCellLoading,
+  setSwimlaneMoving
 } from '../../actions/kanban';
 import reducer from '../../reducers/kanban';
 import { computeSwimlanesTotalCount } from '../../selectors/kanban';
@@ -1229,6 +1230,88 @@ describe('kanban sagas tests', () => {
       expect(bigCell.payload.totalCount).toBe(25);
     });
 
+    it('re-derives the row set from the rows as they are after the values round trip', async () => {
+      let state = {
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+        kanban: {
+          [stateId]: {
+            ...silentState.kanban[stateId],
+            dataCards: [],
+            swimlaneGrouping: swimlaneData.swimlaneGrouping,
+            swimlanes: JSON.parse(JSON.stringify(swimlaneData.swimlanes))
+          }
+        }
+      };
+      const dispatched = [];
+      const dispatch = action => {
+        dispatched.push(action);
+        state = { ...state, kanban: reducer(state.kanban, action) };
+      };
+
+      let finishValues, reportCalled;
+      const valuesCalled = new Promise(resolve => {
+        reportCalled = resolve;
+      });
+      jest.spyOn(api.kanban, 'getDistinctValues').mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            finishValues = () =>
+              resolve([
+                { id: 'priority-high', label: 'High' },
+                { id: 'priority-low', label: 'Low' }
+              ]);
+            reportCalled();
+          })
+      );
+
+      const task = runSaga(
+        { getState: () => state, dispatch },
+        kanban.sagaReloadBoardData,
+        { api },
+        { payload: { stateId, silent: true } }
+      );
+
+      // The user drops a card while the refresh is still re-deriving the row set.
+      await valuesCalled;
+      dispatch(setSwimlaneMoving({ stateId, swimlaneId: 'priority-high', isMoving: true }));
+      finishValues();
+      await task.done;
+
+      // setSwimlaneValues replaces the array wholesale, so a pre-round-trip snapshot would erase the
+      // lock and let «Ещё» and DnD back on a row whose move-card is still pending.
+      const merged = dispatched.find(d => d.type === setSwimlaneValues().type).payload.swimlanes;
+      expect(merged.find(sl => sl.id === 'priority-high').isMoving).toBe(true);
+
+      const cells = dispatched.filter(d => d.type === setSwimlaneCellData().type).map(d => `${d.payload.swimlaneId}/${d.payload.statusId}`);
+      expect(cells.sort()).toEqual(['priority-low/some-id-1', 'priority-low/some-id-2']);
+    });
+
+    it('skips the row that is mid-move — its own reload delivers the post-move truth', async () => {
+      const swimlanes = [{ ...swimlaneData.swimlanes[0], isMoving: true }, swimlaneData.swimlanes[1]];
+      const state = {
+        ...silentState,
+        kanban: {
+          [stateId]: {
+            ...silentState.kanban[stateId],
+            dataCards: [],
+            swimlaneGrouping: swimlaneData.swimlaneGrouping,
+            swimlanes
+          }
+        }
+      };
+
+      const dispatched = await wrapRunSaga(kanban.sagaReloadBoardData, { silent: true }, state);
+
+      // Only the idle row is re-fetched: a response issued before the server applied the move
+      // would put the card back into the cell it just left.
+      const cells = dispatched.filter(d => d.type === setSwimlaneCellData().type).map(d => `${d.payload.swimlaneId}/${d.payload.statusId}`);
+      expect(cells.sort()).toEqual(['priority-low/some-id-1', 'priority-low/some-id-2']);
+
+      // ...and the row keeps its lock through the re-derived row set, so the move still unlocks it.
+      const merged = dispatched.find(d => d.type === setSwimlaneValues().type).payload.swimlanes;
+      expect(merged.find(sl => sl.id === 'priority-high').isMoving).toBe(true);
+    });
+
     it('re-derives the swimlane rows: keeps loaded rows, adds new ones, drops vanished ones', async () => {
       const spyGetDistinctValues = jest.spyOn(api.kanban, 'getDistinctValues').mockReturnValueOnce([
         { id: 'priority-high', label: 'High' },
@@ -1526,6 +1609,271 @@ describe('kanban sagas tests', () => {
       expect(spyError).toHaveBeenCalled();
 
       api.kanban.moveCard = origMoveCard;
+    });
+  });
+
+  describe('COREDEV-426: moving and paging a swimlane must not race', () => {
+    function createRunner() {
+      let state = {
+        kanban: {
+          [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...JSON.parse(JSON.stringify(swimlaneData)) }
+        },
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+      };
+      const dispatched = [];
+      const dispatch = action => {
+        dispatched.push(action);
+        state = { ...state, kanban: reducer(state.kanban, action) };
+      };
+      return {
+        row: () => state.kanban[stateId].swimlanes[0],
+        dispatch,
+        dispatched,
+        run: (saga, payload) => runSaga({ getState: () => state, dispatch }, saga, { api }, { payload: { stateId, ...payload } }),
+        runRaw: (saga, ...args) => runSaga({ getState: () => state, dispatch }, saga, ...args)
+      };
+    }
+    const move = { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' };
+    const more = { swimlaneId: 'priority-high', statusId: 'some-id-1' };
+
+    it('blocks the false More action and another move until the server row reload completes', async () => {
+      const runner = createRunner();
+      let finishMove, finishReload, reportReload;
+      const pendingMove = new Promise(resolve => {
+        finishMove = resolve;
+      });
+      const pendingReload = new Promise(resolve => {
+        finishReload = resolve;
+      });
+      const reloadStarted = new Promise(resolve => {
+        reportReload = resolve;
+      });
+      const originalMove = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn(() => pendingMove);
+      spyGetBoardCards.mockImplementationOnce(() => {
+        reportReload();
+        return pendingReload;
+      });
+      let task;
+      try {
+        task = runner.run(kanban.sagaMoveSwimlaneCard, move);
+        expect(runner.row().isMoving).toBe(true);
+        // The badge deliberately keeps its server value, but the moved card is already in the target.
+        const source = runner.row().cells['some-id-1'];
+        expect(source.records).toHaveLength(1);
+        expect(source.totalCount).toBe(2);
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        await runner.run(kanban.sagaMoveSwimlaneCard, move).done;
+        expect(spyGetBoardCards).not.toHaveBeenCalled();
+        expect(api.kanban.moveCard).toHaveBeenCalledTimes(1);
+        expect(runner.row().isMoving).toBe(true); // a rejected second move must not unlock the first
+
+        finishMove();
+        await reloadStarted;
+        expect(runner.row().isMoving).toBe(true);
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+        finishReload([
+          { columnId: 'some-id-1', records: [{ id: 'rec-2', cardId: 'rec-2' }], totalCount: 1 },
+          {
+            columnId: 'some-id-2',
+            records: [
+              { id: 'rec-1', cardId: 'rec-1' },
+              { id: 'rec-3', cardId: 'rec-3' }
+            ],
+            totalCount: 2
+          }
+        ]);
+        await task.done;
+        expect(runner.row().isMoving).toBe(false);
+        const refs = Object.values(runner.row().cells).flatMap(c => c.records.map(r => r.cardId));
+        expect(new Set(refs).size).toBe(refs.length);
+        expect(console.error).not.toHaveBeenCalled();
+      } finally {
+        if (task) task.cancel();
+        finishMove();
+        finishReload([]);
+        api.kanban.moveCard = originalMove;
+      }
+    });
+
+    it.each(['failure', 'cancellation'])('releases the row on %s', async outcome => {
+      const runner = createRunner();
+      const originalMove = api.kanban.moveCard;
+      let rejectMove;
+      api.kanban.moveCard = jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            rejectMove = reject;
+          })
+      );
+      try {
+        const task = runner.run(kanban.sagaMoveSwimlaneCard, move);
+        expect(runner.row().isMoving).toBe(true);
+        if (outcome === 'failure') rejectMove(new Error('move failed'));
+        else task.cancel();
+        await task.done;
+        expect(runner.row().isMoving).toBe(false);
+        if (outcome === 'failure') expect(runner.row().cells).toEqual(swimlaneData.swimlanes[0].cells);
+      } finally {
+        api.kanban.moveCard = originalMove;
+      }
+    });
+
+    it('does not write a card refresh from the snapshot it took before a concurrent move', async () => {
+      const runner = createRunner();
+      let finishLoad;
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: () =>
+          new Promise(resolve => {
+            finishLoad = () => resolve({ _status: 'some-id-2', _swimlaneValue: 'priority-high', id, cardId: id });
+          })
+      }));
+
+      try {
+        // runSaga runs to the first async yield, so the record load is already in flight here.
+        const task = runner.run(kanban.sagaRefreshCard, { recordRef: 'rec-1' });
+        expect(finishLoad).toBeDefined();
+
+        const before = JSON.parse(JSON.stringify(runner.row().cells));
+        runner.dispatch(setSwimlaneMoving({ stateId, swimlaneId: 'priority-high', isMoving: true }));
+        runner.dispatched.length = 0;
+
+        finishLoad();
+        await task.done;
+
+        expect(runner.row().cells).toEqual(before);
+        expect(runner.dispatched.some(a => a.type === setSwimlaneCellData().type)).toBe(false);
+        // ...and bailing out must not degrade into the blocking full reload either.
+        expect(runner.dispatched.some(a => a.type === reloadBoardData().type)).toBe(false);
+      } finally {
+        spyRecordsGet.mockImplementation(recordsGet);
+      }
+    });
+
+    it('still refreshes a card in an idle row while another row is moving', async () => {
+      const runner = createRunner();
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async () => ({ _status: 'some-id-1', _swimlaneValue: 'priority-low', id, cardId: id })
+      }));
+
+      try {
+        runner.dispatch(setSwimlaneMoving({ stateId, swimlaneId: 'priority-high', isMoving: true }));
+        runner.dispatched.length = 0;
+
+        await runner.run(kanban.sagaRefreshCard, { recordRef: 'rec-4' }).done;
+
+        // The lock is per row: a card in priority-low must not be held hostage by priority-high.
+        const cellWrites = runner.dispatched.filter(a => a.type === setSwimlaneCellData().type);
+        expect(cellWrites).not.toHaveLength(0);
+        expect(cellWrites.every(a => a.payload.swimlaneId === 'priority-low')).toBe(true);
+      } finally {
+        spyRecordsGet.mockImplementation(recordsGet);
+      }
+    });
+
+    it('does not fall back to a full reload while a row is moving', async () => {
+      const runner = createRunner();
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async () => ({ _status: 'some-id-1', _swimlaneValue: 'unknown-row', id, cardId: id })
+      }));
+
+      try {
+        runner.dispatch(setSwimlaneMoving({ stateId, swimlaneId: 'priority-high', isMoving: true }));
+        runner.dispatched.length = 0;
+
+        // rec-4 sits in the idle priority-low row, but its new swimlane value is off the board, so
+        // the refresh cannot place it and would normally ask for a full reload.
+        await runner.run(kanban.sagaRefreshCard, { recordRef: 'rec-4' }).done;
+
+        // buildSwimlaneRow carries no isMoving: a full reload would hand «Ещё» and DnD back to a row
+        // whose move-card is still pending.
+        expect(runner.dispatched.some(a => a.type === reloadBoardData().type)).toBe(false);
+      } finally {
+        spyRecordsGet.mockImplementation(recordsGet);
+      }
+    });
+
+    it('a post-edit cell reload skips the row that is mid-move', async () => {
+      const runner = createRunner();
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async () => ({ _status: 'some-id-2', _swimlaneValue: 'priority-high', id, cardId: id })
+      }));
+
+      try {
+        runner.dispatch(setSwimlaneMoving({ stateId, swimlaneId: 'priority-high', isMoving: true }));
+        spyGetBoardCards.mockClear();
+
+        // An edit moves rec-4 out of the idle priority-low row into the moving priority-high row.
+        await runner.run(kanban.sagaRefreshCard, { recordRef: 'rec-4', actionType: 'edit' }).done;
+
+        // Only the idle row is re-fetched: a response issued before the server applied move-card
+        // would put the moved card back into the cell it just left.
+        expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+      } finally {
+        spyRecordsGet.mockImplementation(recordsGet);
+      }
+    });
+
+    it('a failed row request clears isLoading instead of locking the row for good', async () => {
+      const runner = createRunner();
+      runner.dispatch(setSwimlaneCellLoading({ stateId, swimlaneId: 'priority-high', statusId: 'some-id-1', isLoading: true }));
+      spyGetBoardCards.mockImplementationOnce(() => Promise.reject(new Error('row failed')));
+
+      await runner.runRaw(kanban.reloadSwimlaneCells, {
+        api,
+        stateId,
+        boardConfig: data.boardConfig,
+        swimlaneGrouping: swimlaneData.swimlaneGrouping,
+        cells: [{ swimlaneId: 'priority-high', statusId: 'some-id-1' }]
+      }).done;
+
+      // A stuck isLoading now also means the row rejects every drop and hides «Ещё» for good.
+      const cell = runner.row().cells['some-id-1'];
+      expect(cell.isLoading).toBe(false);
+      expect(cell.error).toBe('row failed');
+      expect(cell.records.map(r => r.cardId)).toEqual(['rec-1', 'rec-2']);
+    });
+
+    it('does not start a move or a second page while a page is loading', async () => {
+      const runner = createRunner();
+      // Make the first page request possible, then pause it in the network. The runner state is a
+      // fresh deep copy of the fixture, so this stays local to the test.
+      runner.row().cells['some-id-1'].totalCount = 20;
+      let finishPage, reportPage;
+      const pageStarted = new Promise(resolve => {
+        reportPage = resolve;
+      });
+      spyGetBoardCards.mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            finishPage = resolve;
+            reportPage();
+          })
+      );
+      const originalMove = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn();
+      const task = runner.run(kanban.sagaLoadMoreSwimlaneCell, more);
+      try {
+        expect(runner.row().cells['some-id-1'].isLoading).toBe(true);
+        await pageStarted;
+        await runner.run(kanban.sagaMoveSwimlaneCard, move).done;
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, more).done;
+        expect(api.kanban.moveCard).not.toHaveBeenCalled();
+        expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+      } finally {
+        task.cancel();
+        if (finishPage) finishPage([]);
+        api.kanban.moveCard = originalMove;
+      }
     });
   });
 

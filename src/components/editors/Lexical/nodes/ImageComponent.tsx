@@ -55,7 +55,7 @@ import ContentEditable from '../ui/ContentEditable';
 import ImagePreviewModal from '../ui/ImagePreviewModal';
 import ImageResizer from '../ui/ImageResizer';
 
-import { $isImageNode } from './ImageNode';
+import { $isImageNode, applyWidthCap } from './ImageNode';
 import { KeywordNode } from './KeywordNode';
 
 import type { BaseSelection, LexicalCommand, LexicalEditor, NodeKey } from 'lexical';
@@ -88,14 +88,12 @@ function LazyImage({
   src,
   width,
   height,
-  maxWidth,
   onError
 }: {
   altText: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
-  maxWidth: number;
   src: string;
   width: 'inherit' | number;
   onError: () => void;
@@ -108,8 +106,13 @@ function LazyImage({
       alt={altText}
       ref={imageRef}
       style={{
-        height,
-        maxWidth,
+        // A sized picture keeps its proportions through `aspect-ratio` instead of a fixed height, so
+        // when the paragraph gets narrower and `max-width` shrinks the width the height follows.
+        ...(typeof width === 'number' && typeof height === 'number' ? { aspectRatio: `${width} / ${height}`, height: 'auto' } : { height }),
+        // The display cap sits on the wrapper span (see applyWidthCap in ImageNode); the picture only
+        // fills it. An inline value is needed because the node's own inline width would beat the
+        // stylesheet's `max-width: 100%`.
+        maxWidth: '100%',
         width
       }}
       onError={onError}
@@ -335,6 +338,13 @@ export default function ImageComponent({
 
   const onResizeStart = () => {
     setIsResizing(true);
+    // The node keeps `width: 'inherit'` until the drag ends, so its span still carries the display
+    // cap of an unsized picture; lift it, or the picture stops at the cap while the handles follow
+    // the pointer. The node writes the cap for its new width on pointerup.
+    const span = editor.getElementByKey(nodeKey);
+    if (span !== null) {
+      applyWidthCap(span, 0, maxWidth);
+    }
   };
 
   const { historyState } = useSharedHistoryContext();
@@ -355,7 +365,6 @@ export default function ImageComponent({
               imageRef={imageRef}
               width={width}
               height={height}
-              maxWidth={maxWidth}
               onError={() => setIsLoadError(true)}
             />
           )}
@@ -397,7 +406,6 @@ export default function ImageComponent({
             editor={editor}
             buttonRef={buttonRef}
             imageRef={imageRef}
-            maxWidth={maxWidth}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
             captionsEnabled={!isLoadError && captionsEnabled}

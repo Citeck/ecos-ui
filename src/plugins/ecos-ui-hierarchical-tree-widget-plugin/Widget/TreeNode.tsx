@@ -16,6 +16,7 @@ import { sortNodesByName } from './sortUtils';
 
 import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Icon, Tooltip } from '@/components/common';
+import { closeAllTooltips } from '@/components/common/Tooltip';
 import { DialogManager } from '@/components/common/dialogs';
 import { t } from '@/helpers/export/util';
 import { getSearchParams, updateCurrentUrl } from '@/helpers/urls';
@@ -207,6 +208,9 @@ const TreeNode = ({
       return;
     }
     e.stopPropagation();
+    // A native drag delivers no mouseout, so a hover tooltip opened on the summary would hang
+    // around for the whole drag — closeAllTooltips is the sanctioned explicit close path.
+    closeAllTooltips();
     try {
       e.dataTransfer.setData(TREE_NODE_DRAG_MIME, node.id);
       e.dataTransfer.setData('text/plain', node.id);
@@ -407,6 +411,8 @@ const TreeNode = ({
   };
 
   const isDraggable = canEdit && !isDraggingRow;
+  // `document.getElementById`/`#id` selectors are used for the tooltip target (see `isClosestHidden`)
+  const labelTargetId = `tree-node-label-${String(node.id).replace(/[^A-Za-z0-9_-]/g, '_')}`;
 
   return (
     <details open={isOpen}>
@@ -435,7 +441,21 @@ const TreeNode = ({
         ) : (
           <div className="tree-summary_btn tree-summary_btn--empty" aria-hidden="true" />
         )}
-        <label className="tree-summary_label">{displayName}</label>
+        <Tooltip
+          uncontrolled
+          off={isMobileDevice()}
+          target={labelTargetId}
+          text={displayName}
+          placement="bottom-start"
+          // The hint repeats the label, so it is only worth showing when the label is clipped
+          showAsNeeded
+          delay={{ show: 400, hide: 0 }}
+          innerClassName="ecos-hierarchical-tree-widget__label-tooltip"
+        >
+          <label id={labelTargetId} className="tree-summary_label">
+            {displayName}
+          </label>
+        </Tooltip>
         {renderActions()}
       </summary>
       <ul className="tree-summary_ul">

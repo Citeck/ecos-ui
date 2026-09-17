@@ -82,7 +82,14 @@ const Header = React.forwardRef(
 
     return (
       <div className="dashlet__header" ref={ref}>
-        <span className={classNames('dashlet__caption', { [titleClassName]: !!titleClassName })}>
+        <span
+          className={classNames('dashlet__caption', {
+            // No chevron in front of the title — the caption has to bring the inset itself,
+            // otherwise the title sits flush against the header padding (COREDEV-482)
+            'dashlet__caption_no-collapser': disableCollapse,
+            [titleClassName]: !!titleClassName
+          })}
+        >
           {!disableCollapse && (
             <span className="dashlet__caption-collapser" onClick={onToggleCollapse}>
               {toggleIcon}

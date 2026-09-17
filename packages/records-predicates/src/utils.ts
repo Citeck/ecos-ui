@@ -39,3 +39,18 @@ export function isIgnoredByQuery(predicate: any): boolean {
 
   return !predicate.val && predicate.val !== 0 && predicate.val !== false;
 }
+
+/**
+ * Whether the text is a number padded with a leading zero (`000012`, `-000012`, `00`).
+ *
+ * Such a string names a formatted identifier, never a quantity: the query engine reads it by its
+ * numeric value, so an `eq` against a numeric column matches every record holding `12` — that is
+ * how a header search for `000012` also returned `STD-000019` (COREDEV-478, reported as EMTC-305).
+ * `getSearchPredicates` therefore leaves numeric columns out of the search for such a text.
+ *
+ * `0` and `0.5` are ordinary numbers rather than padded ones, so they keep numeric columns in.
+ * Filtering from a numeric column itself never goes through the search builder and is unaffected.
+ */
+export function hasLeadingZeros(text: any): boolean {
+  return /^-?0\d/.test(_.toString(text).trim());
+}

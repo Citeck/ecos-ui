@@ -7,17 +7,19 @@
   flex: 0 0 auto;
   min-width: 0;
 
+  // a plain plus, without the caption (QA): a square of the toolbar button height on every screen
   &__create-btn.ecos-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 34px;
     height: 34px;
-    padding: 0 14px 0 10px;
+    padding: 0;
     border-radius: $border-radius-standard;
     background: var(--primary-color, $color-blue-dark);
     color: $color-white;
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
-    white-space: nowrap;
     transition: filter 0.15s ease-in-out;
 
     &:hover,
@@ -34,10 +36,6 @@
     .ecos-btn__i {
       font-size: 18px;
     }
-  }
-
-  &__create-btn_mobile.ecos-btn {
-    padding: 0 10px;
   }
 
   // Dropdown sets every menu item to $font-size-extra-small (10px) system-wide; the library reads at

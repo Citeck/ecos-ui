@@ -8,6 +8,10 @@ import recordActions from '@/components/core/Records/actions/recordActions';
 
 import { DevModulesContext } from './DevModulesContext';
 
+// Row ids are record refs of ecos modules ('uiserv/form@some.form'), so the lodash path has to be
+// an ARRAY: a string path would be split on the dots and brackets of the ref (COREDEV-492).
+export const getRowActions = (actions, rowId) => get(actions, ['forRecord', rowId], []);
+
 const DevModulesGrid = () => {
   const context = useContext(DevModulesContext);
   const { state } = context;
@@ -21,7 +25,7 @@ const DevModulesGrid = () => {
       return null;
     }
 
-    const rowActions = get(actions, `forRecord.${rowId}`, []);
+    const rowActions = getRowActions(actions, rowId);
     const buttons = rowActions.map((action, idx) =>
       renderAction(
         {

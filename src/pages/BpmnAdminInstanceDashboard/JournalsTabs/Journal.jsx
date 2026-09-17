@@ -25,6 +25,12 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
       return;
     }
 
+    // A request for this tab is already in flight — asking again would only stack up identical
+    // queries (COREDEV-492). The page/sort/filter handlers below still reload on purpose.
+    if (dataInfo && dataInfo.loading) {
+      return;
+    }
+
     if ((!metaInfo || !metaInfo.definitionRefId) && tabId !== INSTANCE_TABS_TYPES.VARIABLES) {
       return;
     }

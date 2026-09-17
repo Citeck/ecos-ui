@@ -918,7 +918,7 @@ export function* getGridData(
   return { ...journalData, columns, actions };
 }
 
-function* loadGrid(
+export function* loadGrid(
   api: ApiType,
   {
     journalSettingId,
@@ -984,7 +984,11 @@ function* loadGrid(
       };
 
       yield put(setLoading(w(true)));
-      let gridData: IJournalState['grid'] = isSearching && search ? {} : yield getGridData(api, { ...originParams }, stateId);
+      // A search reloads the page, so the unfiltered fetch here would be thrown away: the block
+      // below refetches with the search predicate. `isDeferredToSearch` remembers that this grid
+      // has no data yet and the search still owes it some.
+      const isDeferredToSearch = !!(isSearching && search);
+      let gridData: IJournalState['grid'] = isDeferredToSearch ? {} : yield getGridData(api, { ...originParams }, stateId);
       let searchData = {};
 
       const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -1008,6 +1012,14 @@ function* loadGrid(
         if (isSearching) {
           yield put(setSearching(w(false)));
         }
+      } else if (isDeferredToSearch) {
+        // A search text no column can search for — a padded number in a journal whose searchable
+        // columns are all numeric — leaves no predicate at all. Load the grid anyway:
+        // `setGrid` merges shallowly, so an empty `gridData` would leave the previous result on
+        // screen under a spinner that never stops. `sagaReloadGrid`/`sagaGetNextPage` never skip
+        // the fetch in the first place, which is why only this path needed the fallback.
+        gridData = yield getGridData(api, { ...originParams }, stateId);
+        yield put(setSearching(w(false)));
       }
 
       const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, gridData);
