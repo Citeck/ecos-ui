@@ -144,6 +144,16 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
     }
   }, [onRegisterClose, cancelGeneration]);
 
+  // The field this popup hangs off left the document for good (the host rebuilt it). `cancelGeneration`
+  // is the whole teardown, exactly as the external close path above uses it: besides aborting a request
+  // in flight it clears the result and hides both the bar and the panel unconditionally. Closing on its
+  // own would not do — `closeActionsBar` and `closeResult` refuse while a request or an apply is
+  // running, and a request left going keeps `isGenerating` true, which makes `generate` bail out
+  // silently on every later prompt with neither a request nor an error to show for it.
+  const handleAnchorLost = useCallback(() => {
+    cancelGeneration();
+  }, [cancelGeneration]);
+
   // Determine content type - use prop override or get from config
   const contentType = useMemo(() => contentTypeProp || getContentType(fieldType), [contentTypeProp, fieldType]);
 
@@ -234,6 +244,10 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
     content: ReactNode,
     container: HTMLElement | null | undefined,
     isVisible: boolean,
+    // Called when the field this popup hangs off leaves the document for good (the host rebuilt it).
+    // Without closing here, this hook would keep reporting the popup as open while it can never be
+    // shown again, and the trigger button would quietly do nothing.
+    onAnchorLost?: () => void,
     contentMetrics?: { length: number; type: ContentType; hasExplanation: boolean }
   ): ReactNode => {
     // Smart positioning: use AIPopperWrapper (renders to body via portal)
@@ -249,6 +263,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
           contentType={contentMetrics?.type}
           hasExplanation={contentMetrics?.hasExplanation}
           className={popperClassName}
+          onAnchorLost={onAnchorLost}
         >
           {content}
         </AIPopperWrapper>
@@ -278,10 +293,10 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
       />
 
       {/* Actions Bar */}
-      {renderPopup(actionsBarElement, actionsBarContainer, isActionsBarVisible && !isResultVisible)}
+      {renderPopup(actionsBarElement, actionsBarContainer, isActionsBarVisible && !isResultVisible, handleAnchorLost)}
 
       {/* Result Display - pass content metrics for adaptive width */}
-      {renderPopup(resultElement, resultContainer, isResultVisible, resultContentMetrics)}
+      {renderPopup(resultElement, resultContainer, isResultVisible, handleAnchorLost, resultContentMetrics)}
 
       {/* Children (the actual field) */}
       {children}

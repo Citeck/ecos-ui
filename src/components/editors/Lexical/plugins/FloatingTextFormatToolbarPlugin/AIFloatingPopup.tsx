@@ -9,14 +9,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { $generateNodesFromDOM } from '@lexical/html';
-import {
-  $createParagraphNode,
-  $createTextNode,
-  $getRoot,
-  $insertNodes,
-  $setSelection,
-  LexicalEditor
-} from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $createParagraphNode, $createTextNode, $getRoot, $insertNodes, $setSelection, LexicalEditor } from 'lexical';
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
@@ -60,6 +54,10 @@ const createVirtualElement = (rect: DOMRect): HTMLElement => {
 };
 
 export default function AIFloatingPopup() {
+  // One popup is mounted per editor (see Editor.tsx), while AI_FLOATING_POPUP_OPEN is a window
+  // event — so every popup on the page hears every open. This is the editor this copy belongs to;
+  // `handleOpen` below ignores the events raised by any other one.
+  const [ownEditor] = useLexicalComposerContext();
   const [virtualElement, setVirtualElement] = useState<HTMLElement | null>(null);
   // Editor root: bounds the popup so it cannot slide out of the field it edits (see AIPopperWrapper)
   const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
@@ -128,11 +126,12 @@ export default function AIFloatingPopup() {
     openActionsBar,
     closeActionsBar,
     closeResult,
+    cancelGeneration,
     handleQuickAction,
     handlePromptSubmit,
     applyResult,
     retryGeneration,
-    requestAnotherVariant,
+    requestAnotherVariant
   } = useAIFieldActions({
     fieldType: FIELD_TYPES.RICHTEXT,
     getValue,
@@ -140,7 +139,7 @@ export default function AIFloatingPopup() {
     recordRef: contextValues.recordRef,
     selectedText: contextValues.selectedText,
     onGenerateRequest: handleGenerateRequest,
-    disabled: false,
+    disabled: false
   });
 
   // Cleanup virtual element using ref to avoid stale closure issues
@@ -168,6 +167,15 @@ export default function AIFloatingPopup() {
     const handleOpen = (e: CustomEvent<OpenEventDetail>) => {
       const { editor, triggerRect, selectedText, currentValue, recordRef, attribute, attributeLabel } = e.detail;
 
+      // The event carries the editor whose toolbar button raised it. Without this guard every
+      // popup mounted on the page opens on it: a form with two Lexical fields (the record card's
+      // properties form has a visible one and a hidden one) drew two identical panels at the very
+      // same coordinates, one covering the other. The button takes its editor from the same
+      // composer context this hook reads, so identity holds.
+      if (editor !== ownEditor) {
+        return;
+      }
+
       // Store event data in refs
       editorRef.current = editor;
       setFieldElement(editor.getRootElement());
@@ -188,7 +196,11 @@ export default function AIFloatingPopup() {
         selectedText
       });
 
-      // Create virtual element for Popper positioning
+      // Create virtual element for Popper positioning. The previous one has to go first: the
+      // floating toolbar stays mounted while the popup is open, so pressing the AI button again
+      // would otherwise leave the earlier stand-in in `document.body` for good.
+      cleanupVirtualElement();
+
       const el = createVirtualElement(triggerRect);
       virtualElementRef.current = el;
       setVirtualElement(el);
@@ -201,7 +213,16 @@ export default function AIFloatingPopup() {
     return () => {
       window.removeEventListener(AI_FLOATING_POPUP_OPEN, handleOpen as EventListener);
     };
-  }, [openActionsBar, contextRef]);
+  }, [openActionsBar, contextRef, ownEditor, cleanupVirtualElement]);
+
+  // The editor this popup belongs to left the document for good — drop the popup with it, or the hook
+  // would go on reporting it as open against a popup that can never be shown again. `cancelGeneration`
+  // is the whole teardown: it aborts a request in flight and clears the result and both visibility
+  // flags unconditionally, which `closeActionsBar`/`closeResult` refuse to do while one is running.
+  const handleAnchorLost = useCallback(() => {
+    cancelGeneration();
+    cleanupVirtualElement();
+  }, [cancelGeneration, cleanupVirtualElement]);
 
   // Cleanup on unmount - use cleanup function to avoid stale closure
   useEffect(() => {
@@ -212,9 +233,7 @@ export default function AIFloatingPopup() {
 
   const isPopupVisible = isActionsBarVisible || isResultVisible;
 
-  const showDiff =
-    fieldConfig.resultMode === RESULT_MODES.INLINE_DIFF &&
-    result.originalValue?.trim() !== result.generatedValue?.trim();
+  const showDiff = fieldConfig.resultMode === RESULT_MODES.INLINE_DIFF && result.originalValue?.trim() !== result.generatedValue?.trim();
 
   if (!isPopupVisible || !virtualElement) {
     return null;
@@ -227,13 +246,14 @@ export default function AIFloatingPopup() {
       boundaryElement={fieldElement}
       variant="lexical"
       stickyPosition={true}
+      onAnchorLost={handleAnchorLost}
     >
       <div className="ai-floating-popup">
         {isActionsBarVisible && !isResultVisible && (
           <AIActionsBar
             isVisible={true}
             quickActions={availableActions}
-            placeholder={typeof fieldConfig.getPlaceholder === "function" ? fieldConfig.getPlaceholder() : ""}
+            placeholder={typeof fieldConfig.getPlaceholder === 'function' ? fieldConfig.getPlaceholder() : ''}
             isLoading={isGenerating}
             disabled={false}
             onQuickAction={handleQuickAction}

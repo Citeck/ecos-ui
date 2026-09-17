@@ -110,7 +110,13 @@
   // AI inline result inside popper - ensure proper constraints
   .ai-inline-result {
     max-height: var(--ai-result-max-height);
-    min-width: var(--ai-result-min-width);
+    // `sizeConstraints` has already capped the popper to the field the popup belongs to, and a
+    // narrow field caps it below this floor — the properties panel of a BPMN script task is 328px.
+    // An unconditional 400px floor then makes the panel wider than the popper holding it, and
+    // everything past the popper's right edge leaves the window: the heading and the right half of
+    // every line were unreadable (COREDEV-534). The floor may only apply while the container fits it.
+    min-width: min(var(--ai-result-min-width), 100%);
+    max-width: 100%;
     min-height: var(--ai-result-min-height);
 
     .ai-inline-result__content {
@@ -121,6 +127,26 @@
     &.ai-inline-result--loading {
       min-height: auto;
     }
+  }
+}
+
+// The popup is hidden — not unmounted — while the page it belongs to sits behind another in-app tab
+// (see `isAnchorLaidOut` in AIPopperWrapper). `visibility` is inherited, but the rules above and the
+// `.ai-floating-popup` block far below put `visibility: visible` back on the children, and a
+// descendant set to visible paints even inside a hidden ancestor — so hiding the container alone
+// left the quick-actions bar and the floating panel on screen over an unrelated page, now as a ghost
+// nothing could click away. The doubled class keeps these above every one of those declarations
+// whatever the source order.
+.ai-popper.ai-popper--anchor-hidden {
+  visibility: hidden;
+  pointer-events: none;
+
+  .ai-actions-bar,
+  .ai-inline-result,
+  .ai-floating-popup,
+  .ai-floating-popup .ai-actions-bar,
+  .ai-floating-popup .ai-inline-result {
+    visibility: hidden;
   }
 }
 
@@ -180,7 +206,9 @@
   &__icon {
     width: 18px;
     height: 18px;
-    transition: transform 150ms ease, opacity 150ms ease;
+    transition:
+      transform 150ms ease,
+      opacity 150ms ease;
 
     @media (min-width: 768px) {
       width: 16px;
@@ -612,7 +640,9 @@
   height: 100%;
 
   @media (min-width: 768px) {
-    min-width: var(--ai-result-min-width);
+    // Capped to the container for the same reason as inside the popper (COREDEV-534): a field
+    // narrower than the floor must be fitted into, not overflowed.
+    min-width: min(var(--ai-result-min-width), 100%);
     min-height: var(--ai-result-min-height);
   }
 
@@ -786,7 +816,9 @@
       margin-bottom: 0;
     }
 
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
       font-size: 1.1em;
       margin-top: 0.3em;
       color: var(--ai-text-primary);
@@ -989,7 +1021,9 @@
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 200ms ease, visibility 200ms ease;
+    transition:
+      opacity 200ms ease,
+      visibility 200ms ease;
     margin-bottom: 6px;
     z-index: 1000;
     pointer-events: none;
@@ -1010,7 +1044,9 @@
     border-top-color: var(--tooltip-bg, #24292f);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 200ms ease, visibility 200ms ease;
+    transition:
+      opacity 200ms ease,
+      visibility 200ms ease;
     margin-bottom: 2px;
     z-index: 1000;
     pointer-events: none;
@@ -1020,6 +1056,27 @@
   &:hover::before {
     opacity: 1;
     visibility: visible;
+  }
+
+  // The last button of the row sits ~16px from the right edge of `.ai-inline-result`, which is
+  // `overflow: hidden`. A nowrap label centred on a 32px button ("Другой вариант" is 109px) then
+  // hangs past that edge and is cut in half — plainly visible once the panel is only as wide as a
+  // BPMN properties panel (COREDEV-534). Anchor it to the button's right edge instead; the arrow
+  // (`::before`) is 8px wide and clips nothing, so it only has to follow the bubble.
+  // This used to be written against `--primary` (the Apply button), which is absent whenever the
+  // answer proposes no edit — and then the overhanging button is whichever one ended up last.
+  &:last-child {
+    &::after {
+      left: auto;
+      right: 0;
+      transform: translateX(0);
+    }
+
+    &::before {
+      left: auto;
+      right: 12px;
+      transform: translateX(0);
+    }
   }
 
   // Active state (e.g., when edit input is shown)
@@ -1036,19 +1093,6 @@
     &:hover:not(:disabled) {
       background: rgba(16, 185, 129, 0.25);
       color: #047857;
-    }
-
-    // Tooltip positioning fix for right edge - align to right
-    &::after {
-      left: auto;
-      right: 0;
-      transform: translateX(0);
-    }
-
-    &::before {
-      left: auto;
-      right: 12px;
-      transform: translateX(0);
     }
   }
 }
@@ -1340,7 +1384,12 @@
     color: var(--ai-text-primary);
 
     // Reset some HTML element styles
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
     }
@@ -1349,7 +1398,8 @@
       margin-bottom: 0.5em;
     }
 
-    ul, ol {
+    ul,
+    ol {
       padding-left: 1.5em;
       margin-bottom: 0.5em;
     }
@@ -1482,8 +1532,12 @@
 }
 
 @keyframes ai-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // ============================================
@@ -1518,7 +1572,9 @@
 }
 
 @keyframes ai-wave-bounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.5;
   }
@@ -1532,8 +1588,8 @@
 // Dark Theme Support (for code editors)
 // ============================================
 .ace_editor,
-[class*="code-editor"],
-[class*="dark-theme"] {
+[class*='code-editor'],
+[class*='dark-theme'] {
   .ai-field-trigger--floating,
   .script-editor-ai-button {
     background: rgba(30, 41, 59, 0.92);

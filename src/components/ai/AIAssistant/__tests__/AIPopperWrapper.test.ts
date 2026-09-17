@@ -108,4 +108,52 @@ describe('clampPopupWidth', () => {
 
     expect(clampPopupWidth(450, bounds)).toBeLessThanOrEqual(clampPopupWidth(600, bounds));
   });
+
+  /**
+   * COREDEV-534: the script editor of a BPMN script task lives in the properties panel, 328px wide
+   * at a 1440px window, with the popup starting at x=1088. The desktop branch of `sizeConstraints`
+   * used to cap the popper to the field alone; it now goes through here like the other variants.
+   */
+  describe('script editor in the BPMN properties panel', () => {
+    const bpmn = { fieldWidth: 328, viewportWidth: 1440, popperLeft: 1088, edgePadding: 24 };
+
+    it('hands the whole narrow field to the popup and nothing more', () => {
+      expect(clampPopupWidth(600, bpmn)).toBe(328);
+      expect(bpmn.popperLeft + clampPopupWidth(600, bpmn)).toBeLessThanOrEqual(bpmn.viewportWidth);
+    });
+
+    it('resolves the max bound to the same 328px, so the popper has one definite width', () => {
+      expect(clampPopupWidth(bpmn.fieldWidth, bpmn)).toBe(clampPopupWidth(600, bpmn));
+    });
+
+    it('still gives a roomy field the full 600px floor', () => {
+      expect(clampPopupWidth(600, { fieldWidth: 1000, viewportWidth: 1440, popperLeft: 380, edgePadding: 24 })).toBe(600);
+    });
+
+    it('holds the window bound when the field element is unknown', () => {
+      // No `fieldElement`: the field cap that used to be the only limit is gone entirely
+      expect(clampPopupWidth(600, { viewportWidth: 1440, popperLeft: 1088, edgePadding: 24 })).toBe(328);
+    });
+
+    it('binds the 60vw ceiling to the window as well, not just the floor', () => {
+      // `fieldWidth` is 0 whenever the ACE element is detached or hidden when it is measured, and
+      // this branch sets no width — so an unbounded ceiling is what actually sizes the popup.
+      const bounds = { viewportWidth: 1440, popperLeft: 1088, edgePadding: 24 };
+      const vwCap = 1440 * 0.6 - 48; // 816px: the design cap standing in for an unknown field
+
+      expect(clampPopupWidth(vwCap, bounds)).toBe(328);
+      expect(bounds.popperLeft + clampPopupWidth(vwCap, bounds)).toBeLessThanOrEqual(bounds.viewportWidth);
+    });
+
+    it('never lets the floor exceed the ceiling once both are clamped', () => {
+      // A 900px window: the 60vw cap (492px) is below the 600px floor, and CSS resolves that in the
+      // floor's favour. The computed pair has to say the same thing rather than invert.
+      const bounds = { viewportWidth: 900, popperLeft: 100, edgePadding: 24 };
+      const floor = clampPopupWidth(600, bounds);
+      const ceiling = Math.max(floor, clampPopupWidth(900 * 0.6 - 48, bounds));
+
+      expect(floor).toBe(600);
+      expect(ceiling).toBe(600);
+    });
+  });
 });
