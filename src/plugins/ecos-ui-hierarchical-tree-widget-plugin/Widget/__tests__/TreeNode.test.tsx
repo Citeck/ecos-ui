@@ -159,3 +159,20 @@ describe('TreeNode label tooltip', () => {
     expect(document.getElementById('tree-node-label-default_ROOT_1')).not.toBeNull();
   });
 });
+
+describe('TreeNode sibling order', () => {
+  it('renders children in the order they arrive, not alphabetically', () => {
+    renderNode(
+      makeNode('root-id', 'Root', [
+        makeNode('c1', 'Step 1. Introduction'),
+        makeNode('c2', 'Part 2. Installation'),
+        makeNode('c3', 'Chapter 3. Configuration'),
+        makeNode('c4', 'Appendix 4. Links')
+      ])
+    );
+
+    const rendered = Array.from(document.querySelectorAll('[id^="tree-node-label-"]')).map(element => element.textContent);
+
+    expect(rendered).toEqual(['Root', 'Step 1. Introduction', 'Part 2. Installation', 'Chapter 3. Configuration', 'Appendix 4. Links']);
+  });
+});

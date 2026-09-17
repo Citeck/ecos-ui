@@ -12,7 +12,6 @@ import TreeNode, { type TreeNode as TreeNodeType } from './TreeNode';
 import { createCategoryFormId, Labels, TREE_REFRESH_EVENT, tooltipIdCreate, tooltipIdSettings } from './constants';
 import { TreeDragContext, type TreeDragContextValue } from './dragContext';
 import EmptyIcon from './icons/EmptyIcon';
-import { sortNodesByName } from './sortUtils';
 
 import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/forms/EcosForm/FormManager';
@@ -30,6 +29,9 @@ import { IJournalState, PaginationType } from '@/types/store/journals';
 
 import '@/components/dashboard/Dashlet/Dashlet.scss';
 import './style.scss';
+
+const TREE_NODE_ATTS = 'id?localId,name:_disp,parent:_parent?id';
+const WIKI_CHILDREN_ATT = `children[]{${TREE_NODE_ATTS},children:children[]{${TREE_NODE_ATTS},children:children[]?id}}`;
 
 interface HierarchicalTreeWidget extends BaseWidgetProps {
   stateId: string;
@@ -71,7 +73,7 @@ const HierarchicalTreeWidget = ({
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
-      setRecords(sortNodesByName(records));
+      setRecords(records);
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
@@ -96,15 +98,12 @@ const HierarchicalTreeWidget = ({
     };
   }, []);
 
-  const fetchRecords = (parent?: string) => {
-    const dashboardQuery = {
-      ecosType: 'wiki',
-      query: {
-        t: 'eq',
-        a: '_parent',
-        val: parent || rootRecord
-      }
-    };
+  const fetchRecords = (parent?: string): Promise<{ records: TreeNodeType[] }> => {
+    if (!isJournalMode) {
+      return Records.get(parent || rootRecord)
+        .load(WIKI_CHILDREN_ATT, true)
+        .then((children: TreeNodeType[] | null) => ({ records: children || [] }));
+    }
 
     const journalQuery = {
       sourceId: SourcesId.CATEGORY,
@@ -116,7 +115,7 @@ const HierarchicalTreeWidget = ({
     };
 
     return Records.query(
-      { ...(isJournalMode ? journalQuery : dashboardQuery), language: 'predicate' },
+      { ...journalQuery, language: 'predicate' },
       {
         name: '_disp',
         parent: '_parent?id',
@@ -171,7 +170,7 @@ const HierarchicalTreeWidget = ({
       await rec.save();
 
       const { records: newRecords = [] } = await fetchRecords();
-      setRecords(sortNodesByName(newRecords));
+      setRecords(newRecords);
 
       const affectedParents = [sourceOldParent, targetParentFullId].filter(Boolean) as string[];
       document.dispatchEvent(new CustomEvent(TREE_REFRESH_EVENT, { detail: { affectedParents } }));
@@ -271,7 +270,7 @@ const HierarchicalTreeWidget = ({
       },
       onSubmit: (record: RecordImpl) => {
         fetchRecords().then(({ records = [] }) => {
-          setRecords(sortNodesByName(records));
+          setRecords(records);
 
           if (!isJournalMode && record.id) {
             updateCurrentUrl({ recordRef: record.id });
@@ -313,7 +312,7 @@ const HierarchicalTreeWidget = ({
                 <TreeNode
                   isDraggingRow={isDraggingRow}
                   toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
-                  updateRootChilds={childs => setRecords(sortNodesByName(childs))}
+                  updateRootChilds={childs => setRecords(childs)}
                   rootRecord={rootRecord}
                   recordRef={recordRef}
                   node={record}

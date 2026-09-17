@@ -12,7 +12,6 @@ import { Labels, TREE_NODE_DRAG_MIME, TREE_REFRESH_EVENT, createCategoryFormId }
 import { TreeDragContext } from './dragContext';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
-import { sortNodesByName } from './sortUtils';
 
 import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Icon, Tooltip } from '@/components/common';
@@ -63,7 +62,7 @@ const TreeNode = ({
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [displayName, setDisplayName] = useState<string>(node.name || t('documents-widget.untitled'));
-  const [children, setChildren] = useState<TreeNode['children']>(sortNodesByName(node.children || []));
+  const [children, setChildren] = useState<TreeNode['children']>(node.children || []);
 
   const [isHoverDragging, setIsHoverDragging] = useState<boolean>(false);
   const dragCounter = useRef(0);
@@ -143,7 +142,7 @@ const TreeNode = ({
 
         const currentNode = parentRecords.find(record => record.id === node.id);
 
-        setChildren(sortNodesByName(currentNode?.children || []));
+        setChildren(currentNode?.children || []);
         setIsOpen(true);
 
         callbackSubmitForm && callbackSubmitForm();
@@ -176,7 +175,7 @@ const TreeNode = ({
   };
 
   const updateChilds = (childs: TreeNode[]) => {
-    setChildren(sortNodesByName(childs));
+    setChildren(childs);
   };
 
   useEffect(() => {
@@ -194,7 +193,7 @@ const TreeNode = ({
     if (isOpen && hasFirstChildrenName.length === 0) {
       isFunction(onFetchChildren) &&
         onFetchChildren(`${sourceId}@${node.id}`).then(({ records = [] }) => {
-          setChildren(sortNodesByName(records));
+          setChildren(records);
 
           if (records.length > 0) {
             setIsOpen(true);
@@ -333,7 +332,7 @@ const TreeNode = ({
         return;
       }
       onFetchChildren(myFullId).then(({ records: refreshed = [] }) => {
-        setChildren(sortNodesByName(refreshed));
+        setChildren(refreshed);
       });
     };
 
