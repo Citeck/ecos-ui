@@ -23,6 +23,12 @@ const VIEWPORT_PADDING = 24;
 /** Floor for a viewport-capped popup, so a very narrow window cannot collapse it to a sliver */
 const MIN_POPPER_WIDTH = 280;
 
+/** How often a hidden popup re-checks anchors that a ResizeObserver can no longer report on (ms) */
+const ANCHOR_RECHECK_INTERVAL = 500;
+
+/** Consecutive checks an anchor must be detached before the popup gives up on it */
+const ANCHOR_LOST_TICKS = 2;
+
 /**
  * Content metrics for adaptive width calculation
  */
@@ -153,8 +159,18 @@ const createModifiers = (
   maxWidth?: string,
   contentMetrics?: ContentMetrics,
   isPlacementLocked?: boolean,
-  boundaryElement?: HTMLElement | null
+  boundaryElement?: HTMLElement | null,
+  isAnchorLaidOut = true
 ): Partial<Modifier<string, object>>[] => [
+  {
+    // Popper's own scroll/resize listeners are muted while the popup is hidden behind another in-app
+    // tab: every pass they trigger there measures a collapsed 0×0 anchor and moves the popup for
+    // nothing. Toggling the option makes popper run one such pass itself (`setOptions` ends in
+    // `update`), which parks the hidden popup at the window edge; that is never painted, because
+    // un-hiding re-measures against the real anchor before the next frame (see `isAnchorLaidOut`).
+    name: 'eventListeners',
+    enabled: isAnchorLaidOut
+  },
   {
     name: 'flip',
     // Disable flip after initial positioning to prevent jumps when content changes
@@ -275,8 +291,20 @@ const createModifiers = (
             delete state.styles.popper.right;
           }
         } else {
-          state.styles.popper.minWidth = `${capToField(600)}px`;
-          state.styles.popper.maxWidth = fieldWidth ? `${fieldWidth}px` : `calc(60vw - ${rightEdgePadding * 2}px)`;
+          // Cap to the window as well as to the field — the mobile branch above and both other
+          // variants already do. Without it a script editor whose element is not known to the popup
+          // (no `fieldElement`) keeps a 600px floor next to the right window edge and overhangs it.
+          const popperLeft = state.modifiersData.popperOffsets?.x ?? state.rects.reference.x;
+          const bounds = { fieldWidth, viewportWidth, popperLeft, edgePadding: rightEdgePadding };
+          // No width is set in this branch, so the ceiling is what actually sizes the popup — it has
+          // to respect the window too. The 60vw design cap only stands in for the field when the
+          // field is unknown; `Math.max` keeps the floor from ever exceeding the ceiling, which is
+          // how the old `calc()` ceiling behaved implicitly (a min-width always wins in CSS).
+          const floor = clampPopupWidth(600, bounds);
+          const ceiling = Math.max(floor, clampPopupWidth(fieldWidth || viewportWidth * 0.6 - rightEdgePadding * 2, bounds));
+
+          state.styles.popper.minWidth = `${floor}px`;
+          state.styles.popper.maxWidth = `${ceiling}px`;
         }
       } else if (variant === 'lexical') {
         // Cap to the window as well as to the field. A rich-text editor is routinely as wide as its
@@ -336,6 +364,8 @@ export interface AIPopperWrapperProps {
   className?: string;
   children?: ReactNode;
   onPlacementChange?: (placement: Placement) => void;
+  /** The field this popup belongs to left the document for good — the owner should close the popup */
+  onAnchorLost?: () => void;
   stickyPosition?: boolean;
   // Content metrics for adaptive width calculation
   contentLength?: number;
@@ -355,6 +385,7 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
   className,
   children,
   onPlacementChange,
+  onAnchorLost,
   stickyPosition = false,
   contentLength,
   contentType,
@@ -384,9 +415,34 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
   );
 
   // Create modifiers - pass isPlacementLocked to disable flip after initial positioning
+  // The real elements this popup belongs to in the page's layout. The reference can be a virtual
+  // one (sticky mode) that lives outside the page, which is why the field is watched as well.
+  const layoutAnchors = useMemo(
+    () => [referenceElement, boundaryElement].filter(Boolean) as HTMLElement[],
+    [referenceElement, boundaryElement]
+  );
+
+  // ecos-ui keeps every page tab mounted and hides the inactive one with `display: none` on its
+  // `.ecos-main-content`. This popup is portalled to `document.body`, outside that wrapper, so it
+  // used to stay on screen over a completely unrelated page after an in-app tab switch. An anchor
+  // without a layout box means the page it belongs to is not on screen; the popup then has nothing
+  // to point at and goes hidden with it. It stays MOUNTED while hidden — the children hold the
+  // prompt the user is typing and the retry instruction, which unmounting would throw away.
+  const [isAnchorLaidOut, setIsAnchorLaidOut] = useState(true);
+
+  const isLaidOut = (el: HTMLElement): boolean => {
+    const rect = el.getBoundingClientRect();
+
+    return (rect.width || rect.height) > 0;
+  };
+
+  // Kept in a ref so that a caller passing an inline arrow does not re-arm the observer every render
+  const onAnchorLostRef = useRef(onAnchorLost);
+  onAnchorLostRef.current = onAnchorLost;
+
   const modifiers = useMemo(
-    () => createModifiers(variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement),
-    [variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement]
+    () => createModifiers(variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement, isAnchorLaidOut),
+    [variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement, isAnchorLaidOut]
   );
 
   // Save reference rect when available
@@ -412,6 +468,63 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
     return null;
   }, [referenceElement, stickyPosition, isVisible]);
 
+  useEffect(() => {
+    if (!isVisible || !layoutAnchors.length) {
+      setIsAnchorLaidOut(true);
+      return;
+    }
+
+    // A `display: none` ancestor collapses the anchor to 0×0, and ResizeObserver reports that.
+    const measure = () => setIsAnchorLaidOut(layoutAnchors.every(isLaidOut));
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    layoutAnchors.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [isVisible, layoutAnchors]);
+
+  // While hidden, the host can replace the anchors outright instead of showing them again — the BPMN
+  // properties form is rebuilt on every tab activation, leaving these nodes detached. A detached
+  // element never reports to a ResizeObserver again, so without this the popup would stay hidden for
+  // good while its owner still believed it was open, and its trigger would quietly do nothing. This
+  // slow poll runs only in the hidden state and stops as soon as the anchors return or are gone.
+  useEffect(() => {
+    if (isAnchorLaidOut || !isVisible || !layoutAnchors.length) {
+      return;
+    }
+
+    // Detachment is only believed after two checks in a row. A host that swaps the field's DOM hands
+    // React the replacement nodes a moment later, and waiting that moment out keeps the popup — with
+    // whatever the user has typed into it — instead of closing on a node that was merely replaced.
+    let detachedTicks = 0;
+
+    const timer = setInterval(() => {
+      if (layoutAnchors.some(el => !el.isConnected)) {
+        detachedTicks += 1;
+
+        // Keeps firing on purpose. The owners here tear down on the first call, but this component
+        // cannot know that of an arbitrary one, and a handler that declines (mid-generation, say)
+        // would otherwise leave the popup hidden for good against an owner that still believes it
+        // is open. Asking again costs a call every half second and stops the moment it works.
+        if (detachedTicks >= ANCHOR_LOST_TICKS) {
+          onAnchorLostRef.current?.();
+        }
+
+        return;
+      }
+
+      detachedTicks = 0;
+
+      if (layoutAnchors.every(isLaidOut)) {
+        setIsAnchorLaidOut(true);
+      }
+    }, ANCHOR_RECHECK_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [isAnchorLaidOut, isVisible, layoutAnchors]);
+
   // Use Popper for positioning
   const { styles, attributes, state, update } = usePopper(isVisible ? effectiveReference : null, isVisible ? popperElement : null, {
     placement: preferredPlacement,
@@ -424,7 +537,12 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
 
   // Update position when visibility or content changes
   useEffect(() => {
-    if (isVisible && update) {
+    // Not while hidden: the anchor reports a 0×0 rect at the origin then, and a pass would only
+    // park the popup at the window edge — a position nobody can see and that the un-hiding pass
+    // below replaces anyway. The pass is skipped because it is pointless, not because it would
+    // show: un-hiding and re-measuring land in the same frame (the class comes off in the commit
+    // whose layout effect queues popper's update), so the parked position is never painted.
+    if (isVisible && isAnchorLaidOut && update) {
       // Initial update after render
       update();
       // Additional update after a frame to catch late content renders
@@ -441,11 +559,18 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
       });
       return () => cancelAnimationFrame(frameId);
     }
-  }, [isVisible, update, contentMetrics]);
+    // `isAnchorLaidOut` is a dependency so that coming back to the tab re-measures the popup
+    // against where the anchor sits now — the host may have reflowed the page meanwhile, and the
+    // one pass popper ran on the way into hiding (see `eventListeners` above) parked it.
+  }, [isVisible, update, contentMetrics, isAnchorLaidOut]);
 
   // ResizeObserver to handle content size changes
   useEffect(() => {
-    if (!popperElement || !isVisible || !update) {
+    // Not while hidden, for the same reason as the reposition effect above: a generation finishing
+    // behind another in-app tab swaps loading for the result and the popup resizes, but a pass
+    // against the collapsed 0×0 anchor can only park it at the window edge. The pass on the way
+    // back re-measures anyway.
+    if (!popperElement || !isVisible || !isAnchorLaidOut || !update) {
       return;
     }
 
@@ -458,7 +583,7 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [popperElement, isVisible, update]);
+  }, [popperElement, isVisible, isAnchorLaidOut, update]);
 
   // Notify parent about placement changes
   useEffect(() => {
@@ -503,7 +628,12 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
         {
           'ai-popper--top': isTop,
           'ai-popper--bottom': !isTop,
-          'ai-popper--visible': isVisible
+          'ai-popper--visible': isVisible,
+          // Hidden, not unmounted, while the page this popup belongs to sits behind another in-app
+          // tab (see `isAnchorLaidOut`): the children hold text the user has typed. It has to be a
+          // class rather than an inline style — several children re-declare `visibility: visible`,
+          // and only a rule can outweigh them (`.ai-popper.ai-popper--anchor-hidden` in the styles).
+          'ai-popper--anchor-hidden': !isAnchorLaidOut
         },
         className
       )}
