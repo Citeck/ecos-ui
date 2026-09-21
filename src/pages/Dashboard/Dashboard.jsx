@@ -117,22 +117,9 @@ class Dashboard extends Component {
     const recordRef = get(this.getPathInfo(), 'recordRef', null);
 
     this.instanceRecord = Records.get(recordRef);
-    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
-    this.dispWatcher = this.instanceRecord.watch('?disp', this.updateTitle);
-
-    this.recordUpdater = new RecordUpdater(this.instanceRecord, {
-      onMovedToRef: movedToRef => {
-        const wsId = getWorkspaceId();
-        const activeTab = PageTabList.activeTab;
-
-        PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, {
-          openNewTab: true,
-          needUpdateTabs: true
-        });
-
-        PageTabList.delete(activeTab);
-      }
-    });
+    this.watcher = null;
+    this.dispWatcher = null;
+    this.recordUpdater = null;
   }
 
   static orderSearchParams(params) {
@@ -210,6 +197,24 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
+    // Watched here, not in the constructor: an instance React constructs but never mounts
+    // (StrictMode does that) must not keep watching the record.
+    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
+    this.dispWatcher = this.instanceRecord.watch('?disp', this.updateTitle);
+    this.recordUpdater = new RecordUpdater(this.instanceRecord, {
+      onMovedToRef: movedToRef => {
+        const wsId = getWorkspaceId();
+        const activeTab = PageTabList.activeTab;
+
+        PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, {
+          openNewTab: true,
+          needUpdateTabs: true
+        });
+
+        PageTabList.delete(activeTab);
+      }
+    });
+
     this.getConfig(this.state.urlParams);
   }
 
@@ -280,10 +285,13 @@ class Dashboard extends Component {
   }
 
   componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
-    this.instanceRecord.unwatch(this.dispWatcher);
+    this.watcher && this.instanceRecord.unwatch(this.watcher);
+    this.dispWatcher && this.instanceRecord.unwatch(this.dispWatcher);
+    this.watcher = null;
+    this.dispWatcher = null;
     this.showWarningMessage.cancel();
-    this.recordUpdater.dispose();
+    this.recordUpdater && this.recordUpdater.dispose();
+    this.recordUpdater = null;
   }
 
   showWarningMessage = debounce(() => {

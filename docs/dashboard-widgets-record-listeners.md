@@ -70,3 +70,35 @@ UPDATE_TASKS_WIDGETS listeners added` (появляется только на о
 закрывать через `.page-tab__tabs-item_active .page-tab__tabs-item-close`, счётчики читать через
 `Citeck.Records.get(ref).events.eventNames()` / `listenerCount`. В деве «открытые» счётчики
 удвоены StrictMode — сравнивать значения при закрытой вкладке.
+
+## Дополнение: watcher'ы записи (та же утечка через `Record.watch`)
+
+У записи есть второй канал подписки — `Record.watch(atts, cb)`: watcher хранится в `_watchers`
+кешированной записи и живёт до `unwatch`. Лимита и предупреждения, как у `EventEmitter`, нет,
+поэтому в консоли утечка не видна; при каждом обновлении записи `_innerUpdate` принудительно
+перечитывает атрибуты всех накопленных watcher'ов и зовёт их колбэки.
+
+Замер на `emodel/ept-issue@TEST-1` (переход на запись и уход на журнал, без перезагрузки; watcher'ов
+на записи при уже покинутой странице): до правок — 44 → 86 → 126 → 168 → 206 за пять циклов,
+после — 0 на каждом цикле.
+
+Источники (все — `watch` в конструкторе, снять его мог только тот единственный инстанс, который
+смонтировался):
+
+- `PropertiesDashlet.jsx` — `permissionsWatcher` на `permissions._has.Write?bool!true`. Это главный
+  вклад: React конструирует ленивый класс под `Suspense` по нескольку раз на один маунт
+  (плюс StrictMode) — на четыре виджета свойств за одно открытие было 28 конструкторов и 42
+  осиротевших watcher'а. Перенесён в `componentDidMount`.
+- `pages/Dashboard/Dashboard.jsx` — два watcher'а (`['version','name']`, `?disp`) и `RecordUpdater`
+  (внутри тоже `watch`). Перенесены в `componentDidMount`, снятие в `componentWillUnmount` с guard.
+- `ecos-ui-stages-widget-plugin` `Widget/index.jsx` — `watch('_status?str')` в конструкторе,
+  `componentWillUnmount` не было. Релиз 1.7.1.
+- `ecos-ui-kanban-widget-plugin` `Widget/KanbanWidgetDashlet.jsx` — `watchAttrsToLoad` вешал по
+  watcher'у на атрибут при маунте и при каждой смене настроек, не снимая прежних. Теперь watcher'ы
+  хранятся в `attrsWatchers`, снимаются перед повторной подпиской и при размонтировании. Релиз 1.10.1.
+
+Проверка в jest — `Records.get(ref)._watchers.length` до/после `componentDidMount` /
+`componentWillUnmount` (тесты рядом с компонентами и в `Widget/__tests__` плагинов).
+
+Оставшиеся `watch` без `unwatch` вне виджетов: `journals/Journals/Views/HierarchyView.jsx` и
+`domain/Import/Import.jsx` — не трогались (другой жизненный цикл, вне COREDEV-522).

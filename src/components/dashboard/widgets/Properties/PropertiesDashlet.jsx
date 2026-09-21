@@ -62,7 +62,7 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.permissionsWatcher = this.instanceRecord.watch(PERMISSION_WRITE_ATTR, this.checkPermissions);
+    this.permissionsWatcher = null;
     this.ref = this;
 
     this.state = {
@@ -87,9 +87,10 @@ class PropertiesDashlet extends BaseWidget {
     super.componentDidMount();
 
     // Subscribed here, not in the constructor: an instance React constructs but never mounts
-    // (StrictMode does that) must not keep listening.
+    // (StrictMode does that, and so do lazy retries under Suspense) must not keep listening.
     this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
     this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.reload);
+    this.permissionsWatcher = this.instanceRecord.watch(PERMISSION_WRITE_ATTR, this.checkPermissions);
 
     const widgetWidth = get(this.ref, '_dashletRef.clientWidth');
 
@@ -114,7 +115,10 @@ class PropertiesDashlet extends BaseWidget {
     super.componentWillUnmount();
     this.instanceRecord.events.off(EVENTS.ASSOC_UPDATE, this.reload);
     this.instanceRecord.events.off(EVENTS.ATTS_UPDATED, this.reload);
-    this.instanceRecord.unwatch(this.permissionsWatcher);
+    if (this.permissionsWatcher) {
+      this.instanceRecord.unwatch(this.permissionsWatcher);
+      this.permissionsWatcher = null;
+    }
     window.clearTimeout(this._refreshTimerId);
     isFunction(this._refreshSpinResolve) && this._refreshSpinResolve();
   }
