@@ -118,7 +118,28 @@ class Import extends Component {
 
       const record = Records.get(persistedRecordId);
 
-      record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], updatedAttributes => {
+      const stopPolling = () => {
+        if (record.pollingIntervalId) {
+          clearInterval(record.pollingIntervalId);
+          record.pollingIntervalId = null;
+        }
+
+        // The record is a global cache entry: the progress watcher must not outlive this import.
+        if (watcher) {
+          record.unwatch(watcher);
+          watcher = null;
+        }
+
+        navigator.serviceWorker.controller.postMessage({
+          type: SERVICE_WORKER_TYPES.PROGRESS,
+          status: WORKER_STATUSES.UPLOAD_SUCCESS
+        });
+
+        isFunction(deselectAllRecords) && deselectAllRecords();
+        isFunction(reloadGrid) && reloadGrid();
+      };
+
+      let watcher = record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], updatedAttributes => {
         const processedRowCount = updatedAttributes[ATT_PROCESSED_ROW_COUNT];
         const jsonData = updatedAttributes[ATT_FULL_STATE];
         const totalCount = updatedAttributes[ATT_TOTAL_COUNT];
@@ -162,6 +183,9 @@ class Import extends Component {
         }
       });
 
+      // Registered before the first await: an unmount while the load is in flight must still clean up.
+      this.cleanupPolling = stopPolling;
+
       await record.load([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE]);
 
       const startPolling = () => {
@@ -180,21 +204,6 @@ class Import extends Component {
               console.error(t('import-component.record.error-update', { record: record.id, error }));
             });
         }, pollingInterval);
-      };
-
-      const stopPolling = () => {
-        if (record.pollingIntervalId) {
-          clearInterval(record.pollingIntervalId);
-          record.pollingIntervalId = null;
-        }
-
-        navigator.serviceWorker.controller.postMessage({
-          type: SERVICE_WORKER_TYPES.PROGRESS,
-          status: WORKER_STATUSES.UPLOAD_SUCCESS
-        });
-
-        isFunction(deselectAllRecords) && deselectAllRecords();
-        isFunction(reloadGrid) && reloadGrid();
       };
 
       const handleError = async fileData => {
@@ -246,10 +255,6 @@ class Import extends Component {
             break;
         }
       }
-
-      this.cleanupPolling = () => {
-        stopPolling();
-      };
     }
   };
 
