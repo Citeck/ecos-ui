@@ -100,5 +100,12 @@ UPDATE_TASKS_WIDGETS listeners added` (появляется только на о
 Проверка в jest — `Records.get(ref)._watchers.length` до/после `componentDidMount` /
 `componentWillUnmount` (тесты рядом с компонентами и в `Widget/__tests__` плагинов).
 
-Оставшиеся `watch` без `unwatch` вне виджетов: `journals/Journals/Views/HierarchyView.jsx` и
-`domain/Import/Import.jsx` — не трогались (другой жизненный цикл, вне COREDEV-522).
+Вне виджетов исправлены ещё два `watch` без `unwatch`:
+
+- `journals/Journals/Views/HierarchyView.jsx` — строка дерева (`TreeNodeRow`) следила за `_disp`
+  записи из `useEffect` без cleanup: каждый рендер дерева (и каждая смена `node.id` у строки)
+  добавлял watcher навсегда. Теперь эффект возвращает `unwatch`; `TreeNodeRow` экспортирован
+  именованно ради теста.
+- `domain/Import/Import.jsx` — watcher прогресса импорта ставился в `handleSubmit`, а `stopPolling`
+  снимал только интервал. `stopPolling` теперь снимает и watcher, а `this.cleanupPolling`
+  назначается до первого `await` — размонтирование во время загрузки тоже чистит.

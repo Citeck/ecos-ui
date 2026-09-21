@@ -134,14 +134,20 @@ const TreeNodeRow = ({
   const filteredChildren = children.filter(c => !!c.id);
   const [displayName, setDisplayName] = useState(node.name);
 
-  // Watch for name changes
+  // Watch for name changes. The record is a global cache entry, so the watcher has to go with the row.
   useEffect(() => {
     const rec = Records.get(node.id);
-    if (rec && rec.watch) {
-      rec.watch(['_disp'], updated => {
-        if (updated._disp) setDisplayName(updated._disp);
-      });
+    if (!rec || !rec.watch) {
+      return undefined;
     }
+
+    const watcher = rec.watch(['_disp'], updated => {
+      if (updated._disp) setDisplayName(updated._disp);
+    });
+
+    return () => {
+      watcher && rec.unwatch(watcher);
+    };
   }, [node.id]);
 
   const handleEdit = e => {
@@ -593,4 +599,5 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
   );
 };
 
+export { TreeNodeRow };
 export default HierarchyView;
