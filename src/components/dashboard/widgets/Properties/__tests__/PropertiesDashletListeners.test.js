@@ -57,4 +57,35 @@ describe('PropertiesDashlet record event listeners', () => {
     expect(count(EVENTS.ASSOC_UPDATE)).toBe(0);
     expect(count(EVENTS.ATTS_UPDATED)).toBe(0);
   });
+
+  // The write-permission watcher follows the same rule: React constructs the dashlet far more often
+  // than it mounts it (StrictMode, lazy retries under Suspense), and a watcher taken in the constructor
+  // is only ever removed by the one instance that mounts.
+  describe('write-permission watcher', () => {
+    const watchers = () => Records.get(record)._watchers.length;
+
+    it('a constructed but never mounted instance does not watch', () => {
+      createDashlet();
+
+      expect(watchers()).toBe(0);
+    });
+
+    it('watches while mounted and stops watching on unmount', () => {
+      const instance = createDashlet();
+
+      instance.componentDidMount();
+      expect(watchers()).toBeGreaterThan(0);
+
+      instance.componentWillUnmount();
+      expect(watchers()).toBe(0);
+    });
+
+    it('does not pile up watchers when the same record is opened again and again', () => {
+      for (let i = 0; i < 5; i++) {
+        openAndClose();
+      }
+
+      expect(watchers()).toBe(0);
+    });
+  });
 });
