@@ -75,15 +75,32 @@ class TaskAssignmentPanel extends Component {
     this.#unmounted = true;
 
     this.getStateAssign.cancel();
+    this.removeWatcher();
   }
 
   addWatcher = () => {
     const { taskId } = this.props;
 
     TasksApi.getDocument(taskId).then(documentRef => {
+      // The document may arrive after the panel is gone — a subscription made then would never be removed.
+      if (this.#unmounted || !documentRef) {
+        return;
+      }
+
       this.documentRecord = Records.get(documentRef);
-      this.documentRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, () => this.getStateAssign(taskId));
+      this.documentRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.handleTasksUpdate);
     });
+  };
+
+  removeWatcher = () => {
+    if (this.documentRecord) {
+      this.documentRecord.events.off(EVENTS.UPDATE_TASKS_WIDGETS, this.handleTasksUpdate);
+      this.documentRecord = null;
+    }
+  };
+
+  handleTasksUpdate = () => {
+    this.getStateAssign(this.props.taskId);
   };
 
   get btnSettings() {

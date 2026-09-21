@@ -48,8 +48,20 @@ class TasksDashlet extends BaseWidget {
       totalCount: 0,
       isLoading: true
     };
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
+
+    // Subscribed here, not in the constructor: an instance React constructs but never mounts
+    // (StrictMode does that) must not keep listening.
     this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.reload);
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+
+    this.instanceRecord.events.off(EVENTS.UPDATE_TASKS_WIDGETS, this.reload);
   }
 
   get stateId() {

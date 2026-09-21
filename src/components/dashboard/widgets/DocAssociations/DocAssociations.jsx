@@ -10,14 +10,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import {
-  addAssociations,
-  getAssociations,
-  getMenu,
-  removeAssociations,
-  resetStore,
-  viewAssociation
-} from '@/actions/docAssociations';
+import { addAssociations, getAssociations, getMenu, removeAssociations, resetStore, viewAssociation } from '@/actions/docAssociations';
 import { getAdaptiveNumberStr, t, isMobileDevice } from '@/helpers/util';
 import { selectStateByKey } from '@/selectors/docAssociations';
 import DAction from '@/services/DashletActionService';
@@ -85,12 +78,14 @@ class DocAssociations extends BaseWidget {
     };
 
     this.watcherAssoc = null;
-    this.instanceRecord.events.on(EVENTS.UPDATE_ASSOCIATIONS, this.props.getAssociations);
   }
 
   componentDidMount() {
     super.componentDidMount();
 
+    // Subscribed here, not in the constructor: an instance React constructs but never mounts
+    // (StrictMode does that) must not keep listening.
+    this.instanceRecord.events.on(EVENTS.UPDATE_ASSOCIATIONS, this.handleUpdateAssociations);
     this.props.getAssociations();
     this.checkHeight();
   }
@@ -109,9 +104,14 @@ class DocAssociations extends BaseWidget {
 
   componentWillUnmount() {
     super.componentWillUnmount();
+    this.instanceRecord.events.off(EVENTS.UPDATE_ASSOCIATIONS, this.handleUpdateAssociations);
     this.props.resetStore();
     this.watcherAssoc && this.instanceRecord.unwatch(this.watcherAssoc);
   }
+
+  handleUpdateAssociations = () => {
+    this.props.getAssociations();
+  };
 
   getTrackedAssoc = (associations = this.props.allowedAssociations) => {
     return (associations || []).map(item => `assoc_src_${item.attribute || item.name}`);

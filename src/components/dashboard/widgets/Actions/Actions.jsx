@@ -62,7 +62,11 @@ class Actions extends React.Component {
   }
 
   componentWillUnmount() {
-    const { resetActions } = this.props;
+    const { resetActions, instanceRecord } = this.props;
+
+    if (instanceRecord) {
+      instanceRecord.events.off(EVENTS.UPDATE_TASKS_WIDGETS, this.getActions);
+    }
 
     resetActions();
   }

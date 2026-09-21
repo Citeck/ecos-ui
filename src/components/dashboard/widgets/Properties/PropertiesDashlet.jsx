@@ -81,13 +81,15 @@ class PropertiesDashlet extends BaseWidget {
       componentsCount: -1,
       isRefreshing: false
     };
-
-    this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
-    this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.reload);
   }
 
   componentDidMount() {
     super.componentDidMount();
+
+    // Subscribed here, not in the constructor: an instance React constructs but never mounts
+    // (StrictMode does that) must not keep listening.
+    this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
+    this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.reload);
 
     const widgetWidth = get(this.ref, '_dashletRef.clientWidth');
 
@@ -110,6 +112,8 @@ class PropertiesDashlet extends BaseWidget {
 
   componentWillUnmount() {
     super.componentWillUnmount();
+    this.instanceRecord.events.off(EVENTS.ASSOC_UPDATE, this.reload);
+    this.instanceRecord.events.off(EVENTS.ATTS_UPDATED, this.reload);
     this.instanceRecord.unwatch(this.permissionsWatcher);
     window.clearTimeout(this._refreshTimerId);
     isFunction(this._refreshSpinResolve) && this._refreshSpinResolve();
