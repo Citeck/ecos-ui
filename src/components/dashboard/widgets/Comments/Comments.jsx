@@ -20,6 +20,7 @@ import { getAdaptiveNumberStr, isMobileDevice, t } from '@/helpers/util';
 import { selectStateByRecordRef } from '@/selectors/comments';
 import DAction from '@/services/DashletActionService';
 import { Events } from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -87,15 +88,17 @@ class Comments extends BaseWidget {
       linkUrl: '',
       linkText: ''
     };
-
-    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
-    this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
-    this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink);
   }
 
   componentDidMount() {
     super.componentDidMount();
+
+    // Subscribed here, not in the constructor: an instance React constructs but never mounts
+    // (StrictMode does that) must not keep listening.
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink);
 
     this.fetchData();
   }
@@ -121,9 +124,10 @@ class Comments extends BaseWidget {
   };
 
   handleChangeTabLink = () => {
-    const { updateComments, record } = this.props;
+    const { updateComments, record, fetchIsLoading } = this.props;
     // Cached tabs stay mounted. Only refresh this widget's own record when it becomes active.
-    if (getRecordRef() === record) {
+    // A load already in flight (the first one after a mount, for instance) brings the fresh list itself.
+    if (getRecordRef() === record && !fetchIsLoading) {
       updateComments(this.props.comments || [], record);
     }
   };
@@ -312,4 +316,65 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   updateComments: (prevComments, recordRef) => dispatch(updateComments({ record: recordRef || ownProps.record, prevComments }))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Comments);
+const ConnectedComments = connect(mapStateToProps, mapDispatchToProps)(Comments);
+
+/**
+ * Keeps the widget bound to the record its page tab currently shows.
+ *
+ * In-page navigation (the knowledge-base tree, for one) rewrites the URL of the current tab in place via
+ * `changeUrlLink(link, { updateUrl: true })`. That does not re-render the dashboard layout, so the
+ * `record` prop the widget was mounted with goes stale: the list, the badge and the editor of a new
+ * comment all keep pointing at the previous record (COREDEV-538). The widget is remounted for the
+ * record from the rewritten link instead. Only a rewrite of its own, visible tab counts: cached tabs
+ * stay mounted, and their widgets must keep their own record while another tab is being navigated.
+ */
+export class CommentsWidget extends React.Component {
+  static propTypes = {
+    record: PropTypes.string,
+    tabId: PropTypes.string
+  };
+
+  state = {
+    record: this.props.record,
+    propsRecord: this.props.record
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.record && props.record !== state.propsRecord) {
+      return { record: props.record, propsRecord: props.record };
+    }
+
+    return null;
+  }
+
+  componentDidMount() {
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleUrlRewrite);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleUrlRewrite);
+  }
+
+  handleUrlRewrite = event => {
+    const { link, updateUrl } = (event && event.params) || {};
+    const { tabId } = this.props;
+
+    if (!updateUrl || !link || (tabId && !PageTabList.isActiveTab(tabId))) {
+      return;
+    }
+
+    const record = getRecordRef(link);
+
+    if (record && record !== this.state.record) {
+      this.setState({ record });
+    }
+  };
+
+  render() {
+    const { record } = this.state;
+
+    return <ConnectedComments {...this.props} key={record} record={record} />;
+  }
+}
+
+export default CommentsWidget;
