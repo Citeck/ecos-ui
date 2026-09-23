@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.30.0-snapshot",
+  "version": "2.30.0",
   "private": true,
   "type": "module",
   "workspaces": [
