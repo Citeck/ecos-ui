@@ -773,7 +773,6 @@ export function* getGridData(
   }
 
   const { recordRef, journalConfig, journalSetting }: IJournalState = yield select(selectJournalData, stateId);
-  const { typeRef } = journalConfig || {};
 
   const config: JournalDashletConfigVersionType = yield select((state: RootState) => selectNewVersionDashletConfig(state, stateId));
   const { customJournalMode } = config || {};
@@ -799,19 +798,18 @@ export function* getGridData(
     });
   }
 
+  // The category filter comes from the URL the categories widget writes (`?journalId=...&recordRef=emodel/category@...`).
+  // It must not be gated on the journal type carrying the `has-category` aspect: records are put into categories
+  // one by one (drag&drop in the tree, or the form on create), so a type without the aspect still has categorized records.
   const categoryPredicates = [];
   const query = getSearchParams();
   const { journalId: qJournalId, recordRef: qRecordRef } = query || {};
-  const aspects: Awaited<ReturnType<IJournalsApi['getAspects']>> = yield call(api.journals.getAspects, typeRef);
-  const foundCategoryAspect = (aspects || []).find(aspect => get(aspect, 'ref', '').includes('has-category'));
-  if (foundCategoryAspect && qJournalId) {
-    if (qRecordRef && qRecordRef !== 'null') {
-      categoryPredicates.push({
-        att: 'tree-search:path',
-        t: PREDICATE_EQ,
-        val: qRecordRef
-      });
-    }
+  if (qJournalId && isString(qRecordRef) && qRecordRef.startsWith(`${SourcesId.CATEGORY}@`)) {
+    categoryPredicates.push({
+      att: 'tree-search:path',
+      t: PREDICATE_EQ,
+      val: qRecordRef
+    });
   }
 
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));

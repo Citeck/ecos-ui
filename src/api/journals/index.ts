@@ -27,7 +27,6 @@ export interface IJournalsApi {
   getRecord: (props: { id: string; attributes: NonNullable<unknown>; noCache?: boolean }) => PureQueryResponse<NonNullable<unknown>>;
   fetchLinkedRefs: (recordRef?: string | null, attributesToLoad?: Array<{ value: string }> | null) => Promise<string[]>;
   saveRecords: (props: { id: string; attributes: Record<string, { value: string }> }) => Promise<void>;
-  getAspects: (typeRef?: string) => Promise<Array<{ ref?: string }>>;
   getDashletConfig: (id: string) => Promise<NonNullable<unknown>>;
   saveDashletConfig: (config: IJournalState['config'], id: string) => Promise<void>;
   getPreviewUrl: (recordRef: string) => Promise<string>;
@@ -103,10 +102,6 @@ export class JournalsApi extends RecordService implements IJournalsApi {
   /** @todo replace to using Records.js */
   saveRecords: IJournalsApi['saveRecords'] = ({ id, attributes }) => {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
-  };
-
-  getAspects: IJournalsApi['getAspects'] = typeRef => {
-    return Records.get(typeRef).load('aspects[]?json');
   };
 
   getDashletConfig: IJournalsApi['getDashletConfig'] = id => {

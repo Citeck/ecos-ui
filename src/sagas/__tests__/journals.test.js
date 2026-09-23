@@ -178,6 +178,98 @@ describe('getGridData > page size of the records query', () => {
   });
 });
 
+describe('getGridData > category filter from the URL (COREDEV-556)', () => {
+  const pagination = { skipCount: 0, maxItems: 10, page: 1 };
+  const columns = [{ attribute: 'priority', dataField: 'priority', type: 'TEXT' }];
+  const categoryPredicate = { att: 'tree-search:path', t: 'eq', val: 'emodel/category@abc' };
+
+  // The type of this journal carries no `has-category` aspect: records get `has-category:category`
+  // one by one (drag&drop into the tree, or the form on create), so the filter must not depend on it.
+  const state = {
+    journals: {
+      [stateId]: {
+        recordRef: '',
+        journalConfig: { id: 'test-journal', typeRef: 'emodel/type@contract', columns },
+        journalSetting: {},
+        grid: { columns },
+        grouping: { groupBy: [], columns: [] }
+      }
+    }
+  };
+
+  // `window.location` is captured here, at collection time: the global `beforeEach` replaces it with
+  // a bare object, and `getSearchParams()` reads `window.location.search`.
+  const realLocation = window.location;
+  const previousUrl = window.location.href;
+
+  let getJournalData;
+
+  function setUrl(search) {
+    window.location = realLocation;
+    window.history.replaceState({}, '', `/v2/journals${search}`);
+  }
+
+  async function runGetGridData() {
+    await runSaga(
+      {
+        dispatch: () => {},
+        getState: () => state
+      },
+      journals.getGridData,
+      api,
+      { columns, pagination, groupBy: [], predicates: [] },
+      stateId
+    ).done;
+  }
+
+  beforeEach(() => {
+    getJournalData = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValue({ records: [], totalCount: 0 });
+    jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue({});
+    jest.spyOn(JournalsService, 'resolveColumns').mockResolvedValue(columns);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.history.replaceState({}, '', previousUrl);
+  });
+
+  it('a category ref in the URL is sent as a `tree-search:path` predicate, whatever the type aspects are', async () => {
+    setUrl('?journalId=test-journal&recordRef=emodel/category@abc');
+
+    await runGetGridData();
+
+    expect(getJournalData).toHaveBeenCalledTimes(1);
+    expect(getJournalData.mock.calls[0][1].predicates).toEqual([categoryPredicate]);
+  });
+
+  it('a non-category recordRef is not turned into a category predicate', async () => {
+    setUrl('?journalId=test-journal&recordRef=emodel/some-doc@1');
+
+    await runGetGridData();
+
+    expect(getJournalData).toHaveBeenCalledTimes(1);
+    expect(getJournalData.mock.calls[0][1].predicates).toEqual([]);
+  });
+
+  it('the `null` recordRef of the "all records" tree node is not a category', async () => {
+    setUrl('?journalId=test-journal&recordRef=null');
+
+    await runGetGridData();
+
+    expect(getJournalData).toHaveBeenCalledTimes(1);
+    expect(getJournalData.mock.calls[0][1].predicates).toEqual([]);
+  });
+
+  it('a category ref without a journalId in the URL (a dashboard) adds no predicate', async () => {
+    setUrl('?recordRef=emodel/category@abc');
+
+    await runGetGridData();
+
+    expect(getJournalData).toHaveBeenCalledTimes(1);
+    expect(getJournalData.mock.calls[0][1].predicates).toEqual([]);
+  });
+});
+
 describe('sagaSaveRecords: a failed inline save is visible (COREDEV-466)', () => {
   const rowId = 'workspace://SpacesStore/row-1';
   const column = { attribute: 'summary', dataField: 'summary', type: 'text', attSchema: 'summary' };
