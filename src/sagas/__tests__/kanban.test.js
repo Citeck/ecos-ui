@@ -1877,6 +1877,143 @@ describe('kanban sagas tests', () => {
     });
   });
 
+  describe('COREDEV-426: card actions after swimlane moves and paging', () => {
+    function createRunner(resolvedActions) {
+      let state = {
+        kanban: {
+          [stateId]: {
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            resolvedActions,
+            ...JSON.parse(JSON.stringify(swimlaneData))
+          }
+        },
+        journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+      };
+      const dispatch = action => {
+        state = { ...state, kanban: reducer(state.kanban, action) };
+      };
+      return {
+        row: () => state.kanban[stateId].swimlanes[0],
+        resolvedActions: () => state.kanban[stateId].resolvedActions,
+        run: (saga, payload) => runSaga({ getState: () => state, dispatch }, saga, { api }, { payload: { stateId, ...payload } })
+      };
+    }
+    // Every card gets its own action so a lookup in the wrong column map is visible.
+    const actionsFor = refs => ({ forRecord: Object.fromEntries(refs.map(ref => [ref, [{ id: `act-${ref}` }]])) });
+    const initialActions = () => [
+      { status: 'some-id-1', ...actionsFor(['rec-1', 'rec-2', 'rec-4']).forRecord },
+      { status: 'some-id-2', ...actionsFor(['rec-3']).forRecord }
+    ];
+
+    it('a card moved into a column it has never been in gets its actions there', async () => {
+      const runner = createRunner(initialActions());
+      const originalMove = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn().mockResolvedValue(null);
+      spyGetBoardCards.mockResolvedValueOnce([
+        { columnId: 'some-id-1', records: [{ id: 'rec-2', cardId: 'rec-2' }], totalCount: 1 },
+        {
+          columnId: 'some-id-2',
+          records: [
+            { id: 'rec-1', cardId: 'rec-1' },
+            { id: 'rec-3', cardId: 'rec-3' }
+          ],
+          totalCount: 2
+        }
+      ]);
+      const lockedWhileResolving = [];
+      spyGetRecordActions.mockImplementation(async (config, refs) => {
+        lockedWhileResolving.push(runner.row().isMoving);
+        return actionsFor(refs);
+      });
+
+      try {
+        await runner.run(kanban.sagaMoveSwimlaneCard, {
+          cardIndex: 0,
+          toIndex: 0,
+          fromSwimlaneId: 'priority-high',
+          fromStatusId: 'some-id-1',
+          toStatusId: 'some-id-2'
+        }).done;
+
+        // Only the two cells of the moved row, as the server returned them after the move.
+        expect(spyGetRecordActions.mock.calls.map(([, refs]) => refs)).toEqual([['rec-2'], ['rec-1', 'rec-3']]);
+        expect(lockedWhileResolving).toEqual([true, true]);
+        expect(runner.row().isMoving).toBe(false);
+
+        const [source, target] = runner.resolvedActions();
+        expect(target['rec-1']).toEqual([{ id: 'act-rec-1' }]);
+        expect(target.status).toBe('some-id-2');
+        // Cards of other rows keep what they had.
+        expect(source['rec-4']).toEqual([{ id: 'act-rec-4' }]);
+        expect(console.error).not.toHaveBeenCalled();
+      } finally {
+        api.kanban.moveCard = originalMove;
+        spyGetRecordActions.mockResolvedValue(data.journalActions);
+      }
+    });
+
+    it('cards of a page loaded with «Ещё» in a cell get their actions', async () => {
+      const runner = createRunner(initialActions());
+      runner.row().cells['some-id-1'].totalCount = 5;
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: [
+            { id: 'rec-5', cardId: 'rec-5' },
+            { id: 'rec-6', cardId: 'rec-6' }
+          ],
+          totalCount: 5
+        }
+      ]);
+      spyGetRecordActions.mockImplementation(async (config, refs) => actionsFor(refs));
+
+      try {
+        await runner.run(kanban.sagaLoadMoreSwimlaneCell, { swimlaneId: 'priority-high', statusId: 'some-id-1' }).done;
+
+        // Only the new page is resolved; the cards already on screen keep their actions.
+        expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
+        expect(spyGetRecordActions).toHaveBeenCalledWith(data.boardConfig, ['rec-5', 'rec-6']);
+
+        const [column, other] = runner.resolvedActions();
+        expect(column).toEqual(expect.objectContaining({ status: 'some-id-1', 'rec-1': [{ id: 'act-rec-1' }] }));
+        expect(column['rec-5']).toEqual([{ id: 'act-rec-5' }]);
+        expect(column['rec-6']).toEqual([{ id: 'act-rec-6' }]);
+        expect(other).toEqual(initialActions()[1]);
+      } finally {
+        spyGetRecordActions.mockResolvedValue(data.journalActions);
+      }
+    });
+
+    it('concurrent sagaGetActions calls do not erase each other', async () => {
+      const runner = createRunner([{ status: 'some-id-1' }, { status: 'some-id-2' }]);
+      const pending = {};
+      spyGetRecordActions.mockImplementation(
+        (config, refs) =>
+          new Promise(resolve => {
+            pending[refs[0]] = () => resolve(actionsFor(refs));
+          })
+      );
+
+      try {
+        const first = runner.run(kanban.sagaGetActions, { boardConfig: data.boardConfig, newRecordRefs: [['rec-1'], undefined] });
+        const second = runner.run(kanban.sagaGetActions, { boardConfig: data.boardConfig, newRecordRefs: [undefined, ['rec-3']] });
+
+        // The call that started first finishes last: it must not write back the state it saw at start.
+        pending['rec-3']();
+        await second.done;
+        pending['rec-1']();
+        await first.done;
+
+        const [column1, column2] = runner.resolvedActions();
+        expect(column1).toEqual({ status: 'some-id-1', 'rec-1': [{ id: 'act-rec-1' }] });
+        expect(column2).toEqual({ status: 'some-id-2', 'rec-3': [{ id: 'act-rec-3' }] });
+      } finally {
+        spyGetRecordActions.mockResolvedValue(data.journalActions);
+      }
+    });
+  });
+
   describe('sagaSetSwimlaneGrouping', () => {
     it('enable grouping dispatches setSwimlaneGrouping', async () => {
       const dispatched = await wrapRunSaga(

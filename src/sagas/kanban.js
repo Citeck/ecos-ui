@@ -130,6 +130,18 @@ function collectRecordRefsFromSwimlanes(swimlanes, columns) {
   });
 }
 
+/**
+ * `newRecordRefs` for sagaGetActions covering only the given cells: indexed by boardConfig.columns
+ * (the order sagaGetActions reads them in), undefined for every other column so its resolved
+ * actions stay as they are.
+ */
+function collectRecordRefsForCells(boardConfig, recordsByStatus) {
+  return get(boardConfig, 'columns', []).map(column => {
+    const refs = (recordsByStatus[column.id] || []).map(rec => rec && rec.cardId).filter(Boolean);
+    return isEmpty(refs) ? undefined : refs;
+  });
+}
+
 function findCardInSwimlanes(swimlanes, recordRef) {
   for (const sl of swimlanes) {
     for (const colId of Object.keys(sl.cells)) {
@@ -625,21 +637,30 @@ export function* sagaGetData({ api }, { payload }) {
 export function* sagaGetActions({ api }, { payload }) {
   try {
     const { boardConfig = {}, newRecordRefs = [], stateId } = payload;
+    const columns = boardConfig.columns || [];
+
+    // Skip columns whose records didn't change (undefined entry) — keep previously resolved actions.
+    // Reduces redundant queries to uiserv/record-actions after partial reloads (e.g. card move).
+    const fetched = yield all(
+      columns.map((column, i) =>
+        newRecordRefs[i] === undefined ? null : call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i])
+      )
+    );
+
+    // Merge into the state as it is AFTER the requests, not into a snapshot taken before them:
+    // moves in different swimlane rows and «Ещё» in a cell resolve their columns concurrently, and
+    // writing back a stale snapshot erased the other callers' results (COREDEV-426).
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
-    const resolvedActions = yield (boardConfig.columns || []).map(function* (column, i) {
+    const resolvedActions = columns.map((column, i) => {
       const status = column.id || '';
+      const prev = get(prevResolvedActions, [i], {});
 
-      // Skip columns whose records didn't change — keep previously resolved actions.
-      // Reduces redundant queries to uiserv/record-actions after partial reloads (e.g. card move).
-      if (newRecordRefs[i] === undefined) {
-        return { ...get(prevResolvedActions, [i], {}), status };
+      if (!fetched[i]) {
+        return { ...prev, status };
       }
 
-      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
-      const actions = { ...newResolvedActions.forRecord, status };
-
-      return { ...get(prevResolvedActions, [i], {}), ...actions };
+      return { ...prev, ...fetched[i].forRecord, status };
     });
 
     yield put(setResolvedActions({ stateId, resolvedActions }));
@@ -1496,6 +1517,14 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
         pagination: { skipCount: 0, maxItems: Math.max(allRecords.length, prevPagination.maxItems || DEFAULT_PAGINATION.maxItems) }
       })
     );
+
+    // Actions are resolved per column; the cards of the new page are not in this column's map yet
+    // and would render without the "⋯" menu until a full reload (COREDEV-426).
+    yield call(
+      sagaGetActions,
+      { api },
+      { payload: { boardConfig, newRecordRefs: collectRecordRefsForCells(boardConfig, { [statusId]: newRecords }), stateId } }
+    );
   } catch (e) {
     console.error('[kanban/sagaLoadMoreSwimlaneCell saga] error', e);
   } finally {
@@ -1596,6 +1625,19 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     // Reload swimlane cells from server to settle ordering. The row load re-fetches each cell's
     // whole expanded window (swimlaneCellWindow), so a "load more"-grown cell keeps its size.
     yield call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId } });
+
+    // Card actions are stored per column, so a card that lands in a column it has never been in has
+    // no "⋯" menu there until they are resolved for that column (COREDEV-426). Resolve them for the
+    // reloaded cells while the row is still locked: the move settles as one unit, and the card cannot
+    // be dragged on (or its row paged) in the brief window where its menu is still missing. It costs
+    // one record-actions round trip of extra lock time per move.
+    const { swimlanes: reloadedSwimlanes = [] } = yield select(selectKanban, stateId);
+    const reloadedRow = reloadedSwimlanes.find(sl => sl.id === swimlaneId);
+    const newRecordRefs = collectRecordRefsForCells(boardConfig, {
+      [fromStatusId]: get(reloadedRow, ['cells', fromStatusId, 'records']),
+      [toStatusId]: get(reloadedRow, ['cells', toStatusId, 'records'])
+    });
+    yield call(sagaGetActions, { api }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
     const { stateId, fromSwimlaneId, fromStatusId, toStatusId } = payload;
     const swimlaneId = fromSwimlaneId;
