@@ -70,10 +70,16 @@ export default class NumberComponent extends FormIONumberComponent {
   set delimiter(delimiter) {}
 
   initNumberMask = () => {
+    const requireDecimal = _.get(this.component, 'requireDecimal', false);
+
     this.numberMask = createNumberMask({
       prefix: '',
       suffix: '',
-      requireDecimal: _.get(this.component, 'requireDecimal', false),
+      // Cause: https://citeck.atlassian.net/browse/COREDEV-573
+      // The mask must not require the decimal part while the user is editing: text-mask then keeps
+      // re-adding the separator and a "_" placeholder, so digits land in the wrong slots and Backspace
+      // gets stuck. Trailing zeros are added by formatValue on blur and on setValue instead.
+      requireDecimal: false,
       thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
       decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
       decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
@@ -81,7 +87,7 @@ export default class NumberComponent extends FormIONumberComponent {
       allowDecimal: _.get(
         this.component,
         'allowDecimal',
-        !((this.component.validate && this.component.validate.integer) || this.component.decimalLimit === 0)
+        requireDecimal || !((this.component.validate && this.component.validate.integer) || this.component.decimalLimit === 0)
       )
     });
   };
@@ -455,7 +461,8 @@ export default class NumberComponent extends FormIONumberComponent {
     if (this.isBigNumber()) {
       newValue = String(value);
     } else if (this.hasDegree(value)) {
-      newValue = this._prepareStringNumber(newValue);
+      // The number is rebuilt from its normalized form, which loses the fraction: restore the required decimals
+      newValue = this.formatValue(this._prepareStringNumber(newValue));
     }
 
     if (!this.delimiter) {
@@ -470,13 +477,12 @@ export default class NumberComponent extends FormIONumberComponent {
       newValue = reverseString(reverseString(newValue).replace(/,/, this.decimalSeparator));
     }
 
-    const formattedValue = this.formatValue(newValue);
     const maskedValue = super.getMaskedValue(newValue);
     const prevValue = options.previousConformedValue || '';
 
     let position = options.currentCaretPosition;
 
-    if (value && formattedValue[0] === this.decimalSeparator) {
+    if (value && newValue[0] === this.decimalSeparator) {
       position = _.includes(inputType, 'Backward') ? 2 : 1;
     }
 
@@ -488,7 +494,9 @@ export default class NumberComponent extends FormIONumberComponent {
       }
     }
 
-    if (value && prevValue === maskedValue && !_.includes(inputType, 'Forward')) {
+    // A rejected insertion leaves the value unchanged: return the caret to where the character was typed.
+    // A deletion that hit a separator already has the caret next to it, so it must not be moved again.
+    if (value && prevValue === maskedValue && !_.includes(inputType, 'Forward') && !_.includes(inputType, 'Backward')) {
       position -= 1;
     }
 
@@ -500,7 +508,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
     this.setCaretPosition(input, position);
 
-    return this.numberMask(formattedValue, options);
+    return this.numberMask(newValue, options);
   };
 
   setCaretPosition = _.debounce((input, position) => {
