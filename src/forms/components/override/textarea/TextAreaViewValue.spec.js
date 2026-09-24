@@ -100,4 +100,28 @@ describe('TextArea view-mode value (COREDEV-427)', () => {
       expect(element.textContent).toContain('text');
     });
   });
+
+  // The legacy `wysiwyg` editor stores real markup, so it is rendered as markup — but sanitized:
+  // it is user-authored content, and the record card showed it to everyone with its handlers live.
+  // COREDEV-546
+  it('drops executable markup from a legacy wysiwyg value and keeps the formatting', () => {
+    return Harness.testCreate(TextAreaComponent, Object.assign(cloneDeep(comp1), { wysiwyg: true }), {
+      readOnly: true,
+      viewAsHtml: true
+    }).then(component => {
+      component.dataValue =
+        '<p>ok <b>bold</b></p><img src="x" onerror="window.__coredev546 = true"><script>window.__coredev546 = true;</script>' +
+        '<a href="javascript:window.__coredev546 = true">link</a>';
+
+      const element = renderInto(component);
+
+      expect(element.querySelector('b')).not.toBeNull();
+      expect(element.querySelector('b').textContent).toBe('bold');
+      expect(element.querySelector('script')).toBeNull();
+      expect(element.querySelector('a').getAttribute('href')).toBeNull();
+      element.querySelectorAll('*').forEach(node => {
+        Array.from(node.attributes).forEach(attribute => expect(attribute.name).not.toMatch(/^on/i));
+      });
+    });
+  });
 });

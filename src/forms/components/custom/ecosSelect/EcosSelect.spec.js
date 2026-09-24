@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import path from 'path';
 
 import Harness from '../../../test/harness';
+import { createDocumentUrl } from '@/helpers/urls';
 import EcosSelectComponent from './EcosSelect';
 import { basicSectionTest } from '../../../test/builder/helpers';
 
@@ -316,5 +317,238 @@ describe('EcosSelect Component', () => {
       expect(chipRule).toContain('visibility: hidden');
       expect(chipRule).toContain(':hover .choices__button');
     });
+  });
+});
+
+/**
+ * The record "Properties" widget shows a form in view mode: formio builds a `dd` and
+ * `setupValueElement` fills it with `innerHTML`, because a record-ref value becomes a link. The
+ * label inside is data — a record's display name, an option's label — and it went into that
+ * markup raw, so `<img onerror>` in a name ran for everyone who opened the card. COREDEV-546
+ */
+describe('EcosSelect view-mode value (COREDEV-546)', () => {
+  const PAYLOAD = '<img src=x onerror="window.__coredev546 = 1">';
+  const REF = 'emodel/person@evil';
+  const OTHER_REF = 'emodel/person@other';
+
+  const viewComp = extra =>
+    Object.assign(cloneDeep(comp1), {
+      template: '',
+      data: {
+        values: [
+          { label: PAYLOAD, value: REF },
+          { label: 'Other <b>name</b>', value: OTHER_REF },
+          { label: PAYLOAD, value: 'plain' }
+        ]
+      },
+      ...extra
+    });
+
+  const render = (comp, value) =>
+    Harness.testCreate(EcosSelectComponent, comp, { readOnly: true, viewAsHtml: true }).then(component => {
+      component.dataValue = value;
+
+      const element = document.createElement('dd');
+
+      component.setupValueElement(element);
+
+      return element;
+    });
+
+  it('renders the label of a record-ref value as text inside the document link', () => {
+    return render(viewComp(), REF).then(element => {
+      const links = element.querySelectorAll('a');
+
+      expect(element.querySelector('img')).toBeNull();
+      expect(links).toHaveLength(1);
+      expect(links[0].getAttribute('href')).toBe(createDocumentUrl(REF));
+      expect(links[0].textContent).toBe(PAYLOAD);
+    });
+  });
+
+  it('renders the label of a plain value as text', () => {
+    return render(viewComp(), 'plain').then(element => {
+      expect(element.querySelector('img')).toBeNull();
+      expect(element.querySelector('a')).toBeNull();
+      expect(element.textContent).toBe(PAYLOAD);
+    });
+  });
+
+  // A stored value that matches no item (url/custom source without a valueProperty, or a value the
+  // list no longer has) is shown as it is: `asString` returns it bare, and it is still written as HTML
+  it('renders a bare stored value that matches no item as text', () => {
+    return render(viewComp({ dataSrc: 'url', valueProperty: '', data: { url: '' } }), PAYLOAD).then(element => {
+      expect(element.querySelector('img')).toBeNull();
+      expect(element.textContent).toBe(PAYLOAD);
+    });
+  });
+
+  it('keeps a quote in a record ref inside the href', () => {
+    const ref = "emodel/person@x' onmouseover='window.__coredev546 = 1";
+
+    return render(viewComp({ data: { values: [{ label: 'Name', value: ref }] } }), ref).then(element => {
+      const link = element.querySelector('a');
+
+      expect(link.getAttribute('onmouseover')).toBeNull();
+      expect(link.getAttribute('href')).toBe(createDocumentUrl(ref));
+    });
+  });
+
+  it('still renders several values as a list of links', () => {
+    return render(viewComp({ multiple: true }), [REF, OTHER_REF]).then(element => {
+      const links = element.querySelectorAll('a');
+
+      expect(element.querySelector('img')).toBeNull();
+      expect(element.querySelector('b')).toBeNull();
+      expect(links).toHaveLength(2);
+      expect(links[0].textContent).toBe(PAYLOAD);
+      expect(links[1].textContent).toBe('Other <b>name</b>');
+      expect(links[1].getAttribute('href')).toBe(createDocumentUrl(OTHER_REF));
+      expect(element.querySelectorAll('br')).toHaveLength(1);
+    });
+  });
+
+  // `component.template` is written by the form's author and is markup on purpose.
+  it('still renders the markup of the component template', () => {
+    return render(viewComp({ template: '<span class="tpl">{{ item.label }}</span>' }), OTHER_REF).then(element => {
+      const link = element.querySelector('a');
+
+      expect(link.getAttribute('href')).toBe(createDocumentUrl(OTHER_REF));
+      expect(link.querySelector('span.tpl')).not.toBeNull();
+    });
+  });
+});
+
+/**
+ * The same labels in edit mode: they went to the Choices widget and to the `<option>`s raw, and
+ * every one of those renders its label as markup — the dropdown choices, the selected item, the
+ * `title` of a choice. A record name like `<img onerror>` ran as soon as the form was opened for
+ * editing. Labels are escaped once, in `itemTemplate`, so they render as text everywhere.
+ * COREDEV-546
+ */
+describe('EcosSelect edit-mode option labels (COREDEV-546)', () => {
+  const PAYLOAD = '<img src=x onerror="window.__coredev546 = 1">Evil';
+
+  const editComp = extra =>
+    Object.assign(cloneDeep(comp1), {
+      template: '',
+      placeholder: '',
+      data: {
+        values: [
+          { label: PAYLOAD, value: 'evil' },
+          { label: 'Alpha', value: 'alpha' },
+          { label: 'Smith & Sons', value: 'smith' }
+        ]
+      },
+      ...extra
+    });
+
+  const create = comp => Harness.testCreate(EcosSelectComponent, comp);
+
+  /** everything the widget rendered, including the original `<select>` and its `<option>`s */
+  const rendered = component => component.choices.containerOuter.element;
+
+  const choiceOf = (component, value) => rendered(component).querySelector(`.choices__list--dropdown [data-choice][data-value="${value}"]`);
+
+  const expectNoInjectedMarkup = root => {
+    expect(root.querySelector('img, script')).toBeNull();
+    root.querySelectorAll('*').forEach(element => {
+      Array.from(element.attributes).forEach(attribute => expect(attribute.name).not.toMatch(/^on/i));
+    });
+  };
+
+  it('renders a markup label of a dropdown choice as text', async () => {
+    const component = await create(editComp());
+    const choice = choiceOf(component, 'evil');
+
+    expectNoInjectedMarkup(rendered(component));
+    expect(choice.textContent.trim()).toBe(PAYLOAD);
+    expect(choice.getAttribute('title')).toBe(PAYLOAD);
+  });
+
+  it('renders a markup label of the selected item as text', async () => {
+    const component = await create(editComp());
+
+    component.setValue('evil');
+
+    const item = rendered(component).querySelector('.choices__list--single [data-item]');
+
+    expectNoInjectedMarkup(rendered(component));
+    expect(item.firstChild.textContent.trim()).toBe(PAYLOAD);
+  });
+
+  it('keeps a quote of a label inside the title of its choice', async () => {
+    const label = 'x" onmouseover="window.__coredev546 = 1';
+    const component = await create(editComp({ data: { values: [{ label, value: 'quote' }] } }));
+    const choice = choiceOf(component, 'quote');
+
+    expect(choice.getAttribute('onmouseover')).toBeNull();
+    expect(choice.getAttribute('title')).toBe(label);
+  });
+
+  it('parses no label into the live document to build the title of a choice', async () => {
+    const createElement = jest.spyOn(document, 'createElement');
+
+    try {
+      await create(editComp({ template: '<b>{{ item.label }}</b>' }));
+
+      // the only live-document elements the widget needs are its own containers, never a holder
+      // to parse a label into — the author template output with the payload must not get one
+      const holders = createElement.mock.results
+        .map(({ value }) => value)
+        .filter(element => element instanceof HTMLElement && element.querySelector('img'));
+
+      expect(holders.filter(element => !element.closest('.choices')).map(element => element.outerHTML)).toEqual([]);
+    } finally {
+      createElement.mockRestore();
+    }
+  });
+
+  it('renders the markup of the component template, sanitized', async () => {
+    const component = await create(editComp({ template: '<b class="tpl">{{ item.label }}</b>' }));
+    const choice = choiceOf(component, 'evil');
+
+    expect(choice.querySelector('b.tpl')).not.toBeNull();
+    expectNoInjectedMarkup(rendered(component));
+    expect(choice.querySelector('b.tpl').textContent).toBe(PAYLOAD);
+    expect(choice.getAttribute('title')).toBe(PAYLOAD);
+  });
+
+  it('still renders, finds and selects a plain label', async () => {
+    const component = await create(editComp());
+    const { choices } = component;
+
+    expect(choiceOf(component, 'alpha').textContent.trim()).toBe('Alpha');
+    expect(choiceOf(component, 'alpha').getAttribute('title')).toBe('Alpha');
+
+    choices.input.element.value = 'Alp';
+    expect(choices._searchChoices('Alp')).toBe(1);
+    expect(choices._store.activeChoices.filter(choice => !choice.placeholder).map(choice => choice.value)).toEqual(['alpha']);
+
+    component.setValue('alpha');
+
+    expect(component.dataValue).toBe('alpha');
+    expect(rendered(component).querySelector('.choices__list--single [data-item]').firstChild.textContent.trim()).toBe('Alpha');
+  });
+
+  it('finds a label with an ampersand by its text', async () => {
+    const component = await create(editComp());
+
+    expect(choiceOf(component, 'smith').textContent.trim()).toBe('Smith & Sons');
+    expect(component.choices._searchChoices('Smith & S')).toBe(1);
+  });
+
+  it('writes the label of an html5 option as text', async () => {
+    const component = await create(editComp({ widget: 'html5' }));
+
+    // the html5 widget fills its `<select>` on a debounced update; run it now
+    component.updateItems();
+
+    const options = Array.from(component.selectInput.querySelectorAll('option'));
+    // (the component's own options carry no value attribute — find it by its text)
+    const evil = options.find(option => option.textContent.includes('Evil'));
+
+    expect(component.selectInput.querySelector('img')).toBeNull();
+    expect(evil.textContent).toBe(PAYLOAD);
   });
 });

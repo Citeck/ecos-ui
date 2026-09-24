@@ -126,11 +126,14 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     return this.input;
   }
 
+  // The value is stored user input: Base writes it as text, this override only adds the tooltip.
+  // Cause: COREDEV-546 - writing it with innerHTML ran markup like `<img onerror>` on the record card
   setupValueElement(element) {
-    let value = this.getValue();
-    value = this.isEmpty(value) ? this.defaultViewOnlyValue : this.getView(value);
-    element.innerHTML = value;
-    element.setAttribute('title', value);
+    super.setupValueElement(element);
+
+    if (element && !this.component.unreadable) {
+      element.setAttribute('title', element.textContent);
+    }
   }
 
   async calculateTypeahead(value) {

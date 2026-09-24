@@ -5,6 +5,26 @@ import './style.scss';
 import { t } from '@/helpers/util';
 
 /**
+ * The text a label shows once rendered: tags dropped, entities decoded. Parsed in an inert document
+ * — markup written into an element of the live document is live even while that element is detached,
+ * so an `<img src=x onerror>` in a label would load and run its handler just to be read as text.
+ * Cause: COREDEV-546
+ * @param {string} markup
+ * @return {string}
+ */
+export const getMarkupText = markup => {
+  if (!markup) {
+    return '';
+  }
+
+  if (!markup.includes('<') && !markup.includes('&')) {
+    return markup;
+  }
+
+  return new DOMParser().parseFromString(markup, 'text/html').body.textContent || '';
+};
+
+/**
  * Accessible name of the item a "remove" button belongs to.
  * `data.value` is a plain string for most selects, but components that compare values with
  * `_.isEqual` (EcosSelect) legitimately hold objects there — printing one gives "[object Object]",
@@ -21,10 +41,7 @@ const getItemName = data => {
     return '';
   }
 
-  const holder = document.createElement('div');
-  holder.innerHTML = label;
-
-  return holder.innerText || holder.textContent || '';
+  return getMarkupText(label);
 };
 
 // choices.js 8.0.0 hardcodes the English "Remove item" in its item template — there is no option
@@ -88,14 +105,7 @@ const getChoiceSearchText = (choice, field) => {
     return '';
   }
 
-  if (!raw.includes('<')) {
-    return raw;
-  }
-
-  const holder = document.createElement('div');
-  holder.innerHTML = raw;
-
-  return holder.innerText || holder.textContent || '';
+  return getMarkupText(raw);
 };
 
 // choices.js searches with fuse.js, a fuzzy matcher: with the threshold formio ships (0.3) a
