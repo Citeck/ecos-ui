@@ -25,6 +25,8 @@ import { getEnabledWorkspaces, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 import { NotificationManager } from '@/services/notifications';
 
+const WORKSPACE_ATTRIBUTE = '_workspace';
+
 class JournalsDataLoader {
   /**
    * @param {JournalConfig} journalConfig
@@ -162,7 +164,9 @@ class JournalsDataLoader {
     const groupBy = this._getGroupBy(journalConfig, settings);
 
     if (getEnabledWorkspaces()) {
-      const workspaces = !get(settings, 'workspaces') ? [getWorkspaceId()] : settings.workspaces;
+      const hasWorkspaceColumn = columns.some(column => JournalsConverter.getColumnId(column) === WORKSPACE_ATTRIBUTE);
+      const defaultWorkspaces = hasWorkspaceColumn ? [] : [getWorkspaceId()];
+      const workspaces = !get(settings, 'workspaces') ? defaultWorkspaces : settings.workspaces;
 
       return {
         sourceId,
