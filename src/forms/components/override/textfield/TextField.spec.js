@@ -260,3 +260,46 @@ describe('TextField Builder', () => {
     });
   });
 });
+
+/**
+ * The record "Properties" widget shows a form in view mode: formio builds a `dd` and this method
+ * fills it. The value is stored user input, so writing it with `innerHTML` executed markup like
+ * `<img onerror>` for everyone who opened the card. COREDEV-546
+ */
+describe('TextField view-mode value (COREDEV-546)', () => {
+  const PAYLOAD = '<img src=x onerror="window.__coredev546 = 1">X';
+
+  const renderInto = component => {
+    const element = document.createElement('dd');
+
+    component.setupValueElement(element);
+
+    return element;
+  };
+
+  it('renders a value that looks like markup as text', () => {
+    return Harness.testCreate(TextFieldComponent, comp1, { readOnly: true, viewAsHtml: true }).then(component => {
+      component.dataValue = PAYLOAD;
+
+      const element = renderInto(component);
+
+      expect(element.querySelector('img')).toBeNull();
+      expect(element.children).toHaveLength(0);
+      expect(element.textContent).toBe(PAYLOAD);
+      expect(element.getAttribute('title')).toBe(PAYLOAD);
+    });
+  });
+
+  it('shows the unreadable label instead of the value', () => {
+    return Harness.testCreate(TextFieldComponent, { ...comp1, unreadable: true }, { readOnly: true, viewAsHtml: true }).then(component => {
+      component.dataValue = PAYLOAD;
+
+      const element = renderInto(component);
+
+      expect(element.className).toBe('ecos-form__value_unreadable');
+      expect(element.querySelector('img')).toBeNull();
+      expect(element.textContent).not.toContain('X');
+      expect(element.getAttribute('title')).toBeNull();
+    });
+  });
+});

@@ -1,5 +1,6 @@
 /* eslint-disable array-callback-return */
 
+import DOMPurify from 'dompurify';
 import FormIOSelectComponent from 'formiojs/components/select/Select';
 import _ from 'lodash';
 
@@ -53,7 +54,18 @@ export default class SelectComponent extends FormIOSelectComponent {
     this.choices.hideDropdown();
   }
 
+  /**
+   * The label as markup: the choices.js templates, the html5 `<option>`s and the view-mode value
+   * (`setupValueElement`) all render it as HTML. A data label is escaped here, once, so it shows as
+   * text everywhere; the author's `component.template` stays markup, gets the label escaped and its
+   * output sanitized, like in EcosSelect.
+   * Cause: COREDEV-546
+   */
   itemTemplate(data) {
+    if (!data) {
+      return '';
+    }
+
     let newData = _.cloneDeep(data);
 
     if (data && data.label) {
@@ -62,7 +74,53 @@ export default class SelectComponent extends FormIOSelectComponent {
       newData = this.t(data);
     }
 
-    return super.itemTemplate(newData);
+    const readOnlyValue = this.options.readOnly && this.component.readOnlyValue;
+
+    if (!this.component.template || typeof newData === 'string' || readOnlyValue) {
+      const label = super.itemTemplate(newData);
+
+      return typeof label === 'string' ? _.escape(label) : label;
+    }
+
+    if (typeof newData.label === 'string') {
+      newData.label = _.escape(newData.label);
+    }
+
+    return DOMPurify.sanitize(super.itemTemplate(newData));
+  }
+
+  /**
+   * formio's own, except that a bare string value is data and is escaped: the result is markup, like
+   * that of `itemTemplate`. COREDEV-546
+   */
+  asString(value) {
+    value = value || this.getValue();
+
+    if (['values', 'custom'].includes(this.component.dataSrc)) {
+      const { items, valueProperty } =
+        this.component.dataSrc === 'values'
+          ? { items: this.component.data.values, valueProperty: 'value' }
+          : { items: this.getCustomItems(), valueProperty: this.component.valueProperty };
+
+      value =
+        this.component.multiple && Array.isArray(value)
+          ? _.filter(items, item => value.includes(item.value))
+          : valueProperty
+            ? _.find(items, [valueProperty, value])
+            : value;
+    }
+
+    if (_.isString(value)) {
+      return _.escape(value);
+    }
+
+    if (Array.isArray(value)) {
+      const items = value.map(item => this.itemTemplate(item));
+
+      return items.length > 0 ? items.join('<br />') : '-';
+    }
+
+    return !_.isNil(value) ? this.itemTemplate(value) : '-';
   }
 
   addOption(value, label, attr) {

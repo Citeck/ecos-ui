@@ -33,6 +33,22 @@ import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStoreIfReady } from '@/store';
 
+/**
+ * Stored wysiwyg markup is user content. Every place that hands it to the browser as HTML — the
+ * read-only `innerHTML`, the fallback view, and Quill, whose `clipboard.convert` parses it through
+ * `innerHTML` of an attached container — runs `<img onerror>` and the like the moment it is parsed.
+ * The Properties widget builds its edit form hidden on every card open, so that happened for anyone
+ * who merely opened the record. Only markup is sanitized: an `ace` value is source code.
+ * Cause: COREDEV-546
+ */
+const sanitizeMarkup = value => {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeMarkup);
+  }
+
+  return typeof value === 'string' ? DOMPurify.sanitize(value) : value;
+};
+
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
     return FormIOTextAreaComponent.schema(
@@ -115,7 +131,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         if (Array.isArray(value)) {
           value = value.join('<br/><br/>');
         }
-        this.input.innerHTML = this.interpolate(value);
+        this.input.innerHTML = sanitizeMarkup(this.interpolate(value));
       }
       // Cause: ECOSUI-675 - Group list is not loaded in user info
       const changed = value !== undefined ? this.hasChanged(value, this.dataValue) : false;
@@ -186,7 +202,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
-    super.setWysiwygValue(value, skipSetting, flags);
+    super.setWysiwygValue(this.component.editor === 'ace' ? value : sanitizeMarkup(value), skipSetting, flags);
   }
 
   createViewOnlyElement() {
@@ -254,15 +270,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     value = this.isEmpty(value) ? this.defaultViewOnlyValue : this.getView(value);
 
     if (this.component.wysiwyg) {
-      value = this.interpolate(value);
-      element.innerHTML = value;
+      // The legacy wysiwyg editor stores real markup, so it is rendered as markup, not escaped —
+      // but sanitized: it is user-authored content, and raw it ran `<img onerror>` for everyone
+      // who opened the record card.
+      // Cause: COREDEV-546
+      element.innerHTML = sanitizeMarkup(this.interpolate(value));
     } else if (this.isRichTextEditor) {
       // A rich-text field (lexical is the current one) holds markup, not text — `textContent`
       // paints its source with every tag visible. This node is not a leftover: the read-only
       // editor that replaces it is mounted a macrotask later (`createViewOnlyValue`), so this IS
       // what the user sees in between, and after an inline save — when the whole dashboard
       // refreshes on the same tick and the field is rebuilt — that window is long enough to read.
-      // Sanitized, unlike the legacy `wysiwyg` branch above: the read-only Lexical renderer that
+      // Sanitized, like the legacy `wysiwyg` branch above: the read-only Lexical renderer that
       // takes this node over parses the markup into editor nodes and drops anything executable,
       // so this stand-in must not be the one place where stored markup reaches the DOM raw.
       // Rich text only, NOT every `editor`: an `ace`/`monaco` value is source, and parsing it as
@@ -425,7 +444,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             onClickSource = event => {
               event.preventDefault();
               if (txtArea.style.display === 'inherit') {
-                quill.setContents(quill.clipboard.convert(txtArea.value));
+                quill.setContents(quill.clipboard.convert(sanitizeMarkup(txtArea.value)));
               }
               txtArea.style.display = txtArea.style.display === 'none' ? 'inherit' : 'none';
             };
@@ -861,7 +880,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     // display the current value directly if editor cannot initialize
     if (this.input) {
       const val = this.dataValue || '';
-      this.input.innerHTML = this.interpolate(val);
+      this.input.innerHTML = sanitizeMarkup(this.interpolate(val));
     }
   }
 

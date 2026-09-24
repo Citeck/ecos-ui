@@ -1,7 +1,8 @@
+import DOMPurify from 'dompurify';
 import Formio from 'formiojs/Formio';
 import _ from 'lodash';
 
-import Choices from '../../../choices';
+import Choices, { getMarkupText } from '../../../choices';
 import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
@@ -209,45 +210,57 @@ export default class SelectComponent extends BaseComponent {
     return false;
   }
 
-  getLabel(data) {
+  /**
+   * `label` is either the item's own label or value — data, i.e. text — or, with `component.template`,
+   * the output of that template, which the form's author writes as markup on purpose. `isHtml` tells
+   * them apart for `itemTemplate`. The template interpolates item data raw, so its output is sanitized.
+   * @param {*} data
+   * @return {{label: *, isHtml: boolean}}
+   */
+  resolveLabel(data) {
     if (!data) {
-      return '';
+      return { label: '', isHtml: false };
     }
 
     // If they wish to show the value in read only mode, then just return the itemValue here.
     if (this.options.readOnly && this.component.readOnlyValue) {
-      return this.itemValue(data);
+      return { label: this.itemValue(data), isHtml: false };
     }
 
     const label = _.isObject(data.label) ? getMLValue(data.label) : this.t(data.label || data);
 
     // Perform a fast interpretation if we should not use the template.
-    if (data && !this.component.template) {
-      return label;
+    if (!this.component.template || typeof data === 'string') {
+      return { label, isHtml: false };
     }
 
-    if (typeof data === 'string') {
-      return label;
-    }
-
-    const template = this.component.template ? this.interpolate(this.component.template, { item: { ...data, label } }) : label;
+    // The label is data and shows as text inside the author's markup; the rest of the item is sanitized.
+    const template = this.interpolate(this.component.template, { item: { ...data, label: _.escape(label) } });
 
     if (template) {
       const str = template.replace(/<\/?[^>]+(>|$)/g, '');
-      return template.replace(str, this.t(str));
+      return { label: DOMPurify.sanitize(template.replace(str, this.t(str))), isHtml: true };
     } else {
-      return JSON.stringify(data);
+      return { label: JSON.stringify(data), isHtml: false };
     }
   }
 
+  /**
+   * The label as markup, for every consumer: the Choices widget (its templates render labels as HTML),
+   * the `<option>`s of the html5 widget and the view-mode value (`setupValueElement`) all take it as
+   * HTML, while the helpers that need its text strip the tags. A data label is escaped here, once, and
+   * so renders as the literal text everywhere; the author template output is kept as (sanitized) markup.
+   * Cause: COREDEV-546 - a record name like `<img onerror>` ran on the record card and in the edit form
+   */
   itemTemplate(data) {
-    const label = this.getLabel(data);
+    const { label, isHtml } = this.resolveLabel(data);
+    const html = isHtml ? label : _.escape(label);
 
     if (this.viewOnly && !this.component.isSelectedValueAsText && (data.recordRef || isNodeRef(data.value) || isRecordRef(data.value))) {
-      return `<a href='${createDocumentUrl(data.recordRef || data.value)}'>${label}</a>`;
+      return `<a href='${_.escape(createDocumentUrl(data.recordRef || data.value))}'>${html}</a>`;
     }
 
-    return label;
+    return html;
   }
 
   /**
@@ -925,18 +938,16 @@ export default class SelectComponent extends BaseComponent {
         return {
           // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
           choice: (classNames, data, itemSelectText) => {
-            // label is wrapped in template
-            const labelInTemplate = data.label;
-            const htmlElement = document.createElement('div');
-            htmlElement.innerHTML = labelInTemplate;
-            const pureLabel = htmlElement.innerText;
+            // `data.label` is markup (see `itemTemplate`); the title gets its text, read without
+            // rendering it (COREDEV-546). Attribute values are data and are escaped.
+            const pureLabel = getMarkupText(typeof data.label === 'string' ? data.label : '');
 
             return template(`
-              <div title="${pureLabel}" class="${classNames.item} ${classNames.itemChoice} ${
+              <div title="${_.escape(pureLabel)}" class="${classNames.item} ${classNames.itemChoice} ${
                 data.disabled ? classNames.itemDisabled : classNames.itemSelectable
               }" data-select-text="${itemSelectText}" data-choice ${
                 data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
-              } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
+              } data-id="${_.escape(data.id)}" data-value="${_.escape(data.value)}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
                 ${data.label}
               </div>
             `);
@@ -1364,7 +1375,8 @@ export default class SelectComponent extends BaseComponent {
     }
 
     if (_.isString(value)) {
-      return value;
+      // a bare value is data, and the result is markup like that of itemTemplate (COREDEV-546)
+      return _.escape(value);
     }
 
     if (Array.isArray(value)) {
