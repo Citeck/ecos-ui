@@ -13,6 +13,7 @@ import {
   AUTHORITY_TYPE_USER,
   DataTypes,
   ITEMS_PER_PAGE,
+  ROOT_GROUP_ALL,
   ROOT_GROUP_NAME
 } from '../components/common/form/SelectOrgstruct/constants';
 import {
@@ -159,7 +160,9 @@ export class OrgStructApi extends CommonApi {
   };
 
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }, signal) => {
-    const { groupName, searchText } = query;
+    const { searchText } = query;
+    const isAllGroups = query.groupName === ROOT_GROUP_ALL;
+    const groupName = isAllGroups ? ROOT_GROUP_NAME : query.groupName;
 
     const userMask = await OrgStructApi.fetchUsernameMask();
     let personAttributes = {};
@@ -207,7 +210,7 @@ export class OrgStructApi extends CommonApi {
 
     const extraQueryVal = [];
 
-    if (searchText && groupName) {
+    if (searchText && groupName && !isAllGroups) {
       const predicateSpecGroup = {
         t: 'contains',
         att: 'authorityGroupsFull',

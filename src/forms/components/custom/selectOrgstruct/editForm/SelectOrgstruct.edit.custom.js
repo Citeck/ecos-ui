@@ -1,6 +1,7 @@
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
+  ROOT_GROUP_ALL,
   ROOT_GROUP_NAME,
   GroupTypes,
   TabTypes
@@ -86,7 +87,7 @@ export default [
     input: true,
     key: 'rootGroupName',
     label: 'Root group name',
-    description: "If it's empty, default: " + ROOT_GROUP_NAME,
+    description: `If it's empty, default: ${ROOT_GROUP_NAME}. Search is limited to this group, set ${ROOT_GROUP_ALL} to search across all groups`,
     defaultValue: `${ROOT_GROUP_NAME}`,
     validate: {
       required: false
