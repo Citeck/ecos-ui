@@ -287,8 +287,9 @@ export class AppApi extends CommonApi {
       .catch(() => DEF_LOGOUT);
 
     if (url) {
-      await ecosFetch(url, { method: 'POST', mode: 'no-cors' });
-      window.location.reload();
+      // A top-level navigation, not a fetch: with an external IdP (e.g. ADFS behind Keycloak) the logout
+      // redirects through the IdP's sign-out page, which a fetch cannot complete, so the Keycloak session survives
+      window.location.assign(url);
     } else {
       NotificationManager.warning(t('page.error.logout.no-url'));
     }
