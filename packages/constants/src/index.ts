@@ -147,7 +147,8 @@ export const EmodelTypes = {
   BASE: 'emodel/type@base',
   HISTORY_REC: 'emodel/type@history-record',
   WS_DASHBOARD: 'emodel/type@workspace-dashboard',
-  PERSONAL_WS_DASHBOARD: 'emodel/type@personal-workspace-dashboard'
+  PERSONAL_WS_DASHBOARD: 'emodel/type@personal-workspace-dashboard',
+  ORGSTRUCTURE_DASHBOARD: 'emodel/type@orgstructure-dashboard'
 };
 
 export const ActionModes = {

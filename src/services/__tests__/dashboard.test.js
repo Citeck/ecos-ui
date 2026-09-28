@@ -178,6 +178,11 @@ describe('Dashboard Service', () => {
         title: 'Input object with type & user data',
         input: { user: 'admin', type: 'dashboard' },
         output: 'dashboard|admin'
+      },
+      {
+        title: 'Input object with type, user & scope data',
+        input: { user: 'admin', type: 'dashboard', scope: 'orgstructure' },
+        output: 'dashboard|admin|orgstructure'
       }
     ];
 
@@ -185,6 +190,12 @@ describe('Dashboard Service', () => {
       it(item.title, () => {
         expect(DashboardService.getCacheKey(item.input)).toEqual(item.output);
       });
+    });
+
+    it('a scoped dashboard and a dashboard of the same type without a scope get different keys', () => {
+      const params = { user: 'admin', type: 'emodel/type@person' };
+
+      expect(DashboardService.getCacheKey({ ...params, scope: 'orgstructure' })).not.toEqual(DashboardService.getCacheKey(params));
     });
   });
 
