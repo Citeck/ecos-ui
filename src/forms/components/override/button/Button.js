@@ -210,12 +210,21 @@ export default class ButtonComponent extends FormIOButtonComponent {
               this.forceDisabled = false;
             }, MAX_WAITING_TIME);
 
-            result.finally(() => {
-              window.clearTimeout(cancelTimerId);
-              this.root.loading = false;
-              this.loading = false;
-              this.forceDisabled = false;
-            });
+            result
+              .catch(error => {
+                // A submit the script started comes back rejected with the errors the form already shows
+                // (`onSubmissionError` → `showErrors` returns them), or with `false` for a silent cancel — there is
+                // nothing left to report. Anything else is a failure of the script itself.
+                if (!Array.isArray(error) && error !== false) {
+                  console.error(`An error occured within custom function for ${this.key}`, error);
+                }
+              })
+              .finally(() => {
+                window.clearTimeout(cancelTimerId);
+                this.root.loading = false;
+                this.loading = false;
+                this.forceDisabled = false;
+              });
           }
 
           break;

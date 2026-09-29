@@ -195,7 +195,17 @@ describe('Button Component', () => {
   describe('custom action', () => {
     const customButton = custom => ({ label: 'Custom', action: 'custom', custom, type: 'button', input: true, key: 'customBtn' });
 
+    // An unhandled rejection needs no assertion here: jest fails the whole run on one. It is reported once the
+    // microtask queue has drained, hence the timer.
+    const settle = () => new Promise(resolve => setTimeout(resolve, 10));
+    let consoleError;
+
+    beforeEach(() => {
+      consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
     afterEach(() => {
+      consoleError.mockRestore();
       delete window.__customButtonArgs;
     });
 
@@ -236,8 +246,7 @@ describe('Button Component', () => {
             key: 'attributes',
             components: [{ label: 'Id', type: 'textfield', input: true, key: 'id', validate: { pattern: '[a-z]*' } }]
           },
-          // The rejection of a failed submit is caught here only because an unhandled one fails the test run
-          customButton('form.ecosButtonSubmit().catch(() => {});')
+          customButton('return form.ecosButtonSubmit();')
         ]
       };
 
@@ -275,6 +284,51 @@ describe('Button Component', () => {
           done();
         })
         .catch(done);
+    });
+
+    describe('script returning a promise', () => {
+      it('should leave a submit rejected by validation to the form, which shows the errors', done => {
+        const formJson = {
+          type: 'form',
+          components: [
+            { label: 'Id', type: 'textfield', input: true, key: 'id', validate: { pattern: '[a-z]*' } },
+            customButton('return form.ecosButtonSubmit();')
+          ]
+        };
+
+        Formio.createForm(document.createElement('div'), formJson)
+          .then(form => {
+            form.setValue({ data: { id: 'x.y' } });
+
+            return new Promise(resolve => {
+              form.on('error', resolve);
+              form.getComponent('customBtn').buttonElement.click();
+            })
+              .then(settle)
+              .then(() => {
+                expect(consoleError).not.toHaveBeenCalled();
+                expect(form.getComponent('customBtn').buttonElement.disabled).toBe(false);
+                done();
+              });
+          })
+          .catch(done);
+      });
+
+      it('should report a rejection of the script itself', done => {
+        const formJson = { type: 'form', components: [customButton('return Promise.reject(new Error("request failed"));')] };
+
+        Formio.createForm(document.createElement('div'), formJson)
+          .then(form => {
+            form.getComponent('customBtn').buttonElement.click();
+
+            return settle().then(() => {
+              expect(consoleError).toHaveBeenCalledWith('An error occured within custom function for customBtn', expect.any(Error));
+              expect(form.getComponent('customBtn').buttonElement.disabled).toBe(false);
+              done();
+            });
+          })
+          .catch(done);
+      });
     });
   });
 
