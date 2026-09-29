@@ -1,6 +1,7 @@
 import Harness from '../../../test/harness';
 import ButtonComponent from './Button';
 import Formio from '../../../Formio';
+import '../../../Webform'; // ecos overrides of the form itself, `ecosButtonSubmit` among them
 import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
@@ -189,6 +190,92 @@ describe('Button Component', () => {
         });
       })
       .catch(done);
+  });
+
+  describe('custom action', () => {
+    const customButton = custom => ({ label: 'Custom', action: 'custom', custom, type: 'button', input: true, key: 'customBtn' });
+
+    afterEach(() => {
+      delete window.__customButtonArgs;
+    });
+
+    it('should run the script against the form itself, not a copy of it', done => {
+      const formJson = {
+        type: 'form',
+        components: [
+          { label: 'Some Field', type: 'textfield', input: true, key: 'someField' },
+          customButton('window.__customButtonArgs = { form, flattened, components, instance, data };')
+        ]
+      };
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(form => {
+          const button = form.getComponent('customBtn');
+          button.buttonElement.click();
+
+          // Identity checks as booleans: a failed `toBe` would try to print the whole form tree
+          const args = window.__customButtonArgs;
+          expect(args.form === form).toBe(true);
+          expect(args.instance === button).toBe(true);
+          expect(args.data === form.data).toBe(true);
+          expect(args.components.someField === form.getComponent('someField')).toBe(true);
+          expect(Object.keys(args.flattened)).toEqual(['someField', 'customBtn']);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should keep the fields bound to the form after a submit rejected by validation', done => {
+      const formJson = {
+        type: 'form',
+        components: [
+          {
+            label: 'Attributes',
+            type: 'datagrid',
+            input: true,
+            key: 'attributes',
+            components: [{ label: 'Id', type: 'textfield', input: true, key: 'id', validate: { pattern: '[a-z]*' } }]
+          },
+          // The rejection of a failed submit is caught here only because an unhandled one fails the test run
+          customButton('form.ecosButtonSubmit().catch(() => {});')
+        ]
+      };
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(form => {
+          form.setValue({ data: { attributes: [{ id: 'x.y' }] } });
+
+          return new Promise(resolve => {
+            // `submit` defers the call by a timer and rejects on a validation error
+            form.on('error', resolve);
+            form.getComponent('customBtn').buttonElement.click();
+          }).then(() => {
+            const input = form.element.querySelector('.formio-component-id input');
+            input.value = 'xy';
+            input.dispatchEvent(new Event('input'));
+
+            expect(form.getValue().data.attributes).toEqual([{ id: 'xy' }]);
+            done();
+          });
+        })
+        .catch(done);
+    });
+
+    it('should report a failing script and go on', done => {
+      const formJson = { type: 'form', components: [customButton('throw new Error("broken script");')] };
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(form => {
+          const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+          expect(() => form.getComponent('customBtn').buttonElement.click()).not.toThrow();
+          expect(warn).toHaveBeenCalledWith('An error occured within custom function for customBtn', expect.any(Error));
+
+          warn.mockRestore();
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('outcome buttons', () => {

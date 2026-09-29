@@ -1,5 +1,7 @@
 import FormIOButtonComponent from 'formiojs/components/button/Button';
+import Evaluator from 'formiojs/utils/Evaluator';
 import { flattenComponents } from 'formiojs/utils/formUtils';
+import cloneDeep from 'lodash/cloneDeep';
 import each from 'lodash/each';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -113,6 +115,34 @@ export default class ButtonComponent extends FormIOButtonComponent {
     });
   }
 
+  /**
+   * Runs the script of the `custom` action.
+   *
+   * Deliberately not through `this.evaluate` (`FormioUtils.evaluate`): whenever the script text mentions `form` — and
+   * nearly every script does, if only inside `formRef` or `formData` — that helper deep-clones `args.form`, which it
+   * takes for the form JSON, while here it is the live Webform. The script then acts on a detached copy that shares
+   * the form's DOM: `form.ecosButtonSubmit()` submits the copy, a submit rejected by validation makes the copy redraw
+   * the grids with components of its own, and from then on everything typed lands in the copy while the real form
+   * keeps — and submits — its stale data. Otherwise this is the evaluation formio performs.
+   *
+   * @param {Object} additional - names added to the evaluation context
+   * @returns {*} what the script returns, null when it throws
+   */
+  evaluateCustomAction(additional) {
+    const args = this.evalContext(additional);
+
+    args.component = cloneDeep(args.component);
+
+    try {
+      const script = Evaluator.evaluator(this.component.custom, ...Object.keys(args));
+
+      return script(...Object.values(args));
+    } catch (e) {
+      console.warn(`An error occured within custom function for ${this.key}`, e);
+      return null;
+    }
+  }
+
   bindEvents() {
     this.removeEventListener(this.buttonElement, 'click');
 
@@ -163,7 +193,7 @@ export default class ButtonComponent extends FormIOButtonComponent {
             }
           });
 
-          const result = this.evaluate(this.component.custom, {
+          const result = this.evaluateCustomAction({
             form,
             flattened,
             components
