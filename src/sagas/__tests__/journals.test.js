@@ -8,7 +8,14 @@ import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';
 import * as journals from '../journals';
 import { setGrid } from '../../actions/journals';
+import { t } from '../../helpers/util';
+import DialogManager from '@/components/common/dialogs/Manager';
 import { NotificationManager } from '@/services/notifications';
+
+jest.mock('@/components/common/dialogs/Manager', () => ({
+  __esModule: true,
+  default: { showInfoDialog: jest.fn() }
+}));
 
 jest.mock('@/services/notifications', () => ({
   NotificationManager: {
@@ -140,8 +147,10 @@ describe('sagaSaveRecords: a failed inline save is visible (COREDEV-466)', () =>
       }
     });
 
-    expect(NotificationManager.error).toHaveBeenCalledTimes(1);
-    expect(NotificationManager.error.mock.calls[0][0]).toBe(text);
+    // A modal, not a toast: the toast faded before a long server text could be read
+    expect(DialogManager.showInfoDialog).toHaveBeenCalledTimes(1);
+    expect(DialogManager.showInfoDialog).toHaveBeenCalledWith({ title: t('journal.inline-edit.save-error'), text });
+    expect(NotificationManager.error).not.toHaveBeenCalled();
     expect(rows[0]).toEqual({ id: rowId, summary: 'new' }); // the optimistic put
     expect(rows[rows.length - 1]).toEqual({ id: rowId, summary: 'old', error: 'summary' }); // rolled back and marked
   });
@@ -154,7 +163,19 @@ describe('sagaSaveRecords: a failed inline save is visible (COREDEV-466)', () =>
       }
     });
 
-    expect(NotificationManager.error).toHaveBeenCalledTimes(1);
+    expect(DialogManager.showInfoDialog).toHaveBeenCalledTimes(1);
+    expect(DialogManager.showInfoDialog.mock.calls[0][0].text).toBe('re-read failed');
     expect(rows[rows.length - 1]).toEqual({ id: rowId, summary: 'new' });
+  });
+
+  it('shows the generic text alone when the error carries no message', async () => {
+    await run({
+      saveRecords: async () => {
+        throw new Error('');
+      }
+    });
+
+    expect(DialogManager.showInfoDialog).toHaveBeenCalledTimes(1);
+    expect(DialogManager.showInfoDialog).toHaveBeenCalledWith({ title: t('journal.inline-edit.save-error'), text: '' });
   });
 });
