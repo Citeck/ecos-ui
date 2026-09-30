@@ -158,7 +158,10 @@ export class OrgStructApi extends CommonApi {
     return searchFields;
   };
 
-  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }, signal) => {
+  fetchGroup = async (
+    { query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup, isSearchInAllGroups },
+    signal
+  ) => {
     const { groupName, searchText } = query;
 
     const userMask = await OrgStructApi.fetchUsernameMask();
@@ -207,7 +210,7 @@ export class OrgStructApi extends CommonApi {
 
     const extraQueryVal = [];
 
-    if (searchText && groupName) {
+    if (searchText && groupName && !isSearchInAllGroups) {
       const predicateSpecGroup = {
         t: 'contains',
         att: 'authorityGroupsFull',
