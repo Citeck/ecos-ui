@@ -68,6 +68,10 @@
   }
 
   &_info {
+    // Server error texts carry long unbroken tokens (ids, JSON) that would stick out of the modal
+    #{$root}__body {
+      overflow-wrap: anywhere;
+    }
   }
 
   &_form {

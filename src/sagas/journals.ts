@@ -101,6 +101,7 @@ import { buildSaveAttKey } from '@/components/journals/Journals/service/journalC
 import { getOnlyLinkedConfig, resolveOnlyLinkedJournalId } from '@/components/journals/Journals/service/onlyLinked';
 import ActionsRegistry from '@/components/core/Records/actions/actionsRegistry';
 import { ActionTypes } from '@/components/core/Records/actions/constants';
+import DialogManager from '@/components/common/dialogs/Manager';
 import { wrapSaga } from '@/helpers/redux';
 import { wrapArgs } from '@/helpers/store';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin, getWorkspaceId, removeUrlSearchParams } from '@/helpers/urls';
@@ -1500,7 +1501,8 @@ export function* sagaSaveRecords(
     // The server's refusal used to end in the console only, with the optimistic value left in the
     // cell as if it had been saved (COREDEV-466). Records' `checkRespMessages` already turns the
     // response message into `Error.message`; show it, and put the old row back with the cell marked.
-    NotificationManager.error(get(e, 'message') || t('journal.inline-edit.save-error'), t('journal.inline-edit.save-error'));
+    // A modal, like a failed task completion: a toast faded before a long server text could be read.
+    DialogManager.showInfoDialog({ title: t('journal.inline-edit.save-error'), text: get(e, 'message') || '' });
 
     if (rowBeforeEdit && !saved && isString(attribute)) {
       const { grid: currentGrid }: IJournalState = yield select(selectJournalData, stateId);
