@@ -9,3 +9,4 @@ export const loadThemeRequest = createAction(prefix + 'LOAD_THEME');
 export const setTheme = createAction(prefix + 'SET_THEME');
 export const setThemeConfig = createAction(prefix + 'SET_THEME_CONFIG');
 export const setViewNewJournal = createAction(prefix + 'SET_VIEW_NEW_JOURNAL');
+export const setJournalsPagination = createAction(prefix + 'SET_JOURNALS_PAGINATION');

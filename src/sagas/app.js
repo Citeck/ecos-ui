@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import omit from 'lodash/omit';
 import lodashSet from 'lodash/set';
@@ -31,7 +32,7 @@ import {
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
-import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
+import { detectMobileDevice, setJournalsPagination, setViewNewJournal } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
 import { OrgStructApi } from '@/api/orgStruct';
 import { SourcesId, URL } from '@/constants';
@@ -47,6 +48,7 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
+  JOURNALS_PAGINATION,
   NEW_JOURNAL_ENABLED,
   WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
@@ -76,6 +78,8 @@ export function* initApp({ api }, { payload }) {
       const isAllowToCreateWorkspace = yield ConfigService.getValue(WORKSPACES_ALLOW_CREATE);
 
       let isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+      // Loaded before any journal renders: the journals page sizes its first request from it
+      const journalsPagination = yield ConfigService.getValue(JOURNALS_PAGINATION);
 
       const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
       const isWorkspacesEnabled = yield ConfigService.getValue(WORKSPACES_ENABLED);
@@ -92,6 +96,10 @@ export function* initApp({ api }, { payload }) {
 
       if (isBoolean(isViewNewJournal)) {
         yield put(setViewNewJournal(isViewNewJournal));
+      }
+
+      if (isPlainObject(journalsPagination)) {
+        yield put(setJournalsPagination(journalsPagination));
       }
 
       if (isString(defaultWorkspace)) {

@@ -17,6 +17,12 @@ export const DEFAULT_PAGINATION = {
   page: 1
 };
 
+// `journalsPage.pageSizeMode` of the global config `journals-pagination` (COREDEV-583)
+export const PageSizeMode = {
+  AUTO: 'AUTO',
+  FIXED: 'FIXED'
+};
+
 export const PAGINATION_SIZES = [
   { value: 10, label: 10 },
   { value: 30, label: 30 },

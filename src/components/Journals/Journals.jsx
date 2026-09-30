@@ -49,7 +49,7 @@ import { showModalJson } from '@/helpers/tools';
 import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '@/helpers/urls';
 import { animateScrollTo, getBool, getCurrentUserName, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectJournalConfig, selectWidgetsConfig } from '@/selectors/journals';
-import { selectIsViewNewJournal } from '@/selectors/view';
+import { selectIsViewNewJournal, selectJournalsPageFixedPageSize } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
 import pageTabList from '@/services/pageTabs/PageTabList';
 
@@ -69,6 +69,7 @@ const mapStateToProps = (state, props) => {
     location: get(state, 'router.location', {}),
     _url: window.location.href,
     isViewNewJournal,
+    hasFixedPageSize: !!selectJournalsPageFixedPageSize(state),
     searchParams,
     widgetsConfig,
     journalConfig,
@@ -716,7 +717,7 @@ class Journals extends React.Component {
   };
 
   render() {
-    const { isMobile, className, isViewNewJournal, viewMode } = this.props;
+    const { isMobile, className, isViewNewJournal, hasFixedPageSize, viewMode } = this.props;
     const { height, initiatedWidgetsConfig } = this.state;
     const commonProps = this.getCommonProps();
     const { showWidgets } = commonProps || {};
@@ -728,6 +729,7 @@ class Journals extends React.Component {
           className={classNames('ecos-journal', className, {
             'ecos-journal_new': isViewNewJournal,
             'ecos-journal_new__not-mobile': !isMobile,
+            'ecos-journal_fixed-page-size': isViewNewJournal && hasFixedPageSize,
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= commonProps.minHeight
           })}
@@ -748,6 +750,7 @@ Journals.propTypes = {
   title: PropTypes.string,
   additionalHeights: PropTypes.number,
   isViewNewJournal: PropTypes.bool,
+  hasFixedPageSize: PropTypes.bool,
   widgetsConfig: PropTypes.shape({
     isLeftPositionWidgets: PropTypes.bool,
     widgets: PropTypes.array

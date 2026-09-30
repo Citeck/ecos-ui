@@ -25,6 +25,7 @@ import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { getBool } from '@/helpers/util';
 import { selectPreviewListProps } from '@/selectors/previewList';
+import { selectJournalsPageFixedPageSize } from '@/selectors/view';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -36,6 +37,7 @@ const mapStateToProps = (state, props) => {
     viewMode: getSearchParams().viewMode || newState.viewMode,
     grid: newState.grid,
     loading: newState.loading,
+    fixedPageSize: selectJournalsPageFixedPageSize(state),
     previewListProps: {
       ...previewListProps,
       isTilesContent
@@ -53,13 +55,14 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-class JournalsDashletPagination extends Component {
+export class JournalsDashletPagination extends Component {
   static propTypes = {
     className: PropTypes.string,
     grid: PropTypes.object,
     isWidget: PropTypes.bool,
     isViewNewJournal: PropTypes.bool,
     maxHeightJournalData: PropTypes.number,
+    fixedPageSize: PropTypes.number,
     reloadGrid: PropTypes.func,
     setGridPagination: PropTypes.func,
     cancelReloadGrid: PropTypes.func
@@ -76,8 +79,17 @@ class JournalsDashletPagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { previewListProps, maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid, viewMode, loading } =
-      this.props;
+    const {
+      previewListProps,
+      maxHeightJournalData,
+      isViewNewJournal,
+      setGridPagination,
+      isDecrementLastRow,
+      grid,
+      viewMode,
+      loading,
+      fixedPageSize
+    } = this.props;
     const { isTilesContent } = previewListProps || {};
     const { maxItems: gridMaxItems } = grid || {};
     const { maxItems: stateMaxItems } = this.state;
@@ -102,22 +114,27 @@ class JournalsDashletPagination extends Component {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
-        const gridMaxHeight = isPreviewList(viewMode)
-          ? maxHeightJournalData - PADDING_LIST_VIEW * 2 + LIST_VIEW_ITEM_GAP // LIST_VIEW_ITEM_GAP - there is no "gap" property after the last element.
-          : maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD;
-        let maxItems = Math.floor(gridMaxHeight / MAX_HEIGHT_ROW);
+        // The global config may fix the page size instead of fitting it to the window (COREDEV-583)
+        let maxItems = fixedPageSize;
 
-        if (!isPreviewList(viewMode)) {
-          if (isDecrementLastRow) {
-            if (gridMaxHeight - MAX_HEIGHT_ROW * (maxItems - 1) >= MAX_HEIGHT_TOTAL_AMOUNT) {
-              maxItems -= 1;
-            } else {
-              maxItems -= 2;
+        if (!maxItems) {
+          const gridMaxHeight = isPreviewList(viewMode)
+            ? maxHeightJournalData - PADDING_LIST_VIEW * 2 + LIST_VIEW_ITEM_GAP // LIST_VIEW_ITEM_GAP - there is no "gap" property after the last element.
+            : maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD;
+          maxItems = Math.floor(gridMaxHeight / MAX_HEIGHT_ROW);
+
+          if (!isPreviewList(viewMode)) {
+            if (isDecrementLastRow) {
+              if (gridMaxHeight - MAX_HEIGHT_ROW * (maxItems - 1) >= MAX_HEIGHT_TOTAL_AMOUNT) {
+                maxItems -= 1;
+              } else {
+                maxItems -= 2;
+              }
             }
-          }
 
-          if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
-            maxItems = MIN_CARD_DATA_NEW_JOURNAL;
+            if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
+              maxItems = MIN_CARD_DATA_NEW_JOURNAL;
+            }
           }
         }
 
