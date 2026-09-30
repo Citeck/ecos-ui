@@ -59,6 +59,7 @@ SelectOrgstruct.propTypes = {
   liveSearch: PropTypes.bool, // search by key down
   userSearchExtraFields: PropTypes.array,
   isIncludedAdminGroup: PropTypes.bool,
+  isSearchInAllGroups: PropTypes.bool,
   isLoading: PropTypes.bool
 };
 

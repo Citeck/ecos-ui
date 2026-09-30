@@ -33,6 +33,7 @@ export const SelectOrgstructProvider = props => {
     renderListItem,
     userSearchExtraFields,
     isIncludedAdminGroup,
+    isSearchInAllGroups,
     dataType,
     rootGroupName,
     allowedGroupTypes
@@ -150,6 +151,7 @@ export const SelectOrgstructProvider = props => {
         renderListItem,
         userSearchExtraFields,
         isIncludedAdminGroup,
+        isSearchInAllGroups,
         dataType,
         rootGroupName,
 
