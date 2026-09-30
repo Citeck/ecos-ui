@@ -27,6 +27,7 @@ describe('DashboardApi.getDashboardByRecordRef', () => {
 
   // Records.queryOne is called twice: for the type key ('typeRef?id') and for the dashboard itself
   const dashboardQueries = () => Records.queryOne.mock.calls.filter(([, atts]) => atts !== 'typeRef?id').map(([{ query }]) => query);
+  const keyQueries = () => Records.queryOne.mock.calls.filter(([, atts]) => atts === 'typeRef?id').map(([{ query }]) => query);
 
   beforeAll(() => {
     citeck = window.Citeck;
@@ -73,6 +74,30 @@ describe('DashboardApi.getDashboardByRecordRef', () => {
       {
         typeRef: PERSON_TYPE,
         authority: 'user-with-pick',
+        recordRef: PERSON,
+        scope: 'orgstructure'
+      }
+    ]);
+  });
+
+  // The key lookup only decides the cache entry, but it has to ask for the dashboard that is then loaded
+  it('looks the key up with the same type and scope as the dashboard on the orgstructure page', async () => {
+    openAs('user-key-without-pick', '/v2/orgstructure');
+    await api.getDashboardByRecordRef('');
+
+    openAs('user-key-with-pick', `/v2/orgstructure?recordRef=${PERSON}`);
+    await api.getDashboardByRecordRef(PERSON);
+
+    expect(keyQueries()).toEqual([
+      {
+        typeRef: EmodelTypes.ORGSTRUCTURE_DASHBOARD,
+        authority: 'user-key-without-pick',
+        recordRef: '',
+        scope: 'orgstructure'
+      },
+      {
+        typeRef: PERSON_TYPE,
+        authority: 'user-key-with-pick',
         recordRef: PERSON,
         scope: 'orgstructure'
       }
