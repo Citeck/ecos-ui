@@ -8,3 +8,4 @@ export const setIsMobile = createAction(prefix + 'SET_IS_MOBILE');
 export const loadThemeRequest = createAction(prefix + 'LOAD_THEME');
 export const setTheme = createAction(prefix + 'SET_THEME');
 export const setThemeConfig = createAction(prefix + 'SET_THEME_CONFIG');
+export const setJournalsPagination = createAction(prefix + 'SET_JOURNALS_PAGINATION');

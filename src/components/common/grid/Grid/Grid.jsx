@@ -1443,6 +1443,7 @@ class Grid extends Component {
           <BootstrapTable
             key={rulesKey}
             {...bootProps}
+            wrapperClasses="ecos-grid__table-wrapper"
             classes={classNames('ecos-grid__table', {
               'ecos-grid__table_grouping': this.hasGrouping
             })}

@@ -17,6 +17,12 @@ export const DEFAULT_PAGINATION = {
   page: 1
 };
 
+// `journalsPage.pageSizeMode` of the global config `journals-pagination` (COREDEV-583)
+export const PageSizeMode = {
+  AUTO: 'AUTO',
+  FIXED: 'FIXED'
+};
+
 /**
  * Page size for journal queries that carry `groupBy`.
  * A grouped query has no pagination UI, and without `maxItems` the backend aggregates every group —
