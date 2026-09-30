@@ -54,6 +54,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false,
+        isSearchInAllGroups: false,
         viewModeType: ViewModes.DEFAULT
       },
       ...extend
@@ -185,6 +186,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
         isSelectedValueAsText={comp.isSelectedValueAsText}
         isIncludedAdminGroup={comp.isIncludedAdminGroup}
+        isSearchInAllGroups={comp.isSearchInAllGroups}
         isSkipSearchInWorkspace={comp.isSkipSearchInWorkspace}
         onChange={this.onValueChange}
         onError={console.error}

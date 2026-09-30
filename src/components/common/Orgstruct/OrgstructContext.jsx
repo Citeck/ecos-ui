@@ -51,6 +51,7 @@ export const OrgstructProvider = props => {
     renderListItem,
     userSearchExtraFields,
     isIncludedAdminGroup,
+    isSearchInAllGroups,
     dataType,
     rootGroupName,
     parent,
@@ -275,7 +276,8 @@ export const OrgstructProvider = props => {
         },
         excludeAuthoritiesByName,
         excludeAuthoritiesByType,
-        isIncludedAdminGroup
+        isIncludedAdminGroup,
+        isSearchInAllGroups
       })
       .then(handleResponse)
       .then(items => {
@@ -321,7 +323,8 @@ export const OrgstructProvider = props => {
             },
             excludeAuthoritiesByName: excludeAuthoritiesByName2,
             excludeAuthoritiesByType,
-            isIncludedAdminGroup
+            isIncludedAdminGroup,
+            isSearchInAllGroups
           },
           signal
         )

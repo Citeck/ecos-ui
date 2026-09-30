@@ -1,7 +1,6 @@
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
-  ROOT_GROUP_ALL,
   ROOT_GROUP_NAME,
   GroupTypes,
   TabTypes
@@ -87,7 +86,7 @@ export default [
     input: true,
     key: 'rootGroupName',
     label: 'Root group name',
-    description: `If it's empty, default: ${ROOT_GROUP_NAME}. Search is limited to this group, set ${ROOT_GROUP_ALL} to search across all groups`,
+    description: "If it's empty, default: " + ROOT_GROUP_NAME,
     defaultValue: `${ROOT_GROUP_NAME}`,
     validate: {
       required: false
@@ -209,6 +208,18 @@ export default [
     type: 'checkbox',
     input: true,
     key: 'isIncludedAdminGroup',
+    defaultValue: false,
+    weight: 25
+  },
+  {
+    label: 'Search in all groups',
+    labelPosition: 'left-left',
+    tooltip: 'Search groups and users across the whole system, not only inside the root group',
+    tableView: true,
+    alwaysEnabled: false,
+    type: 'checkbox',
+    input: true,
+    key: 'isSearchInAllGroups',
     defaultValue: false,
     weight: 25
   },
