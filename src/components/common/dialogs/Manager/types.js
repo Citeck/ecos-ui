@@ -1,12 +1,12 @@
 /**
  * @typedef BaseDialog
- * @property {?Boolean} isVisible
- * @property {?String} instance
+ * @property {Boolean} [isVisible]
+ * @property {String} [instance]
  *
- * @property {?String} title
- * @property {?String} text
- * @property {?String} className
- * @property {?String} modalClass
+ * @property {String} [title]
+ * @property {String} [text]
+ * @property {String} [className]
+ * @property {String} [modalClass]
  */
 
 /**
@@ -19,7 +19,7 @@
 
 /**
  * @typedef {Object} InfoDialog
- * @property {?Function} onClose
+ * @property {Function} [onClose]
  */
 
 /**
