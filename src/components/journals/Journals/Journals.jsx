@@ -51,6 +51,7 @@ import { showModalJson } from '@/helpers/tools';
 import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '@/helpers/urls';
 import { animateScrollTo, getBool, getCurrentUserName, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectJournalConfig, selectWidgetsConfig } from '@/selectors/journals';
+import { selectJournalsPageFixedPageSize } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
 import pageTabList from '@/services/pageTabs/PageTabList';
 
@@ -70,6 +71,7 @@ const mapStateToProps = (state, props) => {
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
     location: get(state, 'router.location', {}),
     _url: window.location.href,
+    hasFixedPageSize: !!selectJournalsPageFixedPageSize(state),
     searchParams,
     widgetsConfig,
     journalConfig,
@@ -722,7 +724,7 @@ class Journals extends React.Component {
   };
 
   render() {
-    const { isMobile, className, viewMode } = this.props;
+    const { isMobile, className, hasFixedPageSize, viewMode } = this.props;
     const { height, initiatedWidgetsConfig } = this.state;
     const commonProps = this.getCommonProps();
     const { showWidgets } = commonProps || {};
@@ -733,6 +735,7 @@ class Journals extends React.Component {
           ref={this.setJournalRef}
           className={classNames('ecos-journal ecos-journal_new', className, {
             'ecos-journal_new__not-mobile': !isMobile,
+            'ecos-journal_fixed-page-size': hasFixedPageSize,
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= commonProps.minHeight
           })}
@@ -749,6 +752,7 @@ class Journals extends React.Component {
 Journals.propTypes = {
   stateId: PropTypes.string,
   className: PropTypes.string,
+  hasFixedPageSize: PropTypes.bool,
   bodyClassName: PropTypes.string,
   title: PropTypes.string,
   additionalHeights: PropTypes.number,

@@ -557,3 +557,10 @@
     }
   }
 }
+
+// A page size fixed by the `journals-pagination` config can outgrow the window (COREDEV-583): leave room
+// under the scrolled table, or its last row stays under the grid wrapper's 15px white strip
+// (.ecos-journal-dashlet__grid-wrapper::after). Auto-fitted rows always leave that room themselves.
+.ecos-journal_new.ecos-journal_fixed-page-size .ecos-grid__table-wrapper {
+  padding-bottom: 15px;
+}

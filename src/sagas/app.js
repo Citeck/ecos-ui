@@ -2,6 +2,7 @@ import { SourcesId, URL } from '@citeck/constants';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import omit from 'lodash/omit';
 import lodashSet from 'lodash/set';
@@ -32,7 +33,7 @@ import {
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
-import { detectMobileDevice } from '@/actions/view';
+import { detectMobileDevice, setJournalsPagination } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
 import { OrgStructApi } from '@/api/orgStruct';
 import { getWorkspaceId } from '@/helpers/urls';
@@ -46,6 +47,7 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
+  JOURNALS_PAGINATION,
   WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
 
@@ -75,6 +77,8 @@ export function* initApp({ api }, { payload }) {
 
       const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
       const isWorkspacesEnabled = yield ConfigService.getValue(WORKSPACES_ENABLED);
+      // Loaded before any journal renders: the journals page sizes its first request from it
+      const journalsPagination = yield ConfigService.getValue(JOURNALS_PAGINATION);
 
       if (isAllowToCreateWorkspace || get(userResponse, 'payload.isAdmin', false)) {
         yield put(setAllowToCreateWorkspace(true));
@@ -82,6 +86,10 @@ export function* initApp({ api }, { payload }) {
 
       if (isString(defaultWorkspace)) {
         yield put(setDefaultWorkspace(defaultWorkspace));
+      }
+
+      if (isPlainObject(journalsPagination)) {
+        yield put(setJournalsPagination(journalsPagination));
       }
 
       if (isWorkspacesEnabled) {

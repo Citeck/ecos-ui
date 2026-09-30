@@ -27,6 +27,7 @@ const MIN_CACHE_TIME_MS = 10000; // 10 sec
 
 export const ACTIVE_THEME = 'active-theme';
 export const TABS_ENABLED = 'tabs-enabled';
+export const JOURNALS_PAGINATION = 'journals-pagination';
 export const DEFAULT_WORKSPACE = 'default-workspace';
 export const WORKSPACES_ENABLED = 'workspaces-enabled';
 export const WORKSPACES_ALLOW_CREATE = 'app/emodel$workspaces-allow-create-for-all-users';
@@ -152,6 +153,11 @@ const CONFIG_PROPS = {
   },
   [TABS_ENABLED]: {
     defaultValue: true
+  },
+  // { journalsPage: { pageSizeMode: 'AUTO' | 'FIXED', pageSize } }, edited by uiserv/form@config-journals-pagination
+  [JOURNALS_PAGINATION]: {
+    defaultValue: {},
+    type: TYPE_JSON
   },
   [WORKSPACES_ALLOW_CREATE]: {
     defaultValue: false,
