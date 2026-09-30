@@ -36,7 +36,7 @@
 
 | место | было | стало |
 |---|---|---|
-| `src/sagas/journals.ts` → `sagaSaveRecords` (инлайн-редактирование журнала) | `catch → console.error`; оптимистичное значение оставалось в ячейке как «сохранено» | тост `NotificationManager.error(e.message, «Значение не сохранено»)`; строка откатывается к значению до правки и ячейка помечается (`error: attribute`, как у невалидного значения). Если упало только перечитывание после успешного сохранения — тост есть, отката нет (`saved`-флаг) |
+| `src/sagas/journals.ts` → `sagaSaveRecords` (инлайн-редактирование журнала) | `catch → console.error`; оптимистичное значение оставалось в ячейке как «сохранено» | модалка `DialogManager.showInfoDialog({ title: «Значение не сохранено», text: e.message })` (см. «Итерация 2»); строка откатывается к значению до правки и ячейка помечается (`error: attribute`, как у невалидного значения). Если упало только перечитывание после успешного сохранения — модалка есть, отката нет (`saved`-флаг) |
 | `src/api/adminSection.js` + `src/sagas/adminSection.js` | api глотал всё и отдавал `[]`, меню админки молча пустое; ветка `res.errors` мёртвая (records-core бросает раньше) | api пробрасывает; сага показывает текст и ставит пустой список |
 | `SelectJournal` (`ViewMode.jsx`, `InputView.jsx`) | view-режим: голое «Error»; edit-режим: `valueError` вообще не рендерился, и `shouldComponentUpdate` не сравнивал `error`/`valueError` | оба режима показывают `valueError.message` (fallback `t('error')`); конфигурационный `error` в приоритете; `shouldComponentUpdate` учитывает оба |
 | `src/sagas/docLib.js` → `sagaCreateNode` | общий «Не удалось создать папку/файл» без текста сервера | текст сервера телом, общий текст заголовком; ветка «Permission Denied» без изменений |
@@ -49,7 +49,7 @@
 
 ## Проверка
 
-- Jest: `src/sagas/__tests__/journals.test.js` (сага с падающим `saveRecords`: тост с текстом, откат
+- Jest: `src/sagas/__tests__/journals.test.js` (сага с падающим `saveRecords`: сообщение с текстом, откат
   и пометка; падение перечитывания после успеха — без отката), `adminSection.test.js`,
   `docLib.test.js`, `src/workers/docLib/__tests__/*` (200 + ERROR на createChild/deleteChild/детях,
   извлечение текста), `SelectJournal` (ViewMode/InputView), `packages/records-core/src/__tests__/recordsApi.test.ts`.
@@ -79,3 +79,31 @@ Git worktree другой сессии под `.claude/worktrees/` — полн�
 тестирует функции 2.29 (`createChildController`), поэтому не переносился; воркер покрыт
 `recordsResponse.test.js` и сагой. Тест records-core лежит в `src/components/Records/__tests__/`,
 там модуль ещё не вынесен в пакет.
+
+## Итерация 2: модалка вместо тоста (2026-09-30, `hotfix/2.26.12`)
+
+QA и заказчик: тост в правом верхнем углу исчезает раньше, чем успеваешь прочитать длинный текст
+внешней проверки. Решение заказчика — показывать ошибку инлайн-сохранения **модальным окном, так же
+как ошибки процесса** (`TaskOutcomeAction` и прочие record actions: `DialogManager.showInfoDialog`
+с кнопкой «Закрыть»).
+
+- `sagaSaveRecords`: `NotificationManager.error` → `DialogManager.showInfoDialog({ title:
+  t('journal.inline-edit.save-error'), text: e.message || '' })`. Пустой текст — info-диалог сам
+  переносит заголовок в тело («Значение не сохранено» без шапки). Откат строки и пометка ячейки — как было.
+- `DialogManager.scss`: у `.ecos-dialog_info .ecos-dialog__body` — `overflow-wrap: anywhere`.
+  Реальный текст ошибки содержит JSON без пробелов (`[{"ATTR":"ADDITIONAL_TEXT_1",…`), без переноса
+  он вылезал за правый край модалки шириной `xs`.
+- `Manager/types.js`: свойства `BaseDialog` и `InfoDialog.onClose` помечены как необязательные
+  (`[name]`). JSDoc `{?T}` для tsc — «nullable, но обязательное», поэтому первый вызов
+  `showInfoDialog` из TS-файла не компилировался.
+
+Остальные места из таблицы (админка, DocLib, воркер загрузки) по-прежнему показывают тост — задача
+про инлайн-редактирование, их не трогали.
+
+Проверка: jest `src/sagas/__tests__/journals.test.js` (модалка с текстом сервера, тост не
+показывается, пустое сообщение), `src/sagas` + `src/components/Journals` + `src/components/Records` —
+42 набора зелёные; `tsc` — 14 ошибок, те же, что на ветке до правки. Браузер (dev-сервер на
+worktree, журнал `ecos-journals` в `admin$workspace`): ответ `mutate` подменён на `records-error` с
+длинным текстом со скриншота заказчика, сохранение — через диспатч `journals/SAVE_RECORDS` в стор →
+модалка «Значение не сохранено» с полным текстом, текст не выходит за ширину тела, через 6 с модалка
+на месте, тостов нет, строка откатилась и помечена, «Закрыть» закрывает.
