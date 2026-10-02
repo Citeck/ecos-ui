@@ -1,6 +1,7 @@
 import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import merge from 'lodash/merge';
 import React from 'react';
 
 import { t } from '@/helpers/export/util';
@@ -61,7 +62,8 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
   async execForValues(values, action) {
     const { targetApp, executionParams = {}, valuesParams = {}, outputParams = {} } = action.config || {};
 
-    const actionValuesParams = { ...values, ...valuesParams };
+    // deep merge: valuesParams.config (e.g. pageSize) must extend values.config, not replace its records/query
+    const actionValuesParams = merge({}, values, valuesParams);
     const actionExecutionParams = { ...executionParams };
     const actionOutputParams = { ...outputParams };
 
