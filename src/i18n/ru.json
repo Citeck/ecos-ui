@@ -502,6 +502,8 @@
   "document-library.actions.replacement-btn-cancel": "Отменить",
   "document-library.actions.replacement-btn-next": "Продолжить",
   "document-library.actions.replacement-item": "Переместить",
+  "document-library.actions.move-invalid-destination": "Нельзя переместить папку в неё саму или в её вложенную папку",
+  "document-library.actions.move-failed": "Не удалось переместить элемент",
   "document-library.actions.specify-name": "Укажите название",
   "document-library.actions.replacement-item-warning": "Выберите другое имя - такое уже используется внутри папки «{{ parentDirTitle }}»",
   "document-library.actions.empty.replacement-item-warning": "Поле не должно быть пустым",

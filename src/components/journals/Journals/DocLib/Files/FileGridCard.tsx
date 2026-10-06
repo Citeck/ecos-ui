@@ -16,7 +16,8 @@ const FileGridCard = ({ item, isSelected, isLastClicked, isMobile, onClick, onDo
   return (
     <div
       className={classNames('citeck-doclib-files__card', DROP_TARGET_CLASS, {
-        'citeck-doclib-files__card_selected': isSelected || isAboveDir,
+        'citeck-doclib-files__card_selected': isSelected,
+        'citeck-doclib-files__card_drop-target': isAboveDir,
         'citeck-doclib-files__card_last-clicked': isLastClicked,
         'citeck-doclib-files__card_mobile': isMobile
       })}

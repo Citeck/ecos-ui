@@ -30,15 +30,16 @@ export function FileItemIcon({ item, className }: { item: FileItem; className?: 
 }
 
 /**
- * The css class and data-id below are a DOM contract with useDropFile:
- * on drop it resolves the target folder via closest('.ecos-files-viewer__item').dataset.id.
+ * Legacy viewer class retained for styling compatibility; drop targets use item data.
  */
 export const DROP_TARGET_CLASS = 'ecos-files-viewer__item';
 
 export function getDragStartHandler(item: FileItem) {
   return (e: React.DragEvent) => {
+    e.stopPropagation();
     const dragData = JSON.stringify({ id: item.id, title: item.title, type: item.type });
     e.dataTransfer.clearData();
+    e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', dragData);
   };
 }

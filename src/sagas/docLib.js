@@ -686,17 +686,42 @@ function formKeysCheck(formDefinition) {
   return componentKeys.has('name') && componentKeys.has('_content') && componentKeys.size === 2;
 }
 
-function* sagaSetParentItem({ api, stateId, w }, { payload }) {
+export function* sagaSetParentItem({ api, stateId, w }, { payload }) {
   try {
     const { item, parent } = payload;
     const { id: itemId, title: itemTitle } = item || {};
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+
+    if (!itemId || !parent || itemId === parent || itemId === rootId) {
+      return;
+    }
+
+    const sourceParent = yield call(DocLibService.getParent, itemId);
+    if (sourceParent === parent) {
+      return;
+    }
 
     const parentDirTitles = [];
     let currentItemTitle = itemTitle;
 
     const targetItem = yield call(DocLibService.loadNode, parent);
-    if (get(targetItem, 'nodeType') === NODE_TYPES.FILE) {
+    if (parent !== rootId && get(targetItem, 'nodeType') !== NODE_TYPES.DIR) {
       return;
+    }
+
+    if (item.type === NODE_TYPES.DIR) {
+      // Read fresh parents: unloaded/collapsed branches and a previous move can make the tree stale.
+      // Unlike the breadcrumb path, walking parents has no depth limit.
+      const visited = new Set();
+      let ancestor = parent;
+      while (ancestor && ancestor !== rootId) {
+        if (ancestor === itemId || visited.has(ancestor)) {
+          NotificationManager.error(t('document-library.actions.move-invalid-destination'));
+          return;
+        }
+        visited.add(ancestor);
+        ancestor = yield call(DocLibService.getParent, ancestor);
+      }
     }
 
     const targetDirTitle = get(targetItem, 'title', '');
@@ -749,6 +774,7 @@ function* sagaSetParentItem({ api, stateId, w }, { payload }) {
     }
   } catch (e) {
     console.error('[docLib sagaSetParentItem saga error', e);
+    NotificationManager.error(e.message || t('document-library.actions.move-failed'));
   }
 }
 

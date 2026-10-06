@@ -34,7 +34,12 @@ export class DocLibServiceApi {
   }
 
   async getDirPath(folderRef) {
-    return Records.get(folderRef).load('path[]{disp:?disp,id:?id}');
+    // Moving an ancestor does not invalidate this folder's cached attributes.
+    return Records.get(folderRef).load('path[]{disp:?disp,id:?id}', true);
+  }
+
+  async getParent(recordRef) {
+    return Records.get(recordRef).load('_parent?id', true);
   }
 
   async getDirActions(docLibRef) {

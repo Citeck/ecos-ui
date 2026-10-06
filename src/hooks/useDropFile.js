@@ -1,51 +1,50 @@
 import { NODE_TYPES } from '@citeck/constants/docLib';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 
 export const useDropFile = ({ callback, setParentItem, item = {} }) => {
   const [isDragged, setIsDragged] = useState(false);
   const [isAboveDir, setAboveDir] = useState(false);
 
-  const _debouncedLeave = useCallback(
-    debounce(() => {
-      if (item.type === NODE_TYPES.DIR) {
-        setAboveDir(false);
-      }
-    }, 100),
-    []
-  );
-
   const onDragEnter = e => {
     setIsDragged(true);
   };
   const onDragLeave = e => {
+    if (e.currentTarget.contains(e.relatedTarget)) {
+      return;
+    }
     setIsDragged(false);
-    _debouncedLeave();
+    setAboveDir(false);
   };
   const onDrop = e => {
     e.stopPropagation();
     e.preventDefault();
+    setAboveDir(false);
+    setIsDragged(false);
 
     const droppedData = e.dataTransfer.getData('application/json');
 
     if (droppedData) {
-      const droppedItem = JSON.parse(droppedData);
-      const targetElement = e.target.closest('.ecos-files-viewer__item');
-      if (targetElement && get(droppedItem, 'id')) {
-        const targetItemId = targetElement.dataset.id;
-        setParentItem({ item: droppedItem, parent: targetItemId });
-
-        setAboveDir(false);
-        setIsDragged(false);
+      let droppedItem;
+      try {
+        droppedItem = JSON.parse(droppedData);
+      } catch {
+        return;
+      }
+      if (
+        typeof setParentItem === 'function' &&
+        item.type === NODE_TYPES.DIR &&
+        item.id &&
+        get(droppedItem, 'id') &&
+        droppedItem.id !== item.id &&
+        Object.values(NODE_TYPES).includes(droppedItem.type)
+      ) {
+        setParentItem({ item: droppedItem, parent: item.id });
       }
     } else {
       const dataTypes = get(e, 'dataTransfer.types', []);
 
-      setAboveDir(false);
-      setIsDragged(false);
-
-      if (!dataTypes.includes('Files')) {
+      if (!dataTypes.includes('Files') || typeof callback !== 'function') {
         return;
       }
 
@@ -53,18 +52,19 @@ export const useDropFile = ({ callback, setParentItem, item = {} }) => {
     }
   };
   const onDragOver = e => {
-    _debouncedLeave.cancel();
+    // A drop target must cancel dragover itself (the folder tree has no upload wrapper).
+    const types = Array.from(get(e, 'dataTransfer.types', []));
+    const canMove = types.includes('application/json') && typeof setParentItem === 'function' && item.type === NODE_TYPES.DIR;
+    const canUpload = types.includes('Files') && typeof callback === 'function';
+    if (!canMove && !canUpload) {
+      return;
+    }
+    e.preventDefault();
 
     if (item.type === NODE_TYPES.DIR) {
       setAboveDir(true);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      _debouncedLeave.cancel();
-    };
-  }, []);
 
   return {
     handlers: {

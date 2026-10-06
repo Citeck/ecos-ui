@@ -568,6 +568,8 @@
   "document-library.actions.replacement-btn-cancel": "Cancel",
   "document-library.actions.replacement-btn-next": "Continue",
   "document-library.actions.replacement-item": "Move",
+  "document-library.actions.move-invalid-destination": "A folder cannot be moved into itself or one of its subfolders",
+  "document-library.actions.move-failed": "Unable to move the item",
   "document-library.actions.specify-name": "Enter a name",
   "document-library.actions.replacement-item-warning": "Choose a different name - this one is already in use inside the folder '{{ parentDirTitle }}'",
   "document-library.actions.empty.replacement-item-warning": "The field must not be empty",

@@ -102,6 +102,10 @@
   }
 
   &__row {
+    &_drop-target {
+      @include doclib-drop-target;
+    }
+
     position: relative;
     display: flex;
     align-items: center;
@@ -222,6 +226,10 @@
   }
 
   &__card {
+    &_drop-target {
+      @include doclib-drop-target;
+    }
+
     position: relative;
     display: flex;
     flex-direction: column;

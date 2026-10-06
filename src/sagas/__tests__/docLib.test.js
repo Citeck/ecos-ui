@@ -4,6 +4,8 @@ import { runSaga } from 'redux-saga';
 
 import {
   loadFolderData,
+  initSidebar,
+  loadFilesViewerData,
   setFolderId,
   setGroupActions,
   setIsDocLibEnabled,
@@ -23,7 +25,8 @@ import {
   sagaGetTypeRef,
   sagaInitDocumentLibrary,
   sagaInitDocumentLibrarySidebar,
-  sagaInitGroupActions
+  sagaInitGroupActions,
+  sagaSetParentItem
 } from '../docLib';
 
 const journalId = 'testJournalId';
@@ -58,6 +61,101 @@ beforeEach(() => {
 });
 
 describe('docLib sagas tests', () => {
+  describe('sagaSetParentItem', () => {
+    const item = { id: 'folder', title: 'Folder', type: 'DIR' };
+    let getParent;
+    let changeParent;
+    let dispatched;
+    const move = (parent = 'target', movingItem = item) =>
+      runSaga(
+        { dispatch: action => dispatched.push(action), getState: () => ({ documentLibrary: { [stateId]: { rootId } } }) },
+        sagaSetParentItem,
+        { stateId, w },
+        { payload: { item: movingItem, parent } }
+      ).done;
+
+    beforeEach(() => {
+      dispatched = [];
+      getParent = jest.spyOn(DocLibService, 'getParent').mockImplementation(async id => ({ folder: 'source', target: 'root' })[id] || null);
+      changeParent = jest.spyOn(DocLibService, 'changeParent').mockResolvedValue({});
+      jest.spyOn(DocLibService, 'loadNode').mockResolvedValue({ id: 'target', title: 'Target', nodeType: 'DIR' });
+      jest.spyOn(DocLibService, 'getChildren').mockResolvedValue({ records: [] });
+      jest.spyOn(NotificationManager, 'success').mockImplementation(() => {});
+      jest.spyOn(NotificationManager, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it('moves a folder and refreshes tree, files and breadcrumbs', async () => {
+      await move();
+      expect(changeParent).toHaveBeenCalledWith('folder', 'target', 'Folder');
+      expect(dispatched).toEqual([initSidebar(w()), loadFilesViewerData(w()), loadFolderData(w())]);
+      expect(NotificationManager.success).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(['DIR', 'FILE'])('moves %s to the known virtual root without a nodeType', async type => {
+      DocLibService.loadNode.mockResolvedValue({ id: rootId, title: 'Library' });
+      await move(rootId, { ...item, type });
+      expect(changeParent).toHaveBeenCalledWith(item.id, rootId, item.title);
+      expect(dispatched).toEqual([initSidebar(w()), loadFilesViewerData(w()), loadFolderData(w())]);
+      expect(getParent).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not move the root itself', async () => {
+      await move('target', { ...item, id: rootId });
+      expect(getParent).not.toHaveBeenCalled();
+      expect(changeParent).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when the record is already in the root', async () => {
+      getParent.mockResolvedValue(rootId);
+      await move(rootId);
+      expect(changeParent).not.toHaveBeenCalled();
+      expect(DocLibService.getChildren).not.toHaveBeenCalled();
+    });
+
+    it.each(['folder', 'source'])('ignores self/current-parent drops (%s)', async parent => {
+      await move(parent);
+      expect(changeParent).not.toHaveBeenCalled();
+      expect(DocLibService.getChildren).not.toHaveBeenCalled();
+      expect(NotificationManager.success).not.toHaveBeenCalled();
+    });
+
+    it('blocks moving into descendants even beyond the breadcrumb depth limit', async () => {
+      getParent.mockImplementation(async id => {
+        if (id === 'folder') return 'source';
+        if (id === 'target') return 'ancestor-25';
+        const depth = Number(id.split('-')[1]);
+        return depth > 0 ? `ancestor-${depth - 1}` : 'folder';
+      });
+      await move();
+      expect(getParent).toHaveBeenCalledWith('ancestor-0');
+      expect(changeParent).not.toHaveBeenCalled();
+      expect(NotificationManager.error).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops on an already cyclic destination hierarchy', async () => {
+      getParent.mockImplementation(async id => (id === 'folder' ? 'source' : 'target'));
+      await move();
+      expect(getParent).toHaveBeenCalledTimes(2);
+      expect(changeParent).not.toHaveBeenCalled();
+    });
+
+    it.each(['FILE', undefined])('rejects a non-directory destination (%s)', async nodeType => {
+      DocLibService.loadNode.mockResolvedValue({ nodeType });
+      await move();
+      expect(changeParent).not.toHaveBeenCalled();
+    });
+
+    it('reports a failed move without showing success or refreshing the tree', async () => {
+      changeParent.mockRejectedValue(new Error('Permission denied'));
+      await move();
+      expect(NotificationManager.error).toHaveBeenCalledWith('Permission denied');
+      expect(NotificationManager.success).not.toHaveBeenCalled();
+      expect(dispatched).toEqual([]);
+    });
+  });
+
   describe('sagaGetTypeRef saga', () => {
     it('should set isDocLibEnabled=false if typeRef is empty', async () => {
       const dispatched = [];

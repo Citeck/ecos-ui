@@ -116,6 +116,10 @@
     &_selected {
       background: $color-yellow-1;
     }
+
+    &_drop-target {
+      @include doclib-drop-target;
+    }
   }
 
   &__toggle {

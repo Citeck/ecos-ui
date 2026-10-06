@@ -46,6 +46,11 @@ class DocLibService {
     return docLibApi.getDirPath(folderRef);
   }
 
+  async getParent(recordRef) {
+    const id = await docLibApi.getParent(recordRef);
+    return id ? DocLibConverter.completeItemId({ id }).id : null;
+  }
+
   async getDirActions(docLibRef) {
     return docLibApi.getDirActions(docLibRef);
   }

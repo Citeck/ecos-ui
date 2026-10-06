@@ -27,7 +27,8 @@ const FileListRow = ({ item, isSelected, isLastClicked, isMobile, onClick, onDou
   return (
     <div
       className={classNames('citeck-doclib-files__row', DROP_TARGET_CLASS, {
-        'citeck-doclib-files__row_selected': isSelected || isAboveDir,
+        'citeck-doclib-files__row_selected': isSelected,
+        'citeck-doclib-files__row_drop-target': isAboveDir,
         'citeck-doclib-files__row_last-clicked': isLastClicked,
         'citeck-doclib-files__row_mobile': isMobile
       })}

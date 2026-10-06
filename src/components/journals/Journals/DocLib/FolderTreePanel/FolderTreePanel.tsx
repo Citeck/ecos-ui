@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import React, { useCallback, useMemo } from 'react';
 
-import { foldSidebarItem, openFolder, unfoldSidebarItem } from '@/actions/docLib';
+import { foldSidebarItem, openFolder, setParentItem, unfoldSidebarItem } from '@/actions/docLib';
 import Loader from '@/components/common/Loader/Loader';
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import { compareAZ } from '@/helpers/docLib';
@@ -12,7 +12,7 @@ import { selectDocLibFolderId, selectDocLibSidebar } from '@/selectors/docLib';
 import { DocLibLabels } from '../constants';
 import { useDocLibDispatch } from '../hooks/useDocLibDispatch';
 import { useDocLibSelector } from '../hooks/useDocLibSelector';
-import { SidebarItem, SidebarState } from '../types';
+import { FileItem, SidebarItem, SidebarState } from '../types';
 import FolderTreeNode from './FolderTreeNode';
 
 import './FolderTreePanel.scss';
@@ -58,6 +58,7 @@ const FolderTreePanel = ({ stateId, isMobile, isCollapsed, onToggleCollapsed, on
 
   const onUnfold = useCallback((id: string) => dispatchW(unfoldSidebarItem, id), [dispatchW]);
   const onFold = useCallback((id: string) => dispatchW(foldSidebarItem, id), [dispatchW]);
+  const onMove = useCallback((data: { item: FileItem; parent: string }) => dispatchW(setParentItem, data), [dispatchW]);
 
   const renderLevel = (parent: string | null, level: number): React.ReactNode => {
     const children = childrenByParent.get(parent) || [];
@@ -71,6 +72,7 @@ const FolderTreePanel = ({ stateId, isMobile, isCollapsed, onToggleCollapsed, on
         onSelect={onSelect}
         onUnfold={onUnfold}
         onFold={onFold}
+        onMove={onMove}
       >
         {item.isUnfolded ? renderLevel(item.id, level + 1) : null}
       </FolderTreeNode>
