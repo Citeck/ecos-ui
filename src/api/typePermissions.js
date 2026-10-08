@@ -21,13 +21,14 @@ export class TypePermissionsApi extends CommonApi {
       },
       {
         permissions: 'permissions?json',
-        attributes: 'attributes?json'
+        attributes: 'attributes?json',
+        workspace: 'workspace?str'
       }
     );
   };
 
   static deleteTypePermissions = async permissionsRef => {
-    Records.remove([permissionsRef]);
+    return Records.remove([permissionsRef.id || permissionsRef]);
   };
 
   /**
@@ -42,6 +43,7 @@ export class TypePermissionsApi extends CommonApi {
     return Records.get(resolvedTypeRef).load(
       {
         typeDispName: '.disp',
+        workspace: 'workspaceRef?localId',
         roles: 'model.roles[]{name,id}',
         statuses: 'model.statuses[]{name,id}',
         attributes: 'model.attributes[]{name,id}'

@@ -1,3 +1,4 @@
+import { getSourceId } from '@citeck/records-core';
 import React from 'react';
 
 import TypePermissionsEditor from './TypePermissionsEditor';
@@ -8,6 +9,16 @@ import DialogManager from '@/components/common/dialogs/Manager';
 import dialogManager from '@/components/common/dialogs/Manager/DialogManager';
 import DownloadAction from '@/components/core/Records/actions/handler/executor/DownloadAction';
 import { t } from '@/helpers/util';
+
+function getRecordLocalId(recordRef) {
+  const separatorIndex = recordRef.indexOf('@');
+  return recordRef.slice(separatorIndex + 1);
+}
+
+function stripWorkspacePrefix(id) {
+  const separatorIndex = id.indexOf(':');
+  return id.slice(separatorIndex + 1);
+}
 
 export default class TypePermissionsService {
   static async editTypePermissions(typeRef, customPermsData = {}) {
@@ -41,24 +52,34 @@ export default class TypePermissionsService {
   }
 
   static async downloadPermissionsConfig(typeRef, roles, statuses, attributes) {
-    let typePermissions = await this.getTypePermissions(typeRef);
+    const typePermissions = await this.getTypePermissions(typeRef);
     if (!typePermissions) {
       throw new Error(t('type-permissions.load-data-error'));
     }
 
-    let typeInfo = await TypePermissionsApi.getTypeInfo(typeRef);
+    const typeInfo = await TypePermissionsApi.getTypeInfo(typeRef);
     roles = [...typeInfo.roles, ...roles].filter(r => !!r.id);
     statuses = [...typeInfo.statuses, ...statuses].filter(s => !!s.id);
     attributes = [...typeInfo.attributes, ...attributes].filter(a => !!a.id);
 
-    const { id, ...permsConfigRest } = formatPermissionsConfig(typePermissions, roles, statuses, attributes);
+    const { id, workspace, ...permissionsConfig } = formatPermissionsConfig(typePermissions, roles, statuses, attributes);
+    const typeId = getRecordLocalId(typeRef);
+    let exportedMatrixId = getRecordLocalId(id);
+    let exportedTypeRef = typeRef;
+
+    if (workspace || typeInfo.workspace) {
+      const typeSourceId = getSourceId(typeRef);
+      const localTypeId = stripWorkspacePrefix(typeId);
+      exportedMatrixId = stripWorkspacePrefix(exportedMatrixId);
+      exportedTypeRef = `${typeSourceId}@CURRENT_WS:${localTypeId}`;
+    }
 
     const matrix = {
-      id: id.substring(id.indexOf('@') + 1),
-      typeRef: typeRef,
-      ...permsConfigRest
+      ...permissionsConfig,
+      id: exportedMatrixId,
+      typeRef: exportedTypeRef
     };
-    let filename = typeRef.substring(typeRef.indexOf('@') + 1) + '-permissions.json';
+    const filename = `${typeId}-permissions.json`;
 
     DownloadAction._downloadText(JSON.stringify(matrix, null, '  '), filename, 'text/json');
   }
@@ -133,6 +154,7 @@ export default class TypePermissionsService {
         },
         onDelete: async () => {
           permsDefDelete(typePermissions);
+          typePermissions.typeRef = typeRef;
           await TypePermissionsApi.savePermissions(typePermissions);
           resolve(true);
         }
