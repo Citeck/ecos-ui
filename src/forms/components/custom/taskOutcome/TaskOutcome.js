@@ -190,17 +190,41 @@ export default class TaskOutcome extends NestedComponent {
     this.element.appendChild(panel);
   }
 
+  getCommentComponent() {
+    return this.root.getComponent('comment');
+  }
+
+  /**
+   * Removes the "comment required" error a previous click left on the comment field.
+   *
+   * Nothing else would: the form re-validates on every submit, but an optional field that is empty skips validation
+   * without touching its error (override/base/Base.js `checkValidity`), so after a click on a verdict that needs a
+   * comment, a click on one that does not kept showing that error next to the real outcome of the second attempt.
+   * Only our own message is removed — any other error of the comment field is the form's business.
+   */
+  clearCommentRequiredError(commentComp) {
+    if (_.get(commentComp, 'error.message') === t('task-outcome.comment-required')) {
+      commentComp.setCustomValidity('');
+    }
+  }
+
   beforeSubmit() {
     const pressedKey = Object.keys(this.data).find(key => key.startsWith(this.#buttonKeyPrefix) && this.data[key]);
+    const commentComp = this.getCommentComponent();
+
+    this.clearCommentRequiredError(commentComp);
 
     if (pressedKey) {
       const outcomeId = pressedKey.slice(this.#buttonKeyPrefix.length);
       const button = (this.component.buttons || []).find(b => b.key === outcomeId);
       if (button && button.commentRequired) {
-        const commentComp = this.root && this.root.getComponent ? this.root.getComponent('comment') : null;
         const commentValue = ((commentComp && commentComp.dataValue) || '').toString().trim();
         if (!commentValue) {
           this.data[pressedKey] = undefined;
+          // This refusal never reaches `showErrors`, so the form alert would keep telling the outcome of the previous
+          // attempt (a server error of another verdict) next to the comment error of this one. The field error says
+          // all there is to say, as it does on a form that has no alert yet.
+          this.root.setAlert(false);
           const message = t('task-outcome.comment-required');
           if (commentComp && typeof commentComp.setCustomValidity === 'function') {
             commentComp.setCustomValidity(message, true);

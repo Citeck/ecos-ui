@@ -332,6 +332,146 @@ describe('Button Component', () => {
     });
   });
 
+  describe('failed submit', () => {
+    const submitButton = (key, extra = {}) => ({ label: key, action: 'submit', type: 'button', input: true, key, ...extra });
+    const buttonOf = (form, key) => form.getComponent(key).buttonElement;
+    const classesOf = (form, key) => buttonOf(form, key).className.split(' ');
+    // A freshly built form still has a `change` to emit — debounced by TRIGGER_CHANGE_DEBOUNCE_WAIT (500 ms,
+    // override/misc.js) — and any `change` enables the buttons (see `bindEvents`). Landing after the click, it would
+    // unlock them by itself, so neither the lock during the request nor the unlock after the error would be tested.
+    const INITIAL_CHANGES_MS = 600;
+    const afterInitialChanges = form => new Promise(resolve => setTimeout(() => resolve(form), INITIAL_CHANGES_MS));
+    let consoleLog;
+
+    // formio's `submitButton` handler logs the rejection of every failed submit (`console.log(e)`, a stack trace for
+    // the server error) — expected here, and noise in the test output.
+    beforeEach(() => {
+      consoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleLog.mockRestore();
+    });
+
+    it('should hand the buttons back with their own themes after a submit rejected by validation', done => {
+      const formJson = {
+        type: 'form',
+        components: [
+          { label: 'Name', type: 'textfield', input: true, key: 'name', validate: { required: true } },
+          submitButton('submit', { theme: 'primary' }),
+          submitButton('outcome_Reject', { theme: 'danger' }),
+          submitButton('draft', { state: 'draft' })
+        ]
+      };
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(afterInitialChanges)
+        .then(form => {
+          return new Promise(resolve => {
+            form.on('error', resolve);
+            buttonOf(form, 'submit').click();
+
+            // the click locks every submit button of the form until the outcome is known
+            expect(buttonOf(form, 'outcome_Reject').disabled).toBe(true);
+          }).then(() => {
+            ['submit', 'outcome_Reject', 'draft'].forEach(key => {
+              expect(buttonOf(form, key).disabled).toBe(false);
+              expect(classesOf(form, key)).not.toContain('submit-fail');
+            });
+
+            expect(classesOf(form, 'submit')).not.toContain('btn-danger');
+            expect(classesOf(form, 'outcome_Reject')).toContain('btn-danger');
+            done();
+          });
+        })
+        .catch(done);
+    });
+
+    it('should keep disabled the buttons that are disabled on purpose', done => {
+      const formJson = {
+        type: 'form',
+        components: [
+          { label: 'Name', type: 'textfield', input: true, key: 'name', validate: { required: true } },
+          submitButton('submit'),
+          submitButton('guarded', { disableOnFormInvalid: true }),
+          submitButton('locked', { disabled: true })
+        ]
+      };
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(afterInitialChanges)
+        .then(form => {
+          return new Promise(resolve => {
+            form.on('error', resolve);
+            buttonOf(form, 'submit').click();
+          }).then(() => {
+            expect(buttonOf(form, 'submit').disabled).toBe(false);
+            expect(buttonOf(form, 'guarded').disabled).toBe(true);
+            expect(buttonOf(form, 'locked').disabled).toBe(true);
+            expect(classesOf(form, 'guarded')).not.toContain('submit-fail');
+            expect(classesOf(form, 'locked')).not.toContain('submit-fail');
+            done();
+          });
+        })
+        .catch(done);
+    });
+
+    it('should keep the buttons locked while the record is saved and hand them back once the server rejects it', done => {
+      const formJson = {
+        type: 'form',
+        components: [
+          { label: 'Comment', type: 'textarea', input: true, key: 'comment' },
+          submitButton('outcome_Approve', { theme: 'success' }),
+          submitButton('outcome_Reject', { theme: 'danger' })
+        ]
+      };
+      const serverError = new Error('Required fields are not filled: Planned payment date');
+
+      Formio.createForm(document.createElement('div'), formJson)
+        .then(afterInitialChanges)
+        .then(form => {
+          let lockedWhileSaving;
+
+          // What EcosForm does with a failed `Record.save()`: it shows the error itself and rejects the submission,
+          // which formio reports once more through `onSubmissionError` — two `error` events for one failure.
+          form.ecos = { form: {} };
+          form.on('submit', (submission, resolve, reject) => {
+            lockedWhileSaving = ['outcome_Approve', 'outcome_Reject'].map(key => buttonOf(form, key).disabled);
+
+            setTimeout(() => {
+              form.showErrors(serverError, true);
+              reject(serverError);
+            });
+          });
+
+          return new Promise(resolve => {
+            let errors = 0;
+            form.on('error', () => {
+              errors += 1;
+
+              if (errors === 2) {
+                resolve();
+              }
+            });
+            buttonOf(form, 'outcome_Approve').click();
+          }).then(() => {
+            expect(lockedWhileSaving).toEqual([true, true]);
+
+            ['outcome_Approve', 'outcome_Reject'].forEach(key => {
+              expect(buttonOf(form, key).disabled).toBe(false);
+              expect(classesOf(form, key)).not.toContain('submit-fail');
+            });
+
+            expect(classesOf(form, 'outcome_Approve')).toContain('btn-success');
+            expect(classesOf(form, 'outcome_Approve')).not.toContain('btn-danger');
+            expect(classesOf(form, 'outcome_Reject')).toContain('btn-danger');
+            done();
+          });
+        })
+        .catch(done);
+    });
+  });
+
   describe('outcome buttons', () => {
     const outcomesFormJson = {
       type: 'form',

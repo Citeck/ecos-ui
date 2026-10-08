@@ -276,11 +276,27 @@ export default class ButtonComponent extends FormIOButtonComponent {
       true
     );
 
+    // A failed submit — rejected by validation, by a component's `beforeSubmit` (TaskOutcome's `commentRequired`) or by
+    // the server — ends in `error`, and formio leaves every submit button of the form as the click left it: disabled,
+    // and painted `btn-danger submit-fail` on top. Only a later `change` of this same form lifted that, which never
+    // comes when the cause has to be fixed elsewhere (an attribute of the card, in another widget): the verdicts of a
+    // task stayed locked until a reload, all of them red. Hand the buttons back at once — a new click validates and
+    // submits again; the alert and the field errors say what went wrong.
+    //
+    // `this.disabled = false` enables only a button that may be enabled (`shouldDisable`: readOnly, component.disabled,
+    // disableOnFormInvalid on an invalid form). The native `disableOnInvalid` is not consulted, like in `change` above:
+    // the builder has edited `disableOnFormInvalid` instead since ECOSUI-1426, while the default submit button still
+    // carries `disableOnInvalid: true`. Exactly the pair formio added is removed, so a `danger` theme survives. A
+    // server error arrives twice (EcosForm's `showErrors`, then `onSubmissionError`), so this has to stay idempotent.
+    // A draft button is handed back whatever its action, as it has been since ECOSUI-2676.
     this.on(
       'error',
       () => {
-        if (this.component.state === 'draft') {
+        const { action, state } = this.component;
+
+        if (action === 'submit' || state === 'draft') {
           this.disabled = false;
+          this.removeClass(this.buttonElement, 'btn-danger submit-fail');
         }
       },
       true
