@@ -20,7 +20,7 @@ export default class EditAction extends ActionsExecutor {
         case config.mode === 'task':
           runEditTask(record, config).then(resolve).catch(reject);
           break;
-        case DashboardService.isDashboardRecord(recordId):
+        case !config.formId && DashboardService.isDashboardRecord(recordId):
           DashboardService.openEditModal({
             dashboardId: DashboardService.formShortId(recordId),
             onSave: () => resolve(true),
@@ -33,6 +33,7 @@ export default class EditAction extends ActionsExecutor {
 
           EcosFormUtils.editRecord({
             recordRef: recordId,
+            formId: config.formId,
             options: { actionRecord: recordId },
             saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
@@ -93,6 +94,7 @@ async function runEditTask(record, config) {
   return new Promise(resolve => {
     EcosFormUtils.editRecord({
       recordRef: taskRecordId,
+      formId: config.formId,
       attributes: config.attributes || {},
       formContainer: true,
       fallback: () => resolve(false),

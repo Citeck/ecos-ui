@@ -253,6 +253,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         onSubmit: config.onSubmit
       };
 
+      if (config.formId) {
+        params.formId = config.formId;
+      }
+
       if (formKey) {
         params.formKey = config.formKey;
       }
@@ -323,11 +327,21 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         class: 'ecos-modal_width-lg',
         isBigHeader: true,
         formMode,
+        formId: config.formId,
         formContainer: config.formContainer || null
       });
     };
 
-    EcosFormUtils.hasForm(recordRef).then(result =>
+    const hasForm = config.formId
+      ? EcosFormUtils.getFormById(config.formId, '_notExists?bool')
+          .then(notExists => notExists !== true)
+          .catch(err => {
+            console.error(err);
+            return false;
+          })
+      : EcosFormUtils.hasForm(recordRef);
+
+    hasForm.then(result =>
       EcosFormUtils.hasWritePermission(recordRef)
         .then(hasPermission => {
           if (result) {
