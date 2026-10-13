@@ -23,7 +23,7 @@ describe('Config Service Test', () => {
       ConfigService._values[CAMEL_VISUAL_EDITING_ENABLED] = {};
       ConfigService.setLoadConfigFunction(async configsMap => {
         requestedAttribute = configsMap[CAMEL_VISUAL_EDITING_ENABLED];
-        return { result: null };
+        return { [CAMEL_VISUAL_EDITING_ENABLED]: null };
       });
       await ConfigService.getValue(CAMEL_VISUAL_EDITING_ENABLED);
       ConfigService.setLoadConfigFunction(prevLoad);

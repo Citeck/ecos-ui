@@ -379,12 +379,15 @@ class ConfigService {
       ...(props || {})
     });
     const attribute = this._getConfigAttribute(confProps);
+    // Cold-cache entries resolve to scalar values and populate the attribute cache.
+    // Read the cache again after waiting so custom attribute requests remain supported.
+    await this._values[key];
     const currentValue = this._values[key] || {};
     if (currentValue.hasOwnProperty(attribute)) {
       return currentValue[attribute];
     }
     return this._loadConfigsFunc({ [key]: attribute }).then(atts => {
-      return this.setValue(key, atts.result, confProps);
+      return this.setValue(key, atts[key], confProps);
     });
   }
 
