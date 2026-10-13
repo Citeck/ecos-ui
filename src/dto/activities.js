@@ -72,7 +72,8 @@ export function getCommentForWeb(source) {
 
   target.isInternal = Array.isArray(source.tags) ? source.tags.some(tag => !isEmpty(tag) && tag.type === typeInternal) : false;
 
-  target.type = source.type;
+  // Records exposes parentType; the type selector and editor use type for the same value.
+  target.type = source.type && { ...source.type, type: source.type.type || source.type.parentType };
   target.status = source.status;
 
   return target;
