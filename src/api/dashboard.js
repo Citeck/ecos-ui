@@ -221,6 +221,14 @@ export class DashboardApi {
       recType = recordRef ? EmodelTypes.BASE : typeRef;
     }
 
+    const url = window.location.pathname;
+    const isOrgstructure = url.includes('orgstructure');
+
+    if (isOrgstructure) {
+      // With no person picked the orgstructure page shows a dashboard of its own
+      recType = recordRef ? 'emodel/type@person' : EmodelTypes.ORGSTRUCTURE_DASHBOARD;
+    }
+
     const user = getCurrentUserName();
     const query = {
       typeRef: recType,
@@ -232,10 +240,9 @@ export class DashboardApi {
       query.workspace = wsId;
     }
 
-    const url = window.location.pathname;
-
-    if (url.includes('orgstructure')) {
-      recType = 'emodel/type@person';
+    if (isOrgstructure) {
+      // The key is looked up in the same scope the dashboard itself is loaded from
+      query.scope = 'orgstructure';
     }
 
     const key = await Records.queryOne(
@@ -250,6 +257,11 @@ export class DashboardApi {
     const params = { type, user };
     if (enabledWorkspaces) {
       params.wsId = wsId;
+    }
+    if (isOrgstructure) {
+      // The orgstructure dashboards are resolved in their own scope: a person opened here and in
+      // the profile has two different dashboards of the same type, which must not share a cache entry
+      params.scope = 'orgstructure';
     }
 
     const cacheKey = DashboardService.getCacheKey(params);

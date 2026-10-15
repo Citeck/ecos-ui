@@ -3206,6 +3206,7 @@
   "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
 
   "orgstructure-page-no-picked-person-text": "Show user profile",
+  "orgstructure-page-no-picked-person-hint": "Open a user profile",
   "orgstructure-page-back-link": "Go back to the orgstructure",
   "orgstructure-page-title": "Orgstructure",
   "orgstructure-page-add-group": "Create a group",

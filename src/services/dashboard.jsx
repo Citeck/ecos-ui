@@ -114,12 +114,10 @@ export default class DashboardService {
     };
   }
 
-  static getCacheKey({ type, user, wsId } = {}) {
-    if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      return `${type}|${user}`;
-    }
+  static getCacheKey({ type, user, wsId, scope } = {}) {
+    const key = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? `${type}|${user}|${wsId}` : `${type}|${user}`;
 
-    return `${type}|${user}|${wsId}`;
+    return scope ? `${key}|${scope}` : key;
   }
 
   static defineWaySavingDashboard(eqKey, allUser, hasUser) {

@@ -1,4 +1,5 @@
 import { URL, SourcesId } from '@citeck/constants';
+import { DashboardTypes } from '@citeck/constants/dashboard';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
@@ -14,7 +15,7 @@ import Dashboard from '../Dashboard/Dashboard';
 
 import Structure from './components/Structure';
 
-import { getDashboardConfig, getDashboardTitle, setLoading } from '@/actions/dashboard';
+import { getDashboardConfig, getDashboardTitle, saveDashboardConfig, setLoading } from '@/actions/dashboard';
 import { setSelectedPerson } from '@/actions/orgstructure';
 import { OrgStructApi } from '@/api/orgStruct';
 import { DndUtils } from '@/components/common/DragAndDrop';
@@ -31,6 +32,7 @@ import {
 } from '@/components/common/Orgstruct/constants';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink, updateCurrentUrl } from '@/helpers/urls';
 import { t } from '@/helpers/util';
+import { selectDashboardConfigVersion } from '@/selectors/dashboard';
 import DashboardService from '@/services/dashboard';
 import PageTabList from '@/services/pageTabs/PageTabList';
 
@@ -64,7 +66,7 @@ const controlProps = {
 };
 
 const Labels = {
-  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text',
+  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-hint',
   BACK_TO_ORGSTRUCT: 'orgstructure-page-back-link'
 };
 
@@ -135,11 +137,13 @@ class Orgstructure extends React.Component {
       getDashboardConfig({ recordRef });
 
       onSelectPerson(recordRef);
+    } else {
+      getDashboardConfig({ recordRef: '' });
     }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    const { recordRef } = this.props;
+    const { recordRef, dashboardType, identificationId } = this.props;
     const { urlParams, activeTab, config } = this.state;
 
     if (nextState.urlParams !== urlParams || nextState.activeTab !== activeTab) {
@@ -154,15 +158,26 @@ class Orgstructure extends React.Component {
       return true;
     }
 
+    if (nextProps.dashboardType !== dashboardType || nextProps.identificationId !== identificationId) {
+      return true;
+    }
+
     return false;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { config, recordRef, onSelectPerson } = this.props;
+    const { config, recordRef, onSelectPerson, getDashboardConfig } = this.props;
 
     const searchParams = new URLSearchParams(window.location.search);
-    if (!searchParams.get('recordRef') && !!recordRef) {
+    // Only the address of this page tells whether a person is picked: while the tab is being left
+    // (browser Back) it renders once more under the address of the next page, which has no recordRef
+    const isOwnAddress = window.location.pathname.includes(URL.ORGSTRUCTURE);
+
+    if (isOwnAddress && !searchParams.get('recordRef') && !!recordRef) {
       onSelectPerson('');
+      // The page goes back to its own dashboard, which opens on its first tab whatever tab the person's was on
+      this.setState({ activeTab: 0 });
+      getDashboardConfig({ recordRef: '' });
     }
 
     if (!isEmpty(config)) {
@@ -192,6 +207,39 @@ class Orgstructure extends React.Component {
 
   clearSelectPerson = () => {
     updateCurrentUrl({ recordRef: '' });
+  };
+
+  get activeLayout() {
+    const { config } = this.props;
+    const { activeTab } = this.state;
+
+    return get(config, [activeTab]) || {};
+  }
+
+  /**
+   * The page shows the dashboard of the picked person, or its own dashboard when nobody is picked.
+   * Right after the pick changes, the store still holds the dashboard of the other state, which is not
+   * rendered until the matching one arrives: a person's widgets have no record to show without a person.
+   */
+  get isDashboardForSelection() {
+    const { recordRef, dashboardType } = this.props;
+    const isOrgstructureDashboard = dashboardType === DashboardTypes.ORGSTRUCTURE_HOME;
+
+    return recordRef ? !isOrgstructureDashboard : isOrgstructureDashboard;
+  }
+
+  updateActiveConfig(activeLayout) {
+    const { config } = this.props;
+    const { activeTab } = this.state;
+    const upConfig = cloneDeep(config || []);
+
+    upConfig[activeTab] = activeLayout;
+
+    return upConfig;
+  }
+
+  saveDashboardConfig = payload => {
+    this.props.saveDashboardConfig(payload);
   };
 
   prepareWidgetsConfig = (data, dnd) => {
@@ -224,14 +272,13 @@ class Orgstructure extends React.Component {
     this.saveDashboardConfig({ config });
   };
 
-  handleSaveWidgetProps = (id, props = {}) => {
-    const { configVersion } = this.props;
+  handleSaveWidgetProps = (id, props = {}, callback) => {
+    const { configVersion, recordRef } = this.props;
 
     if (configVersion) {
       const originalConfig = cloneDeep(this.props.originalConfig);
       const widgets = get(originalConfig, [configVersion, 'widgets'], []);
       const widget = widgets.find(widget => widget.id === id);
-      const { recordRef } = this.getPathInfo();
 
       if (widget) {
         widget.props = {
@@ -240,7 +287,7 @@ class Orgstructure extends React.Component {
         };
       }
 
-      this.saveDashboardConfig({ config: originalConfig, recordRef });
+      this.saveDashboardConfig({ config: originalConfig, recordRef, callback });
 
       return;
     }
@@ -269,7 +316,7 @@ class Orgstructure extends React.Component {
 
     const config = this.updateActiveConfig(activeLayout);
 
-    this.saveDashboardConfig({ config });
+    this.saveDashboardConfig({ config, callback });
   };
 
   toggleToFirstTab = () => {
@@ -329,7 +376,8 @@ class Orgstructure extends React.Component {
   renderTabs() {
     const { config } = this.props;
 
-    if (!config) {
+    // As on a dashboard page, a lone tab is not shown: there is nothing to switch to
+    if (!config || config.length < 2) {
       return null;
     }
     const tabs = config.map(item => item.tab);
@@ -371,10 +419,10 @@ class Orgstructure extends React.Component {
   }
 
   renderDashboard(isRenderBackText = false) {
-    const { config = {}, menuType, isMobile, tabId, isLoading, recordRef } = this.props;
+    const { config = {}, menuType, isMobile, tabId, isLoading, recordRef, identificationId } = this.props;
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
-    if (!recordRef || !activeLayout) {
+    if (!activeLayout || !this.isDashboardForSelection) {
       return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
     }
 
@@ -396,7 +444,7 @@ class Orgstructure extends React.Component {
           type={type}
           tabId={tabId}
           recordRef={recordRef}
-          dashboardId={tabId}
+          dashboardId={identificationId}
           isActiveLayout={PageTabList.isActiveTab(tabId)}
           isLoading={isLoading}
           onSaveWidget={this.prepareWidgetsConfig}
@@ -410,7 +458,7 @@ class Orgstructure extends React.Component {
     const { config = {}, recordRef, isMobile } = this.props;
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
-    const hasDashboardContent = !!activeLayout && !!recordRef;
+    const hasDashboardContent = !!activeLayout && !!recordRef && this.isDashboardForSelection;
     const isViewOrgstructure = !isMobile || (isMobile && !hasDashboardContent);
 
     return (
@@ -429,17 +477,24 @@ class Orgstructure extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+  const dashboardState = get(state, ['dashboard', ownProps.tabId]);
+
   return {
     isMobile: get(state, 'view.isMobile'),
     recordRef: get(state, 'orgstructure.id'),
-    config: get(state, ['dashboard', ownProps.tabId, 'config']),
-    isLoading: get(state, ['dashboard', ownProps.tabId, 'isLoading'])
+    config: get(dashboardState, 'config'),
+    isLoading: get(dashboardState, 'isLoading'),
+    dashboardType: get(dashboardState, ['identification', 'type']),
+    identificationId: get(dashboardState, ['identification', 'id']),
+    originalConfig: get(dashboardState, 'originalConfig', {}),
+    configVersion: selectDashboardConfigVersion(dashboardState)
   };
 };
 
 const mapDispatchToProps = (dispatch, state) => ({
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   getDashboardConfig: ({ recordRef }) => dispatch(getDashboardConfig({ key: state.tabId, recordRef })),
+  saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: state.tabId })),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
   onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId }))
 });

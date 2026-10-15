@@ -6,6 +6,7 @@ export const DashboardTypes = {
   PROCESS: 'process-dashboard',
   PUBLICATION: 'publication-details',
   ORGSTRUCTURE: 'orgstructure-person-dashboard',
+  ORGSTRUCTURE_HOME: 'orgstructure-dashboard',
   CUSTOM: 'custom',
   WIKI: 'wiki'
 };

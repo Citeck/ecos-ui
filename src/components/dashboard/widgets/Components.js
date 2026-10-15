@@ -185,7 +185,11 @@ export default class Components {
     [ComponentKeys.RECORD_ACTIONS]: {
       load: () => lazy(() => import('./Actions')),
       label: 'dashboard-settings.widget.actions',
-      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER, DashboardTypes.CUSTOM]),
+      supportedDashboardTypes: Components.getAllDashboardTypesExcept([
+        DashboardTypes.USER,
+        DashboardTypes.CUSTOM,
+        DashboardTypes.ORGSTRUCTURE_HOME
+      ]),
       props: {}
     },
     [ComponentKeys.WEB_PAGE]: {
