@@ -16,6 +16,7 @@ import computedService from './computed/computedService';
 import journalsServiceApi from './journalsServiceApi';
 import { buildOnlyLinkedPredicate } from './onlyLinked';
 import { COMPUTED_ATT_PREFIX } from './util';
+import { applyWorkspaceFilter } from './workspaceFilter';
 
 import JournalsService from '@/components/journals/Journals/service/journalsService';
 import JournalsConverter from '@/dto/journals';
@@ -108,7 +109,17 @@ class JournalsDataLoader {
   getRecordsQuery = async (journalConfig, settings = {}) => {
     const consistency = 'EVENTUAL';
     const columns = journalConfig.columns || settings.columns || [];
-    const predicates = await this.getPredicates(journalConfig, settings);
+    let predicates = await this.getPredicates(journalConfig, settings);
+    const enabledWorkspaces = getEnabledWorkspaces();
+    let workspaces;
+    if (enabledWorkspaces) {
+      const hasWorkspaceColumn = columns.some(column => JournalsConverter.getColumnId(column) === WORKSPACE_ATTRIBUTE);
+      const defaultWorkspaces = hasWorkspaceColumn ? [] : [getWorkspaceId()];
+      const scope = settings.workspaces || defaultWorkspaces;
+      const filtered = applyWorkspaceFilter(predicates, scope);
+      predicates = filtered.predicates;
+      workspaces = filtered.workspaces;
+    }
 
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
@@ -163,11 +174,7 @@ class JournalsDataLoader {
     const sortBy = this._getSortBy(journalConfig, settings);
     const groupBy = this._getGroupBy(journalConfig, settings);
 
-    if (getEnabledWorkspaces()) {
-      const hasWorkspaceColumn = columns.some(column => JournalsConverter.getColumnId(column) === WORKSPACE_ATTRIBUTE);
-      const defaultWorkspaces = hasWorkspaceColumn ? [] : [getWorkspaceId()];
-      const workspaces = !get(settings, 'workspaces') ? defaultWorkspaces : settings.workspaces;
-
+    if (enabledWorkspaces) {
       return {
         sourceId,
         language,
