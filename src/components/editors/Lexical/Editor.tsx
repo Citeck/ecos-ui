@@ -23,7 +23,6 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { SelectionAlwaysOnDisplay } from '@lexical/react/LexicalSelectionAlwaysOnDisplay';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import classNames from 'classnames';
 import { $getRoot, EditorState, type LexicalEditor } from 'lexical';
 import isFunction from 'lodash/isFunction';
@@ -136,7 +135,6 @@ export default function Editor({
     }
   } = useSettings();
 
-  const isEditable = useLexicalEditable();
   const placeholder = propsPlaceholder
     ? propsPlaceholder
     : isCollab
@@ -267,7 +265,7 @@ export default function Editor({
             <OnImageUploadPlugin onUpload={onUpload} />
             <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
             <PollPlugin />
-            <ClickableLinkPlugin disabled={isEditable} />
+            <ClickableLinkPlugin />
             <HorizontalRulePlugin />
             <EquationsPlugin />
             <TabFocusPlugin />

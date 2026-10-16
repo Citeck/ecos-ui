@@ -54,6 +54,15 @@ export default function ClickableLinkPlugin({ newTab = true, disabled = false }:
         return;
       }
 
+      const isEditing = nearestEditor.isEditable();
+      const isOpenRequested = event.ctrlKey || event.metaKey;
+      if (disabled || (isEditing && !isOpenRequested)) {
+        if (findMatchingDOM(target, isHTMLAnchorElement)) {
+          event.preventDefault();
+        }
+        return;
+      }
+
       let url = null;
       let urlTarget = null;
       nearestEditor.update(() => {
@@ -81,14 +90,16 @@ export default function ClickableLinkPlugin({ newTab = true, disabled = false }:
 
       // Allow user to select link text without follwing url
       const selection = editor.getEditorState().read($getSelection);
-      if ($isRangeSelection(selection) && !selection.isCollapsed()) {
+      if (!isOpenRequested && $isRangeSelection(selection) && !selection.isCollapsed()) {
         event.preventDefault();
         return;
       }
 
       const urlObj = new URL(url, HOST);
 
-      if (urlObj.origin !== HOST) {
+      // Browsers do not reliably follow anchors inside contenteditable. Handle an intentional
+      // modified click here for internal links too, keeping the draft in the current tab.
+      if (urlObj.origin !== HOST || (isEditing && isOpenRequested)) {
         window.open(url, newTab || event.metaKey || event.ctrlKey || urlTarget === '_blank' ? '_blank' : '_self');
         event.preventDefault();
       }

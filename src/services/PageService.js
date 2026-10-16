@@ -587,6 +587,14 @@ export default class PageService {
       return;
     }
 
+    // This listener runs before the editor's link handler. A plain click in editable content
+    // places the caret or finishes a selection; it must not open a page tab first.
+    const editableParent = elem.closest('[contenteditable]');
+    if (editableParent && editableParent.getAttribute('contenteditable') !== 'false' && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      return;
+    }
+
     const modalParent = elem.closest('.ecos-modal');
     if (modalParent) {
       elem.setAttribute('target', '_blank');

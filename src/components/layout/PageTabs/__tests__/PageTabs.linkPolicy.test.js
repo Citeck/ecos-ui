@@ -129,6 +129,30 @@ describe('PageTabs.handleClickLink — where a link opens', () => {
     expect(openSpy).not.toHaveBeenCalled();
   });
 
+  it.each(['/v2/dashboard?recordRef=emodel/type@a&ws=TEST2', 'https://other.example.com/v2/dashboard'])(
+    'does not route editable link text: %s',
+    href => {
+      const instance = makeTabs();
+      const holder = document.createElement('div');
+      holder.contentEditable = 'true';
+      holder.setAttribute('contenteditable', 'true');
+      holder.innerHTML = `<a href="${href}"><span>editable link</span></a>`;
+      document.body.appendChild(holder);
+      const listener = event => instance.handleClickLink(event);
+      document.addEventListener('click', listener, true);
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      try {
+        holder.querySelector('span').dispatchEvent(event);
+      } finally {
+        document.removeEventListener('click', listener, true);
+        holder.remove();
+      }
+      expect(event.defaultPrevented).toBe(true);
+      expect(instance.props.setTab).not.toHaveBeenCalled();
+      expect(openSpy).not.toHaveBeenCalled();
+    }
+  );
+
   it('a link marked to open in the background still opens a background page tab on a plain click', () => {
     const instance = makeTabs();
     const holder = document.createElement('div');

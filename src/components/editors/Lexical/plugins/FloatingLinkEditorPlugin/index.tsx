@@ -327,18 +327,10 @@ function useFloatingLinkEditorToolbar(
       ),
       editor.registerCommand(
         CLICK_COMMAND,
-        payload => {
+        () => {
           hasUserInteracted.current = true;
           $updateToolbar();
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const node = getSelectedNode(selection);
-            const linkNode = $findMatchingParent(node, $isLinkNode);
-            if ($isLinkNode(linkNode) && (payload.metaKey || payload.ctrlKey)) {
-              window.open(linkNode.getURL(), '_blank');
-              return true;
-            }
-          }
+          // ClickableLinkPlugin owns navigation, using the clicked link rather than a stale selection.
           return false;
         },
         COMMAND_PRIORITY_LOW
