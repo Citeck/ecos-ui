@@ -6,7 +6,7 @@ import Records from '../Records';
 import { SOURCE_DELIMITER } from '../constants';
 import { AttributesType } from '../types';
 
-export async function replaceAttributeValues(data: any, record: any): Promise<any> {
+export async function replaceAttributeValues(data: any, record: any, forceReload = false): Promise<any> {
   if (!data) {
     return {};
   }
@@ -23,7 +23,7 @@ export async function replaceAttributeValues(data: any, record: any): Promise<an
   await Promise.all(
     keys.map(async key => {
       if (typeof mutableData[key] === 'object') {
-        mutableData[key] = await replaceAttributeValues(mutableData[key], record);
+        mutableData[key] = await replaceAttributeValues(mutableData[key], record, forceReload);
         return;
       }
 
@@ -52,7 +52,7 @@ export async function replaceAttributeValues(data: any, record: any): Promise<an
           } else if (strKey === '$now') {
             recordData = new Date().toISOString();
           } else {
-            recordData = await Records.get(record).load(strKey);
+            recordData = await Records.get(record).load(strKey, forceReload);
           }
 
           results.set(strKey, recordData);

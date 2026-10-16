@@ -202,7 +202,7 @@ class RecordActions {
 
     const actionRecord = params['actionRecord'];
     if (!isEmpty(formAttributes) && actionRecord) {
-      formAttributes = await replaceAttributeValues(formAttributes, actionRecord);
+      formAttributes = await replaceAttributeValues(formAttributes, actionRecord, true);
     }
     if (isEmpty(formData)) {
       formData = formAttributes;

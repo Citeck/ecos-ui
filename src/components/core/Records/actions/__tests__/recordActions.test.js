@@ -1,6 +1,8 @@
 /**
  * @jest-environment jsdom
  */
+import { configure } from '@citeck/records-core';
+import { getConfig } from '@citeck/records-core/config';
 import isBoolean from 'lodash/isBoolean';
 
 import * as util from '@/helpers/util';
@@ -256,5 +258,62 @@ describe('RecordActions service', () => {
         });
       }
     });
+  });
+});
+
+// The portal action completes before the main instance syncs its changes back.
+// Reopening the same action must fetch the values that arrived after completion.
+describe('confirmation form after an asynchronous record update', () => {
+  let originalConfig;
+  let serverObservers;
+
+  beforeEach(() => {
+    originalConfig = getConfig();
+    serverObservers = ['emodel/person@observer-before-sync'];
+    configure({
+      ...originalConfig,
+      http: async (_url, options) => {
+        const body = options.body;
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            records: body.records.map(id => ({
+              id,
+              attributes: Object.fromEntries(body.attributes.map(att => [att, [...serverObservers]]))
+            }))
+          })
+        };
+      }
+    });
+  });
+
+  afterEach(() => configure(originalConfig));
+
+  it('prefills the current observers when the action is reopened without a page reload', async () => {
+    const action = {
+      confirm: {
+        formRef: 'uiserv/form@ept-issue-change-observers-form',
+        formAttributes: {
+          observers: '${observers[]?id}',
+          nested: { observers: '${observers[]?id}' }
+        }
+      }
+    };
+    const params = { actionRecord: 'emodel/ept-issue@confirmation-after-portal-sync' };
+    const first = await recordActions.constructor._getConfirmData(action, params);
+    expect(first.formData.observers).toEqual(['emodel/person@observer-before-sync']);
+
+    // Only the remote state changes; this page's record instance remains cached.
+    serverObservers = ['emodel/person@observer-after-sync'];
+    const reopened = await recordActions.constructor._getConfirmData(action, params);
+    expect(reopened.formData).toEqual({
+      observers: serverObservers,
+      nested: { observers: serverObservers }
+    });
+    serverObservers = [];
+    const cleared = await recordActions.constructor._getConfirmData(action, params);
+    expect(cleared.formData).toEqual({ observers: [], nested: { observers: [] } });
+    expect(action.confirm.formAttributes.observers).toBe('${observers[]?id}');
   });
 });
