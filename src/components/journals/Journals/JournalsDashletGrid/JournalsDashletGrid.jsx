@@ -291,8 +291,8 @@ class JournalsDashletGrid extends Component {
       <>
         <div className="ecos-journal-dashlet__grid">
           {/* loadingGrid is an indicator of the loading of the primary data of the table. You can't change it to global loading */}
-          {/* On init (no rows yet) show a table skeleton instead of the round spinner; reloads keep the blur loader over current rows. */}
-          {!isWidget && loadingGrid && isEmpty(data) ? (
+          {/* Reserve the skeleton for initialization; an empty result with ready columns still has a table to reload. */}
+          {!isWidget && loadingGrid && isEmpty(data) && isEmpty(viewColumns) ? (
             <GridSkeleton
               columns={get(viewColumns, 'length', 0) || DEFAULT_SKELETON_COLS}
               rows={DEFAULT_SKELETON_ROWS}
@@ -302,7 +302,14 @@ class JournalsDashletGrid extends Component {
             !isWidget && loadingGrid && <Loader blur />
           )}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
-          <HeightCalculation autoHeight={autoHeight} loading={loadingGrid} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
+          <HeightCalculation
+            autoHeight={autoHeight}
+            loading={loadingGrid}
+            minHeight={minHeight}
+            maxHeight={maxHeight}
+            total={total}
+            maxItems={maxItems}
+          >
             <Grid
               isBlockNewJournalFormatter={isBlockNewJournalFormatter}
               recordRef={meta.metaRecord}
