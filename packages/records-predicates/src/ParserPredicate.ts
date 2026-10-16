@@ -123,7 +123,16 @@ export default class ParserPredicate {
       const column = columns[i] || {};
 
       if (defaultPredicatesByAtt.hasOwnProperty(column.attribute)) {
-        val.push(defaultPredicatesByAtt[column.attribute]);
+        const predicate = defaultPredicatesByAtt[column.attribute];
+        // The server stores date ranges as EQ. The UI's interval operator selects the range
+        // editor and is converted back to EQ only when building the Records query.
+        const range = typeof predicate.val === 'string' ? predicate.val.split(datePredicateVariables.INTERVAL_DELIMITER) : [];
+        const isDateRange =
+          [COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(column.type) &&
+          predicate.t === PREDICATE_EQ &&
+          range.length === 2 &&
+          range.every(Boolean);
+        val.push(isDateRange ? { ...predicate, t: PREDICATE_TIME_INTERVAL } : predicate);
         continue;
       }
 
