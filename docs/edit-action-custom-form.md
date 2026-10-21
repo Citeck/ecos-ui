@@ -12,8 +12,17 @@ config:
   formId: contract-details
 ```
 
-Both a local ID such as `contract-details` and a full reference such as
-`uiserv/form@contract-details` are accepted.
+`formId` must be a string. Both a local ID such as `contract-details` and a full
+reference such as `uiserv/form@contract-details` are accepted. Numbers, booleans,
+arrays and objects show a validation error without opening another form.
+An omitted, null or empty-string value retains default form selection.
+
+Workspace forms require their explicit system-ID prefix, for example
+`<wsSysId>:contract-details` or `uiserv/form@<wsSysId>:contract-details`.
+Use the form's local ID from the Forms journal, including that prefix; the
+workspace's display name or workspace record ID is not a substitute for its
+system ID. An unqualified ID selects a global form, without an implicit lookup
+in the current workspace.
 
 Set this property in the action's JSON configuration in the Actions journal or
 in its action artifact. The selected form edits the action's record (or
@@ -25,33 +34,16 @@ its assignment panel.
 
 The custom form does not require the record to have a default form. Its
 existence is checked instead of the record's default form, and the usual write
-permission check still runs. A missing form or failed form lookup uses the
-existing unavailable-form notification/fallback; no default form is silently
-substituted. Both modal-container and ordinary form rendering receive the
-selected form ID. Existing save/cancel callbacks, attributes and cache resets
-are preserved.
+permission check still runs. Only an explicit `false` from `_notExists?bool`
+confirms that the form exists. A missing form or failed lookup shows an error
+and completes the action with `false`, including task mode; no default form is
+silently substituted. Each custom-form availability check fetches a fresh value,
+so retrying after a transport failure does not reuse the cached failed lookup.
+
+Both modal-container and ordinary form rendering receive the selected form ID.
+Existing save/cancel callbacks, attributes and cache resets are preserved.
 
 The implementation is in `EditAction.jsx` and `EcosFormUtils.editRecord`.
 Regression tests cover default/custom selection, a record without a default
-form, missing/unavailable custom forms, task/dashboard routes, and save/cancel.
-
-Tracker access was unavailable during implementation because the API session
-expired and the browser connector failed. The behavior above follows the user's
-explicit request and the existing actions' `config.formId` convention.
-
-Verification: 108 tests across 14 action/form suites passed; the production build
-completed on Node 20. Browser verification with real action/form components and
-isolated Records API responses opened the configured form on a record without
-a default form, saved an edit, then cancelled an unsaved edit. No browser errors
-were recorded. Screenshot and logs: Solution `.tmp/coredev-623/`.
-
-Live verification (2026-10-09): the same production build was served separately
-against the existing localhost backend, without API mocks or changing the main
-UI/runtime. A temporary action stored in uiserv used `config.formId: custom-edit`.
-The real resolved-form endpoint returned `uiserv/rform@custom-edit`, the custom
-form opened, an email edit was saved to the temporary model record and confirmed
-by an independent Records API read, and cancelling another edit preserved the
-saved value. Screenshot: Solution `.tmp/coredev-623/live/local-id-form.png`.
-All temporary records/action/form were removed and their absence verified; the
-separate UI server was stopped. Evidence: `.tmp/coredev-623/live/result.json` and
-`cleanup.json`.
+form, invalid IDs, missing/unavailable custom forms, retry after a real Records
+load failure, task/dashboard routes, action completion and save/cancel.

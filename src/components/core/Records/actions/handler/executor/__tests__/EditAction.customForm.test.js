@@ -73,6 +73,33 @@ describe('Edit action custom form', () => {
     expect(await result).toBe(false);
   });
 
+  it('settles the action when the configured form cannot be opened', async () => {
+    const result = new EditAction().execForRecord(Records.get(recordId), { config: { formId } });
+    EcosFormUtils.editRecord.mock.calls[0][0].fallback();
+    expect(await result).toBe(false);
+  });
+
+  it.each([123, 0, true, false, [], {}])(
+    'sends an invalid dashboard formId (%j) to validation instead of the dashboard editor',
+    async invalidFormId => {
+      DashboardService.isDashboardRecord.mockReturnValue(true);
+      const result = new EditAction().execForRecord(Records.get(recordId), { config: { formId: invalidFormId } });
+      expect(DashboardService.openEditModal).not.toHaveBeenCalled();
+      const params = EcosFormUtils.editRecord.mock.calls[0][0];
+      expect(params.formId).toBe(invalidFormId);
+      params.fallback();
+      expect(await result).toBe(false);
+    }
+  );
+
+  it('settles task editing when its form cannot be opened', async () => {
+    const record = { id: recordId, load: jest.fn().mockResolvedValue('task-123') };
+    const result = new EditAction().execForRecord(record, { config: { mode: 'task', formId } });
+    await Promise.resolve();
+    EcosFormUtils.editRecord.mock.calls[0][0].fallback();
+    expect(await result).toBe(false);
+  });
+
   it('passes the custom form to task editing with the assignment panel', async () => {
     const record = { id: recordId, load: jest.fn().mockResolvedValue('task-123') };
     const result = new EditAction().execForRecord(record, { config: { mode: 'task', formId } });

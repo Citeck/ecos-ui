@@ -332,35 +332,45 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
       });
     };
 
-    const hasForm = config.formId
-      ? EcosFormUtils.getFormById(config.formId, '_notExists?bool')
-          .then(notExists => notExists !== true)
-          .catch(err => {
-            console.error(err);
-            return false;
-          })
-      : EcosFormUtils.hasForm(recordRef);
+    const onUnavailable = messageKey => {
+      NotificationManager.error(t(messageKey), t('error'));
+      if (isFunction(fallback)) {
+        fallback();
+      }
+    };
+    const hasCustomForm = config.formId !== undefined && config.formId !== null && config.formId !== '';
+    if (hasCustomForm && typeof config.formId !== 'string') {
+      onUnavailable('ecos-form.error.invalid-form-id');
+      return;
+    }
 
-    hasForm.then(result =>
-      EcosFormUtils.hasWritePermission(recordRef)
-        .then(hasPermission => {
-          if (result) {
-            showForm(recordRef, hasPermission);
-          } else {
-            if (isFunction(fallback)) {
-              fallback();
-            } else {
-              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
-            }
-          }
-        })
-        .catch(e => {
-          const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
-          console.error(msg, e);
-          NotificationManager.error(t('form-is-not-available'), t('error'));
-          throw new Error(msg);
-        })
-    );
+    let errorKey = 'ecos-form.error.no-form';
+    let hasForm;
+    if (hasCustomForm) {
+      hasForm = EcosFormUtils.getFormById(config.formId, '_notExists?bool', true).then(notExists => {
+        if (notExists !== true && notExists !== false) {
+          errorKey = 'ecos-form.error.form-is-not-available';
+        }
+        return notExists === false;
+      });
+    } else {
+      hasForm = EcosFormUtils.hasForm(recordRef);
+    }
+
+    return hasForm
+      .then(result => {
+        if (!result) {
+          onUnavailable(errorKey);
+          return;
+        }
+        return EcosFormUtils.hasWritePermission(recordRef).then(hasPermission => {
+          showForm(recordRef, hasPermission);
+        });
+      })
+      .catch(error => {
+        console.error('Exception in form availability request. RecordRef: ' + recordRef, error);
+        onUnavailable('ecos-form.error.form-is-not-available');
+      });
   }
 
   static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {

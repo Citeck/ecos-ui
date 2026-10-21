@@ -14,13 +14,14 @@ export default class EditAction extends ActionsExecutor {
   async execForRecord(record, action, context) {
     const { config = {} } = action;
     const recordId = config.recordId || record.id;
+    const hasCustomForm = config.formId !== undefined && config.formId !== null && config.formId !== '';
 
     const actionResult = new Promise((resolve, reject) => {
       switch (true) {
         case config.mode === 'task':
           runEditTask(record, config).then(resolve).catch(reject);
           break;
-        case !config.formId && DashboardService.isDashboardRecord(recordId):
+        case !hasCustomForm && DashboardService.isDashboardRecord(recordId):
           DashboardService.openEditModal({
             dashboardId: DashboardService.formShortId(recordId),
             onSave: () => resolve(true),
@@ -38,6 +39,7 @@ export default class EditAction extends ActionsExecutor {
             saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
             formContainer: true,
+            fallback: () => resolve(false),
             onFormCancel: config.onFormCancel,
             onAfterHideModal: config.onAfterHideModal,
             onPreSettingSubmit: config.onPreSettingSubmit,

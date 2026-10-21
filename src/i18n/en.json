@@ -702,6 +702,7 @@
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
   "ecos-form.error.clone-get-fields": "Cloned record hasn't received",
   "ecos-form.error.clone-record": "Record hasn't cloned",
+  "ecos-form.error.invalid-form-id": "The form ID must be a string",
   "ecos-form.error.no-form": "No form",
   "ecos-form.error.form-is-not-available": "Form is not available",
   "ecos-form.success.clone-record": "Record has cloned",
