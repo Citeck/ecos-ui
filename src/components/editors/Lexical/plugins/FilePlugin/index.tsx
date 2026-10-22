@@ -2,21 +2,25 @@ import { SourcesId } from '@citeck/constants';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister, $wrapNodeInElement } from '@lexical/utils';
 import {
-  $getRoot,
+  $getSelection,
+  $insertNodes,
+  $isRangeSelection,
   $isRootOrShadowRoot,
   $createParagraphNode,
   COMMAND_PRIORITY_EDITOR,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
-  LexicalEditor
+  LexicalEditor,
+  RangeSelection
 } from 'lexical';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import { EcosModal } from '@/components/common';
 import DropZone from '@/components/dashboard/widgets/Documents/parts/DropZone';
 import { FileNode } from '../../nodes/FileNode';
 import { $createFileNode } from '../../nodes/FileNode/utils';
+import { $restoreRangeSelection } from '../../utils/restoreRangeSelection';
 
 import { OPEN_UPLOAD_MODAL, UPLOAD_FILE_COMMAND } from './constants';
 
@@ -25,7 +29,7 @@ import { getRecordRef } from '@/helpers/urls';
 import { selectStateByRecordRef } from '@/selectors/comments';
 import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
-type FileRecord = {
+export type FileRecord = {
   data: {
     entityRef: string;
   };
@@ -54,6 +58,7 @@ const FilePlugin = ({
   const [activeEditor, setActiveEditor] = useState<LexicalEditor>(editor);
   const [isLoadingUploadingModal, setIsLoadingUploadingModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const uploadTarget = useRef<{ editor: LexicalEditor; selection: RangeSelection | null } | null>(null);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -75,7 +80,15 @@ const FilePlugin = ({
       activeEditor.registerCommand(
         OPEN_UPLOAD_MODAL,
         () => {
+          const selection = $getSelection();
+
+          uploadTarget.current = {
+            editor: activeEditor,
+            selection: $isRangeSelection(selection) ? selection.clone() : null
+          };
+
           setIsModalOpen(true);
+
           return true;
         },
         COMMAND_PRIORITY_EDITOR
@@ -95,12 +108,12 @@ const FilePlugin = ({
             })
           );
 
-          const selection = $getRoot().selectEnd();
-          selection.insertNodes(nodes);
+          $insertNodes(nodes);
 
           if ($isRootOrShadowRoot(nodes[0].getParentOrThrow())) {
             $wrapNodeInElement(nodes[0], $createParagraphNode).selectEnd();
           }
+
           return true;
         },
         COMMAND_PRIORITY_EDITOR
@@ -109,6 +122,7 @@ const FilePlugin = ({
   }, [activeEditor]);
 
   const hideModal = useCallback(() => {
+    uploadTarget.current = null;
     setIsModalOpen(false);
   }, []);
 
@@ -117,6 +131,9 @@ const FilePlugin = ({
   };
 
   const handleSelectUploadFiles = (files: File[], callback: (fileRecords: any) => void) => {
+    // Keep the originating editor and cursor while the modal and async upload take focus.
+    const target = uploadTarget.current || { editor: activeEditor, selection: null };
+
     uploadFilesInComment({
       files,
       type: `${SourcesId.TYPE}@attachment`,
@@ -125,9 +142,14 @@ const FilePlugin = ({
         if (fileRecords && fileRecords.length > 0 && UploadDocsService) {
           UploadDocsService.addUploadedEntityRefs(fileRecords.map(record => record.data.entityRef));
         }
+
         hideModal();
         setIsLoadingUploadingModal(false);
-        activeEditor.dispatchCommand(UPLOAD_FILE_COMMAND, fileRecords);
+
+        target.editor.update(() => {
+          $restoreRangeSelection(target.selection);
+          target.editor.dispatchCommand(UPLOAD_FILE_COMMAND, fileRecords);
+        });
       }
     });
   };

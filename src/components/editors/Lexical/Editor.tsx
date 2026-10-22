@@ -40,7 +40,7 @@ import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
-import DragDropPaste from './plugins/DragDropPastePlugin';
+import DragDropPaste, { type OnFilesUpload } from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import EquationsPlugin from './plugins/EquationsPlugin';
 import FilePlugin from './plugins/FilePlugin';
@@ -83,6 +83,7 @@ export type LexicalEditorProps = {
   onChange?: (editorState: EditorState, editor: LexicalEditor, isEmpty: boolean) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
   onUpload?: OnImageUpload;
+  onFilesUpload?: OnFilesUpload;
   withoutTimeout?: boolean;
   UploadDocsService?: UploadDocsRefServiceInstance;
   attribute?: string;
@@ -107,6 +108,7 @@ export default function Editor({
   className,
   onEditorReady,
   onUpload,
+  onFilesUpload,
   UploadDocsService,
   attribute,
   attributeLabel,
@@ -200,7 +202,7 @@ export default function Editor({
           'plain-text': !isRichText
         })}
       >
-        <DragDropPaste />
+        <DragDropPaste onFilesUpload={onFilesUpload} />
         {autoFocus && <AutoFocusPlugin />}
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
@@ -213,6 +215,8 @@ export default function Editor({
         <AutoLinkPlugin />
         {onChange && (
           <OnChangePlugin
+            // Upload completion/removal merges into undo history but must still update the form value.
+            ignoreHistoryMergeTagChange={false}
             onChange={(state, editor) => {
               const { textContentSize, isEmpty } = state.read(() => ({
                 textContentSize: $getRoot().getTextContentSize(),

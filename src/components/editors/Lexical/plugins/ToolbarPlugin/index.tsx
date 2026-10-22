@@ -397,15 +397,18 @@ export default function ToolbarPlugin({
       {isViewFileUploadBtn && (
         <div className="citeck-lexical-editor__load-node">
           <IcoBtn
+            type="button"
+            aria-label={t('editor.upload-file')}
             title={t('editor.upload-file')}
             className={classNames('icon-upload', 'ecos-rt-editor-toolbar__button')}
+            onMouseDown={event => event.preventDefault()}
             onClick={() => {
               if (isNodeRef(recordRef)) {
                 NotificationManager.error(t('editor.upload-file-alfresco-error'));
                 return;
               }
 
-              editor.dispatchCommand(OPEN_UPLOAD_MODAL, undefined);
+              activeEditor.dispatchCommand(OPEN_UPLOAD_MODAL, undefined);
             }}
           />
         </div>

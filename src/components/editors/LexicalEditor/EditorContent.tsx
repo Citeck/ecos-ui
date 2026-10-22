@@ -5,15 +5,17 @@ import { connect } from 'react-redux';
 
 import { Editor, LexicalEditorProps } from '@/components/editors/Lexical';
 import useSyncWithInputHtml from '@/components/editors/Lexical/hooks/useSyncWithInputHtml';
-import { UploadFilesInCommentProps } from '@/components/editors/Lexical/plugins/FilePlugin';
+import { FileRecord, UploadFilesInCommentProps } from '@/components/editors/Lexical/plugins/FilePlugin';
 
 import { uploadFilesInComment } from '@/actions/comments';
 import { DocumentsApi } from '@/api/documents';
 import { getRecordRef } from '@/helpers/urls';
+import { isNodeRef, t } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
 
 type EditorContentProps = {
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
-} & Omit<LexicalEditorProps, 'onUpload'>;
+} & Omit<LexicalEditorProps, 'onUpload' | 'onFilesUpload'>;
 
 function EditorContent({
   htmlString,
@@ -29,6 +31,27 @@ function EditorContent({
 
   const docApi = new DocumentsApi();
   const editorWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const onFilesUpload = (files: File[]): Promise<FileRecord[] | undefined> => {
+    if (isNodeRef(recordRef || getRecordRef())) {
+      NotificationManager.error(t('editor.upload-file-alfresco-error'));
+      return Promise.resolve([]);
+    }
+
+    return new Promise(resolve => {
+      uploadFilesInComment({
+        files,
+        type: `${SourcesId.TYPE}@attachment`,
+        uploadCallback: fileRecords => {
+          if (fileRecords?.length && UploadDocsService) {
+            UploadDocsService.addUploadedEntityRefs(fileRecords.map(record => record.data.entityRef));
+          }
+
+          resolve(fileRecords);
+        }
+      });
+    });
+  };
 
   const onImageUpload = (img: File, altText: string) => {
     return new Promise<string>((resolve, reject) => {
@@ -65,7 +88,14 @@ function EditorContent({
   return (
     <div ref={editorWrapperRef} className={classNames('citeck-lexical-editor', { editable: !readonly })}>
       <div className="editor-shell">
-        <Editor {...props} readonly={readonly} onUpload={onImageUpload} attribute={attribute} recordRef={recordRef} />
+        <Editor
+          {...props}
+          readonly={readonly}
+          onUpload={onImageUpload}
+          onFilesUpload={UploadDocsService ? onFilesUpload : undefined}
+          attribute={attribute}
+          recordRef={recordRef}
+        />
       </div>
     </div>
   );
