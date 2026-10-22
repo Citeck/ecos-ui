@@ -1,4 +1,5 @@
 import Records from '@citeck/records-core';
+import { replaceAttributeValues } from '@citeck/records-core/utils/recordUtils';
 
 import EcosFormUtils from '../EcosFormUtils/EcosFormUtils';
 
@@ -121,5 +122,17 @@ describe('editRecord form selection', () => {
     expect(fallback).toHaveBeenCalledTimes(1);
     expect(NotificationManager.error).toHaveBeenCalledTimes(1);
     expect(EcosFormUtils.eform).not.toHaveBeenCalled();
+  });
+
+  it('opens the default form after action config interpolation with a literal null formId', async () => {
+    EcosFormUtils.hasForm.mockResolvedValue(true);
+    const config = await replaceAttributeValues({ formId: null }, recordRef);
+
+    await EcosFormUtils.editRecord({ recordRef, ...config });
+
+    expect(EcosFormUtils.hasForm).toHaveBeenCalledWith(recordRef);
+    expect(EcosFormUtils.getFormById).not.toHaveBeenCalled();
+    expect(EcosFormUtils.eform).toHaveBeenCalledTimes(1);
+    expect(NotificationManager.error).not.toHaveBeenCalled();
   });
 });

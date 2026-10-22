@@ -16,6 +16,8 @@ config:
 reference such as `uiserv/form@contract-details` are accepted. Numbers, booleans,
 arrays and objects show a validation error without opening another form.
 An omitted, null or empty-string value retains default form selection.
+This includes an empty YAML `formId:` key, which parses as null; action
+configuration interpolation preserves that value.
 
 Workspace forms require their explicit system-ID prefix, for example
 `<wsSysId>:contract-details` or `uiserv/form@<wsSysId>:contract-details`.

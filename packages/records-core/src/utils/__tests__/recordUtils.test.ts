@@ -6,6 +6,26 @@ const RECORD = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
 
 describe('Record Utils', () => {
   describe('Function replaceAttributeValues', () => {
+    it('preserves literal nulls in nested objects and arrays while interpolating adjacent values', async () => {
+      const input = {
+        formId: null,
+        nested: { value: null, title: '${cm:name}' },
+        values: [null, { value: null, title: '${cm:name}' }, '${nullableField}', false, 0, '']
+      };
+      const original = JSON.parse(JSON.stringify(input));
+
+      expect(await RecordUtils.replaceAttributeValues(input, RECORD)).toEqual({
+        formId: null,
+        nested: { value: null, title: 'Договор №1244 (1).txt' },
+        values: [null, { value: null, title: 'Договор №1244 (1).txt' }, null, false, 0, '']
+      });
+      expect(input).toEqual(original);
+    });
+
+    it.each([undefined, null])('keeps the empty-config fallback for top-level %s', async input => {
+      expect(await RecordUtils.replaceAttributeValues(input, RECORD)).toEqual({});
+    });
+
     const data = [
       {
         title: 'with simple field',

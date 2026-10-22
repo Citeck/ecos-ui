@@ -22,7 +22,7 @@ export async function replaceAttributeValues(data: any, record: any, forceReload
 
   await Promise.all(
     keys.map(async key => {
-      if (typeof mutableData[key] === 'object') {
+      if (mutableData[key] !== null && typeof mutableData[key] === 'object') {
         mutableData[key] = await replaceAttributeValues(mutableData[key], record, forceReload);
         return;
       }
