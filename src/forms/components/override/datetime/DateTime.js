@@ -1,4 +1,4 @@
-import { parseISO, isValid } from 'date-fns';
+import { parseISO, isValid, format } from 'date-fns';
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import get from 'lodash/get';
 import isDate from 'lodash/isDate';
@@ -6,8 +6,49 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
 import omitBy from 'lodash/omitBy';
+import set from 'lodash/set';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
+  constructor(...args) {
+    super(...args);
+
+    // A date without time is a calendar day, independent of the viewer timezone.
+    if (this.isDateOnly) {
+      this.component.widget.dateFormat = 'yyyy-MM-dd';
+      this.component.widget.saveAs = 'text';
+    }
+  }
+
+  get isDateOnly() {
+    return this.component.enableTime === false && this.component.enableDate !== false;
+  }
+
+  get dataValue() {
+    return super.dataValue;
+  }
+
+  set dataValue(value) {
+    // Formio's base setter removes nulls; calendar JSON distinguishes null from ''.
+    if (this.isDateOnly && value == null && this.key) {
+      set(this.data, this.key, null);
+    } else {
+      super.dataValue = value;
+    }
+  }
+
+  get validationValue() {
+    // The calendar widget expects a string or array and cannot validate null.
+    if (this.isDateOnly) {
+      const value = this.dataValue;
+      return Array.isArray(value) ? value.map(date => parseISO(date)) : value ? parseISO(value) : '';
+    }
+    return super.validationValue;
+  }
+
+  get emptyValue() {
+    return this.isDateOnly ? (this.component.multiple ? [] : null) : super.emptyValue;
+  }
+
   build(state) {
     super.build(state);
 
@@ -18,6 +59,10 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
   }
 
   setValue(value, flags) {
+    if (this.isDateOnly) {
+      return super.setValue(this.getDateOnlyValue(value), flags);
+    }
+
     if (isString(value)) {
       const parsedDate = parseISO(value);
 
@@ -36,6 +81,10 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
   getValue() {
     const value = super.getValue();
 
+    if (this.isDateOnly) {
+      return this.getDateOnlyValue(value);
+    }
+
     if (isString(value)) {
       const parsedDate = parseISO(value);
 
@@ -49,6 +98,20 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
     }
 
     return value;
+  }
+
+  getDateOnlyValue(value) {
+    if (Array.isArray(value)) {
+      return value.map(date => this.getDateOnlyValue(date));
+    }
+
+    if (!value) {
+      return null;
+    }
+
+    const date = isDate(value) ? value : parseISO(value);
+    // Typed DATE attributes may arrive as midnight-Z; keep their calendar part.
+    return isValid(date) ? (isString(value) ? value.substring(0, 10) : format(date, 'yyyy-MM-dd')) : null;
   }
 
   isElementOrParentsHidden() {
