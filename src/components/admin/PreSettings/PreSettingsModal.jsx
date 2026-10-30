@@ -1,4 +1,4 @@
-import { SourcesId, SystemJournals } from '@citeck/constants';
+import { DEFAULT_WORKSPACE_ID, SourcesId, SystemJournals } from '@citeck/constants';
 import { forbiddenSymbols } from '@citeck/constants/validation';
 import Records from '@citeck/records-core';
 import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
@@ -427,11 +427,27 @@ class PreSettingsModal extends React.Component {
     const typeAtts = await newTypeRecord.load(
       {
         canWrite: PERMISSION_WRITE_ATTR,
-        currentRef: typeToSave.attribute
+        currentRef: typeToSave.attribute,
+        workspace: 'workspace?str',
+        typeId: 'id?str'
       },
       true
     );
-    if (typeAtts.canWrite === true && typeToSave.newRef !== typeAtts.currentRef) {
+    if (typeAtts.canWrite !== true || typeToSave.newRef === typeAtts.currentRef || !typeAtts.typeId) {
+      return false;
+    }
+
+    // Read the persisted artifact's scope, not the navigator workspace or the source's scope.
+    const artifactAtts = await Records.get(typeToSave.newRef).load(
+      { workspace: 'workspaceRef?localId', notExists: '_notExists?bool' },
+      true
+    );
+    if (typeof typeAtts.workspace !== 'string' || !artifactAtts.workspace || artifactAtts.notExists !== false) {
+      return false;
+    }
+    const typeWorkspace = typeAtts.workspace || DEFAULT_WORKSPACE_ID;
+    // A global artifact is usable by workspace types; a local artifact only by its own types.
+    if (artifactAtts.workspace === DEFAULT_WORKSPACE_ID || artifactAtts.workspace === typeWorkspace) {
       newTypeRecord.att(typeToSave.attribute, typeToSave.newRef);
       return newTypeRecord.save().then(() => true);
     }
