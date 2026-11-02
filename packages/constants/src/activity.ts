@@ -9,7 +9,7 @@ export const ActivityTypes = {
 export const TYPES_HAS_PARTICIPANTS = [ActivityTypes.CALL, ActivityTypes.MEETING];
 
 export const PLANNED_ACTIVITY_TYPE = 'planned-activity';
-export const IMMEDIATE_ACTIVITY_TYPE = 'immediate_activity'; // comment and assignment activities
+export const IMMEDIATE_ACTIVITY_TYPE = 'immediate-activity'; // comment and assignment activities
 
 export const optionsPrioritySelect = [
   {
