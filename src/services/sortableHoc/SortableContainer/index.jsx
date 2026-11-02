@@ -429,7 +429,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           this.listenerNode.removeEventListener('keydown', this.handleKeyDown);
         } else {
           events.move.forEach(eventName => this.listenerNode.removeEventListener(eventName, this.handleSortMove));
-          events.end.forEach(eventName => this.listenerNode.removeEventListener(eventName, this.handleSortEnd));
+          events.end.forEach(eventName => this.listenerNode.removeEventListener(eventName, this.handleSortEnd, true));
         }
       }
 
