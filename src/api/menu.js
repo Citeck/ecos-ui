@@ -395,12 +395,17 @@ export class MenuApi extends CommonApi {
     const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
       {
         id: '?localId',
-        version: 'version',
+        notExists: '_notExists?bool',
+        version: 'version?num',
         authorities: 'authorities[]?str![]',
         menu: 'subMenu?json'
       },
       true
     );
+    if (!config || config.notExists || !Number.isFinite(config.version) || !isArray(config.authorities)) {
+      throw new Error('Menu settings configuration is missing or invalid');
+    }
+
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
     const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });

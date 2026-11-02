@@ -11,6 +11,7 @@ import {
   getGroupPriority,
   getSettingsConfig,
   saveMenuSettings,
+  setConfigLoadStatus,
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
@@ -31,7 +32,7 @@ import { selectMenuByType } from '@/selectors/menu';
 import MenuSettingsService from '@/services/MenuSettingsService';
 import { NotificationManager } from '@/services/notifications';
 
-function* fetchSettingsConfig({ api }) {
+export function* fetchSettingsConfig({ api }) {
   try {
     const id = yield select(state => state.menuSettings.editedId);
 
@@ -60,14 +61,22 @@ function* fetchSettingsConfig({ api }) {
     yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
     yield put(setIsForAll(isEmpty(authorities)));
+    yield put(setConfigLoadStatus('loaded'));
   } catch (e) {
-    yield put(setLoading(false));
+    yield put(setConfigLoadStatus('error'));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
     console.error('[menu-settings / fetchSettingsConfig]', e);
   }
 }
 
-function* runSaveMenuSettings(props, action) {
+export function* runSaveMenuSettings(props, action) {
+  const { configLoadStatus, editedId, disabledEdit } = yield select(state => state.menuSettings);
+
+  // A disabled button is not enough: never persist defaults from a failed or pending load.
+  if (configLoadStatus !== 'loaded' || !editedId || disabledEdit) {
+    return;
+  }
+
   const resultMenu = yield runSaveMenuConfig(props, action);
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 

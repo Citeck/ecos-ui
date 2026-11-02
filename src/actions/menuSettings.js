@@ -5,6 +5,7 @@ const prefix = 'menu-settings/';
 export const setOpenMenuSettings = createAction(prefix + 'SET_OPEN_SETTINGS');
 export const setLoading = createAction(prefix + 'SET_LOADING');
 export const getSettingsConfig = createAction(prefix + 'GET_SETTINGS_CONFIG');
+export const setConfigLoadStatus = createAction(prefix + 'SET_CONFIG_LOAD_STATUS');
 export const setOriginalConfig = createAction(prefix + 'SET_ORIGINAL_CONFIG');
 export const saveMenuSettings = createAction(prefix + 'SAVE_MENU_SETTINGS');
 export const setMenuIcons = createAction(prefix + 'SET_MENU_ICONS');

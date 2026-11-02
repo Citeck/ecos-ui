@@ -14,7 +14,7 @@ import EditorOwnership from './editorMenu/EditorOwnership';
 import EditorUserMenu from './editorMenu/EditorUserMenu';
 import { Labels } from './utils';
 
-import { saveMenuSettings } from '@/actions/menuSettings';
+import { getSettingsConfig, saveMenuSettings } from '@/actions/menuSettings';
 import { EcosModal, Loader, Tabs } from '@/components/common';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { Btn, IcoBtn } from '@/components/common/btns';
@@ -88,16 +88,34 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
+    if (!this.canSave) {
+      return;
+    }
+
     const { authorities, isForAll } = this.props;
 
     if (isEmpty(authorities) && !isForAll) {
       DialogManager.confirmDialog({
         title: Labels.DIALOG_FOR_ALL_TITLE,
         text: Labels.DIALOG_ORG_STRUCT_TEXT,
-        onYes: () => this.props.saveSettings()
+        onYes: () => this.canSave && this.props.saveSettings()
       });
     } else {
       this.props.saveSettings();
+    }
+  };
+
+  get canSave() {
+    const { configLoadStatus, isLoading, editedId, disabledEdit } = this.props;
+
+    return configLoadStatus === 'loaded' && !isLoading && !!editedId && !disabledEdit;
+  }
+
+  handleRetry = () => {
+    const { editedId, disabledEdit, configLoadStatus } = this.props;
+
+    if (editedId && configLoadStatus === 'error') {
+      this.props.loadSettings({ id: editedId, disabledEdit });
     }
   };
 
@@ -210,16 +228,10 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
-    const { editedId } = this.props;
-
-    const isDisabled = () => {
-      return !editedId;
-    };
-
     return (
       <div className="ecos-menu-settings__buttons">
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-        <Btn className="ecos-btn_blue" onClick={this.handleApply} disabled={isDisabled()}>
+        <Btn className="ecos-btn_blue" onClick={this.handleApply} disabled={!this.canSave}>
           {t(Labels.BTN_APPLY)}
         </Btn>
       </div>
@@ -228,7 +240,8 @@ class Settings extends React.Component {
 
   render() {
     const { loadedTabs } = this.state;
-    const { isLoading, isAdmin, disabledEdit } = this.props;
+    const { isLoading, isAdmin, disabledEdit, configLoadStatus } = this.props;
+    const configLoaded = configLoadStatus === 'loaded';
     const customButtons = [];
 
     isAdmin &&
@@ -257,19 +270,30 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
         reactstrapProps={{ backdrop: 'static' }}
       >
-        {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
+        {(isLoading || configLoadStatus === 'loading') && <Loader blur className="ecos-menu-settings__loader" />}
 
-        <Tabs
-          items={this.mainTabs}
-          activeTabKey={this.activeTabId}
-          onClick={this.handleClickTab}
-          className="ecos-menu-settings__tabs"
-          widthFull
-          narrow
-        />
-        <div className="ecos-menu-settings__content-container">
-          {this.mainTabs.map((item, i) => loadedTabs[i] && this[item._render](item.id))}
-        </div>
+        {configLoadStatus === 'error' && (
+          <div className="ecos-menu-settings__load-error" role="alert">
+            <p>{t('menu-settings.error.get-config')}</p>
+            <Btn onClick={this.handleRetry}>{t('menu-settings.button.retry')}</Btn>
+          </div>
+        )}
+
+        {configLoaded && (
+          <Tabs
+            items={this.mainTabs}
+            activeTabKey={this.activeTabId}
+            onClick={this.handleClickTab}
+            className="ecos-menu-settings__tabs"
+            widthFull
+            narrow
+          />
+        )}
+        {configLoaded && (
+          <div className="ecos-menu-settings__content-container">
+            {this.mainTabs.map((item, i) => loadedTabs[i] && this[item._render](item.id))}
+          </div>
+        )}
         {!disabledEdit && this.renderButtons()}
       </EcosModal>
     );
@@ -281,12 +305,14 @@ const mapStateToProps = state => ({
   type: get(state, 'menu.type') || MenuTypes.LEFT,
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
   isLoading: get(state, 'menuSettings.isLoading'),
+  configLoadStatus: get(state, 'menuSettings.configLoadStatus'),
   editedId: get(state, 'menuSettings.editedId'),
   authorities: get(state, 'menuSettings.authorities') || [],
   isForAll: get(state, 'menuSettings.isForAll')
 });
 
 const mapDispatchToProps = dispatch => ({
+  loadSettings: payload => dispatch(getSettingsConfig(payload)),
   saveSettings: payload => dispatch(saveMenuSettings(payload))
 });
 
