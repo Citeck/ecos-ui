@@ -1,4 +1,4 @@
-import { ActivityTypes, PLANNED_ACTIVITY_TYPE } from '@citeck/constants/activity';
+import { ActivityTypes, IMMEDIATE_ACTIVITY_TYPE, PLANNED_ACTIVITY_TYPE } from '@citeck/constants/activity';
 import Records from '@citeck/records-core';
 
 import { ActivitiesApi } from '../../api/activities';
@@ -76,7 +76,8 @@ describe('activity record data used by the editor', () => {
   it('keeps comment and assignment type identifiers and does not invent missing types', () => {
     for (const id of [ActivityTypes.COMMENT, ActivityTypes.ASSIGNMENT]) {
       const type = { id, parentType: 'immediate-activity' };
-      expect(getCommentForWeb({ type }).type).toMatchObject({ id, parentType: 'immediate-activity', type: 'immediate-activity' });
+      // The widget uses this shared constant to render assignment priority and due date.
+      expect(getCommentForWeb({ type }).type).toMatchObject({ id, parentType: IMMEDIATE_ACTIVITY_TYPE, type: IMMEDIATE_ACTIVITY_TYPE });
     }
     expect(getCommentForWeb({ text: 'No type' }).type).toBeUndefined();
     expect(getCommentForWeb({})).toEqual({});
