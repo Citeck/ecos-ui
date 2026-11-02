@@ -6,6 +6,7 @@ import {
   getSettingsConfig,
   resetStore,
   saveMenuSettings,
+  setConfigLoadStatus,
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
@@ -38,6 +39,7 @@ const initialState = {
   authorities: [],
   groupPriority: [],
   isLoading: false,
+  configLoadStatus: 'idle',
   isLoadingPriority: false,
   isOpenMenuSettings: false,
   lastAddedLeftItems: [],
@@ -51,13 +53,19 @@ const startLoading = state => ({ ...state, isLoading: true });
 
 export default handleActions(
   {
-    [saveMenuSettings]: startLoading,
+    [saveMenuSettings]: state => (state.configLoadStatus === 'loaded' && !state.disabledEdit ? startLoading(state) : state),
 
     [getSettingsConfig]: (state, { payload }) => ({
       ...state,
       isLoading: true,
+      configLoadStatus: 'loading',
       editedId: payload.id,
       disabledEdit: payload.disabledEdit
+    }),
+    [setConfigLoadStatus]: (state, { payload }) => ({
+      ...state,
+      configLoadStatus: payload,
+      isLoading: payload === 'loading'
     }),
     [setOpenMenuSettings]: (state, { payload }) => ({
       ...state,
