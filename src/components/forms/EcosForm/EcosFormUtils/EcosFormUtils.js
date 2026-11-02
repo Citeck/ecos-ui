@@ -955,11 +955,6 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
       value = input.component.multiple ? [] : null;
     }
 
-    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
-    if (value && input && input.component.type === 'datetime' && input.component.enableDate && !input.component.enableTime) {
-      value = moment(value).format('YYYY-MM-DD[T]00:00:00[Z]');
-    }
-
     return value;
   }
 
@@ -1026,10 +1021,6 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         inputValue = JSON.stringify(data || {}, null, 2);
       } else if (componentType === 'file') {
         inputValue = EcosFormUtils.removeEmptyValuesFromArray(data);
-      } else if (componentType === 'datetime' && input.component.enableDate && !input.component.enableTime && data) {
-        const serverDate = new Date(data);
-        serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
-        inputValue = serverDate.toISOString();
       } else {
         inputValue = data;
       }
