@@ -20,7 +20,7 @@ import BaseWidget from '../BaseWidget';
 import Journal from './Journal';
 import Model from './Model';
 import Settings from './Settings';
-import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
+import { EXTENDED_MODE, SIMPLIFIED_MODE, normalizeFormMode } from './constants';
 import { Labels } from './util';
 
 export default class Widget extends BaseWidget {
@@ -91,7 +91,7 @@ export default class Widget extends BaseWidget {
     const { isAccessible } = this.state;
     const { HeatmapWrapper } = plugins;
 
-    const isSimpledMode = config.formMode === SIMPLIFIED_MODE || !HeatmapWrapper;
+    const isSimpledMode = normalizeFormMode(config.formMode) === SIMPLIFIED_MODE || !HeatmapWrapper;
     const extendedConfig = !isSimpledMode ? { ...config } : {};
     const modelConfig = isAccessible
       ? { ...extendedConfig }
@@ -152,7 +152,7 @@ export default class Widget extends BaseWidget {
 
     config.selectedJournal = `${SourcesId.JOURNAL}@${SystemJournals.PROCESS_ELMS}`;
 
-    const formMode = get(config, 'formMode', EXTENDED_MODE);
+    const formMode = normalizeFormMode(config.formMode);
 
     return (
       <Dashlet
