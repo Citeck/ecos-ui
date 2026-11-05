@@ -7,7 +7,7 @@ import plugins from '@/plugins';
 import { Btn } from '@/components/common/btns';
 import { Caption, Checkbox, Field, Select } from '@/components/common/form';
 
-import { EXTENDED_MODE, SIMPLIFIED_MODE, KPI_MODE } from './constants';
+import { EXTENDED_MODE, SIMPLIFIED_MODE, KPI_MODE, normalizeFormMode } from './constants';
 import { Labels } from './util';
 
 import './style.scss';
@@ -34,7 +34,7 @@ export default class Settings extends React.Component {
       showModelDefault: get(props, 'config.showModelDefault'),
       showJournalDefault: get(props, 'config.showJournalDefault'),
       showCountersDefault: get(props, 'config.showCountersDefault'),
-      formMode: get(props, 'config.formMode', EXTENDED_MODE),
+      formMode: normalizeFormMode(get(props, 'config.formMode')),
       withPercentCount: get(props, 'config.withPercentCount', false),
       isLoading: false
     };
