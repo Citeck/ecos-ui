@@ -541,6 +541,8 @@ export default class SelectComponent extends BaseComponent {
       const defaultValue = this.defaultValue;
       if (defaultValue) {
         this.setValue(defaultValue);
+      } else if (this._pendingClear) {
+        this.setValue(this.dataValue, true);
       }
     }
 
@@ -1254,6 +1256,10 @@ export default class SelectComponent extends BaseComponent {
 
     // Do not set the value if we are loading... that will happen after it is done.
     if (this.loading) {
+      // Empty initialization is not a clear of a widget-only preset. Retain real clears until applied.
+      if (changed && hasPreviousValue && !hasValue) {
+        this._pendingClear = true;
+      }
       return changed;
     }
 
@@ -1289,9 +1295,11 @@ export default class SelectComponent extends BaseComponent {
         if (Array.isArray(this.selectOptions) && this.selectOptions.length > 0) {
           // TODO check it
           this.choices.setChoiceByValue(value);
+          this._pendingClear = false;
         }
-      } else if (hasPreviousValue) {
+      } else if (hasPreviousValue || this._pendingClear) {
         this.choices.removeActiveItems();
+        this._pendingClear = false;
       }
     } else {
       if (hasValue) {
@@ -1312,6 +1320,9 @@ export default class SelectComponent extends BaseComponent {
             selectOption.element.removeAttribute('selected');
           }
         });
+      }
+      if (this.selectInput) {
+        this._pendingClear = false;
       }
     }
 

@@ -55,3 +55,13 @@ ignore/
 /*.png
 /*.log
 /journal-snapshot.md
+
+# Pi
+/.pi/*
+
+!/.pi/settings.json
+!/.pi/AGENTS.md
+!/.pi/prompts/
+!/.pi/extensions/
+!/.pi/skills/
+!/.pi/themes/
