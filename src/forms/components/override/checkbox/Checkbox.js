@@ -123,11 +123,16 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   isEmpty(value) {
-    if (this.hasThreeStates) {
-      return value === null;
+    if (this.isRadioCheckbox) {
+      return super.isEmpty(value);
     }
 
-    return super.isEmpty(value);
+    if (this.hasThreeStates) {
+      return value === null || value === undefined;
+    }
+
+    // Both boolean values are answers; only a radio uses false for an unselected choice.
+    return value === false ? false : super.isEmpty(value);
   }
 
   setInputLabelStyle(label) {
