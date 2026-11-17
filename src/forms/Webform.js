@@ -6,12 +6,12 @@ import merge from 'lodash/merge';
 
 import { getCurrentLocale } from '../helpers/export/util';
 
-import { buildErrorsMessage, getTabsComponents, TAB_ERRORS_CLASS } from './components/override/tabs/tabErrors';
 import Formio from './Formio';
+import { buildErrorsMessage, getTabsComponents, TAB_ERRORS_CLASS } from './components/override/tabs/tabErrors';
+import { collectInlineErrors, createInlineError, getErrorBindings, reconcileErrors, sameBoundError, toErrorArray } from './reconcileErrors';
 import { findUploadDocsService } from './utils';
 
 const originalSetElement = Webform.prototype.setElement;
-const originalShowErrors = Webform.prototype.showErrors;
 const originalOnSubmissionError = Webform.prototype.onSubmissionError;
 const originalSubmit = Webform.prototype.submit;
 const originalSubmitForm = Webform.prototype.submitForm;
@@ -147,15 +147,49 @@ Webform.prototype.setAlert = function (type, message) {
  * COREDEV-431: on a form with tabs the single alert at the very top hid which tab the invalid
  * fields actually live on. Errors that can be attributed to a tab are moved into that tab (list
  * inside the pane + marker on the tab label); only the ones that belong to no tab keep the top
- * alert. A form without tabs is left completely untouched.
+ * alert. EMTC-482: reconcile before inline updates, rendering AND emission. This replaces the
+ * small Formio 3.30.1 showErrors implementation; keep its loading/alert/event contract on upgrade.
  */
 Webform.prototype.showErrors = function (error, triggerEvent) {
-  const errors = originalShowErrors.call(this, error, triggerEvent) || [];
-  const tabsComponents = getTabsComponents(this);
+  this.loading = false;
+  const components = [];
+  this.everyComponent(component => components.push(component));
+  const deliveries = [...toErrorArray(error), ...toErrorArray(this.customErrors)].filter(Boolean);
+  const inlineErrors = collectInlineErrors(this.errors, deliveries, components);
+  const errors = reconcileErrors([...inlineErrors, ...deliveries], components);
 
-  if (!tabsComponents.length) {
-    return errors;
-  }
+  // Only a fresh delivery may set validity. A surviving inline owner is not a new server
+  // response and must never invalidate a sibling that has independently passed validation.
+  errors
+    .filter(err => deliveries.some(delivery => sameBoundError(err, delivery, components)))
+    .forEach(err => {
+      const targets = [
+        ...new Set(
+          getErrorBindings(err)
+            .flatMap(binding => {
+              if (typeof binding === 'object' && !Array.isArray(binding)) {
+                const matches = components.filter(component => component === binding || component.component === binding);
+                const owners = matches.filter(component => component.error === err);
+                return owners.length ? owners : matches;
+              }
+              const found = this.getComponent(binding);
+              return Array.isArray(found) ? found : [found];
+            })
+            .filter(Boolean)
+        )
+      ];
+
+      targets.forEach(component => {
+        // Reapplying the same inline message destroys its validation metadata in Formio.
+        if (!component.error || component.error.message !== err.message) {
+          component.setCustomValidity(err.message, true);
+          if (component.error) {
+            component.error = createInlineError(err, component, targets);
+          }
+        }
+      });
+    });
+  const tabsComponents = getTabsComponents(this);
 
   // Only a submit the user is waiting for may move them to another tab, and `_switchToInvalidTab`
   // — set for the duration of `onSubmissionError` below — is what marks one. `triggerEvent` is not
@@ -172,6 +206,10 @@ Webform.prototype.showErrors = function (error, triggerEvent) {
     this.setAlert('danger', buildErrorsMessage(this.t('error'), remaining));
   } else {
     this.setAlert(false);
+  }
+
+  if (errors.length && triggerEvent) {
+    this.emit('error', errors);
   }
 
   return errors;

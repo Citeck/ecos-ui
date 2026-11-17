@@ -415,6 +415,52 @@ describe('Form tabs error indication (COREDEV-431)', () => {
     expect(getTabPanes(form)[1].querySelector(`.${TAB_ERRORS_CLASS}`)).toBe(listBefore);
   });
 
+  it('keeps same-message errors on both tabs without repeating an unbound delivery on top (EMTC-482)', async () => {
+    const form = (await TestForm.create(tabsDefinition)).getForm();
+    ['generalField', 'extraField'].forEach(key => form.getComponent(key).setCustomValidity('Already exists', true));
+    const events = [];
+    form.on('error', errors => events.push(errors));
+
+    const errors = form.showErrors([{ message: 'Already exists' }, { message: 'Server only' }], true);
+
+    expect(errors.map(error => error.message)).toEqual(['Already exists', 'Already exists', 'Server only']);
+    expect(events[0] === errors).toBe(true);
+    expect(getTopAlertText(form)).toContain('Server only');
+    expect(getTopAlertText(form)).not.toContain('Already exists');
+    getTabPanes(form).forEach(pane => {
+      expect(pane.querySelectorAll(`.${TAB_ERRORS_CLASS} li`)).toHaveLength(1);
+      expect(pane.querySelector(`.${TAB_ERRORS_CLASS}`).textContent).toContain('Already exists');
+    });
+    getTabItems(form).forEach(item => expect(item.classList.contains(TAB_INVALID_CLASS)).toBe(true));
+  });
+
+  it('does not restore a cleared tab from the surviving owner of a multi-field error (EMTC-482)', async () => {
+    const form = (await TestForm.create(tabsDefinition)).getForm();
+    form.setValue({ data: { generalField: 'valid', extraField: 'valid' } });
+    const error = { message: 'Cross-field failure', components: ['generalField', 'extraField'], component: 'generalField', code: 'server' };
+    const events = [];
+    form.on('error', errors => events.push(errors));
+    form.showErrors(error, true);
+    const general = form.getComponent('generalField');
+    const extra = form.getComponent('extraField');
+
+    expect(general.checkValidity(form.submission.data, true)).toBe(true);
+    const errors = form.showErrors(undefined, true);
+
+    expect(general.error).toBeFalsy();
+    expect(errors).toHaveLength(1);
+    expect(errors[0].component === extra.component).toBe(true);
+    expect(errors[0].components).toBeUndefined();
+    expect(errors[0].code).toBe('server');
+    expect(events[events.length - 1] === errors).toBe(true);
+    const panes = getTabPanes(form);
+    expect(getTabItems(form)[0].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+    expect(panes[0].querySelector(`.${TAB_ERRORS_CLASS}`)).toBeNull();
+    expect(getTabItems(form)[1].classList.contains(TAB_INVALID_CLASS)).toBe(true);
+    expect(panes[1].querySelectorAll(`.${TAB_ERRORS_CLASS} li`)).toHaveLength(1);
+    expect(getTopAlert(form)).toBeNull();
+  });
+
   it('leaves a form without tabs with the usual single list on top', async () => {
     const wrapper = await TestForm.create(plainDefinition);
     const form = wrapper.getForm();
