@@ -3,7 +3,7 @@ import React from 'react';
 
 jest.mock('../../InputView', () => ({
   __esModule: true,
-  default: () => <div data-testid="input-view" />
+  default: props => <div data-testid="input-view" data-browser-tab={String(props.openNewBrowserTab)} />
 }));
 
 jest.mock('../../../AssocLink', () => ({
@@ -62,6 +62,11 @@ describe('SelectJournal ViewMode', () => {
     const error = container.querySelector('.select-journal-view-mode__error');
     expect(error).not.toBeNull();
     expect(error.textContent).not.toBe('');
+  });
+
+  it.each([undefined, true, false])('forwards policy %s to the TABLE InputView without changing Grid links', openNewBrowserTab => {
+    const { getByTestId } = render(<ViewMode {...baseProps} viewMode="table" openNewBrowserTab={openNewBrowserTab} />);
+    expect(getByTestId('input-view').getAttribute('data-browser-tab')).toBe(String(openNewBrowserTab));
   });
 
   it('keeps a loading indication on the TABLE branch too', () => {

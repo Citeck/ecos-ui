@@ -70,6 +70,17 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
+  get schema() {
+    const schema = super.schema;
+
+    // The builder's default radio option is empty; the persisted setting is optional boolean only.
+    if (typeof schema.openNewBrowserTab !== 'boolean') {
+      delete schema.openNewBrowserTab;
+    }
+
+    return schema;
+  }
+
   // The expression the compiled function below belongs to, and the parameter list it was compiled
   // for (the names of the evaluation context, which the form's options may add to).
   customJournalIdSource = null;
@@ -479,6 +490,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       placeholder: getTextByLocale(comp.placeholder),
       disabled: comp.disabled,
       linkFormatter: comp.linkFormatter,
+      openNewBrowserTab: comp.openNewBrowserTab,
       viewOnly: this.viewOnly,
       workspaceId: this.getRecordWorkspaceId(),
       viewMode: comp.source.viewMode,

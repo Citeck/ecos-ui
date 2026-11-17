@@ -39,6 +39,18 @@ export default [
     }
   },
   {
+    type: 'radio',
+    input: true,
+    key: 'openNewBrowserTab',
+    label: 'Open selected record',
+    weight: 14,
+    values: [
+      { label: 'Default', value: '' },
+      { label: 'New browser tab', value: true },
+      { label: 'Inside application', value: false }
+    ]
+  },
+  {
     key: 'reorder',
     ignore: true
   }

@@ -25,7 +25,8 @@ class ViewMode extends Component {
   }
 
   render() {
-    const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText, linkFormatter, isLoading, valueError } = this.props;
+    const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText, openNewBrowserTab, linkFormatter, isLoading, valueError } =
+      this.props;
     const enabledWorkspaces = getEnabledWorkspaces();
 
     const formatterFunc = getFormatter(linkFormatter);
@@ -51,7 +52,7 @@ class ViewMode extends Component {
               });
 
               props.link = link;
-              props.paramsLink = { openNewBrowserTab: false };
+              props.paramsLink = { openNewBrowserTab: typeof openNewBrowserTab === 'boolean' ? openNewBrowserTab : false };
 
               const newUrl = new URL(link, window.location.origin);
               const searchParams = new URLSearchParams(newUrl.search);
@@ -93,6 +94,7 @@ class ViewMode extends Component {
 
 ViewMode.propTypes = {
   selectedRows: PropTypes.array,
+  openNewBrowserTab: PropTypes.bool,
   isLoading: PropTypes.bool,
   placeholder: PropTypes.string,
   error: PropTypes.instanceOf(Error),

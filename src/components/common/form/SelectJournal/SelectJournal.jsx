@@ -1351,6 +1351,7 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
+      openNewBrowserTab,
       linkFormatter,
       viewMode
     } = this.props;
@@ -1379,6 +1380,7 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
+      openNewBrowserTab,
       viewMode,
       customActionRefs,
       enableCreateButton,
@@ -1474,6 +1476,7 @@ SelectJournal.propTypes = {
   customValues: PropTypes.array,
   isSelectModalOpen: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
+  openNewBrowserTab: PropTypes.bool,
   sortBy: PropTypes.shape({
     attribute: PropTypes.string,
     ascending: PropTypes.bool

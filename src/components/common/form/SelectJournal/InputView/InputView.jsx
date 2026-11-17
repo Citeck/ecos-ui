@@ -33,6 +33,8 @@ class InputView extends Component {
     if (nextProps.selectedRows !== this.props.selectedRows) return true;
     if (nextProps.disabled !== this.props.disabled) return true;
     if (nextProps.viewMode !== this.props.viewMode) return true;
+    if (nextProps.openNewBrowserTab !== this.props.openNewBrowserTab) return true;
+    if (nextProps.isModalMode !== this.props.isModalMode) return true;
     if (nextProps.multiple !== this.props.multiple) return true;
     if (nextProps.isCompact !== this.props.isCompact) return true;
     if (nextProps.gridData !== this.props.gridData) return true;
@@ -235,7 +237,7 @@ class InputView extends Component {
   };
 
   renderSelectedValue(item) {
-    const { isSelectedValueAsText, isModalMode, linkFormatter } = this.props;
+    const { isSelectedValueAsText, isModalMode, openNewBrowserTab, linkFormatter } = this.props;
     const enabledWorkspaces = getEnabledWorkspaces();
 
     const formatterFunc = getFormatter(linkFormatter);
@@ -246,7 +248,7 @@ class InputView extends Component {
       const link = getFormattedLink({ item, formatterFunc });
 
       props.link = link;
-      props.paramsLink = { openNewBrowserTab: isModalMode };
+      props.paramsLink = { openNewBrowserTab: typeof openNewBrowserTab === 'boolean' ? openNewBrowserTab : isModalMode };
 
       const newUrl = new URL(link, window.location.origin);
       const searchParams = new URLSearchParams(newUrl.search);
@@ -582,6 +584,7 @@ InputView.propTypes = {
   hideDeleteRowButton: PropTypes.bool,
   customActionRefs: PropTypes.array,
   isSelectedValueAsText: PropTypes.bool,
+  openNewBrowserTab: PropTypes.bool,
   isInlineEditingMode: PropTypes.bool,
   gridData: PropTypes.object,
   dataType: PropTypes.string

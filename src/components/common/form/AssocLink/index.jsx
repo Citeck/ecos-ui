@@ -14,6 +14,15 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
 
   if (isHandleClick) {
     onClickHandler = e => {
+      // Own each gesture once: primary in click, middle in mousedown, never right-click.
+      if (!((e.type === 'click' && e.button === 0) || (e.type === 'mousedown' && e.button === 1))) {
+        return;
+      }
+
+      // A record link must not also activate its enclosing association picker.
+      e.stopPropagation();
+
+      const openNewBrowserTab = e.button === 1 || e.ctrlKey || e.metaKey || paramsLink.openNewBrowserTab;
       const workspaceId = get(paramsLink, 'workspaceId');
 
       const baseParamsLink = {
@@ -25,12 +34,12 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
       if (get(paramsLink, 'workspaceId')) {
         const url = getLinkWithWs(link, paramsLink.workspaceId);
 
-        if (e.button === 1) {
+        if (e.button === 1 || e.ctrlKey || e.metaKey) {
           PageService.changeUrlLink(url, { openNewBrowserTab: true });
           return;
         }
 
-        if ((e.type === 'click' || e.type === 'mousedown') && e.button === 0) {
+        if (e.button === 0) {
           const needUpdateTabs = !!workspaceId && workspaceId !== getWorkspaceId();
 
           const params = {
@@ -42,7 +51,7 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
             PageTabList.setLastActiveTabWs();
           }
 
-          if (!paramsLink.openNewBrowserTab) {
+          if (!openNewBrowserTab) {
             PageService.changeUrlLink(url, params);
           } else {
             PageService.changeUrlLink(url, { openNewBrowserTab: true });
@@ -53,7 +62,7 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
       }
 
       e.preventDefault();
-      PageService.changeUrlLink(link, { ...baseParamsLink, ...paramsLink });
+      PageService.changeUrlLink(link, { ...baseParamsLink, ...paramsLink, openNewBrowserTab });
     };
   }
 

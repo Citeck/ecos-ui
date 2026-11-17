@@ -12,11 +12,12 @@ jest.mock('@/services/pageTabs/PageTabList', () => ({
 }));
 
 jest.mock('@/helpers/urls', () => ({
-  getLinkWithWs: link => link,
+  ...jest.requireActual('@/helpers/urls'),
   getWorkspaceId: () => 'default'
 }));
 
 import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import { AssocLink } from '../index';
 
@@ -81,6 +82,64 @@ describe('AssocLink', () => {
 
     fireEvent.mouseDown(container.querySelector('.assoc-value'), { button: 1 });
 
-    expect(PageService.changeUrlLink).toHaveBeenCalledWith(LINK, { openNewBrowserTab: true });
+    expect(PageService.changeUrlLink).toHaveBeenCalledWith('/v2/dashboard?ws=TEST2&recordRef=emodel/thing@1', { openNewBrowserTab: true });
+  });
+});
+
+// A physical primary click dispatches all three events, not click alone.
+describe('AssocLink physical gestures', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  const gesture = (target, options = {}) => {
+    fireEvent.mouseDown(target, { button: 0, ...options });
+    fireEvent.mouseUp(target, { button: 0, ...options });
+    fireEvent.click(target, { button: 0, ...options });
+  };
+
+  describe.each([undefined, 'default', 'OTHER'])('workspace=%s', workspaceId => {
+    it.each([undefined, false, true])('primary click navigates once with policy=%s', openNewBrowserTab => {
+      const { getByText } = render(<AssocLink label="Selected" link={LINK} paramsLink={{ openNewBrowserTab, workspaceId }} />);
+      gesture(getByText('Selected'));
+      expect(PageService.changeUrlLink).toHaveBeenCalledTimes(1);
+      const [url, params] = PageService.changeUrlLink.mock.calls[0];
+      const parsed = new URL(url, window.location.origin);
+      expect(parsed.searchParams.get('recordRef')).toBe('emodel/thing@1');
+      expect(parsed.searchParams.get('ws')).toBe(workspaceId || null);
+      if (openNewBrowserTab) {
+        expect(params.openNewBrowserTab).toBe(true);
+      } else {
+        expect(params).toEqual(expect.objectContaining({ openNewTab: true, reopen: true, closeActiveTab: false }));
+        expect(params.openNewBrowserTab).toBeFalsy();
+        if (workspaceId) expect(params.needUpdateTabs).toBe(workspaceId !== 'default');
+      }
+      expect(PageTabList.setLastActiveTabWs).toHaveBeenCalledTimes(workspaceId && workspaceId !== 'default' ? 1 : 0);
+    });
+
+    it.each([{ ctrlKey: true }, { metaKey: true }, { button: 1 }])('browser gesture %j overrides false exactly once', options => {
+      const { getByText } = render(<AssocLink label="Selected" link={LINK} paramsLink={{ openNewBrowserTab: false, workspaceId }} />);
+      gesture(getByText('Selected'), options);
+      expect(PageService.changeUrlLink).toHaveBeenCalledTimes(1);
+      const [url, params] = PageService.changeUrlLink.mock.calls[0];
+      expect(new URL(url, window.location.origin).searchParams.get('ws')).toBe(workspaceId || null);
+      expect(params.openNewBrowserTab).toBe(true);
+    });
+
+    it('ignores right-click', () => {
+      const { getByText } = render(<AssocLink label="Selected" link={LINK} paramsLink={{ workspaceId }} />);
+      gesture(getByText('Selected'), { button: 2 });
+      expect(PageService.changeUrlLink).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not navigate as text, even with a link and browser policy', () => {
+    const { getByText } = render(<AssocLink label="Selected" link={LINK} asText paramsLink={{ openNewBrowserTab: true }} />);
+    gesture(getByText('Selected'));
+    expect(PageService.changeUrlLink).not.toHaveBeenCalled();
+  });
+
+  it('preserves caller navigation parameters without a workspace', () => {
+    const { getByText } = render(<AssocLink label="Selected" link={LINK} paramsLink={{ reopen: false, closeActiveTab: true }} />);
+    gesture(getByText('Selected'));
+    expect(PageService.changeUrlLink).toHaveBeenCalledWith(LINK, expect.objectContaining({ reopen: false, closeActiveTab: true }));
   });
 });

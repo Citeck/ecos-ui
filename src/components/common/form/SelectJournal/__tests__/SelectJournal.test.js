@@ -59,6 +59,16 @@ describe('SelectJournal — dynamic journalId', () => {
     return instance;
   };
 
+  it.each([undefined, true, false])('forwards optional policy %s through inputViewProps in both modes', openNewBrowserTab => {
+    for (const viewOnly of [false, true]) {
+      const renderView = jest.fn(() => null);
+      const instance = buildInstance({ openNewBrowserTab, viewOnly, renderView });
+      instance.renderSelectModal = () => null;
+      instance.render();
+      expect(renderView).toHaveBeenCalledWith(expect.objectContaining({ openNewBrowserTab }));
+    }
+  });
+
   describe('resetJournalConfig', () => {
     it('resets journal config state and clears value', () => {
       const instance = buildInstance();
