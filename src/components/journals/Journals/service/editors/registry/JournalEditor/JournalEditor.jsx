@@ -1,9 +1,10 @@
 import Records from '@citeck/records-core';
 import React from 'react';
 
-import SelectJournal from '@/components/common/form/SelectJournal';
 import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
+
+import SelectJournal from '@/components/common/form/SelectJournal';
 
 export default class JournalEditor extends BaseEditor {
   static TYPE = 'journal';
@@ -19,6 +20,8 @@ export default class JournalEditor extends BaseEditor {
         hideCreateButton
         inputViewClass="select-journal__input-view_extra-compact"
         journalId={journalId}
+        searchInWorkspacePolicy={config.searchInWorkspacePolicy}
+        searchInAdditionalWorkspaces={config.searchInAdditionalWorkspaces}
         // Only a cell editor gets the edited row here, and only there does the row's own workspace
         // define what may be selected. In a filter recordRef is the journal's meta record, whose
         // workspace says nothing about the rows being filtered — the browsed one is right there.
