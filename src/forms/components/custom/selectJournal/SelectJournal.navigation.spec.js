@@ -102,22 +102,20 @@ describe('SelectJournal builder link policy serialization', () => {
     expect(await save()).toEqual(saved);
   });
 
-  it('saves legacy absence and removes either explicit policy when returning to default', async () => {
+  it('preserves legacy absence when saving without changing the policy', async () => {
     await open(SelectJournalComponent.schema());
-    let saved = await save();
+    expect(await save()).not.toHaveProperty(setting);
+  });
+
+  // Each case rebuilds the full Formio editor. Keep the policies independent so
+  // their combined setup cost does not exhaust Jest's per-test timeout in CI.
+  it.each([true, false])('removes the explicit policy %s when returning to default and preserves absence on reopen', async policy => {
+    await open({ ...SelectJournalComponent.schema(), [setting]: policy });
+    expect(builder.editForm.data[setting]).toBe(policy);
+    await choose('');
+    const saved = await save();
     expect(saved).not.toHaveProperty(setting);
-    for (const choice of ['true', 'false']) {
-      await open(saved);
-      await choose(choice);
-      saved = await save();
-      expect(saved[setting]).toBe(choice === 'true');
-      await open(saved);
-      await choose('');
-      saved = await save();
-      expect(saved).not.toHaveProperty(setting);
-      await open(saved);
-      saved = await save();
-      expect(saved).not.toHaveProperty(setting);
-    }
+    await open(saved);
+    expect(await save()).not.toHaveProperty(setting);
   });
 });
