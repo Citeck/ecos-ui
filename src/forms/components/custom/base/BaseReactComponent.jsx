@@ -25,6 +25,7 @@ export default class BaseReactComponent extends BaseComponent {
   react = {};
   _viewOnlyPrev = {};
   _refreshOnValuePrev = {};
+  _listenersAttached = false;
 
   get isShowElement() {
     if (this.options.builder) {
@@ -57,6 +58,7 @@ export default class BaseReactComponent extends BaseComponent {
     ) {
       super.clear();
       this.react = {};
+      this._listenersAttached = false;
       this._viewOnlyPrev = this.viewOnly;
       this._refreshOnValuePrev = this.refreshOnValue;
     }
@@ -106,8 +108,11 @@ export default class BaseReactComponent extends BaseComponent {
 
       this.createDescription(this.element);
       this.createInlineEditSaveAndCancelButtons();
-      this.attachRefreshOn();
-      this.attachLogic();
+      if (!this._listenersAttached) {
+        this.attachRefreshOn();
+        this.attachLogic();
+        this._listenersAttached = true;
+      }
     } else {
       this.updateDescription();
     }
@@ -248,12 +253,30 @@ export default class BaseReactComponent extends BaseComponent {
       }
     }
 
+    this._listenersAttached = false;
+
     return super.destroy();
   }
 
   clear() {
+    if (this.tooltip) {
+      this.tooltip.dispose();
+      this.tooltip = null;
+    }
+
     if (this.labelElement) {
       this.labelElement.remove();
+      this.labelElement = null;
+    }
+
+    if (this.errorElement) {
+      this.errorElement.remove();
+      this.errorElement = null;
+    }
+
+    if (this.description) {
+      this.description.remove();
+      this.description = null;
     }
 
     if (this.react.container) {
@@ -268,8 +291,10 @@ export default class BaseReactComponent extends BaseComponent {
     }
 
     if (this.element) {
-      this.element.querySelectorAll('.ecos-form__inline-edit-button').forEach(btn => btn.remove());
+      this.element.querySelectorAll('.ecos-form__inline-edit-button, .inline-editing__buttons, .formio-errors').forEach(el => el.remove());
     }
+
+    this._inlineEditSaveButton = null;
   }
 
   /**

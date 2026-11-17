@@ -1,11 +1,143 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
 import { overrideTriggerChange } from '../misc';
+
+const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+export const normalizeWhitespaceString = value => (typeof value === 'string' ? value.replace(/[\s\u00A0]+/g, ' ').trim() : value);
+
+export const normalizeComponentWhitespace = value =>
+  Array.isArray(value) ? value.map(normalizeWhitespaceString) : normalizeWhitespaceString(value);
+
+function findPropertyDescriptor(proto, prop) {
+  let cur = proto;
+  while (cur) {
+    const desc = Object.getOwnPropertyDescriptor(cur, prop);
+    if (desc) {
+      return desc;
+    }
+    cur = Object.getPrototypeOf(cur);
+  }
+  return undefined;
+}
+
+function clearSkippedWhitespaceValidityState(instance) {
+  if ((instance.error || (instance.errorElement && instance.errorElement.innerHTML)) && isFunction(instance.setCustomValidity)) {
+    instance.setCustomValidity('');
+  }
+  if (instance._inlineEditSaveButton && !instance.options.saveDraft) {
+    instance._inlineEditSaveButton.classList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+}
+
+/**
+ * Attach client-side `component.normalizeWhitespace` hooks strictly to plain text field/area components
+ * so non-text components (Number, Select, Checkbox, Email, etc.) and rich-text/code editors are unaffected.
+ */
+export function applyTextNormalizeWhitespace(ComponentClass) {
+  const proto = ComponentClass.prototype;
+  const superProto = Object.getPrototypeOf(proto);
+  const ownAddFocusBlurEvents = Object.prototype.hasOwnProperty.call(proto, 'addFocusBlurEvents') ? proto.addFocusBlurEvents : null;
+  const ownBeforeSubmit = Object.prototype.hasOwnProperty.call(proto, 'beforeSubmit') ? proto.beforeSubmit : null;
+  const ownSetValue = Object.prototype.hasOwnProperty.call(proto, 'setValue') ? proto.setValue : null;
+  const ownCheckValidity = Object.prototype.hasOwnProperty.call(proto, 'checkValidity') ? proto.checkValidity : null;
+
+  proto.isPlainTextWhitespaceTarget = function () {
+    return Boolean(this.component && this.component.normalizeWhitespace && (this.isPlain === undefined || this.isPlain));
+  };
+
+  proto.normalizeValueIfNeeded = function (value) {
+    if (this.isPlainTextWhitespaceTarget() && (!this.root || this.root.focusedComponent !== this)) {
+      return normalizeComponentWhitespace(value);
+    }
+
+    return value;
+  };
+
+  proto.normalizeWhitespaceOnBlurOrSubmit = function () {
+    if (!this.isPlainTextWhitespaceTarget() || this.options.readOnly || this.disabled) {
+      return;
+    }
+
+    const currentRaw = this.getValue();
+    const normalized = normalizeComponentWhitespace(currentRaw);
+
+    if (!isEqual(normalized, currentRaw) || !isEqual(normalized, this.dataValue)) {
+      if (this.root && this.root.focusedComponent === this) {
+        this.root.focusedComponent = null;
+      }
+
+      this.setValue(normalized, { modified: true });
+    }
+  };
+
+  Object.defineProperty(proto, 'validationValue', {
+    configurable: true,
+    get: function () {
+      const baseDesc = findPropertyDescriptor(superProto, 'validationValue');
+      const raw = baseDesc && baseDesc.get ? baseDesc.get.call(this) : this.dataValue;
+
+      if (this.isPlainTextWhitespaceTarget()) {
+        return normalizeComponentWhitespace(raw);
+      }
+
+      return raw;
+    }
+  });
+
+  proto.addFocusBlurEvents = function (element) {
+    const baseFn = ownAddFocusBlurEvents || superProto.addFocusBlurEvents;
+    baseFn.call(this, element);
+    this.addEventListener(element, 'blur', () => {
+      this.normalizeWhitespaceOnBlurOrSubmit();
+    });
+  };
+
+  proto.beforeSubmit = function () {
+    this.normalizeWhitespaceOnBlurOrSubmit();
+    const baseFn = ownBeforeSubmit || superProto.beforeSubmit;
+    return baseFn.call(this);
+  };
+
+  proto.setValue = function (value, flags) {
+    if (!this.viewOnly && !this.options.readOnly) {
+      value = this.normalizeValueIfNeeded(value);
+    }
+
+    const baseFn = ownSetValue || superProto.setValue;
+    return baseFn.call(this, value, flags);
+  };
+
+  proto.checkValidity = function (data, dirty, rowData) {
+    if (!this.component.unreadable && this.isPlainTextWhitespaceTarget()) {
+      const valToCheck = this.validationValue;
+
+      if (!get(this.component, 'validate.required') && !isBoolean(valToCheck) && isEmpty(valToCheck)) {
+        clearSkippedWhitespaceValidityState(this);
+        return true;
+      }
+
+      if (
+        this.component.optionalWhenDisabled &&
+        get(this.component, 'validate.required') &&
+        isEmpty(valToCheck) &&
+        this.component.disabled
+      ) {
+        clearSkippedWhitespaceValidityState(this);
+        return true;
+      }
+    }
+
+    const baseFn = ownCheckValidity || superProto.checkValidity;
+    return baseFn.call(this, data, dirty, rowData);
+  };
+}
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
   static schema(...extend) {
@@ -15,6 +147,7 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
         showWordCount: false,
         showCharCount: false,
         inputFormat: 'plain',
+        normalizeWhitespace: false,
         widget: {
           type: '',
           format: 'yyyy-MM-dd hh:mm a',
@@ -259,3 +392,5 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     }
   }
 }
+
+applyTextNormalizeWhitespace(TextFieldComponent);

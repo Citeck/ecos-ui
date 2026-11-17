@@ -23,15 +23,28 @@ describe('BaseReactComponent.clear()', () => {
       }).not.toThrow();
     });
 
-    it('should call remove() on labelElement when it exists', () => {
+    it('should call remove() on labelElement and null the reference when it exists', () => {
       const removeMock = jest.fn();
+      const disposeMock = jest.fn();
+      const errorRemoveMock = jest.fn();
+      const descRemoveMock = jest.fn();
       const component = createMockComponent({
-        labelElement: { remove: removeMock }
+        tooltip: { dispose: disposeMock },
+        labelElement: { remove: removeMock },
+        errorElement: { remove: errorRemoveMock },
+        description: { remove: descRemoveMock }
       });
 
       BaseReactComponent.prototype.clear.call(component);
 
+      expect(disposeMock).toHaveBeenCalled();
+      expect(component.tooltip).toBeNull();
       expect(removeMock).toHaveBeenCalled();
+      expect(component.labelElement).toBeNull();
+      expect(errorRemoveMock).toHaveBeenCalled();
+      expect(component.errorElement).toBeNull();
+      expect(descRemoveMock).toHaveBeenCalled();
+      expect(component.description).toBeNull();
     });
   });
 

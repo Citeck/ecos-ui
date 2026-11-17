@@ -159,7 +159,8 @@ export default class AsyncDataComponent extends BaseComponent {
 
     const record = Records.get(recordId);
     const baseRecord = record.getBaseRecord();
-    const callback = () => this._updateValue();
+    const watcherKey = baseRecord.id;
+    const callback = () => this._updateValue(true);
 
     let attributesMap;
     if (isArray(attributes)) {
@@ -171,10 +172,12 @@ export default class AsyncDataComponent extends BaseComponent {
       attributesMap = attributes;
     }
 
-    let watcher = this._recordWatchers[recordId];
+    let watcher = this._recordWatchers[watcherKey];
     if (!watcher) {
       watcher = baseRecord.watch(attributesMap, callback);
-      this._recordWatchers[record.id] = watcher;
+      if (watcher) {
+        this._recordWatchers[watcherKey] = watcher;
+      }
     } else {
       let watchedAtts = watcher.getWatchedAttributes();
       let isAllRequiredAttsWatched = true;
@@ -182,18 +185,19 @@ export default class AsyncDataComponent extends BaseComponent {
         if (attributesMap.hasOwnProperty(attName) && !watchedAtts[attName]) {
           watchedAtts[attName] = attributesMap[attName];
           isAllRequiredAttsWatched = false;
-          break;
         }
       }
       if (!isAllRequiredAttsWatched) {
         watcher.unwatch();
-        watcher = baseRecord.watch(watchedAtts);
-        this._recordWatchers[record.id] = watcher;
+        watcher = baseRecord.watch(watchedAtts, callback);
+        if (watcher) {
+          this._recordWatchers[watcherKey] = watcher;
+        }
       }
     }
 
     const force = get(this.component, 'source.forceLoad', false);
-    return record.load(attributes, force);
+    return baseRecord.load(attributes, force);
   }
 
   _updateValue = debounce(forceUpdate => {

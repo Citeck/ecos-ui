@@ -15,6 +15,7 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
 import { overrideTriggerChange } from '../misc';
+import { applyTextNormalizeWhitespace } from '../textfield/TextField';
 
 import { FIELD_TYPES } from '@/components/ai/AIAssistant/AIQuickActions/config';
 import { getContextExtractionConfig } from '@/components/ai/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts';
@@ -57,7 +58,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         isUploadEnabled: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain'
+        inputFormat: 'plain',
+        normalizeWhitespace: false
       },
       ...extend
     );
@@ -112,6 +114,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
    */
   get isRichTextEditor() {
     return this.isLexicalEditor || this.isCkeEditor || this.isQuillEditor;
+  }
+
+  hasChanged(newValue, oldValue) {
+    if (this.isPlainTextWhitespaceTarget()) {
+      if ((newValue === undefined || newValue === null) && (oldValue === undefined || oldValue === null)) {
+        return false;
+      }
+
+      return !isEqual(newValue, oldValue);
+    }
+
+    return super.hasChanged(newValue, oldValue);
   }
 
   setValue(value, flags) {
@@ -1156,3 +1170,5 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return super.destroy();
   }
 }
+
+applyTextNormalizeWhitespace(TextAreaComponent);

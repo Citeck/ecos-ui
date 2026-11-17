@@ -1,4 +1,5 @@
 import Base from 'formiojs/components/base/Base';
+import Evaluator from 'formiojs/utils/Evaluator';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import clone from 'lodash/clone';
 import cloneDeep from 'lodash/cloneDeep';
@@ -40,6 +41,7 @@ const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
+const originalEvaluate = Base.prototype.evaluate;
 const originalOnChange = Base.prototype.onChange;
 const setPristine = Base.prototype.setPristine;
 // Methods <<<
@@ -830,16 +832,28 @@ Base.prototype.build = function (state) {
   this.createInlineEditSaveAndCancelButtons();
 };
 
+function clearSkippedValidityState(instance) {
+  if ((instance.error || (instance.errorElement && instance.errorElement.innerHTML)) && isFunction(instance.setCustomValidity)) {
+    instance.setCustomValidity('');
+  }
+  if (instance._inlineEditSaveButton && !instance.options.saveDraft) {
+    instance._inlineEditSaveButton.classList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+}
+
 Base.prototype.checkValidity = function (data, dirty, rowData) {
   if (this.component.unreadable) {
+    clearSkippedValidityState(this);
     return true;
   }
 
   if (!this.component.validate.required && !isBoolean(this.dataValue) && isEmpty(this.dataValue)) {
+    clearSkippedValidityState(this);
     return true;
   }
 
   if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
+    clearSkippedValidityState(this);
     return true;
   }
 
@@ -1049,6 +1063,8 @@ Base.prototype.setupValueElement = function (element) {
   element.textContent = value;
 };
 
+const extendedComponentChildrenCache = new WeakMap();
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-963
 function extendingOfComponent(component) {
   if (isEmpty(component)) {
@@ -1056,12 +1072,14 @@ function extendingOfComponent(component) {
   }
 
   const fields = ['label', 'placeholder', 'description', 'tooltip'];
+  let allDefined = true;
 
   fields.forEach(key => {
     if (component.hasOwnProperty(`${key}ByLocale`)) {
       return;
     }
 
+    allDefined = false;
     Object.defineProperty(component, `${key}ByLocale`, {
       get: function () {
         return getTextByLocale(this[key]);
@@ -1071,8 +1089,13 @@ function extendingOfComponent(component) {
     });
   });
 
-  if (!isEmpty(component.components)) {
+  if (!isEmpty(component.components) && Array.isArray(component.components)) {
+    const cached = extendedComponentChildrenCache.get(component);
+    if (allDefined && cached && cached.ref === component.components && cached.len === component.components.length) {
+      return component;
+    }
     component.components = component.components.map(item => extendingOfComponent(item));
+    extendedComponentChildrenCache.set(component, { ref: component.components, len: component.components.length });
   }
 
   return component;
@@ -1146,6 +1169,67 @@ Base.prototype.evalContext = function (additional) {
     recordId: this.getRecordId(),
     recordWorkspaceId: this.getRecordWorkspaceId()
   };
+};
+
+const WORD_FORM_REGEX = /\bform\b/;
+const WORD_COMPONENT_REGEX = /\bcomponent\b/;
+const WORD_EVAL_REGEX = /\beval\b/;
+const MAX_COMPILED_EVALUATORS = 2000;
+const compiledEvaluators = new Map();
+
+Base.prototype.evaluate = function (func, args, ret, tokenize) {
+  if (typeof func !== 'string' || Evaluator.noeval || WORD_EVAL_REGEX.test(func) || (tokenize && func.includes('{{'))) {
+    return originalEvaluate.call(this, func, args, ret, tokenize);
+  }
+
+  const context = this.evalContext(args);
+  const rawComponent = context.component;
+  const componentKey = (rawComponent && rawComponent.key) || 'unknown';
+
+  context.component = rawComponent
+    ? WORD_COMPONENT_REGEX.test(func)
+      ? cloneDeep(rawComponent)
+      : { key: componentKey }
+    : { key: 'unknown' };
+
+  if (!context.form && context.instance) {
+    context.form = get(context.instance, 'root._form', {});
+  }
+
+  // `FormioUtils.evaluate` checks `func.toString().includes('form')`, which matches substrings like
+  // `instance.options.formMode` or `format` and deep-clones the entire multi-hundred-component form
+  // schema ~150 times per keystroke (EMTC-653). Check the actual identifier boundary instead.
+  if (WORD_FORM_REGEX.test(func)) {
+    context.form = cloneDeep(context.form);
+  } else {
+    delete context.form;
+  }
+
+  const scriptBody = ret ? `${func};return ${ret}` : func;
+  const params = Object.keys(context);
+  const cacheKey = `${params.join(',')}\0${scriptBody}`;
+  let compiled = compiledEvaluators.get(cacheKey);
+
+  if (!compiled) {
+    try {
+      // eslint-disable-next-line no-new-func
+      compiled = new Function(...params, scriptBody);
+      if (compiledEvaluators.size >= MAX_COMPILED_EVALUATORS) {
+        compiledEvaluators.clear();
+      }
+      compiledEvaluators.set(cacheKey, compiled);
+    } catch (err) {
+      console.warn(`An error occured within the custom function for ${componentKey}`, err);
+      return null;
+    }
+  }
+
+  try {
+    return compiled(...Object.values(context));
+  } catch (err) {
+    console.warn(`An error occured within custom function for ${componentKey}`, err);
+    return null;
+  }
 };
 
 Object.defineProperty(Base.prototype, 'originalComponent', {

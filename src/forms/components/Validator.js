@@ -16,7 +16,8 @@ FormioValidator.validators.required = {
       disabled = component.component.disabled;
     }
 
-    return disabled || !component.isEmpty(value);
+    const optionalWhenDisabled = !(component.component && component.component.optionalWhenDisabled === false);
+    return (disabled && optionalWhenDisabled) || !component.isEmpty(value);
   }
 };
 

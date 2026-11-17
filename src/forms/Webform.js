@@ -317,6 +317,7 @@ Webform.prototype.submit = function (before, options, forceChanging) {
 
 Object.defineProperty(Webform.prototype, 'loading', {
   set: function (loading) {
+    const wasLoading = this._loading;
     originalPropertyLoading.set.call(this, loading);
 
     if (!loading && this.loader) {
@@ -325,6 +326,17 @@ Object.defineProperty(Webform.prototype, 'loading', {
       } catch (e) {
         // ignore
       }
+    }
+
+    // `Webform.onChange` runs `checkData` -> `checkConditions` before setting `this.loading = false`,
+    // so `asyncData` components gated on `root.loading === false` (e.g. `documentStatus` in viewOnly
+    // Properties mode, EMTC-652) never see `loading === false` unless re-checked on the transition.
+    if (wasLoading && !loading && typeof this.everyComponent === 'function') {
+      this.everyComponent(comp => {
+        if (comp && comp.type === 'asyncData') {
+          comp.checkConditions(this.data);
+        }
+      });
     }
   }
 });
