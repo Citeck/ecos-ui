@@ -1,6 +1,14 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 
-import { getBase64Barcode, init, setAllowedTypes, setBase64Barcode, setDisplayElements, setError } from '../actions/barcode';
+import {
+  getBarcodePrintPdf,
+  getBase64Barcode,
+  init,
+  setAllowedTypes,
+  setBase64Barcode,
+  setDisplayElements,
+  setError
+} from '../actions/barcode';
 import { t } from '../helpers/util';
 
 function* sagaInit({ api }, { payload: { stateId, record, config } }) {
@@ -36,7 +44,17 @@ function* sagaGetBase64Barcode({ api }, { payload }) {
   }
 }
 
+export function* sagaGetBarcodePrintPdf({ api }, { payload: { record, printSettings, signal, onSuccess, onError } }) {
+  try {
+    const blob = yield call(api.barcode.getPrintPdf, { record, printSettings, signal });
+    onSuccess(blob);
+  } catch (error) {
+    onError(error);
+  }
+}
+
 function* barcodeSaga(ea) {
+  yield takeEvery(getBarcodePrintPdf().type, sagaGetBarcodePrintPdf, ea);
   yield takeEvery(getBase64Barcode().type, sagaGetBase64Barcode, ea);
   yield takeEvery(init().type, sagaInit, ea);
 }

@@ -4,16 +4,18 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
+import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Col, Row } from 'reactstrap';
 
-import { objectCompare, t } from '@/helpers/util';
-import DisplayElementService from '@/services/DisplayElementService';
-import Filters from '@/components/journals/Filters/Filters';
 import { InfoText } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import { Caption, Input, Label, Select } from '@/components/common/form';
+import Filters from '@/components/journals/Filters/Filters';
+import { normalizePrintSettings, parsePrintNumber, validatePrintSettings } from '@/dto/barcodePrint';
+import { objectCompare, t } from '@/helpers/util';
+import DisplayElementService from '@/services/DisplayElementService';
 
 const Labels = {
   TITLE: 'barcode-widget.settings.title',
@@ -37,6 +39,8 @@ const Labels = {
 class Settings extends Component {
   static propTypes = {
     settings: PropTypes.object,
+    printSettings: PropTypes.object,
+    isLegacy: PropTypes.bool,
     displayCondition: PropTypes.object,
     allowedTypes: PropTypes.array,
     onSave: PropTypes.func,
@@ -45,6 +49,7 @@ class Settings extends Component {
 
   static defaultProps = {
     settings: {},
+    isLegacy: true,
     allowedTypes: [],
     onSave: () => null,
     onCancel: () => null
@@ -53,7 +58,9 @@ class Settings extends Component {
   constructor(props) {
     super(props);
 
+    this.printFieldId = uniqueId('barcode-print-');
     this.state = {
+      printSettings: normalizePrintSettings(props.printSettings),
       type: props.allowedTypes.find(type => type.value === props.settings.type) || {},
       scale: get(props, 'settings.scale', 100),
       top: get(props, 'settings.top', 0),
@@ -65,7 +72,11 @@ class Settings extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { allowedTypes, settings, displayCondition } = this.props;
+    const { allowedTypes, settings, printSettings, displayCondition } = this.props;
+
+    if (!isEqual(printSettings, prevProps.printSettings)) {
+      this.setState({ printSettings: normalizePrintSettings(printSettings) });
+    }
 
     if (!isEqualWith(allowedTypes, prevProps.allowedTypes, isEqual)) {
       this.setType();
@@ -137,7 +148,19 @@ class Settings extends Component {
   };
 
   handleSave = () => {
-    const { onSave } = this.props;
+    const { onSave, isLegacy } = this.props;
+
+    if (!isLegacy) {
+      const settings = { ...this.state.printSettings, version: 1, pageFormat: 'A4' };
+      if (Object.keys(validatePrintSettings(settings)).length) {
+        return;
+      }
+      for (const key of ['scalePercent', 'offsetLeftMm', 'offsetTopMm']) {
+        settings[key] = parsePrintNumber(settings[key]);
+      }
+      onSave(settings, { btnGenerateNew: this.state.dcGenerateNew });
+      return;
+    }
 
     if (typeof onSave === 'function') {
       const { type, scale, top, left, right, bottom, dcGenerateNew } = this.state;
@@ -158,38 +181,52 @@ class Settings extends Component {
     }
   };
 
-  render() {
-    const { allowedTypes, modelAttributes } = this.props;
-    const { type, scale, top, left, right, bottom, dcGenerateNew } = this.state;
-
+  renderModernPrintSettings() {
+    const { printSettings } = this.state;
+    const errors = validatePrintSettings({ ...printSettings, version: 1, pageFormat: 'A4' });
+    const unsupported = validatePrintSettings(printSettings).schema;
     return (
-      <div className="ecos-barcode-settings">
-        <Caption middle className="ecos-doc-constructor-settings__title">
-          {t(Labels.TITLE)}
-        </Caption>
-        <div className="ecos-barcode-settings__group">
-          <Label htmlFor="codeType" className="ecos-barcode-settings__label">
-            {t(Labels.CODE_TYPE)}
-          </Label>
-          <Select options={allowedTypes} value={type} />
-        </div>
-        <div className="ecos-barcode-settings__group">
-          <Label htmlFor="displayCondition1" className="ecos-barcode-settings__label">
-            {t(Labels.DISPLAY_CONDITION_TITLE, { title: t(Labels.BTN_GENERATE_NEW) })}
-          </Label>
-          {isEmpty(modelAttributes) && <InfoText noIndents text={t(Labels.DISPLAY_CONDITION_NO_ATTR)} />}
-          {!isEmpty(modelAttributes) && (
-            <Filters
-              predicate={dcGenerateNew}
-              columns={this.columns}
-              sourceId={SourcesId.TYPE}
-              textEmpty={t(Labels.DISPLAY_CONDITION_NO_RULES)}
-              onChange={this.onChangeCondition}
-              className="ecos-barcode-settings__filters"
-            />
-          )}
-        </div>
-        <div className="ecos-barcode-settings__section-name">{t(Labels.PRINT_SET)}</div>
+      <div>
+        <div className="ecos-barcode-settings__section-name ecos-barcode-settings__section-name_s">{t('barcode-widget.print.page-a4')}</div>
+        <p>{t('barcode-widget.print.explanation')}</p>
+        {unsupported && <p role="alert">{t('barcode-widget.print.schema-repair')}</p>}
+        {['scalePercent', 'offsetLeftMm', 'offsetTopMm'].map(key => {
+          const id = `${this.printFieldId}-${key}`;
+          return (
+            <div className="ecos-barcode-settings__group" key={key}>
+              <Label htmlFor={id} className="ecos-barcode-settings__label">
+                {t(`barcode-widget.print.field.${key}`)}
+              </Label>
+              <Input
+                id={id}
+                align="right"
+                inputMode="decimal"
+                value={printSettings[key] ?? ''}
+                needValidCheck
+                isValid={!errors[key]}
+                aria-invalid={!!errors[key]}
+                aria-describedby={errors[key] ? `${id}-error` : undefined}
+                onChange={event => {
+                  const value = event.target.value;
+                  this.setState(state => ({ printSettings: { ...state.printSettings, [key]: value } }));
+                }}
+              />
+              {errors[key] && (
+                <div id={`${id}-error`} className="ecos-barcode__error" role="alert">
+                  {t(errors[key])}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  renderLegacyPrintSettings() {
+    const { scale, top, left, right, bottom } = this.state;
+    return (
+      <>
         <div className="ecos-barcode-settings__group ecos-barcode-settings__group_parts">
           <div className="ecos-barcode-settings__group-part ecos-barcode-settings__group-part_greedy">
             <Label htmlFor="scale" className="ecos-barcode-settings__label">
@@ -264,12 +301,58 @@ class Settings extends Component {
             </Col>
           </Row>
         </div>
+      </>
+    );
+  }
+
+  render() {
+    const { allowedTypes, modelAttributes } = this.props;
+    const { type, dcGenerateNew } = this.state;
+
+    return (
+      <div className="ecos-barcode-settings">
+        <Caption middle className="ecos-doc-constructor-settings__title">
+          {t(Labels.TITLE)}
+        </Caption>
+        {this.props.isLegacy && (
+          <div className="ecos-barcode-settings__group">
+            <Label htmlFor="codeType" className="ecos-barcode-settings__label">
+              {t(Labels.CODE_TYPE)}
+            </Label>
+            <Select options={allowedTypes} value={type} />
+          </div>
+        )}
+        <div className="ecos-barcode-settings__group">
+          <Label htmlFor="displayCondition1" className="ecos-barcode-settings__label">
+            {t(Labels.DISPLAY_CONDITION_TITLE, { title: t(Labels.BTN_GENERATE_NEW) })}
+          </Label>
+          {isEmpty(modelAttributes) && <InfoText noIndents text={t(Labels.DISPLAY_CONDITION_NO_ATTR)} />}
+          {!isEmpty(modelAttributes) && (
+            <Filters
+              predicate={dcGenerateNew}
+              columns={this.columns}
+              sourceId={SourcesId.TYPE}
+              textEmpty={t(Labels.DISPLAY_CONDITION_NO_RULES)}
+              onChange={this.onChangeCondition}
+              className="ecos-barcode-settings__filters"
+            />
+          )}
+        </div>
+        <div className="ecos-barcode-settings__section-name">{t(Labels.PRINT_SET)}</div>
+        {this.props.isLegacy ? this.renderLegacyPrintSettings() : this.renderModernPrintSettings()}
 
         <div className="ecos-barcode-settings__footer">
           <Btn onClick={this.handleCancel} className="">
             {t(Labels.CANCEL_BUTTON)}
           </Btn>
-          <Btn onClick={this.handleSave} className="ecos-btn_blue">
+          <Btn
+            onClick={this.handleSave}
+            className="ecos-btn_blue"
+            disabled={
+              !this.props.isLegacy &&
+              Object.keys(validatePrintSettings({ ...this.state.printSettings, version: 1, pageFormat: 'A4' })).length > 0
+            }
+          >
             {t(Labels.DONE_BUTTON)}
           </Btn>
         </div>

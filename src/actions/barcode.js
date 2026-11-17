@@ -11,3 +11,5 @@ export const getBase64Barcode = createAction(prefix + 'GET_BASE64_BARCODE');
 export const setBase64Barcode = createAction(prefix + 'SET_BASE64_BARCODE');
 
 export const setError = createAction(prefix + 'SET_ERROR');
+
+export const getBarcodePrintPdf = createAction(prefix + 'GET_PRINT_PDF');

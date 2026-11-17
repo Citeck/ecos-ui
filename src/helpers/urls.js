@@ -14,6 +14,8 @@ import PageTabList from '../services/pageTabs/PageTabList';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces, getDefaultWorkspace } from './util';
 
+import { getPrintGeometry, isLegacyBarcodeRecord } from '@/dto/barcodePrint';
+
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
@@ -229,12 +231,13 @@ export const getTemplateUrl = nodeRef => {
   return `${PROXY_URI}citeck/case/template?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
-export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
-  if (record.indexOf('workspace://SpacesStore/') !== -1) {
-    return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
-  } else {
-    return `/gateway/transformations/api/barcode/image?entityRef=${record}&width=100&height=100&print=true`;
+export const getBarcodePrintUrl = (record, settings) => {
+  if (isLegacyBarcodeRecord(record)) {
+    const legacySettings = settings === undefined ? 'barcodeType=code-128&scale=5.0&margins=20,200,20,500' : settings;
+    return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${legacySettings}&print=true`;
   }
+  const params = new URLSearchParams({ entityRef: record, ...getPrintGeometry(settings), print: 'true' });
+  return `/gateway/transformations/api/barcode/image?${params}`;
 };
 
 export const goToJournalsPage = options => {

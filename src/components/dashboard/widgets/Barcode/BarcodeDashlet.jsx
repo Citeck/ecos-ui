@@ -7,22 +7,26 @@ import * as React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 
-import { getBase64Barcode, init } from '@/actions/barcode';
-import BarcodeConverter from '@/dto/barcode';
-import { getStateId } from '@/helpers/store';
-import { getBarcodePrintUrl } from '@/helpers/urls';
-import { isMobileDevice, t } from '@/helpers/util';
-import DAction from '@/services/DashletActionService';
-import PageTabList from '@/services/pageTabs/PageTabList';
-import Dashlet from '@/components/dashboard/Dashlet';
 import BaseWidget from '../BaseWidget';
 
 import Barcode from './Barcode';
 import Settings from './Settings';
+import { reservePrintWindow, showPrintPdf } from './printWindow';
+
+import { getBarcodePrintPdf, getBase64Barcode, init } from '@/actions/barcode';
+import Dashlet from '@/components/dashboard/Dashlet';
+import BarcodeConverter from '@/dto/barcode';
+import { getPrintErrorKey, isLegacyBarcodeRecord, validatePrintSettings } from '@/dto/barcodePrint';
+import { getStateId } from '@/helpers/store';
+import { getBarcodePrintUrl } from '@/helpers/urls';
+import { isMobileDevice, t } from '@/helpers/util';
+import { selectActiveTab } from '@/selectors/pageTabs';
+import DAction from '@/services/DashletActionService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
-class BarcodeDashlet extends BaseWidget {
+export class BarcodeDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -45,7 +49,9 @@ class BarcodeDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      isOpenSettings: false
+      isOpenSettings: false,
+      isPrinting: false,
+      printError: null
     };
 
     props.init(this.stateId);
@@ -59,10 +65,30 @@ class BarcodeDashlet extends BaseWidget {
   componentDidUpdate(prevProps, prevState, snapshot) {
     super.componentDidUpdate(prevProps, prevState, snapshot);
 
+    if (prevProps.record !== this.props.record || (prevProps.isPrintPageActive !== false && this.props.isPrintPageActive === false)) {
+      this.cancelPendingPrint();
+      this.setState({ isPrinting: false, printError: null });
+    }
+
     if (!!prevProps.config && !isEqual(prevProps.config, this.props.config)) {
       this.props.init(this.stateId);
     }
   }
+
+  componentWillUnmount() {
+    this.cancelPendingPrint();
+    super.componentWillUnmount();
+  }
+
+  cancelPendingPrint = () => {
+    const operation = this.printOperation;
+    this.printOperation = null;
+    if (operation) {
+      operation.controller.abort();
+      operation.tab?.close();
+      operation.tab = null;
+    }
+  };
 
   get settings() {
     const { config } = this.props;
@@ -84,19 +110,62 @@ class BarcodeDashlet extends BaseWidget {
     this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
   };
 
-  handlePrint = () => {
-    const { record, config } = this.props;
-    const settings = get(config, 'settings', defaultSettings);
-    const url = getBarcodePrintUrl(record, BarcodeConverter.getSettingsForUrl(settings));
+  handlePrint = async () => {
+    const { record, config, loadPrintPdf } = this.props;
+    if (isLegacyBarcodeRecord(record)) {
+      const settings = get(config, 'settings', defaultSettings);
+      window.open(getBarcodePrintUrl(record, BarcodeConverter.getSettingsForUrl(settings)), '_blank');
+      return;
+    }
+    if (this.printOperation || this.props.isPrintPageActive === false) {
+      return;
+    }
+    const printSettings = config?.printSettings;
+    if (Object.keys(validatePrintSettings(printSettings)).length) {
+      this.setState({ printError: 'barcode-widget.print.error.settings' });
+      return;
+    }
 
-    window.open(url, '_blank');
+    const operation = { controller: new AbortController(), tab: null };
+    this.printOperation = operation;
+    this.setState({ isPrinting: true, printError: null });
+    try {
+      operation.tab = reservePrintWindow(t('barcode-widget.print.loading'));
+      if (!operation.tab) {
+        this.setState({ printError: 'barcode-widget.print.error.popup' });
+        return;
+      }
+      const blob = await loadPrintPdf({ record, printSettings, signal: operation.controller.signal });
+      if (this.printOperation !== operation) {
+        return;
+      }
+      if (operation.tab.closed) {
+        this.setState({ printError: 'barcode-widget.print.error.closed' });
+        return;
+      }
+      showPrintPdf(operation.tab, blob);
+      operation.tab = null;
+    } catch (error) {
+      if (this.printOperation === operation) {
+        this.setState({ printError: getPrintErrorKey(error) });
+      }
+    } finally {
+      operation.tab?.close();
+      if (this.printOperation === operation) {
+        this.printOperation = null;
+        this.setState({ isPrinting: false });
+      }
+    }
   };
 
   handleSaveSettings = (settings, elementsDisplayCondition) => {
     const { id, onSave, config } = this.props;
 
     if (typeof onSave === 'function') {
-      onSave(id, { config: { ...config, settings, elementsDisplayCondition } });
+      const settingsKey = isLegacyBarcodeRecord(this.props.record) ? 'settings' : 'printSettings';
+      const conditions =
+        settingsKey === 'printSettings' ? { ...config?.elementsDisplayCondition, ...elementsDisplayCondition } : elementsDisplayCondition;
+      onSave(id, { config: { ...config, [settingsKey]: settings, elementsDisplayCondition: conditions } });
     }
 
     this.handleToggleSettings();
@@ -109,7 +178,7 @@ class BarcodeDashlet extends BaseWidget {
 
   renderBarcode() {
     const { config, classNameBarcode, barcode, error, isLoading, displayElements } = this.props;
-    const { isOpenSettings } = this.state;
+    const { isOpenSettings, isPrinting, printError } = this.state;
 
     return (
       <Barcode
@@ -122,6 +191,8 @@ class BarcodeDashlet extends BaseWidget {
         isLoading={isLoading}
         onGenerate={this.handleGenerateBarcode}
         onPrint={this.handlePrint}
+        isPrinting={isPrinting}
+        printError={printError ? t(printError) : null}
         displayElements={displayElements || {}}
       />
     );
@@ -138,6 +209,8 @@ class BarcodeDashlet extends BaseWidget {
     return (
       <Settings
         settings={this.settings}
+        isLegacy={isLegacyBarcodeRecord(this.props.record)}
+        printSettings={this.props.config?.printSettings}
         displayCondition={this.displayCondition}
         allowedTypes={allowedTypes}
         modelAttributes={modelAttributes}
@@ -190,6 +263,8 @@ const mapStateToProps = (state, ownProps) => {
   const stateB = state.barcode[stateId] || {};
 
   return {
+    // Cached Dashboard can block layout props; this connection still receives tab changes.
+    isPrintPageActive: !ownProps.tabId || selectActiveTab(state)?.id === ownProps.tabId,
     barcode: stateB.barcode,
     error: stateB.error,
     isLoading: stateB.isLoading,
@@ -203,7 +278,8 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, { record, config }) => {
   return {
     init: stateId => dispatch(init({ stateId, record, config })),
-    generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record }))
+    generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record })),
+    loadPrintPdf: params => new Promise((onSuccess, onError) => dispatch(getBarcodePrintPdf({ ...params, onSuccess, onError })))
   };
 };
 

@@ -1,10 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import { Btn } from '@/components/common/btns/index';
 import { t } from '@/helpers/util';
 import DisplayElementService from '@/services/DisplayElementService';
-import { Btn } from '@/components/common/btns/index';
 
 import './style.scss';
 
@@ -25,7 +25,7 @@ class Barcode extends React.Component {
   };
 
   render() {
-    const { isLoading, barcode, error, className, onPrint, onGenerate, displayElements = {} } = this.props;
+    const { isLoading, isPrinting, printError, barcode, error, className, onPrint, onGenerate, displayElements = {} } = this.props;
 
     return (
       <div className={classNames('ecos-barcode', className)}>
@@ -43,7 +43,20 @@ class Barcode extends React.Component {
           )}
           {barcode && <img className="ecos-barcode__image" src={barcode} alt={t(Labels.TITLE)} />}
         </div>
-        <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={onPrint} disabled={!!error}>
+        {printError && (
+          <div className="ecos-barcode__error" role="alert">
+            {printError}
+          </div>
+        )}
+        {isPrinting && <div role="status">{t('barcode-widget.print.loading')}</div>}
+        <Btn
+          className="ecos-btn_blue ecos-btn_full-width"
+          onClick={onPrint}
+          disabled={!!error || isPrinting}
+          loading={isPrinting}
+          aria-label={t(Labels.BTN_PRINT)}
+          aria-busy={!!isPrinting}
+        >
           {t(Labels.BTN_PRINT)}
         </Btn>
       </div>
