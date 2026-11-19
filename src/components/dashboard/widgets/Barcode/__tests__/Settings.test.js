@@ -45,6 +45,16 @@ describe('modern Barcode Settings', () => {
     );
   });
 
+  it('preserves dashboard raster dimensions when saving a manually adjusted scale', () => {
+    const onSave = jest.fn();
+    const raster = { rasterWidth: 1550, rasterHeight: 300 };
+    render(<Settings isLegacy={false} printSettings={raster} onSave={onSave} />);
+    expect(screen.getAllByRole('textbox')).toHaveLength(3);
+    fireEvent.change(field('scalePercent'), { target: { value: '25' } });
+    fireEvent.click(done());
+    expect(onSave.mock.calls[0][0]).toEqual({ ...defaultPrintSettings, ...raster, scalePercent: 25 });
+  });
+
   it.each(['', '-5', '0', 'NaN', 'Infinity'])('keeps invalid scale input %s visible, labels its error and prevents saving', value => {
     const onSave = jest.fn();
     render(<Settings isLegacy={false} onSave={onSave} />);

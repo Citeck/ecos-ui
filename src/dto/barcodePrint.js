@@ -13,9 +13,15 @@ export function normalizePrintSettings(source = {}) {
     return { ...defaultPrintSettings, version: null };
   }
 
-  return Object.fromEntries(
+  const settings = Object.fromEntries(
     Object.entries(defaultPrintSettings).map(([key, value]) => [key, source[key] === undefined ? value : source[key]])
   );
+  for (const key of ['rasterWidth', 'rasterHeight']) {
+    if (source[key] !== undefined) {
+      settings[key] = source[key];
+    }
+  }
+  return settings;
 }
 
 export function parsePrintNumber(value) {
@@ -31,7 +37,15 @@ export function parsePrintNumber(value) {
 export function validatePrintSettings(source) {
   const settings = normalizePrintSettings(source);
   const errors = {};
-  if (settings.version !== 1 || settings.pageFormat !== 'A4') {
+  const { rasterWidth, rasterHeight } = settings;
+  const hasRaster = rasterWidth !== undefined || rasterHeight !== undefined;
+  if (
+    settings.version !== 1 ||
+    settings.pageFormat !== 'A4' ||
+    (hasRaster &&
+      (![rasterWidth, rasterHeight].every(value => Number.isInteger(value) && value > 0 && value <= 4096) ||
+        rasterWidth * rasterHeight > 4000000))
+  ) {
     errors.schema = 'barcode-widget.print.error.settings';
   }
   for (const [key, limit] of [
@@ -57,7 +71,8 @@ export function getPrintGeometry(source) {
     pageHeight: 841.89,
     printScale: parsePrintNumber(settings.scalePercent) / 100,
     pageMarginLeft: (parsePrintNumber(settings.offsetLeftMm) * 72) / 25.4,
-    pageMarginTop: (parsePrintNumber(settings.offsetTopMm) * 72) / 25.4
+    pageMarginTop: (parsePrintNumber(settings.offsetTopMm) * 72) / 25.4,
+    ...(settings.rasterWidth === undefined ? {} : { width: settings.rasterWidth, height: settings.rasterHeight })
   };
 }
 

@@ -27,9 +27,16 @@ Modern saves preserve `config.settings`, unrelated config, and existing action d
 
 The PDF is a complete portrait A4 page: **595.276 × 841.89 points**. Scale is percent / 100;
 top/left offsets are real millimetres converted by **mm × 72 / 25.4**. Scale affects the entire
-server-generated image, including caption and quiet zone. No print raster `width`, `height` or
-quiet-zone `margin` is sent: the server chooses natural raster dimensions from content and record
-configuration (default 1D height 50, default 2D 60 × 60). Format comes from the record type.
+server-generated image, including caption and quiet zone. By default no print raster `width`, `height` or quiet-zone `margin` is sent: the server chooses
+natural raster dimensions from content and record configuration (default 1D height 50, default 2D
+60 × 60). Format comes from the record type.
+
+A dashboard may add **both** `rasterWidth` and `rasterHeight` (pixels) to `config.printSettings`.
+They are optional positive integers, each at most 4096 and together at most 4,000,000 pixels.
+They are passed as the existing PDF request’s `width` and `height`; they are not editable in the
+widget and are preserved when saving scale and offsets. Calibrate placement using the actual PDF:
+caption, quiet zones and encoder rounding can affect the visible area. Preview requests are unchanged.
+Personal or record-specific dashboard overrides may need the same settings applied separately.
 There is no arbitrary scale cap, automatic fitting, cropping, right/bottom margin control,
 landscape mode, or promise of identical physical sizing to the legacy renderer.
 
