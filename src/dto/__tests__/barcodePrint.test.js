@@ -30,10 +30,13 @@ describe('barcode print settings and URLs', () => {
   });
 
   it('retains optional raster dimensions when going through editable settings and only sends them on opt-in', () => {
-    const settings = normalizePrintSettings({ scalePercent: 23.62204724, rasterWidth: 1550, rasterHeight: 300 });
+    const settings = normalizePrintSettings({ scalePercent: 23.62204724, rasterWidth: 1550, rasterHeight: 300, captionFontSize: 100 });
     const query = new URL(getBarcodePrintUrl('emodel/test@1', settings), 'http://localhost').searchParams;
     expect(query.get('width')).toBe('1550');
     expect(query.get('height')).toBe('300');
+    expect(query.get('captionFontSize')).toBe('100');
+    expect(getPrintGeometry()).not.toHaveProperty('captionFontSize');
+    expect(() => getPrintGeometry({ captionFontSize: 201 })).toThrow();
     expect(Number(query.get('printScale'))).toBeCloseTo(0.2362204724, 10);
     expect(getPrintGeometry()).not.toHaveProperty('width');
     for (const invalid of [{ rasterWidth: 1550 }, { rasterWidth: -1, rasterHeight: 300 }, { rasterWidth: 4096, rasterHeight: 4096 }]) {

@@ -36,6 +36,9 @@ They are optional positive integers, each at most 4096 and together at most 4,00
 They are passed as the existing PDF request’s `width` and `height`; they are not editable in the
 widget and are preserved when saving scale and offsets. Calibrate placement using the actual PDF:
 caption, quiet zones and encoder rounding can affect the visible area. Preview requests are unchanged.
+`config.printSettings.captionFontSize` optionally controls the caption font size in raster pixels
+(integer 1–200). The PDF scale still applies to the whole raster. This setting is passed to the
+print endpoint and preserved when editing scale or offsets; it does not affect the preview.
 Personal or record-specific dashboard overrides may need the same settings applied separately.
 There is no arbitrary scale cap, automatic fitting, cropping, right/bottom margin control,
 landscape mode, or promise of identical physical sizing to the legacy renderer.

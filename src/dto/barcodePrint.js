@@ -16,7 +16,7 @@ export function normalizePrintSettings(source = {}) {
   const settings = Object.fromEntries(
     Object.entries(defaultPrintSettings).map(([key, value]) => [key, source[key] === undefined ? value : source[key]])
   );
-  for (const key of ['rasterWidth', 'rasterHeight']) {
+  for (const key of ['rasterWidth', 'rasterHeight', 'captionFontSize']) {
     if (source[key] !== undefined) {
       settings[key] = source[key];
     }
@@ -37,11 +37,12 @@ export function parsePrintNumber(value) {
 export function validatePrintSettings(source) {
   const settings = normalizePrintSettings(source);
   const errors = {};
-  const { rasterWidth, rasterHeight } = settings;
+  const { rasterWidth, rasterHeight, captionFontSize } = settings;
   const hasRaster = rasterWidth !== undefined || rasterHeight !== undefined;
   if (
     settings.version !== 1 ||
     settings.pageFormat !== 'A4' ||
+    (captionFontSize !== undefined && (!Number.isInteger(captionFontSize) || captionFontSize < 1 || captionFontSize > 200)) ||
     (hasRaster &&
       (![rasterWidth, rasterHeight].every(value => Number.isInteger(value) && value > 0 && value <= 4096) ||
         rasterWidth * rasterHeight > 4000000))
@@ -72,7 +73,8 @@ export function getPrintGeometry(source) {
     printScale: parsePrintNumber(settings.scalePercent) / 100,
     pageMarginLeft: (parsePrintNumber(settings.offsetLeftMm) * 72) / 25.4,
     pageMarginTop: (parsePrintNumber(settings.offsetTopMm) * 72) / 25.4,
-    ...(settings.rasterWidth === undefined ? {} : { width: settings.rasterWidth, height: settings.rasterHeight })
+    ...(settings.rasterWidth === undefined ? {} : { width: settings.rasterWidth, height: settings.rasterHeight }),
+    ...(settings.captionFontSize === undefined ? {} : { captionFontSize: settings.captionFontSize })
   };
 }
 
