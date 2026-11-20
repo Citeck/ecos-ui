@@ -9,7 +9,6 @@ import UnreadableLabel from '../../UnreadableLabel';
 import BaseComponent from '../base/BaseComponent';
 
 import { OrgStructApi } from '@/api/orgStruct';
-import { FORM_MODE_CREATE } from '@/components/forms/EcosForm';
 import SelectOrgstruct from '@/components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -20,6 +19,7 @@ import {
   TabTypes,
   ViewModes
 } from '@/components/common/form/SelectOrgstruct/constants';
+import { FORM_MODE_CREATE } from '@/components/forms/EcosForm';
 
 const _array = (str, checkForEmpty) => {
   if (checkForEmpty && !str) {
@@ -31,6 +31,7 @@ const _array = (str, checkForEmpty) => {
 
 export default class SelectOrgstructComponent extends BaseComponent {
   _root = null;
+  _lastRootGroup = undefined;
 
   static schema(...extend) {
     return BaseComponent.schema(
@@ -165,6 +166,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
       return;
     }
 
+    const rootGroupName = config.rootGroupName !== undefined ? config.rootGroupName : this._getRootGroup();
+    this._lastRootGroup = rootGroupName;
+
     this._root.render(
       <SelectOrgstruct
         defaultValue={this.dataValue}
@@ -174,7 +178,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         disabled={comp.disabled}
         allowedAuthorityTypes={allowedAuthorityTypes}
         allowedGroupTypes={allowedGroupTypes}
-        rootGroupName={this._getRootGroup()}
+        rootGroupName={rootGroupName}
         allowedGroupSubTypes={allowedGroupSubTypes}
         excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
         excludeAuthoritiesByType={excludeAuthoritiesByType}
@@ -195,9 +199,22 @@ export default class SelectOrgstructComponent extends BaseComponent {
     );
   };
 
-  refreshDOM = () => {
-    this.reactContainer && this.renderReactComponent();
+  refreshDOM = (config = {}) => {
+    this.reactContainer && this.renderReactComponent(config);
   };
+
+  checkConditions(data) {
+    const result = super.checkConditions(data);
+
+    if (this.reactContainer && !this.options.builder) {
+      const nextRootGroup = this._getRootGroup(data);
+      if (nextRootGroup !== this._lastRootGroup) {
+        this.refreshDOM({ rootGroupName: nextRootGroup });
+      }
+    }
+
+    return result;
+  }
 
   destroy() {
     if (this._root) {
@@ -235,11 +252,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return this.dataValue;
   }
 
-  _getRootGroup() {
+  _getRootGroup(data) {
     const { customRootGroupName, rootGroupName } = this.component;
 
     if (customRootGroupName) {
-      return this.evaluate(customRootGroupName, {}, 'value', '');
+      return this.evaluate(customRootGroupName, data ? { data } : {}, 'value', '');
     }
 
     return rootGroupName || ROOT_GROUP_NAME;
