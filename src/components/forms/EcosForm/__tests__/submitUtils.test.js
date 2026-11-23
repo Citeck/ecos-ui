@@ -1,6 +1,41 @@
-import { AWAITED_SUBMIT, handleSubmitResult, isAwaitedSubmit, isThenable } from '../submitUtils';
+import { AWAITED_SUBMIT, createFormSubmitHandler, getSubmitData, handleSubmitResult, isAwaitedSubmit, isThenable } from '../submitUtils';
 
 describe('submitUtils', () => {
+  describe('createFormSubmitHandler', () => {
+    it('captures the clicked outcome and passes through the live submission and callbacks', () => {
+      const form = {};
+      const resolve = jest.fn();
+      const reject = jest.fn();
+      const submission = { state: 'submitted', data: { outcome_Repeal: true, comment: 'Проверено' } };
+      const submitForm = jest.fn();
+
+      createFormSubmitHandler(form, submitForm)(submission, resolve, reject);
+      delete submission.data.outcome_Repeal;
+      submission.data.outcome_RequestInfo = true;
+      submission.data.comment = 'Обновлено';
+
+      const [passedForm, passedSubmission, forceSave, passedResolve, passedReject, outcomes] = submitForm.mock.calls[0];
+      expect(passedForm).toBe(form);
+      expect(passedSubmission).toBe(submission);
+      expect(forceSave).toBe(false);
+      expect(passedResolve).toBe(resolve);
+      expect(passedReject).toBe(reject);
+      expect(outcomes).toEqual({ outcome_Repeal: true });
+      expect(getSubmitData(passedSubmission.data, outcomes)).toEqual({ outcome_Repeal: true, comment: 'Обновлено' });
+      expect(submission.data).toEqual({ outcome_RequestInfo: true, comment: 'Обновлено' });
+    });
+  });
+
+  describe('getSubmitData', () => {
+    it('does not add an outcome to a submission that had none at the event', () => {
+      expect(getSubmitData({ outcome_Repeal: true, comment: 'Draft' }, {})).toEqual({ comment: 'Draft' });
+    });
+
+    it('keeps the original data for direct saves without an outcome snapshot', () => {
+      const data = { outcome_Repeal: true };
+      expect(getSubmitData(data)).toBe(data);
+    });
+  });
   describe('isThenable', () => {
     it.each([[undefined], [null], [0], [''], [{}], [{ then: 'not a function' }], [[]]])('should be false for %p', value => {
       expect(isThenable(value)).toBe(false);

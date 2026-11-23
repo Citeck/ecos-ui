@@ -18,7 +18,7 @@ import { PRE_SETTINGS_TYPES, PreSettings } from '@/components/admin/PreSettings'
 
 import EcosFormUtils from './EcosFormUtils';
 import { buildSoftPatch, readRecordSequentially, redrawComponents } from './softReloadUtils';
-import { AWAITED_SUBMIT, handleSubmitResult } from './submitUtils';
+import { AWAITED_SUBMIT, createFormSubmitHandler, getSubmitData, handleSubmitResult } from './submitUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import { FORM_MODE_EDIT, isNewRecordFormMode } from './constants';
@@ -356,7 +356,7 @@ class EcosForm extends React.Component {
 
             form.ecos = { custom: customModule, form: this };
             form.setValue({ data });
-            form.on('submit', (submission, resolve, reject) => this.submitForm(form, submission, false, resolve, reject));
+            form.on('submit', createFormSubmitHandler(form, this.submitForm));
             form.on(
               'change',
               debounce(
@@ -588,7 +588,8 @@ class EcosForm extends React.Component {
   };
 
   submitForm = debounce(
-    (form, submission, forceSave = false, submissionResolve, submissionReject) => {
+    (form, submission, forceSave = false, submissionResolve, submissionReject, outcomes) => {
+      const data = getSubmitData(submission.data, outcomes);
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       const { recordId, containerId } = this.state;
@@ -619,7 +620,7 @@ class EcosForm extends React.Component {
       }
       let btnComponents = EcosFormUtils.getButtonComponents(form);
       for (let buttonComponent of btnComponents) {
-        if (submission.data[buttonComponent.key] === true) {
+        if (data[buttonComponent.key] === true) {
           let label = buttonComponent.component.label;
           if (isString(label)) {
             // en - locale by default
@@ -643,11 +644,11 @@ class EcosForm extends React.Component {
       // Form data is cleaned up on submit error (resetOutcomeButtonsValues), the record cache is not
       EcosFormUtils.removeOutcomeButtonsAtts(sRecord, allComponents);
 
-      for (const key in submission.data) {
-        if (submission.data.hasOwnProperty(key)) {
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
           const input = inputByKey[key];
 
-          let value = submission.data[key];
+          let value = data[key];
 
           const excludeComponents = ['horizontalLine', 'asyncData', 'taskOutcome'];
           if (input && input.component && excludeComponents.includes(input.component.type)) {

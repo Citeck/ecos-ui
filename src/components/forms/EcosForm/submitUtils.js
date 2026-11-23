@@ -1,5 +1,26 @@
+import { OUTCOME_BUTTONS_PREFIX } from '@citeck/constants/forms';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+
+const isOutcomeEntry = ([key]) => key.startsWith(OUTCOME_BUTTONS_PREFIX);
+
+export function createFormSubmitHandler(form, submitForm) {
+  return (submission, resolve, reject) => {
+    // Formio can clear the clicked outcome before the debounced save. Other fields may still be recalculating.
+    const outcomes = Object.fromEntries(Object.entries(submission.data || {}).filter(isOutcomeEntry));
+    submitForm(form, submission, false, resolve, reject, outcomes);
+  };
+}
+
+export function getSubmitData(data, outcomes) {
+  if (outcomes === undefined) {
+    return data; // A direct save did not go through the Formio submit event.
+  }
+
+  // Replace the entire outcome set: another click may have written a different flag in the meantime.
+  const currentFields = Object.fromEntries(Object.entries(data || {}).filter(entry => !isOutcomeEntry(entry)));
+  return { ...currentFields, ...outcomes };
+}
 
 /**
  * Duck-typing check for a promise-like value (Promise, thenable of any library).
