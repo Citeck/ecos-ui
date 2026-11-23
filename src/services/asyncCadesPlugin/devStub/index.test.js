@@ -87,7 +87,14 @@ describe('esign dev stub', () => {
 
     it('lists the oracle certificates and drops the public-only ones', async () => {
       mockFetch([
-        { id: 'cert-1', subjectCN: 'Иван Петров', algorithm: 'gost2012_256', serialHex: 'AB', notBefore: '2026-01-01T00:00:00Z', notAfter: '2027-01-01T00:00:00Z' },
+        {
+          id: 'cert-1',
+          subjectCN: 'Иван Петров',
+          algorithm: 'gost2012_256',
+          serialHex: 'AB',
+          notBefore: '2026-01-01T00:00:00Z',
+          notAfter: '2027-01-01T00:00:00Z'
+        },
         { id: 'cert-2', subjectCN: 'Внешний', algorithm: 'rsa2048', imported: true }
       ]);
 
@@ -148,9 +155,7 @@ describe('esign dev stub', () => {
 
       const [certificate] = await createDevStubApi(config).getValidCertificates();
 
-      expect(certificate.friendlySubjectInfo()).toEqual([
-        expect.objectContaining({ code: 'CN', text: 'Иван Петров' })
-      ]);
+      expect(certificate.friendlySubjectInfo()).toEqual([expect.objectContaining({ code: 'CN', text: 'Иван Петров' })]);
     });
 
     it('passes the document through to the oracle and returns its signature', async () => {
@@ -161,7 +166,12 @@ describe('esign dev stub', () => {
       expect(signature).toBe('Q01TLWJ5dGVz');
       expect(global.fetch).toHaveBeenCalledWith(
         '/gateway/edi-sim/admin/api/certificates/cert-1/sign',
-        expect.objectContaining({ method: 'POST', body: JSON.stringify({ content: 'ZG9jdW1lbnQ=' }) })
+        expect.objectContaining({
+          mode: 'same-origin',
+          redirect: 'error',
+          method: 'POST',
+          body: JSON.stringify({ content: 'ZG9jdW1lbnQ=' })
+        })
       );
     });
 
@@ -180,7 +190,7 @@ describe('esign dev stub', () => {
     it('refuses a cross-origin oracle url', async () => {
       // The document itself travels in the sign request, together with the session
       // cookie, so an absolute url would hand both to a foreign host.
-      for (const url of ['https://evil.example.com/api', '//evil.example.com/api']) {
+      for (const url of ['https://evil.example.com/api', '//evil.example.com/api', '/\\evil.example.com/api', '/\tevil.example.com/api']) {
         await expect(createDevStubApi({ mode: 'remote', url }).getCertsList()).rejects.toThrow(/same-origin path/);
       }
     });

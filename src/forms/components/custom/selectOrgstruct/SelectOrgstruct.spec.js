@@ -63,4 +63,29 @@ describe('SelectOrgstruct Component', () => {
       });
     });
   });
+
+  it('Should re-render when dynamic customRootGroupName changes via checkConditions (EMTC-689)', done => {
+    const dynamicComp = {
+      ...cloneDeep(comp1),
+      customRootGroupName: "value = (data.cdPdApprovers_ad || {}).pdApGroup || '_no_authority_';"
+    };
+
+    Harness.testCreate(SelectOrgstructComponent, dynamicComp, { readOnly: false }).then(component => {
+      expect(component._lastRootGroup).toBe('_no_authority_');
+      const refreshSpy = jest.spyOn(component, 'refreshDOM');
+
+      component.checkConditions({
+        cdPdApprovers_ad: { pdApGroup: 'pdApprovers_NonICFF_CD' }
+      });
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+      expect(component._lastRootGroup).toBe('pdApprovers_NonICFF_CD');
+
+      component.checkConditions({
+        cdPdApprovers_ad: { pdApGroup: 'pdApprovers_NonICFF_CD' }
+      });
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+
+      done();
+    });
+  });
 });

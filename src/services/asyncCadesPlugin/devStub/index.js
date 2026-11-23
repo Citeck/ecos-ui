@@ -140,13 +140,15 @@ function stubSignature(thumbprint) {
  * names. Same-origin is also what removes the need for CORS on the oracle side.
  */
 function oracleUrl(config, path) {
-  const base = String(get(config, 'url', '')).trim().replace(/\/+$/, '');
+  const base = String(get(config, 'url', ''))
+    .trim()
+    .replace(/\/+$/, '');
 
   if (!base) {
     throw new Error('esign dev mode: "url" is not set in the esign-dev-mode config');
   }
 
-  if (!base.startsWith('/') || base.startsWith('//')) {
+  if (!base.startsWith('/') || base.startsWith('//') || /[\\\u0000-\u0020\u007f]/.test(base)) {
     throw new Error(`esign dev mode: "url" must be a same-origin path (e.g. /gateway/edi-sim/admin/api), got "${base}"`);
   }
 
@@ -157,7 +159,7 @@ async function oracleRequest(url, init) {
   let response;
 
   try {
-    response = await fetch(url, { credentials: 'include', ...init });
+    response = await fetch(url, { ...init, credentials: 'include', mode: 'same-origin', redirect: 'error' });
   } catch (e) {
     throw new Error(`esign dev mode: signing oracle at ${url} is unreachable (${e.message})`);
   }

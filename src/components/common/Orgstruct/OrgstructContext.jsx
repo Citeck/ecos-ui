@@ -3,7 +3,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import {
@@ -17,8 +17,8 @@ import {
 } from './helpers';
 
 import { OrgStructApi } from '@/api/orgStruct';
-import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { Avatar } from '@/components/common/index';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { usePrevious } from '@/hooks';
 
 export const OrgstructContext = React.createContext();
@@ -66,8 +66,31 @@ export const OrgstructProvider = props => {
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState(initSelectedRows || []);
   const [isSelectedFetched, setIsSelectedFetched] = useState(true);
-  const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
+  const fetchedRootKeyRef = useRef(null);
+  const [rootReloadSeq, setRootReloadSeq] = useState(0);
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
+  const prevRootGroupName = usePrevious(rootGroupName);
+  const latestRootGroupRef = useRef(rootGroupName);
+  latestRootGroupRef.current = rootGroupName;
+  const rootFetchSeqRef = useRef(0);
+  const searchAbortRef = useRef(null);
+  const currentRootKey = `${rootGroupName ?? ''}::${rootReloadSeq}`;
+
+  useEffect(() => {
+    if (prevRootGroupName !== undefined && prevRootGroupName !== rootGroupName) {
+      searchAbortRef.current?.abort('[OrgstructContext] Root group changed');
+      rootFetchSeqRef.current += 1;
+      fetchedRootKeyRef.current = null;
+      setTabItems(prev => ({
+        ...prev,
+        [TabTypes.LEVELS]: []
+      }));
+      setOpenedItems({});
+      if (!(isSelectModalOpen && currentTab === TabTypes.LEVELS)) {
+        setIsSearching(false);
+      }
+    }
+  }, [rootGroupName, prevRootGroupName, isSelectModalOpen, currentTab]);
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
   const [isSearching, setIsSearching] = useState(false);
   const [applyAndClose, setApplyAndClose] = useState(false);
@@ -140,6 +163,8 @@ export const OrgstructProvider = props => {
 
       if (!targetItem.isLoaded && targetItem.hasChildren) {
         const groupName = targetItem.attributes.shortName;
+        const requestedRootGroup = rootGroupName;
+        const requestedFetchSeq = rootFetchSeqRef.current;
 
         orgStructApi
           .fetchGroup({
@@ -149,42 +174,53 @@ export const OrgstructProvider = props => {
             isIncludedAdminGroup
           })
           .then(handleResponse)
-          .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
-          .then(newItems => {
-            const currentTabValue = tabItems[currentTab];
-            const currentItem = {
-              ...targetItem,
-              hasChildren: newItems.length > 0, // If no children, make not collapsible
-              isLoaded: true,
-              isOpen: !targetItem.isOpen
-            };
+          .then(items => {
+            if (latestRootGroupRef.current !== requestedRootGroup || rootFetchSeqRef.current !== requestedFetchSeq) {
+              return false;
+            }
 
-            currentTabValue[itemIdx] = currentItem;
-
-            newItems.forEach(newItem => {
-              const index = currentTabValue.findIndex(x => x.id === newItem.id);
-
-              if (index === -1) {
-                currentTabValue.push(newItem);
-              } else {
-                currentTabValue[index] = { ...currentTabValue[index], ...newItem };
+            setTabItems(prev => {
+              const currentTabValue = [...prev[currentTab]];
+              const currentIdx = currentTabValue.findIndex(item => item.id === targetItem.id);
+              if (currentIdx === -1) {
+                return prev;
               }
-            });
+              const newItems = items.map(item => setSelectedItem(item, prev[TabTypes.SELECTED], { parentId: targetItem.id }));
+              const currentItem = {
+                ...targetItem,
+                hasChildren: newItems.length > 0, // If no children, make not collapsible
+                isLoaded: true,
+                isOpen: !targetItem.isOpen
+              };
 
-            setTabItems({
-              ...tabItems,
-              [currentTab]: currentTabValue
+              currentTabValue[currentIdx] = currentItem;
+
+              newItems.forEach(newItem => {
+                const index = currentTabValue.findIndex(x => x.id === newItem.id);
+
+                if (index === -1) {
+                  currentTabValue.push(newItem);
+                } else {
+                  currentTabValue[index] = { ...currentTabValue[index], ...newItem };
+                }
+              });
+
+              return {
+                ...prev,
+                [currentTab]: currentTabValue
+              };
             });
+            return true;
           })
-          .then(() => {
-            callback && callback();
+          .then(updated => {
+            updated && callback && callback();
           });
       } else {
         onUpdateItem({ ...targetItem, isOpen: !targetItem.isOpen });
         callback && callback();
       }
     },
-    [tabItems, currentTab, setTabItems]
+    [tabItems, currentTab, setTabItems, rootGroupName]
   );
 
   const onUpdateItem = targetItem => {
@@ -200,13 +236,17 @@ export const OrgstructProvider = props => {
   };
 
   const onUpdateTree = () => {
-    setIsRootGroupsFetched(false);
+    searchAbortRef.current?.abort('[OrgstructContext] Organizational structure tree updated');
+    rootFetchSeqRef.current += 1;
+    fetchedRootKeyRef.current = null;
+    setRootReloadSeq(seq => seq + 1);
     setIsAllUsersGroupFetched(false);
     setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
   const liveSearchDebounce = () => {
     controller.abort('[OrgstructContext] Previous organizational structure search canceled');
+    searchAbortRef.current?.abort('[OrgstructContext] Previous organizational structure search canceled');
     onUpdateTree();
   };
 
@@ -265,38 +305,56 @@ export const OrgstructProvider = props => {
 
   const initList = () => {
     const trimSearchText = (searchText || '').trim();
+    const fetchController = new AbortController();
+    searchAbortRef.current?.abort('[OrgstructContext] Root group fetch restarted');
+    searchAbortRef.current = fetchController;
+    const reqId = ++rootFetchSeqRef.current;
+    const requestedGroup = rootGroupName;
+    const requestedKey = currentRootKey;
     let livePromise = true;
 
     setIsSearching(true);
     orgStructApi
-      .fetchGroup({
-        query: {
-          groupName: rootGroupName,
-          searchText: trimSearchText
+      .fetchGroup(
+        {
+          query: {
+            groupName: requestedGroup,
+            searchText: trimSearchText
+          },
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType,
+          isIncludedAdminGroup,
+          isSearchInAllGroups
         },
-        excludeAuthoritiesByName,
-        excludeAuthoritiesByType,
-        isIncludedAdminGroup,
-        isSearchInAllGroups
-      })
+        fetchController.signal
+      )
       .then(handleResponse)
       .then(items => {
-        if (!livePromise) {
+        if (!livePromise || reqId !== rootFetchSeqRef.current || latestRootGroupRef.current !== requestedGroup) {
           return;
         }
 
-        setTabItems({
-          ...tabItems,
+        setTabItems(prev => ({
+          ...prev,
           [TabTypes.LEVELS]: items
             .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
-            .map(item => setSelectedItem(item))
-        });
+            .map(item => setSelectedItem(item, prev[TabTypes.SELECTED]))
+        }));
         checkIsAllUsersGroupExists();
-        setIsRootGroupsFetched(true);
+        fetchedRootKeyRef.current = requestedKey;
+        setIsSearching(false);
+      })
+      .catch(() => {
+        if (!livePromise || reqId !== rootFetchSeqRef.current || latestRootGroupRef.current !== requestedGroup) {
+          return;
+        }
         setIsSearching(false);
       });
 
-    return () => (livePromise = false);
+    return () => {
+      livePromise = false;
+      fetchController.abort('[OrgstructContext] Root group fetch canceled');
+    };
   };
 
   useEffect(() => {
@@ -308,17 +366,24 @@ export const OrgstructProvider = props => {
   // fetch root group list
   useEffect(() => {
     const trimSearchText = (searchText || '').trim();
+    const fetchController = new AbortController();
     let livePromise = true;
 
     const excludeAuthoritiesByName2 = [excludeAuthoritiesByName, parent?.attributes.displayName].filter(Boolean).join(', ');
+    const needsRootFetch = fetchedRootKeyRef.current !== currentRootKey;
 
-    if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
+    if (needsRootFetch && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
+      searchAbortRef.current = fetchController;
+      const reqId = ++rootFetchSeqRef.current;
+      const requestedGroup = rootGroupName;
+      const requestedKey = currentRootKey;
+
       setIsSearching(true);
       orgStructApi
         .fetchGroup(
           {
             query: {
-              groupName: rootGroupName,
+              groupName: requestedGroup,
               searchText: trimSearchText
             },
             excludeAuthoritiesByName: excludeAuthoritiesByName2,
@@ -326,28 +391,40 @@ export const OrgstructProvider = props => {
             isIncludedAdminGroup,
             isSearchInAllGroups
           },
-          signal
+          fetchController.signal
         )
         .then(handleResponse)
         .then(items => {
-          if (!livePromise) {
+          if (!livePromise || reqId !== rootFetchSeqRef.current || latestRootGroupRef.current !== requestedGroup) {
             return;
           }
 
-          setTabItems({
-            ...tabItems,
+          setTabItems(prev => ({
+            ...prev,
             [TabTypes.LEVELS]: items
               .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
-              .map(item => setSelectedItem(item))
-          });
+              .map(item => setSelectedItem(item, prev[TabTypes.SELECTED]))
+          }));
           checkIsAllUsersGroupExists();
-          setIsRootGroupsFetched(true);
+          fetchedRootKeyRef.current = requestedKey;
+          setIsSearching(false);
+        })
+        .catch(() => {
+          if (!livePromise || reqId !== rootFetchSeqRef.current || latestRootGroupRef.current !== requestedGroup) {
+            return;
+          }
           setIsSearching(false);
         });
     }
 
-    return () => (livePromise = false);
-  }, [isRootGroupsFetched, isSelectModalOpen, currentTab, searchText]);
+    return () => {
+      livePromise = false;
+      fetchController.abort('[OrgstructContext] Root group fetch superseded');
+      if (searchAbortRef.current === fetchController) {
+        setIsSearching(false);
+      }
+    };
+  }, [currentRootKey, isSelectModalOpen, currentTab]);
 
   // fetch "all" group list (all users)
   useEffect(() => {
@@ -635,6 +712,8 @@ export const OrgstructProvider = props => {
           }
 
           const groupName = targetItem.attributes.shortName;
+          const requestedRootGroup = rootGroupName;
+          const requestedFetchSeq = rootFetchSeqRef.current;
 
           orgStructApi
             .fetchGroup({
@@ -644,12 +723,20 @@ export const OrgstructProvider = props => {
               isIncludedAdminGroup
             })
             .then(handleResponse)
-            .then(result => result.map(item => prepareParentId(item, targetItem.id)))
-            .then(result => unionWithPrevious(result, tabItems[currentTab]))
-            .then(newItems => {
-              setTabItems({
-                ...tabItems,
-                [currentTab]: [...tabItems[currentTab].filter(item => item.parentId !== targetItem.id), ...newItems]
+            .then(result => {
+              if (latestRootGroupRef.current !== requestedRootGroup || rootFetchSeqRef.current !== requestedFetchSeq) {
+                return;
+              }
+              setTabItems(prev => {
+                const currentList = prev[currentTab];
+                const mapped = unionWithPrevious(
+                  result.map(item => prepareParentId(item, targetItem.id)),
+                  currentList
+                );
+                return {
+                  ...prev,
+                  [currentTab]: [...currentList.filter(item => item.parentId !== targetItem.id), ...mapped]
+                };
               });
             });
         },

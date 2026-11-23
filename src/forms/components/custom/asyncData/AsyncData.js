@@ -97,6 +97,9 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   updatedOnce = false;
+  _onceUpdatePending = false;
+  _asyncRequestSeq = 0;
+  _recordsScriptSeq = 0;
 
   get defaultSchema() {
     return AsyncDataComponent.schema();
@@ -136,6 +139,39 @@ export default class AsyncDataComponent extends BaseComponent {
     return info;
   }
 
+  _unwatchRecords() {
+    const watchers = this._recordWatchers || {};
+
+    for (let id in watchers) {
+      if (watchers.hasOwnProperty(id)) {
+        watchers[id].unwatch();
+      }
+    }
+    this._recordWatchers = {};
+  }
+
+  _resetSkippedState() {
+    if (this._updateValue && typeof this._updateValue.cancel === 'function') {
+      this._updateValue.cancel();
+    }
+
+    this._onceUpdatePending = false;
+    this._asyncRequestSeq = (this._asyncRequestSeq || 0) + 1;
+    this._recordsScriptSeq = (this._recordsScriptSeq || 0) + 1;
+    this._unwatchRecords();
+
+    delete this.evaluatedRecordId;
+    delete this.evaluatedRecordIds;
+    delete this.evaluatedRecordsScript;
+    delete this.evaluatedRecordsQuery;
+    delete this.computedAjaxData;
+    delete this.computedCustomData;
+
+    if (!isEqual(this.dataValue, this.emptyValue)) {
+      this.setValue(cloneDeep(this.emptyValue));
+    }
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
@@ -143,8 +179,8 @@ export default class AsyncDataComponent extends BaseComponent {
       if (this.updateType === UpdateTypes.anyChange) {
         this._updateValue(false);
       }
-      if (this.updateType === UpdateTypes.once && !this.updatedOnce) {
-        this.updatedOnce = true;
+      if (this.updateType === UpdateTypes.once && !this.updatedOnce && !this._onceUpdatePending) {
+        this._onceUpdatePending = true;
         this._updateValue(false);
       }
     }
@@ -160,7 +196,11 @@ export default class AsyncDataComponent extends BaseComponent {
     const record = Records.get(recordId);
     const baseRecord = record.getBaseRecord();
     const watcherKey = baseRecord.id;
-    const callback = () => this._updateValue(true);
+    const callback = () => {
+      if (this.shouldExecute) {
+        this._updateValue(true);
+      }
+    };
 
     let attributesMap;
     if (isArray(attributes)) {
@@ -201,8 +241,18 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   _updateValue = debounce(forceUpdate => {
+    this._onceUpdatePending = false;
+
+    if (!this.shouldExecute) {
+      return;
+    }
+
     const comp = this.component;
     const type = get(comp, 'source.type', '');
+
+    if (this.updateType === UpdateTypes.once && type !== SourceTypes.recordsScript) {
+      this.updatedOnce = true;
+    }
 
     switch (type) {
       case SourceTypes.record:
@@ -250,9 +300,37 @@ export default class AsyncDataComponent extends BaseComponent {
             forceUpdate
           );
 
+        const scriptSeq = ++this._recordsScriptSeq;
         if (records && records.then) {
-          records.then(evalAsync);
+          if (this.updateType === UpdateTypes.once) {
+            this._onceUpdatePending = true;
+          }
+          records.then(
+            recs => {
+              if (scriptSeq === this._recordsScriptSeq) {
+                this._onceUpdatePending = false;
+                if (this.shouldExecute) {
+                  if (this.updateType === UpdateTypes.once) {
+                    this.updatedOnce = true;
+                  }
+                  evalAsync(recs);
+                }
+              }
+            },
+            e => {
+              if (scriptSeq === this._recordsScriptSeq) {
+                this._onceUpdatePending = false;
+                if (this.shouldExecute && this.updateType === UpdateTypes.once) {
+                  this.updatedOnce = true;
+                }
+              }
+              console.warn(e);
+            }
+          );
         } else {
+          if (this.updateType === UpdateTypes.once) {
+            this.updatedOnce = true;
+          }
           evalAsync(records);
         }
 
@@ -384,16 +462,17 @@ export default class AsyncDataComponent extends BaseComponent {
     const { ignoreValuesEqualityChecking } = comp;
 
     if (ignoreValuesEqualityChecking || forceUpdate || !isEqual(currentValue, data)) {
+      const requestSeq = ++this._asyncRequestSeq;
       this[dataField] = data;
 
-      const setValue = value => isEqual(data, this[dataField]) && this.setValue(value);
+      const setValue = value => requestSeq === this._asyncRequestSeq && isEqual(data, this[dataField]) && this.setValue(value);
 
       const decrement = () => this.activeAsyncActionsCounter--;
 
       const actionImpl = () => {
         this.activeAsyncActionsCounter++;
 
-        if (isEqual(data, this[dataField])) {
+        if (requestSeq === this._asyncRequestSeq && isEqual(data, this[dataField])) {
           try {
             const result = action.call(this, data);
 
@@ -429,14 +508,13 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   destroy() {
-    const watchers = this._recordWatchers || {};
-
-    for (let id in watchers) {
-      if (watchers.hasOwnProperty(id)) {
-        watchers[id].unwatch();
-      }
+    if (this._updateValue && typeof this._updateValue.cancel === 'function') {
+      this._updateValue.cancel();
     }
-    this._recordWatchers = {};
+    this._onceUpdatePending = false;
+    this._asyncRequestSeq = (this._asyncRequestSeq || 0) + 1;
+    this._recordsScriptSeq = (this._recordsScriptSeq || 0) + 1;
+    this._unwatchRecords();
 
     return super.destroy();
   }
@@ -444,6 +522,7 @@ export default class AsyncDataComponent extends BaseComponent {
   build(state) {
     super.build(state);
 
+    this._onceUpdatePending = false;
     this._recordWatchers = {};
     this.activeAsyncActionsCounter = 0;
 
@@ -465,8 +544,8 @@ export default class AsyncDataComponent extends BaseComponent {
         },
         true
       );
-    } else if (this.updateType === UpdateTypes.once && !this.updatedOnce && this.shouldExecute) {
-      this.updatedOnce = true;
+    } else if (this.updateType === UpdateTypes.once && !this.updatedOnce && !this._onceUpdatePending && this.shouldExecute) {
+      this._onceUpdatePending = true;
       this._updateValue(false);
     }
 
@@ -480,10 +559,13 @@ export default class AsyncDataComponent extends BaseComponent {
             event &&
             event.component &&
             refreshOn.findIndex(item => item.value === event.component.key) !== -1 &&
-            this.inContext(event.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
-            this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
+            this.inContext(event.instance) // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
           ) {
-            this._updateValue(false);
+            if (this.shouldExecute) {
+              this._updateValue(false);
+            } else {
+              this._resetSkippedState();
+            }
           }
         },
         true
