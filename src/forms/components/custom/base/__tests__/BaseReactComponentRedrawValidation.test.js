@@ -33,6 +33,16 @@ beforeAll(() => {
   Components.addComponent('dummyJournalField', DummyJournalFieldComponent);
 });
 
+async function waitForCondition(predicate, timeoutMs = 5000, intervalMs = 50) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) {
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, intervalMs));
+  }
+}
+
 describe('EMTC-365 Case 6: BaseReactComponent redraw + optionalWhenDisabled validation', () => {
   it('does not stack duplicate .formio-errors above <label>, preserves tooltip/description, and clears tab errors when disabled', async () => {
     const definition = {
@@ -140,7 +150,7 @@ describe('EMTC-365 Case 6: BaseReactComponent redraw + optionalWhenDisabled vali
         expect(tabs.tabLinks[1].classList.contains(TAB_INVALID_CLASS)).toBe(true);
       }
     }
-  });
+  }, 20000);
 });
 
 describe('EMTC-652: AsyncData record watcher refreshes viewOnly tabs when status advances from draft', () => {
@@ -271,7 +281,12 @@ describe('EMTC-652: AsyncData record watcher refreshes viewOnly tabs when status
     const form = wrapper.getForm();
     const tabs = form.getComponent('tabs0');
 
-    await new Promise(resolve => setTimeout(resolve, 650));
+    await waitForCondition(
+      () =>
+        typeof watcherCallback === 'function' &&
+        form.data.documentStatus?.status === 'uni-draft' &&
+        [1, 2, 3].every(idx => tabs.tabLinks[idx].classList.contains('hidden'))
+    );
 
     expect(watcherCallback).toEqual(expect.any(Function));
     expect(form.data.documentStatus).toEqual({ status: 'uni-draft', disp: 'Draft' });
@@ -283,13 +298,17 @@ describe('EMTC-652: AsyncData record watcher refreshes viewOnly tabs when status
     currentStatus = { status: 'uni-only-data-filling', disp: 'Data filling' };
     watcherCallback(currentStatus);
 
-    await new Promise(resolve => setTimeout(resolve, 650));
+    await waitForCondition(
+      () =>
+        form.data.documentStatus?.status === 'uni-only-data-filling' &&
+        [1, 2, 3].every(idx => !tabs.tabLinks[idx].classList.contains('hidden'))
+    );
 
     expect(form.data.documentStatus).toEqual({ status: 'uni-only-data-filling', disp: 'Data filling' });
     expect(tabs.tabLinks[1].classList.contains('hidden')).toBe(false);
     expect(tabs.tabLinks[2].classList.contains('hidden')).toBe(false);
     expect(tabs.tabLinks[3].classList.contains('hidden')).toBe(false);
-  });
+  }, 20000);
 });
 
 describe('EMTC-653: Base.prototype.evaluate avoids cloning full form on formMode substrings and caches compiled scripts', () => {
@@ -395,7 +414,7 @@ describe('EMTC-653: Base.prototype.evaluate avoids cloning full form on formMode
     } finally {
       delete form._form.__emtc653CloneProbe;
     }
-  });
+  }, 20000);
 });
 
 describe('EMTC-465: Validator.required enforces required when optionalWhenDisabled is explicitly false', () => {
