@@ -367,6 +367,31 @@ describe('EMTC-653: Base.prototype.evaluate avoids cloning full form on formMode
       expect(form.getComponent('field_0').component.validate.required).toBe(true);
       expect(form.getComponent('field_119').visible).toBe(true);
       expect(form.getComponent('field_119').component.validate.required).toBe(true);
+
+      // Deterministic compiled-script cache check: evaluating a unique script twice with different
+      // data must compile via `new Function` once and reuse the cached function on the second call
+      const cacheSentinel = `emtc653_cache_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const uniqueScript = `/* ${cacheSentinel} */ value = data.projectName + ':' + instance.options.formMode;`;
+      const OriginalFunction = global.Function;
+      let compiledForSentinel = 0;
+      const TrackingFunction = function (...args) {
+        const body = args[args.length - 1];
+        if (typeof body === 'string' && body.includes(cacheSentinel)) {
+          compiledForSentinel += 1;
+        }
+        return OriginalFunction.apply(this, args);
+      };
+      TrackingFunction.prototype = OriginalFunction.prototype;
+      global.Function = TrackingFunction;
+      try {
+        const first = projectComp.evaluate(uniqueScript, { data: { projectName: 'alpha' } }, 'value');
+        const second = projectComp.evaluate(uniqueScript, { data: { projectName: 'beta' } }, 'value');
+        expect(first).toBe('alpha:CREATE');
+        expect(second).toBe('beta:CREATE');
+        expect(compiledForSentinel).toBe(1);
+      } finally {
+        global.Function = OriginalFunction;
+      }
     } finally {
       delete form._form.__emtc653CloneProbe;
     }
