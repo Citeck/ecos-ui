@@ -332,24 +332,44 @@ describe('EMTC-653: Base.prototype.evaluate avoids cloning full form on formMode
     const form = wrapper.getForm();
     const projectComp = form.getComponent('projectName');
 
-    // Mutation isolation when script explicitly references `form` or `component`
-    const resForm = projectComp.evaluate('form.display = "mutated"; value = form.display;', {}, 'value');
-    expect(resForm).toBe('mutated');
-    expect(form._form.display).toBe('form');
+    // Track full-form deep clones via an enumerable getter probe on form._form (cloneDeep reads enumerable props)
+    let formCloneReads = 0;
+    Object.defineProperty(form._form, '__emtc653CloneProbe', {
+      enumerable: true,
+      configurable: true,
+      get() {
+        formCloneReads += 1;
+        return 'probe';
+      }
+    });
 
-    const resComp = projectComp.evaluate('component.label = "Mutated Label"; value = component.label;', {}, 'value');
-    expect(resComp).toBe('Mutated Label');
-    expect(projectComp.component.label).toBe('Project Name');
+    try {
+      // Mutation isolation when script explicitly references `form` or `component`
+      const resForm = projectComp.evaluate('form.display = "mutated"; value = form.display;', {}, 'value');
+      expect(resForm).toBe('mutated');
+      expect(form._form.display).toBe('form');
+      expect(formCloneReads).toBeGreaterThan(0);
 
-    // Warm up + measure 5 consecutive checkConditions passes across 120 logic+conditional components
-    form.checkConditions(form.data);
-    const start = Date.now();
-    for (let k = 0; k < 5; k++) {
-      form.data.projectName = `typed_${k}`;
+      const resComp = projectComp.evaluate('component.label = "Mutated Label"; value = component.label;', {}, 'value');
+      expect(resComp).toBe('Mutated Label');
+      expect(projectComp.component.label).toBe('Project Name');
+
+      // 6 consecutive checkConditions passes across 120 logic+conditional components referencing
+      // `instance.options.formMode` must NOT deep-clone `form._form` (deterministic EMTC-653 invariant)
+      formCloneReads = 0;
       form.checkConditions(form.data);
+      for (let k = 0; k < 5; k++) {
+        form.data.projectName = `typed_${k}`;
+        form.checkConditions(form.data);
+      }
+      expect(formCloneReads).toBe(0);
+      expect(form.getComponent('field_0').visible).toBe(true);
+      expect(form.getComponent('field_0').component.validate.required).toBe(true);
+      expect(form.getComponent('field_119').visible).toBe(true);
+      expect(form.getComponent('field_119').component.validate.required).toBe(true);
+    } finally {
+      delete form._form.__emtc653CloneProbe;
     }
-    const avgMs = (Date.now() - start) / 5;
-    expect(avgMs).toBeLessThan(80);
   });
 });
 
