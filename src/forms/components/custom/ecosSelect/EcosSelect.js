@@ -384,7 +384,11 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
-    requestAnimationFrame(() => this.scrollList.scrollTo(0, this.scrollTop));
+    requestAnimationFrame(() => {
+      if (this.scrollList && typeof this.scrollList.scrollTo === 'function') {
+        this.scrollList.scrollTo(0, this.scrollTop);
+      }
+    });
 
     this.isScrollLoading = isScrolling;
     return isScrolling;
@@ -976,6 +980,13 @@ export default class SelectComponent extends BaseComponent {
 
     this.scrollList = this.choices.choiceList.element;
     this.onScroll = () => {
+      // Static and custom data sources hold the complete option set locally with no server pagination.
+      // Entering scrollLoading replaces the Choices list with a trailing "Loading..." row and re-triggers
+      // updateItems, which causes the dropdown scroll position to jump back on scroll (EMTC-795).
+      if (['values', 'json', 'custom'].includes(this.component.dataSrc)) {
+        return;
+      }
+
       // While a client-side search is running the filter owns the list, and there is nothing more to
       // load: the matches are all already in the store. Loading anyway replaces the filtered list with
       // the whole option set plus a "Loading..." row (see the `scrollLoading` setter), so scrolling to

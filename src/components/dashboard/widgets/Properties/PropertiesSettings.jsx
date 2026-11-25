@@ -18,7 +18,8 @@ const Labels = {
   DISPLAYED_PROPERTIES: 'properties-widget.settings.displayed-properties',
   DEFAULT_FORM: 'properties-widget.settings.default-form',
   FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list',
-  CHECKBOX_LABEL_1: 'properties-widget.settings.title-as-form-name'
+  CHECKBOX_LABEL_1: 'properties-widget.settings.title-as-form-name',
+  CHECKBOX_SHOW_VALIDATION_IN_VIEW_MODE: 'properties-widget.settings.show-validation-in-view-mode'
 };
 
 class PropertiesSettings extends React.Component {
@@ -39,7 +40,8 @@ class PropertiesSettings extends React.Component {
 
     this.state = {
       formId: get(props, 'config.formId', null),
-      titleAsFormName: get(props, 'config.titleAsFormName', false)
+      titleAsFormName: get(props, 'config.titleAsFormName', false),
+      showValidationInViewMode: Boolean(get(props, 'config.showValidationInViewMode', false))
     };
   }
 
@@ -65,19 +67,23 @@ class PropertiesSettings extends React.Component {
     this.setState({ titleAsFormName: field.checked });
   };
 
+  onChangeShowValidationInViewMode = field => {
+    this.setState({ showValidationInViewMode: field.checked });
+  };
+
   onCancel = () => {
     this.props.onCancel();
   };
 
   onSave = () => {
-    const { formId, titleAsFormName } = this.state;
+    const { formId, titleAsFormName, showValidationInViewMode } = this.state;
 
-    this.props.onSave({ formId, titleAsFormName });
+    this.props.onSave({ ...this.props.config, formId, titleAsFormName, showValidationInViewMode });
   };
 
   render() {
     const { forms, isLoading } = this.props;
-    const { formId, titleAsFormName } = this.state;
+    const { formId, titleAsFormName, showValidationInViewMode } = this.state;
     const arrForms = forms.slice();
 
     arrForms.unshift({ id: null, title: t(Labels.DEFAULT_FORM) });
@@ -114,6 +120,11 @@ class PropertiesSettings extends React.Component {
           <div className="ecos-properties-settings__checkbox-block">
             <Checkbox checked={titleAsFormName} onChange={this.onChangeTitle} className="ecos-checkbox_flex">
               {t(Labels.CHECKBOX_LABEL_1)}
+            </Checkbox>
+          </div>
+          <div className="ecos-properties-settings__checkbox-block">
+            <Checkbox checked={showValidationInViewMode} onChange={this.onChangeShowValidationInViewMode} className="ecos-checkbox_flex">
+              {t(Labels.CHECKBOX_SHOW_VALIDATION_IN_VIEW_MODE)}
             </Checkbox>
           </div>
         </div>

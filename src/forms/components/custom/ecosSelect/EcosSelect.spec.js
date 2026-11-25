@@ -797,13 +797,24 @@ describe('EcosSelect Component', () => {
       expect(renderedChoices(component)).toBe(found);
     });
 
-    it('should still load more when no search is running', async () => {
-      const component = await Harness.testCreate(EcosSelectComponent, cloneDeep(comp1));
+    it('should still load more when no search is running on a paginated data source', async () => {
+      const requestSpy = jest.spyOn(Formio, 'makeRequest').mockResolvedValue([]);
+      const component = await Harness.testCreate(EcosSelectComponent, {
+        ...cloneDeep(comp1),
+        dataSrc: 'url',
+        data: { url: '/select-test-options' }
+      });
 
-      scrolledToBottom(component.scrollList);
-      component.scrollList.dispatchEvent(new Event('scroll'));
+      try {
+        scrolledToBottom(component.scrollList);
+        component.scrollList.dispatchEvent(new Event('scroll'));
 
-      expect(component.scrollLoading).toBe(true);
+        expect(component.scrollLoading).toBe(true);
+      } finally {
+        component.triggerUpdate.cancel();
+        component.destroy(true);
+        requestSpy.mockRestore();
+      }
     });
   });
 

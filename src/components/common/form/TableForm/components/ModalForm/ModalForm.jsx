@@ -1,13 +1,28 @@
 import Records from '@citeck/records-core';
 import React, { useContext, useEffect, useState } from 'react';
 
-import { t } from '../../../../../../helpers/util';
+import { getMLValue, t } from '../../../../../../helpers/util';
 import useIsMounted from '../../../../../../hooks/useIsMounted';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '@/components/forms/EcosForm';
 import EcosForm from '@/components/forms/EcosForm/EcosForm';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import EcosModal from '../../../../EcosModal';
 import { TableFormContext } from '../../TableFormContext';
+
+const resolveVariantDisplayName = variant => {
+  if (!variant) {
+    return '';
+  }
+
+  for (const candidate of [variant.label, variant.title, variant.name]) {
+    const resolved = getMLValue(candidate);
+    if (typeof resolved === 'string' && resolved.trim()) {
+      return resolved;
+    }
+  }
+
+  return '';
+};
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
@@ -32,19 +47,69 @@ const ModalForm = () => {
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
+    let active = true;
+
     if (isStaticModalTitle) {
       if (!!customStringForConcatWithStaticTitle) {
         setDisplayName(customStringForConcatWithStaticTitle);
       }
-      return;
+      return () => {
+        active = false;
+      };
     }
 
+    if (formMode === FORM_MODE_CREATE && !record) {
+      const variantLabel = resolveVariantDisplayName(createVariant);
+      if (variantLabel) {
+        setDisplayName(variantLabel);
+        return () => {
+          active = false;
+        };
+      }
+
+      if (createVariant && createVariant.typeRef) {
+        setDisplayName('');
+        Records.get(createVariant.typeRef)
+          .load('.disp')
+          .then(disp => {
+            if (active && isMounted()) {
+              setDisplayName(getMLValue(disp) || '');
+            }
+          })
+          .catch(() => {
+            if (active && isMounted()) {
+              setDisplayName('');
+            }
+          });
+        return () => {
+          active = false;
+        };
+      }
+
+      setDisplayName('');
+      return () => {
+        active = false;
+      };
+    }
+
+    setDisplayName('');
     Records.get(record)
       .load('.disp')
       .then(disp => {
-        isMounted() && setDisplayName(disp);
+        if (active && isMounted()) {
+          setDisplayName(getMLValue(disp) || '');
+        }
+      })
+      .catch(() => {
+        if (active && isMounted()) {
+          setDisplayName('');
+        }
       });
-  }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
+
+    return () => {
+      active = false;
+    };
+  }, [record, formMode, createVariant, isStaticModalTitle, setDisplayName, customStringForConcatWithStaticTitle]);
 
   let title = '';
 

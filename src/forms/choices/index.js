@@ -203,7 +203,20 @@ Choices.prototype.bindDropdownPositionSync = function () {
     return;
   }
 
-  this.syncDropdownPosition = () => {
+  this.syncDropdownPosition = event => {
+    // Scrolling inside the dropdown's own option list does not move the anchor field;
+    // ignore it so we don't recalculate/reopen the dropdown on every scroll frame (EMTC-795).
+    if (
+      event &&
+      event.type === 'scroll' &&
+      event.target instanceof Node &&
+      this.dropdown &&
+      this.dropdown.element &&
+      this.dropdown.element.contains(event.target)
+    ) {
+      return;
+    }
+
     if (this.dropdownPositionFrame) {
       return;
     }

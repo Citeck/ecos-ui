@@ -30,13 +30,15 @@ class Properties extends React.Component {
     onInlineEditSave: PropTypes.func,
     onFormIsChanged: PropTypes.func.isRequired,
     scrollProps: PropTypes.object,
-    isDraft: PropTypes.bool
+    isDraft: PropTypes.bool,
+    showValidationInViewMode: PropTypes.bool
   };
 
   static defaultProps = {
     record: '',
     className: '',
-    isSmallMode: true
+    isSmallMode: true,
+    showValidationInViewMode: false
   };
 
   _ecosForm = React.createRef();
@@ -215,7 +217,7 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate } = this.props;
+    const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate, showValidationInViewMode } = this.props;
     const { isReadySubmit, loaded, isLoading, isReloading, reloadHeight } = this.state;
     const isShow = isReadySubmit;
     // The skeleton stands in for a form whose size is not known yet — before the first load.
@@ -241,6 +243,7 @@ class Properties extends React.Component {
             },
             formMode,
             saveDraft: isDraft,
+            showValidationInViewMode: Boolean(showValidationInViewMode),
             onInlineEditSave: this.handleInlineEditSave
           }}
           onFormSubmitDone={onUpdate}

@@ -473,4 +473,174 @@ describe('Form tabs error indication (COREDEV-431)', () => {
     expect(topAlertText).toContain('Plain field');
     expect(topAlertText).toContain('Other plain field');
   });
+
+  it('marks required fields and parent/nested tabs in view mode when showValidationInViewMode is enabled', async () => {
+    const viewModeDefinition = {
+      components: [
+        {
+          type: 'tabs',
+          key: 'outerTabs',
+          input: false,
+          persistent: false,
+          components: [
+            {
+              label: 'Outer with tabs',
+              key: 'outerWithTabs',
+              components: [
+                {
+                  type: 'tabs',
+                  key: 'innerTabs',
+                  input: false,
+                  persistent: false,
+                  components: [
+                    {
+                      label: 'Inner required',
+                      key: 'innerRequired',
+                      components: [
+                        {
+                          type: 'textfield',
+                          input: true,
+                          key: 'innerField',
+                          label: 'Inner field',
+                          validate: { required: true },
+                          optionalWhenDisabled: true
+                        }
+                      ]
+                    },
+                    {
+                      label: 'Inner disabled',
+                      key: 'innerDisabled',
+                      components: [
+                        {
+                          type: 'textfield',
+                          input: true,
+                          key: 'disabledField',
+                          label: 'Disabled field',
+                          disabled: true,
+                          validate: { required: true },
+                          optionalWhenDisabled: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              label: 'Outer valid',
+              key: 'outerValid',
+              components: [
+                {
+                  type: 'textfield',
+                  input: true,
+                  key: 'optionalField',
+                  label: 'Optional field'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const wrapper = await TestForm.create(viewModeDefinition, {
+      readOnly: true,
+      viewAsHtml: true,
+      viewAsHtmlConfig: {},
+      showValidationInViewMode: true
+    });
+    const form = wrapper.getForm();
+
+    expect(form.checkValidity(form.submission.data, true)).toBe(false);
+
+    const innerField = form.getComponent('innerField');
+    const disabledField = form.getComponent('disabledField');
+    const outerTabs = form.getComponent('outerTabs');
+    const innerTabs = form.getComponent('innerTabs');
+
+    expect(innerField.element.tagName).toBe('DL');
+    expect(innerField.element.classList.contains('has-error')).toBe(true);
+    expect(innerField.element.querySelector('.invalid-feedback')).not.toBeNull();
+    expect(disabledField.element.classList.contains('has-error')).toBe(false);
+
+    expect(outerTabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(true);
+    expect(outerTabs.tabLinks[0].querySelector(`.${TAB_ERROR_ICON_CLASS}`)).not.toBeNull();
+    expect(outerTabs.tabLinks[1].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+
+    expect(innerTabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(true);
+    expect(innerTabs.tabLinks[0].querySelector(`.${TAB_ERROR_ICON_CLASS}`)).not.toBeNull();
+    expect(innerTabs.tabLinks[1].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+
+    expect(getTopAlert(form)).toBeNull();
+    expect(form.element.querySelector(`.${TAB_ERRORS_CLASS}`)).toBeNull();
+
+    innerField.setValue('filled');
+    expect(form.checkValidity(form.submission.data, true)).toBe(true);
+    expect(innerField.element.classList.contains('has-error')).toBe(false);
+    expect(outerTabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+    expect(innerTabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+  });
+
+  it('keeps view-only fields without .has-error when showValidationInViewMode is disabled (ECOSCOM-2661)', async () => {
+    const wrapper = await TestForm.create(tabsDefinition, {
+      readOnly: true,
+      viewAsHtml: true,
+      viewAsHtmlConfig: {}
+    });
+    const form = wrapper.getForm();
+
+    form.checkValidity(form.submission.data, true);
+
+    expect(form.getComponent('generalField').element.classList.contains('has-error')).toBe(false);
+  });
+
+  it('preserves has-error and tab marker after inline draft save in both save paths when showValidationInViewMode is enabled (W25-UI-01)', async () => {
+    const wrapper = await TestForm.create(tabsDefinition, {
+      readOnly: true,
+      viewAsHtml: true,
+      viewAsHtmlConfig: {},
+      canWrite: true,
+      saveDraft: true,
+      showValidationInViewMode: true
+    });
+    const form = wrapper.getForm();
+    form.submit = jest.fn(() => Promise.resolve());
+    form.ecos = { form: { softReload: jest.fn(() => Promise.resolve({ changed: false, rebuilt: false })) } };
+
+    const general = form.getComponent('generalField');
+    const tabs = form.getComponent('tabs');
+    const openInlineEdit = async comp => {
+      const btn = comp.element.querySelector('.ecos-form__inline-edit-button');
+      expect(btn).not.toBeNull();
+      btn.click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    };
+
+    // Path 1: silentSaveForm on an empty required draft field
+    await openInlineEdit(general);
+    await general.silentSaveForm();
+
+    expect(general.element.classList.contains('has-error')).toBe(true);
+    expect(general.element.querySelector('.invalid-feedback')).not.toBeNull();
+    expect(tabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(true);
+    expect(getTopAlert(form)).toBeNull();
+
+    // Path 2: inline save button click on an empty required draft field
+    await openInlineEdit(general);
+    general._inlineEditSaveButton.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(general.element.classList.contains('has-error')).toBe(true);
+    expect(general.element.querySelector('.invalid-feedback')).not.toBeNull();
+    expect(tabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(true);
+    expect(getTopAlert(form)).toBeNull();
+
+    // Once filled and saved, has-error and tab marker clear cleanly
+    await openInlineEdit(general);
+    general.setValue('filled');
+    await general.silentSaveForm();
+
+    expect(general.element.classList.contains('has-error')).toBe(false);
+    expect(tabs.tabLinks[0].classList.contains(TAB_INVALID_CLASS)).toBe(false);
+  });
 });

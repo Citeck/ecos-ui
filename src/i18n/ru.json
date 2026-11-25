@@ -1433,6 +1433,7 @@
   "properties-widget.settings.default-form": "По-умолчанию",
   "properties-widget.settings.form-not-existed-in-list": "В списке нет установленой формы",
   "properties-widget.settings.title-as-form-name": "Использовать имя формы в качестве заголовка виджета",
+  "properties-widget.settings.show-validation-in-view-mode": "Отображать валидацию полей в режиме просмотра",
   "react-select.default-value.label": "По умолчанию",
   "react-select.select-value.label": "Выбрать",
   "react-select.value-false.label": "Нет",

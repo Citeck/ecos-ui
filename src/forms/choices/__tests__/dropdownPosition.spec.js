@@ -91,6 +91,24 @@ describe('Choices dropdown position', () => {
     expect(choices.dropdown.element.style.top).toBe(`${200 + INPUT_HEIGHT}px`);
   });
 
+  it('ignores scroll events originating inside the dropdown itself (EMTC-795)', async () => {
+    const choices = makeChoices();
+    const list = document.createElement('div');
+    choices.dropdown.element.appendChild(list);
+
+    choices.showDropdown();
+    await nextFrame();
+
+    const recalcSpy = jest.spyOn(choices, 'recalcDropdownPosition');
+    const openSpy = jest.spyOn(choices.containerOuter, 'open');
+
+    list.dispatchEvent(new Event('scroll', { bubbles: false }));
+    await nextFrame();
+
+    expect(recalcSpy).not.toHaveBeenCalled();
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
   it('stops following once the dropdown is closed', async () => {
     const choices = makeChoices();
 

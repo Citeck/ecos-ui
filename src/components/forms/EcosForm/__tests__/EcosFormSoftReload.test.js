@@ -271,4 +271,49 @@ describe('EcosForm.softReload', () => {
 
     consoleError.mockRestore();
   });
+
+  it('should re-run view-mode validation after softReload when showValidationInViewMode is enabled', async () => {
+    const { instance, form } = createInstance();
+    form.options = { readOnly: true, viewAsHtml: true, showValidationInViewMode: true };
+    form.checkValidity = jest.fn(() => false);
+    form.submission = { data: { title: 'updated' } };
+    EcosFormUtils.getData.mockResolvedValue({ inputs: [], submission: { title: 'updated' } });
+
+    const result = await instance.softReload();
+
+    expect(result.changed).toBe(true);
+    expect(form.checkValidity).toHaveBeenCalledWith({ title: 'updated' }, true);
+  });
+
+  it('should also re-run view-mode validation after softReload when server data did not change', async () => {
+    const { instance, form } = createInstance({ data: { title: '' } });
+    form.options = { readOnly: true, viewAsHtml: true, showValidationInViewMode: true };
+    form.checkValidity = jest.fn(() => false);
+    form.submission = { data: { title: '' } };
+    EcosFormUtils.getData.mockResolvedValue({ inputs: [], submission: { title: '' } });
+
+    const result = await instance.softReload();
+
+    expect(result).toEqual({ changed: false, rebuilt: false, changedKeys: [] });
+    expect(form.checkValidity).toHaveBeenCalledWith({ title: '' }, true);
+  });
+
+  it('should skip view-mode validation when showValidationInViewMode is false or an inline editor is active', () => {
+    const { instance, form } = createInstance();
+    form.checkValidity = jest.fn(() => false);
+    form.options = { readOnly: true, viewAsHtml: true, showValidationInViewMode: false };
+
+    instance._runViewModeValidation(form);
+    expect(form.checkValidity).not.toHaveBeenCalled();
+
+    form.options.showValidationInViewMode = true;
+    form.components[0]._isInlineEditingMode = true;
+
+    instance._runViewModeValidation(form);
+    expect(form.checkValidity).not.toHaveBeenCalled();
+
+    form.components[0]._isInlineEditingMode = false;
+    instance._runViewModeValidation(form);
+    expect(form.checkValidity).toHaveBeenCalledTimes(1);
+  });
 });

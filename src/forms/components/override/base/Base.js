@@ -347,9 +347,44 @@ Base.prototype.applyActions = function (actions, result, data, newComponent) {
       case 'validation':
         this.setPristine(false);
         this.checkValidity(this.getValue(), false);
-        return false;
+        return changed;
+      case 'value': {
+        const oldValue = this.getValue();
+        const newValue = this.evaluate(
+          action.value,
+          {
+            value: clone(oldValue),
+            data,
+            component: newComponent,
+            result
+          },
+          'value'
+        );
+
+        if (!isEqual(oldValue, newValue)) {
+          // Guard against value-clear feedback loops (EMTC-794): clearing with `''` on a component whose
+          // canonical empty value is typed (`false` for boolean checkbox, `null` for date-only DateTime,
+          // `[]` for multiple fields) would otherwise fail `isEqual(oldValue, '')` on every `checkData()`
+          // cycle and repeatedly trigger `setValue` + `redraw` until the form hits event overload.
+          if (
+            newValue === '' &&
+            ((this.type === 'checkbox' && !this.hasThreeStates && !this.isRadioCheckbox && oldValue === false) ||
+              isEqual(oldValue, this.emptyValue))
+          ) {
+            return changed;
+          }
+
+          this.setValue(newValue);
+
+          if (!isEqual(oldValue, this.getValue())) {
+            return true;
+          }
+        }
+
+        return changed;
+      }
       default:
-        return originalApplyActions.call(this, actions, result, data, newComponent);
+        return originalApplyActions.call(this, [action], result, data, newComponent) || changed;
     }
   }, false);
 };
@@ -407,7 +442,7 @@ Base.prototype.addInputError = function (message, dirty) {
     return;
   }
 
-  if (this.viewOnly) {
+  if (this.viewOnly && !this.options.showValidationInViewMode) {
     return;
   }
 
@@ -594,11 +629,13 @@ Base.prototype.silentSaveForm = function () {
     .then(() => {
       this.switchToViewOnlyMode();
 
-      if (!this.options.saveDraft) {
-        form.showErrors('', true);
-      }
+      if (!this.options.showValidationInViewMode) {
+        if (!this.options.saveDraft) {
+          form.showErrors('', true);
+        }
 
-      this.removeClass(this.element, 'has-error');
+        this.removeClass(this.element, 'has-error');
+      }
 
       const components = flattenComponents(this.root.components);
 
@@ -725,10 +762,13 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
         .then(() => {
           this.switchToViewOnlyMode();
 
-          if (!this.options.saveDraft) {
-            form.showErrors('', true);
+          if (!this.options.showValidationInViewMode) {
+            if (!this.options.saveDraft) {
+              form.showErrors('', true);
+            }
+
+            this.removeClass(this.element, 'has-error');
           }
-          this.removeClass(this.element, 'has-error');
 
           if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
@@ -1315,6 +1355,11 @@ Base.prototype.switchToViewOnlyMode = function () {
   this.element.classList.remove(INLINE_EDITING_CLASSNAME);
 
   this.redraw();
+
+  if (this.options.showValidationInViewMode && this.root && isFunction(this.root.checkValidity)) {
+    const data = get(this.root, 'submission.data') || this.root.data;
+    this.root.checkValidity(data, true);
+  }
 
   if (isFunction(this._removeEventListeners)) {
     this._removeEventListeners.call(this);

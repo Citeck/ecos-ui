@@ -443,7 +443,7 @@ class PropertiesDashlet extends BaseWidget {
       isDraft,
       componentsCount
     } = this.state;
-    const { formId = '', titleAsFormName } = config || {};
+    const { formId = '', titleAsFormName, showValidationInViewMode = false } = config || {};
     const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
     return (
@@ -483,6 +483,7 @@ class PropertiesDashlet extends BaseWidget {
           scrollProps={this.scrollbarProps}
           isDraft={isDraft}
           formMode={this.formMode}
+          showValidationInViewMode={Boolean(showValidationInViewMode)}
         />
         {isShowSetting && (
           <PropertiesSettings

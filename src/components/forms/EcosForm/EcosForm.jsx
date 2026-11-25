@@ -363,6 +363,8 @@ class EcosForm extends React.Component {
                 submission => {
                   if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
                     isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
+                  } else if (options.readOnly && options.viewAsHtml && options.showValidationInViewMode) {
+                    this._runViewModeValidation(this.form);
                   }
                 },
                 1000,
@@ -392,6 +394,8 @@ class EcosForm extends React.Component {
               if (this._lastFormOptions !== propsOptions) {
                 return;
               }
+
+              this._runViewModeValidation(form);
 
               isFunction(this.props.onReady) && this.props.onReady(form);
 
@@ -913,6 +917,7 @@ class EcosForm extends React.Component {
     });
 
     if (isEmpty(patchableKeys)) {
+      this._runViewModeValidation(this._form);
       return { changed: false, rebuilt: false, changedKeys: patchableKeys };
     }
 
@@ -923,8 +928,32 @@ class EcosForm extends React.Component {
     // value is a visible teardown of the fresh render for nothing.
     // Cause: https://citeck.atlassian.net/browse/COREDEV-427
     redrawComponents(this._form, redrawKeys);
+    this._runViewModeValidation(this._form);
 
     return { changed: true, rebuilt: false, changedKeys: patchableKeys };
+  }
+
+  _runViewModeValidation(form) {
+    const formOptions = get(form, 'options') || this.props.options || {};
+
+    if (!form || !formOptions.readOnly || !formOptions.viewAsHtml || !formOptions.showValidationInViewMode) {
+      return;
+    }
+
+    if (!isFunction(form.checkValidity)) {
+      return;
+    }
+
+    const hasActiveInlineEditor =
+      isFunction(form.getAllComponents) && form.getAllComponents().some(component => component && component._isInlineEditingMode);
+
+    if (hasActiveInlineEditor) {
+      return;
+    }
+
+    const data = get(form, 'submission.data') || form.data;
+
+    form.checkValidity(data, true);
   }
 
   toggleContainerHeight(toSave = false) {
