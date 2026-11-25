@@ -33,6 +33,7 @@ it('saves the clicked outcome together with fields recalculated after a forced s
   const get = jest.spyOn(Records, 'get').mockReturnValue(record);
 
   const sourceField = form.getComponent('sourceField');
+  const originalFormOnChange = form.onChange;
   const originalFormTriggerChange = form.triggerChange;
   const originalSourceTriggerChange = sourceField.triggerChange;
 
@@ -43,29 +44,41 @@ it('saves the clicked outcome together with fields recalculated after a forced s
     await new Promise(resolve => form.once('change', resolve));
     expect(form.data.derivedField).toBe('old!');
 
-    // Defer Formio's 100ms debounced change recalculations on both `sourceField` and `form`
-    // (including Webform.submit's internal setValue) until the submit event fires so CI CPU jitter
-    // cannot flush `derivedField` before `form.once('submit')` runs.
-    let deferredChangeArgs = null;
-    form.triggerChange = () => {
+    // Hold both already-queued root onChange timers and new 100ms debounced change triggers until
+    // the submit event fires, then run the root onChange synchronously before the debounced save.
+    let deferredSourceChangeArgs = null;
+    let deferredRootChangeArgs = null;
+    form.onChange = () => {
       form.changing = true;
+    };
+    form.triggerChange = (...args) => {
+      form.changing = true;
+      deferredRootChangeArgs = args;
     };
     sourceField.triggerChange = (...args) => {
       form.changing = true;
-      deferredChangeArgs = args;
+      deferredSourceChangeArgs = args;
     };
 
     form.on('submit', createFormSubmitHandler(form, ecosForm.submitForm));
     form.once('submit', () => {
       expect(form.data.derivedField).toBe('old!');
-      expect(deferredChangeArgs).not.toBeNull();
+      expect(deferredSourceChangeArgs).not.toBeNull();
       delete form.data.outcome_Repeal;
       form.data.outcome_RequestInfo = true;
-      form.triggerChange = originalFormTriggerChange;
+
+      deferredRootChangeArgs = null;
       sourceField.triggerChange = originalSourceTriggerChange;
+      sourceField.onChange(...deferredSourceChangeArgs);
+      deferredSourceChangeArgs = null;
+
+      expect(deferredRootChangeArgs).not.toBeNull();
+      form.onChange = originalFormOnChange;
+      form.triggerChange = originalFormTriggerChange;
       form.changing = false;
-      sourceField.onChange(...deferredChangeArgs);
-      deferredChangeArgs = null;
+      originalFormOnChange.apply(form, deferredRootChangeArgs);
+      deferredRootChangeArgs = null;
+      expect(form.data.derivedField).toBe('new!');
     });
 
     sourceField.setValue('new');
@@ -78,6 +91,7 @@ it('saves the clicked outcome together with fields recalculated after a forced s
     expect(record.att).toHaveBeenCalledWith('.att(n:"derivedField"){str}', 'new!');
     expect(record.save).toHaveBeenCalledTimes(1);
   } finally {
+    form.onChange = originalFormOnChange;
     form.triggerChange = originalFormTriggerChange;
     sourceField.triggerChange = originalSourceTriggerChange;
     ecosForm.submitForm.cancel();
